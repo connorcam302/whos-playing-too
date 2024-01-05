@@ -1,15 +1,15 @@
 <script>
+import MatchBlock from '$lib/components/match/MatchBlock.svelte';
     export let data;
 
-    const {matches} = data;
-    console.log(matches);
+    const { matchBlocks} = data;
+    console.log(matchBlocks)
 </script>
 
 <div>
-    {#each matches as match}
-        <div>
-            {match.playerId}
-            {match.matchId}
-        </div>
+    {#each matchBlocks as match}
+        <MatchBlock {match} />
     {/each}
 </div>
+
+

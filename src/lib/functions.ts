@@ -1,0 +1,135 @@
+export const getGameMode = (id: number) => {
+    switch (id) {
+        case 0:
+            return 'Unknown'
+        case 1:
+            return 'All Pick'
+        case 2:
+            return 'Captains Mode'
+        case 3:
+            return 'Random Draft'
+        case 4:
+            return 'Single Draft'
+        case 5:
+            return 'All Random'
+        case 6:
+            return 'Intro'
+        case 7:
+            return 'Diretide'
+        case 8:
+            return 'Reverse Captains Mode'
+        case 9:
+            return 'Greeviling'
+        case 10:
+            return 'Tutorial'
+        case 11:
+            return 'Mid Only'
+        case 12:
+            return 'Least Played'
+        case 13:
+            return 'Limited Heroes'
+        case 14:
+            return 'Compendium Matchmaking'
+        case 15:
+            return 'Custom'
+        case 16:
+            return 'Captains Draft'
+        case 17:
+            return 'Balanced Draft'
+        case 18:
+            return 'Ability Draft'
+        case 19:
+            return 'Event'
+        case 20:
+            return 'All Random Deathmatch'
+        case 21:
+            return '1v1 Mid'
+        case 22:
+            return 'All Pick'
+        case 23:
+            return 'Turbo'
+        case 24:
+            return 'Mutation'
+        case 25:
+            return 'Coaches Challenge'
+        case 26:
+            return 'Captain\'s Mode'
+        case 27:
+            return 'Greeviling'
+        case 28:
+            return 'Tutorial'
+        case 29:
+            return 'Mid Only'
+        case 30:
+            return 'Least Played'
+        case 31:
+            return 'Limited Heroes'
+        case 32:
+            return 'Compendium Matchmaking'
+        case 33:
+            return 'Custom'
+        case 34:
+            return 'Captain\'s Draft'
+        case 35:
+            return 'Balanced Draft'
+        case 36:
+            return 'Ability Draft'
+        case 37:
+            return 'Event'
+        case 38:
+            return 'All Random Deathmatch'
+        case 39:
+            return '1v1 Mid'
+        case 40:
+            return 'All Draft'
+        case 41:
+            return 'Turbo'
+        case 42:
+            return 'Mutation'
+        default:
+            return 'Unknown'
+    }
+}
+
+export const getLobbyType = (id: number) => {
+    switch (id) {
+        case 0:
+            return 'Unranked'
+        case 1:
+            return 'Practice'
+        case 2:
+            return 'Tournament'
+        case 3:
+            return 'Tutorial'
+        case 4:
+            return 'Co-op with bots'
+        case 5:
+            return 'Team match'
+        case 6:
+            return 'Solo Queue'
+        case 7:
+            return 'Ranked'
+        case 8:
+            return 'Solo Mid 1v1'
+        case 9:
+            return 'Battle Cup'
+        case 10:
+            return 'Siltbreaker'
+        case 11:
+            return 'Siltbreaker (Act 2)'
+        case 12:
+            return 'Coliseum Battle'
+        case 13:
+            return 'Mutation'
+        case 14:
+            return 'Turbo'
+        case 15:
+            return 'The Underhollow'
+        case 16:
+            return 'Battle Royale'
+        case 17:
+            return 'M.U.D. DRAFT'
+        default:
+            return 'Unknown'
+    }
+}
