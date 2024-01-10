@@ -1,15 +1,15 @@
 <script>
-import MatchBlock from '$lib/components/match/MatchBlock.svelte';
-    export let data;
+	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
+	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
+	export let data;
 
-    const { matchBlocks} = data;
-    console.log(matchBlocks)
+	const { matchBlocks, heroStats } = data;
+	console.log(matchBlocks, heroStats);
 </script>
 
 <div>
-    {#each matchBlocks as match}
-        <MatchBlock {match} />
-    {/each}
+	<HeroStatbox {heroStats} />
+	{#each matchBlocks as match}
+		<MatchBlock {match} />
+	{/each}
 </div>
-
-

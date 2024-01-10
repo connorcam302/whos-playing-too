@@ -7,10 +7,10 @@ import {
 	varchar,
 	unique,
 	text
-} from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
+} from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
-export const keyStatus = pgEnum('key_status', ['expired', 'invalid', 'valid', 'default'])
+export const keyStatus = pgEnum('key_status', ['expired', 'invalid', 'valid', 'default']);
 export const keyType = pgEnum('key_type', [
 	'stream_xchacha20',
 	'secretstream',
@@ -23,12 +23,12 @@ export const keyType = pgEnum('key_type', [
 	'hmacsha512',
 	'aead-det',
 	'aead-ietf'
-])
-export const requestStatus = pgEnum('request_status', ['ERROR', 'SUCCESS', 'PENDING'])
-export const factorType = pgEnum('factor_type', ['webauthn', 'totp'])
-export const factorStatus = pgEnum('factor_status', ['verified', 'unverified'])
-export const aalLevel = pgEnum('aal_level', ['aal3', 'aal2', 'aal1'])
-export const codeChallengeMethod = pgEnum('code_challenge_method', ['plain', 's256'])
+]);
+export const requestStatus = pgEnum('request_status', ['ERROR', 'SUCCESS', 'PENDING']);
+export const factorType = pgEnum('factor_type', ['webauthn', 'totp']);
+export const factorStatus = pgEnum('factor_status', ['verified', 'unverified']);
+export const aalLevel = pgEnum('aal_level', ['aal3', 'aal2', 'aal1']);
+export const codeChallengeMethod = pgEnum('code_challenge_method', ['plain', 's256']);
 
 export const accounts = pgTable('accounts', {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -38,21 +38,21 @@ export const accounts = pgTable('accounts', {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	accountId: bigint('account_id', { mode: 'number' }).primaryKey().notNull(),
 	smurf: boolean('smurf').notNull()
-})
+});
 
 export const heroes = pgTable('heroes', {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
 	name: varchar('name').notNull(),
 	img: varchar('img').notNull()
-})
+});
 
 export const items = pgTable('items', {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
 	name: varchar('name'),
 	img: varchar('img')
-})
+});
 
 export const matchData = pgTable(
 	'match_data',
@@ -123,9 +123,9 @@ export const matchData = pgTable(
 				table.playerId,
 				table.matchId
 			)
-		}
+		};
 	}
-)
+);
 
 export const matches = pgTable('matches', {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
@@ -139,10 +139,10 @@ export const matches = pgTable('matches', {
 	winner: text('winner').notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	lobby: bigint('lobby', { mode: 'number' }).notNull()
-})
+});
 
 export const players = pgTable('players', {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
 	username: text('username').notNull()
-})
+});
