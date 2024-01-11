@@ -115,7 +115,13 @@ export const matchData = pgTable(
 		// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 		role: bigint('role', { mode: 'number' }).notNull(),
 		// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-		impact: bigint('impact', { mode: 'number' }).notNull()
+		impact: bigint('impact', { mode: 'number' }).notNull(),
+		// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+		backpack0: bigint('backpack_0', { mode: 'number' }).references(() => items.id),
+		// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+		backpack1: bigint('backpack_1', { mode: 'number' }).references(() => items.id),
+		// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+		backpack2: bigint('backpack_2', { mode: 'number' }).references(() => items.id)
 	},
 	(table) => {
 		return {

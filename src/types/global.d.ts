@@ -33,6 +33,9 @@ declare interface PlayerData {
 	item3: DotaAsset;
 	item4: DotaAsset;
 	item5: DotaAsset;
+	backpack0: DotaAsset;
+	backpack1: DotaAsset;
+	backpack2: DotaAsset;
 	aghanimsScepter: number;
 	aghanimsShard: number;
 	goldPerMin: number;

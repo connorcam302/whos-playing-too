@@ -1,6 +1,7 @@
 import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players } from '$lib/server/schema';
 import { desc, eq, sql, type InferSelectModel, and } from 'drizzle-orm';
+import { getHeroStats, getPlayerStats } from '$lib/server/db-functions';
 
 type DotaAsset = { id: number; name: string; img: string };
 
@@ -18,6 +19,9 @@ type MatchData = {
 		| 'item4'
 		| 'item5'
 		| 'itemNeutral'
+		| 'backpack0'
+		| 'backpack1'
+		| 'backpack2'
 		| 'hero'
 		? DotaAsset
 		: MatchDataInfer[K];
@@ -25,11 +29,12 @@ type MatchData = {
 
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
 
-export const load = async () => {
+export const load = async ({ url, params }) => {
 	const matchBlocks = await getMatchBlocks();
 	const heroStats = await getHeroStats();
+	const playerStats = await getPlayerStats();
 
-	return { matchBlocks, heroStats };
+	return { matchBlocks, heroStats, playerStats };
 };
 
 const getMatchBlocks = async () => {
@@ -62,12 +67,13 @@ const getMatchBlocks = async () => {
 				item3: items.find((item) => item.id === player.match_data.item3)!,
 				item4: items.find((item) => item.id === player.match_data.item4)!,
 				item5: items.find((item) => item.id === player.match_data.item5)!,
+				backpack0: items.find((item) => item.id === player.match_data.backpack0)!,
+				backpack1: items.find((item) => item.id === player.match_data.backpack1)!,
+				backpack2: items.find((item) => item.id === player.match_data.backpack2)!,
 				itemNeutral: items.find((item) => item.id === player.match_data.itemNeutral)!,
 				hero: heroes.find((hero) => hero.id === player.match_data.heroId)!
 			};
 		});
-
-		console.log(block);
 
 		return block;
 	});
@@ -95,78 +101,4 @@ const getMatchBlocks = async () => {
 	});
 
 	return matchBlocks;
-};
-
-const getHeroStats = async () => {
-	const heroJson = await fetch(
-		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
-	);
-	const heroes: DotaAsset[] = await heroJson.json();
-
-	const heroMatches = await db
-		.select({
-			hero: matchData.heroId,
-			matches: sql<number>`cast(count(${matchData.matchId}) as int)`
-		})
-		.from(matchData)
-		.groupBy(matchData.heroId)
-		.orderBy(matchData.heroId);
-
-	const heroWinsRadiant = await db
-		.select({
-			hero: matchData.heroId,
-			radiantWins: sql<number>`cast(count(${matchData.matchId}) as int)`
-		})
-		.from(matchData)
-		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')))
-		.groupBy(matchData.heroId)
-		.orderBy(matchData.heroId);
-
-	const heroWinsDire = await db
-		.select({
-			hero: matchData.heroId,
-			direWins: sql<number>`cast(count(${matchData.matchId}) as int)`
-		})
-		.from(matchData)
-		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire')))
-		.groupBy(matchData.heroId)
-		.orderBy(matchData.heroId);
-
-	const heroAvgImpact = await db
-		.select({
-			hero: matchData.heroId,
-			avgImpact: sql<number>`cast(avg(${matchData.impact}) as int)`
-		})
-		.from(matchData)
-		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire')))
-		.groupBy(matchData.heroId)
-		.orderBy(matchData.heroId);
-
-	const heroData: {
-		hero: DotaAsset;
-		matches: number;
-		radiantWins: number;
-		direWins: number;
-		avgImpact: number;
-	}[] = [];
-
-	heroMatches.forEach((hero) => {
-		const radiantWin = heroWinsRadiant.find((heroWin) => heroWin.hero === hero.hero);
-		const direWin = heroWinsDire.find((heroWin) => heroWin.hero === hero.hero);
-		const avgImpact = heroAvgImpact.find((heroWin) => heroWin.hero === hero.hero);
-
-		heroData.push({
-			hero: heroes.find((heroObj) => heroObj.id === hero.hero)!,
-			matches: hero.matches,
-			radiantWins: radiantWin?.radiantWins || 0,
-			direWins: direWin?.direWins || 0,
-			avgImpact: avgImpact?.avgImpact || 0
-		});
-	});
-	const sortedHeroData = heroData.sort((a, b) => b.matches - a.matches);
-
-	return sortedHeroData;
 };

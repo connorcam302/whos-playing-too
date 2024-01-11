@@ -3,6 +3,12 @@
 	import Fa6SolidPoop from '~icons/fa6-solid/poop';
 
 	import { calcImpact, getRoleIcon } from '$lib/functions';
+
+	let backpack = true;
+
+	const toggleBackpack = () => {
+		backpack = !backpack;
+	};
 </script>
 
 <div>
@@ -42,21 +48,38 @@
 			<div>/</div>
 			<div class="text-cyan-300">{player.assists}</div>
 		</div>
-		<div class="flex">
-			<img src={player.item0.img} alt={player.item0.name} class="h-8" />
-			<img src={player.item1.img} alt={player.item1.name} class="h-8" />
-			<img src={player.item2.img} alt={player.item2.name} class="h-8" />
-			<img src={player.item3.img} alt={player.item3.name} class="h-8" />
-			<img src={player.item4.img} alt={player.item4.name} class="h-8" />
-			<img src={player.item5.img} alt={player.item5.name} class="h-8" />
-			<div class="px-2">
-				<img
-					src={player.itemNeutral.img}
-					alt={player.itemNeutral.name}
-					class="h-8 w-8 rounded-full object-cover"
-				/>
-			</div>
-		</div>
+		{#key backpack}
+			<button class="flex" on:click={() => toggleBackpack()}>
+				{#if backpack == true}
+					<img src={player.item0.img} alt={player.item0.name} class="w-[44px] h-8" />
+					<img src={player.item1.img} alt={player.item1.name} class="w-[44px] h-8" />
+					<img src={player.item2.img} alt={player.item2.name} class="w-[44px] h-8" />
+					<img src={player.item3.img} alt={player.item3.name} class="w-[44px] h-8" />
+					<img src={player.item4.img} alt={player.item4.name} class="w-[44px] h-8" />
+					<img src={player.item5.img} alt={player.item5.name} class="w-[44px] h-8" />
+					<div class="px-2">
+						<img
+							src={player.itemNeutral.img}
+							alt={player.itemNeutral.name}
+							class="h-8 w-8 rounded-full object-cover"
+						/>
+					</div>
+				{:else}
+					<div class="w-[66px]"></div>
+					<img src={player.backpack0.img} alt={player.backpack0.name} class="h-8" />
+					<img src={player.backpack1.img} alt={player.backpack1.name} class="h-8" />
+					<img src={player.backpack2.img} alt={player.backpack2.name} class="h-8" />
+					<div class="w-[66px]"></div>
+					<div class="px-2">
+						<img
+							src={player.itemNeutral.img}
+							alt={player.itemNeutral.name}
+							class="h-8 w-8 rounded-full object-cover"
+						/>
+					</div>
+				{/if}
+			</button>
+		{/key}
 		<div class="flex flex-col">
 			<img
 				class="object-contain w-6"
