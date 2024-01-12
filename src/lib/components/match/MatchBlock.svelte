@@ -15,7 +15,7 @@
 </script>
 
 <div class="w-fit">
-	<div class="my-2 bg-neutral-800 p-1 rounded-xl w-auto">
+	<div class="bg-neutral-800 p-1 rounded-xl w-auto">
 		<div class="w-full">
 			<div class="flex flex-row items-center gap-4 my-1 mx-2">
 				<div class="flex items-center grow basis-1/3 justify-start">

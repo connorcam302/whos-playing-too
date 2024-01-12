@@ -1,5 +1,5 @@
 import { db } from '$lib/server/database';
-import { accounts, matchData, matches, players } from '$lib/server/schema';
+import { accounts, matchData, matches, players, players } from '$lib/server/schema';
 import { eq, sql, and } from 'drizzle-orm';
 
 export const getHeroStats = async () => {
@@ -154,4 +154,18 @@ export const getPlayerStats = async () => {
 	const sortedHeroData = playerData.sort((a, b) => b.matches - a.matches);
 
 	return sortedHeroData;
+};
+
+export const getPlayers = async () => {
+	const playerList = await db
+		.select({
+			id: players.id,
+			username: players.username,
+			accounts: sql<Array<{ accountId: number }>>`array_agg(${accounts.accountId})`
+		})
+		.from(players)
+		.innerJoin(accounts, eq(players.id, accounts.owner))
+		.groupBy(players.id);
+
+	return playerList;
 };

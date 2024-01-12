@@ -15,7 +15,7 @@
 	<div class="my-1 flex items-center gap-4">
 		<div class="flex gap-2 items-center">
 			<img src={player.hero.img} alt={player.hero.name} class="h-10" />
-			<div class="font-bold text-xl min-w-28">
+			<div class="text-xl min-w-28">
 				{player.username} <span class="italic text-indigo-400">{player.smurf ? 'S' : ''}</span>
 			</div>
 		</div>
