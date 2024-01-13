@@ -232,7 +232,7 @@
 					<div class="flex grow gap-4 items-center">
 						<div class="basis-1/3">
 							<div class="text-sm opacity-85 pb-1">{player.matches}</div>
-							<Bar colour="#2563eb" percentage={(player.matches / playerStats[0].matches) * 100} />
+							<Bar colour="#f43f5e" percentage={(player.matches / playerStats[0].matches) * 100} />
 						</div>
 						<div class="basis-1/3">
 							<div class="text-sm opacity-85 pb-1">
@@ -261,6 +261,8 @@
 <style>
 	#scrollbox::-webkit-scrollbar {
 		width: 4px;
+		background-color: #404040;
+		margin-left: 4px;
 	}
 
 	#scrollbox::-webkit-scrollbar-thumb {

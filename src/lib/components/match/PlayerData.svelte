@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let player: PlayerData;
 	import Fa6SolidPoop from '~icons/fa6-solid/poop';
+	import FxemojiPoo from '~icons/fxemoji/poo';
 
 	import { calcImpact, getRoleIcon } from '$lib/functions';
 
@@ -28,13 +29,13 @@
 				<div id="srating" class="text-xl font-display">
 					{calcImpact(player.impact)}
 				</div>
-			{:else if player.impact < 140}
+			{:else if player.impact < 140 && player.impact > 25}
 				<div class="text-xl font-display">
 					{calcImpact(player.impact)}
 				</div>
 			{:else if player.impact <= 25}
-				<div id="frating" class="text-xl font-display">
-					<Fa6SolidPoop />
+				<div id="frating" class="text-xl font-display flex justify-center">
+					<FxemojiPoo />
 				</div>
 			{/if}
 		</div>
@@ -82,12 +83,12 @@
 		{/key}
 		<div class="flex flex-col">
 			<img
-				class="object-contain w-6"
+				class="object-contain w-6 mr-2"
 				src={`/scepter_${player.aghanimsScepter}.png`}
 				alt={`/scepter_${player.aghanimsScepter}`}
 			/>
 			<img
-				class="object-contain w-6"
+				class="object-contain w-6 mr-2"
 				src={`/shard_${player.aghanimsShard}.png`}
 				alt={`/shard_${player.aghanimsShard}`}
 			/>
@@ -104,6 +105,10 @@
 		--splusplus-base: #fdba74;
 		--splusplus-accent1: #f97316;
 		--splusplus-accent2: #ea580c;
+
+		--f-base: #b45309;
+		--f-accent1: #9a3412;
+		--f-accent2: #7c2d12;
 	}
 
 	#srating {
@@ -122,7 +127,6 @@
 				0 0 12px var(--splus-accent1),
 				0 0 14px var(--splus-accent1);
 		}
-
 		to {
 			text-shadow:
 				0 0 4px var(--splus-base),
@@ -136,8 +140,17 @@
 	}
 
 	#frating {
-		color: #b7791f;
-		text-shadow: 0px 0px 5px #b7791f;
+		color: var(--f-base);
+		animation: frating 1s ease-in-out infinite alternate;
+	}
+
+	@keyframes frating {
+		from {
+			filter: drop-shadow(0 0 8px var(--f-accent1));
+		}
+		to {
+			filter: drop-shadow(0 0 4px var(--f-accent2));
+		}
 	}
 
 	#splusplusrating {

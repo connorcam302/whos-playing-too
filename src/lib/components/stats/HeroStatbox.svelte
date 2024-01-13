@@ -238,7 +238,7 @@
 						<div class="basis-1/3">
 							<div class="text-sm opacity-85 pb-1">{hero.matches}</div>
 							<Bar
-								colour="#2563eb"
+								colour="#f43f5e"
 								percentage={(hero.matches / heroStatsOriginal[0].matches) * 100}
 							/>
 						</div>
@@ -269,6 +269,7 @@
 <style>
 	#scrollbox::-webkit-scrollbar {
 		width: 4px;
+		background-color: #404040;
 	}
 
 	#scrollbox::-webkit-scrollbar-thumb {
