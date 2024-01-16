@@ -218,3 +218,5 @@ export const getTeamOfTheWeek = async () => {
 
 	return totwWithIds;
 };
+
+export const getFeatures = async () => {};

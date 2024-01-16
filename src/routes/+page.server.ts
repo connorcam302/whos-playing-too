@@ -19,7 +19,5 @@ export const load = async ({ url, params }) => {
 	heroList.sort((a, b) => a.name.localeCompare(b.name));
 	const totw = await getTeamOfTheWeek();
 
-	console.log(totw);
-
 	return { heroStats, playerStats, playerList, heroList, totw };
 };

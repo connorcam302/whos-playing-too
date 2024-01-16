@@ -87,7 +87,6 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		gameModeFilter = Array.from(gameModeSet);
 		lobbyFilter = Array.from(lobbySet);
 	}
-	console.log(gameModeFilter, lobbyFilter);
 
 	const matchArray = await db
 		.select({

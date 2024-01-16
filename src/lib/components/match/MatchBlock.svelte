@@ -15,27 +15,33 @@
 </script>
 
 <div class="w-fit">
-	<div class="bg-neutral-800 p-1 rounded-xl w-auto">
+	<div
+		id="box"
+		class="bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 p-1 rounded-xl w-auto"
+	>
 		<div class="w-full">
 			<div class="flex flex-row items-center gap-4 my-1 mx-2">
-				<div class="flex items-center grow basis-1/3 justify-start">
-					<div class="flex items-center gap-2">
-						{#if matchData.lobby === 7}
-							<UilExchange />
-						{:else if matchData.lobby === 0}
-							<BiDashLg />
-						{:else}
-							<UilQuestion />
-						{/if}
-						{getGameMode(matchData.gameMode)}
+				<div class="flex items-center grow justify-start">
+					<div class="flex gap-2">
+						<div class="flex items-center gap-2">
+							{#if matchData.lobby === 7}
+								<UilExchange />
+							{:else if matchData.lobby === 0}
+								<BiDashLg />
+							{:else}
+								<UilQuestion />
+							{/if}
+							{getGameMode(matchData.gameMode)}
+						</div>
+						|
+						<div>
+							{(matchData.duration / 60) | 0}:{matchData.duration % 60 < 10
+								? 0
+								: ''}{matchData.duration % 60}
+						</div>
 					</div>
 				</div>
-				<div class="basis-1/3 flex justify-center">
-					{(matchData.duration / 60) | 0}:{matchData.duration % 60 < 10
-						? 0
-						: ''}{matchData.duration % 60}
-				</div>
-				<div class="basis-1/3 flex items-center grow gap-4 justify-end">
+				<div class="flex items-center grow gap-4 justify-end">
 					<div>
 						{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 					</div>

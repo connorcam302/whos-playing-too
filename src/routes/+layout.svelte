@@ -13,7 +13,7 @@
 	];
 </script>
 
-<div class="text-neutral-100 bg-neutral-900 p-4 min-h-screen">
+<div class="text-neutral-100 p-4 min-h-screen">
 	<div class="max-w-screen-2xl mx-auto mb-8">
 		<div>
 			<div class="w-full flex items-center justify-center gap-8">

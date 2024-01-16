@@ -181,7 +181,10 @@
 	$: sortedStats = sortStats(order);
 </script>
 
-<div class="bg-neutral-800 py-2 px-4 rounded-xl">
+<div
+	id="box"
+	class="bg-neutral-800 bg-opacity-95 py-2 border-[1px] border-neutral-200 border-opacity-15 px-4 rounded-xl"
+>
 	<div class="flex gap-2 my-1 pr-2 pb-1 border-white border-b-[1px] border-opacity-30">
 		<div class="flex w-20 justify-center items-center">
 			<button on:click={() => handlePlayerSort()}>PLAYER</button>

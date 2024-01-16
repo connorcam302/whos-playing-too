@@ -59,8 +59,6 @@
 		if (gameModes.length > 0) {
 			gameModeFilter = `gameMode=["${gameModes.join('","')}"]`;
 		}
-		console.log(`/api/matches/all?${playerFilter}&${heroFilter}&${gameModeFilter}`);
-		console.log(playerFilter);
 		fetch(`/api/matches/all?${playerFilter}&${heroFilter}&${gameModeFilter}`)
 			.then((res) => res.json())
 			.then((res) => {
@@ -137,7 +135,9 @@
 
 <div class="flex flex-col gap-4">
 	<div class="flex flex-wrap gap-4">
-		<div class="flex flex-col gap-4 bg-neutral-800 h-fit py-2 px-4 rounded-xl w-64">
+		<div
+			class="flex flex-col gap-4 bg-neutral-800 border-[1px] border-neutral-200 border-opacity-15 h-fit py-2 px-4 rounded-xl w-64"
+		>
 			<div class="">
 				<div class="text-md">Search Hero</div>
 				<select
