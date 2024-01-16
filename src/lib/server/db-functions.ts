@@ -2,6 +2,7 @@ import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players, teamOfTheWeek } from '$lib/server/schema';
 import { eq, sql, and, desc } from 'drizzle-orm';
 import { getHeroString } from './private-functions';
+import { STEAM_KEY } from '$env/static/private';
 
 export const getHeroStats = async () => {
 	const heroJson = await fetch(
@@ -171,10 +172,25 @@ export const getPlayers = async () => {
 	return playerList;
 };
 
+type HeroResponse = {
+	result: {
+		heroes: {
+			name: string;
+			id: number;
+		}[];
+	};
+};
+
 export const getTeamOfTheWeek = async () => {
 	const totw = await db.select().from(teamOfTheWeek).orderBy(desc(teamOfTheWeek.id)).limit(1);
 
 	const playerList = await db.select().from(players);
+
+	const heroListData: HeroResponse = await fetch(
+		`https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001?key=${STEAM_KEY}`
+	).then((res) => res.json());
+
+	const heroList = heroListData.result.heroes;
 
 	const totwWithIds = {
 		...totw[0],
@@ -183,11 +199,21 @@ export const getTeamOfTheWeek = async () => {
 		threePlayerName: playerList.find((player) => player.id === totw[0].threePlayer)?.username,
 		fourPlayerName: playerList.find((player) => player.id === totw[0].fourPlayer)?.username,
 		fivePlayerName: playerList.find((player) => player.id === totw[0].fivePlayer)?.username,
-		oneHeroId: await getHeroString(Number(totw[0].oneHero)),
-		twoHeroId: await getHeroString(Number(totw[0].twoHero)),
-		threeHeroId: await getHeroString(Number(totw[0].threeHero)),
-		fourHeroId: await getHeroString(Number(totw[0].fourHero)),
-		fiveHeroId: await getHeroString(Number(totw[0].fiveHero))
+		oneHeroId: heroList
+			.find((hero) => hero.id === totw[0].oneHero)
+			?.name.slice('npc_dota_hero_'.length),
+		twoHeroId: heroList
+			.find((hero) => hero.id === totw[0].twoHero)
+			?.name.slice('npc_dota_hero_'.length),
+		threeHeroId: heroList
+			.find((hero) => hero.id === totw[0].threeHero)
+			?.name.slice('npc_dota_hero_'.length),
+		fourHeroId: heroList
+			.find((hero) => hero.id === totw[0].fourHero)
+			?.name.slice('npc_dota_hero_'.length),
+		fiveHeroId: heroList
+			.find((hero) => hero.id === totw[0].fiveHero)
+			?.name.slice('npc_dota_hero_'.length)
 	};
 
 	return totwWithIds;
