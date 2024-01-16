@@ -5,8 +5,8 @@ import {
 	bigint,
 	boolean,
 	varchar,
-	unique,
-	text
+	text,
+	unique
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
@@ -52,6 +52,26 @@ export const items = pgTable('items', {
 	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
 	name: varchar('name'),
 	img: varchar('img')
+});
+
+export const matches = pgTable('matches', {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	gameMode: bigint('game_mode', { mode: 'number' }).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	startTime: bigint('start_time', { mode: 'number' }).notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	duration: bigint('duration', { mode: 'number' }).notNull(),
+	winner: text('winner').notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	lobby: bigint('lobby', { mode: 'number' }).notNull()
+});
+
+export const players = pgTable('players', {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
+	username: text('username').notNull()
 });
 
 export const matchData = pgTable(
@@ -133,22 +153,29 @@ export const matchData = pgTable(
 	}
 );
 
-export const matches = pgTable('matches', {
+export const teamOfTheWeek = pgTable('team_of_the_week', {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	gameMode: bigint('game_mode', { mode: 'number' }).notNull(),
+	onePlayer: bigint('1_player', { mode: 'number' })
+		.notNull()
+		.references(() => players.id),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	startTime: bigint('start_time', { mode: 'number' }).notNull(),
+	oneHero: bigint('1_hero', { mode: 'number' }).references(() => heroes.id),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	duration: bigint('duration', { mode: 'number' }).notNull(),
-	winner: text('winner').notNull(),
+	twoPlayer: bigint('2_player', { mode: 'number' }).references(() => players.id),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	lobby: bigint('lobby', { mode: 'number' }).notNull()
-});
-
-export const players = pgTable('players', {
+	twoHero: bigint('2_hero', { mode: 'number' }).references(() => heroes.id),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
-	username: text('username').notNull()
+	threePlayer: bigint('3_player', { mode: 'number' }).references(() => players.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	threeHero: bigint('3_hero', { mode: 'number' }).references(() => heroes.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fourPlayer: bigint('4_player', { mode: 'number' }).references(() => players.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fourHero: bigint('4_hero', { mode: 'number' }).references(() => heroes.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fivePlayer: bigint('5_player', { mode: 'number' }).references(() => players.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fiveHero: bigint('5_hero', { mode: 'number' }).references(() => heroes.id)
 });

@@ -230,9 +230,6 @@
 				<div class="w-16">
 					<img src={hero.hero.img} alt={`${hero.hero.id}-${hero.hero.name}`} class="w-14" />
 				</div>
-				<div class="absolute text-[4pt] opacity-0">
-					{hero.hero.name}
-				</div>
 				{#key order}
 					<div class="flex grow gap-4 items-center">
 						<div class="basis-1/3">

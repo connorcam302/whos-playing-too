@@ -1,6 +1,7 @@
 import { db } from '$lib/server/database';
-import { accounts, matchData, matches, players, players } from '$lib/server/schema';
-import { eq, sql, and } from 'drizzle-orm';
+import { accounts, matchData, matches, players, teamOfTheWeek } from '$lib/server/schema';
+import { eq, sql, and, desc } from 'drizzle-orm';
+import { getHeroString } from './private-functions';
 
 export const getHeroStats = async () => {
 	const heroJson = await fetch(
@@ -168,4 +169,26 @@ export const getPlayers = async () => {
 		.groupBy(players.id);
 
 	return playerList;
+};
+
+export const getTeamOfTheWeek = async () => {
+	const totw = await db.select().from(teamOfTheWeek).orderBy(desc(teamOfTheWeek.id)).limit(1);
+
+	const playerList = await db.select().from(players);
+
+	const totwWithIds = {
+		...totw[0],
+		onePlayerName: playerList.find((player) => player.id === totw[0].onePlayer)?.username,
+		twoPlayerName: playerList.find((player) => player.id === totw[0].twoPlayer)?.username,
+		threePlayerName: playerList.find((player) => player.id === totw[0].threePlayer)?.username,
+		fourPlayerName: playerList.find((player) => player.id === totw[0].fourPlayer)?.username,
+		fivePlayerName: playerList.find((player) => player.id === totw[0].fivePlayer)?.username,
+		oneHeroId: await getHeroString(Number(totw[0].oneHero)),
+		twoHeroId: await getHeroString(Number(totw[0].twoHero)),
+		threeHeroId: await getHeroString(Number(totw[0].threeHero)),
+		fourHeroId: await getHeroString(Number(totw[0].fourHero)),
+		fiveHeroId: await getHeroString(Number(totw[0].fiveHero))
+	};
+
+	return totwWithIds;
 };

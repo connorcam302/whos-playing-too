@@ -1,7 +1,12 @@
 import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players } from '$lib/server/schema';
 import { desc, eq, sql, type InferSelectModel, and, inArray } from 'drizzle-orm';
-import { getHeroStats, getPlayerStats, getPlayers } from '$lib/server/db-functions';
+import {
+	getHeroStats,
+	getPlayerStats,
+	getPlayers,
+	getTeamOfTheWeek
+} from '$lib/server/db-functions';
 
 export const load = async ({ url, params }) => {
 	const heroStats = await getHeroStats();
@@ -12,6 +17,9 @@ export const load = async ({ url, params }) => {
 	);
 	const heroList: DotaAsset[] = await heroJson.json();
 	heroList.sort((a, b) => a.name.localeCompare(b.name));
+	const totw = await getTeamOfTheWeek();
 
-	return { heroStats, playerStats, playerList, heroList };
+	console.log(totw);
+
+	return { heroStats, playerStats, playerList, heroList, totw };
 };

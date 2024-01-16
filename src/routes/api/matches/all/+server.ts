@@ -41,8 +41,6 @@ export const GET: RequestHandler = async ({ url, params }) => {
 	);
 	const heroes: DotaAsset[] = await heroJson.json();
 
-	console.log('params', params);
-	console.log('url', url);
 	const allPlayers = await getPlayers();
 	const allPlayerIds = allPlayers.map((player) => player.id);
 
@@ -58,6 +56,39 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		heroFilter = JSON.parse(url.searchParams.get('heroes'));
 	}
 
+	const allGameModes = [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22];
+	const allLobbies = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+	let gameModeFilter: number[] = allGameModes;
+	let lobbyFilter: number[] = allLobbies;
+
+	if (url.searchParams.has('gameMode')) {
+		gameModeFilter = [];
+		lobbyFilter = [];
+
+		let gameModeSet = new Set<number>();
+		let lobbySet = new Set<number>();
+		const modes = JSON.parse(url.searchParams.get('gameMode'));
+		if (modes.includes('ranked-all-pick')) {
+			gameModeSet.add(22);
+			lobbySet.add(7);
+		}
+		if (modes.includes('unranked-all-pick')) {
+			gameModeSet.add(22);
+			lobbySet.add(0);
+		}
+		if (modes.includes('other')) {
+			[0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21].forEach((mode) =>
+				gameModeSet.add(mode)
+			);
+			[-1, 0, 1, 2, 3, 4, 5, 6, 8].forEach((lobby) => lobbySet.add(lobby));
+		}
+
+		gameModeFilter = Array.from(gameModeSet);
+		lobbyFilter = Array.from(lobbySet);
+	}
+	console.log(gameModeFilter, lobbyFilter);
+
 	const matchArray = await db
 		.select({
 			id: matches.id,
@@ -71,7 +102,14 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		.leftJoin(matchData, eq(matches.id, matchData.matchId))
 		.leftJoin(accounts, eq(matchData.playerId, accounts.accountId))
 		.leftJoin(players, eq(accounts.owner, players.id))
-		.where(and(inArray(players.id, playerFilter), inArray(matchData.heroId, heroFilter)))
+		.where(
+			and(
+				inArray(players.id, playerFilter),
+				inArray(matchData.heroId, heroFilter),
+				inArray(matches.gameMode, gameModeFilter),
+				inArray(matches.lobby, lobbyFilter)
+			)
+		)
 		.limit(100)
 		.groupBy(matches.id)
 		.orderBy(desc(matches.id));

@@ -14,7 +14,7 @@
 </script>
 
 <div class="text-neutral-100 bg-neutral-900 p-4 min-h-screen">
-	<div class="max-w-screen-2xl mx-auto">
+	<div class="max-w-screen-2xl mx-auto mb-8">
 		<div>
 			<div class="w-full flex items-center justify-center gap-8">
 				<a
@@ -23,20 +23,18 @@
 				>
 					<div>whos-playing</div>
 				</a>
-				<div class="flex items-center justify-center">
-					<div class="w-fit my-2 bg-neutral-700 flex justify-center items-center rounded-full">
+				<div class="flex items-center justify-center h-full">
+					<div
+						class="w-fit my-2 bg-neutral-800 flex justify-center items-center rounded-full h-full"
+					>
 						<div class="flex gap-4 justify-center items-center">
 							{#each links as link}
 								{#if link.link == $page.url.pathname}
-									<a
-										href={link.link}
-										class="text-lg bg-rose-500 py-2 px-4 rounded-full w-36 text-center"
+									<a href={link.link} class="bg-rose-500 py-1.5 px-2 rounded-full w-32 text-center"
 										>{link.title}</a
 									>
 								{:else}
-									<a
-										href={link.link}
-										class="text-lg hover:text-indigo-400 py-2 px-4 rounded-full w-36 text-center"
+									<a href={link.link} class="py-1.5 px-2 rounded-full w-32 text-center"
 										>{link.title}</a
 									>
 								{/if}
@@ -45,10 +43,15 @@
 					</div>
 				</div>
 				<div>
-					<select name="players" class="bg-neutral-800 w-48 py-2 px-2 accent-rose-500">
+					<select
+						name="players"
+						class="bg-neutral-800 w-48 py-[7px] accent-rose-500 rounded-xl border-x-8 border-transparent"
+					>
 						<option selected disabled>Search Players</option>
 						{#each playerList as player}
-							<option value={player.id} class="hover:bg-rose-500">{player.username}</option>
+							<option value={player.id} class="hover:bg-rose-500 accent-rose-500"
+								>{player.username}</option
+							>
 						{/each}
 					</select>
 				</div>
@@ -59,3 +62,6 @@
 		<slot />
 	</div>
 </div>
+
+<style>
+</style>

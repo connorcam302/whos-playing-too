@@ -2,6 +2,7 @@
 	export let player: PlayerData;
 	import Fa6SolidPoop from '~icons/fa6-solid/poop';
 	import FxemojiPoo from '~icons/fxemoji/poo';
+	import tippy from 'sveltejs-tippy';
 
 	import { calcImpact, getRoleIcon } from '$lib/functions';
 
@@ -20,7 +21,14 @@
 				{player.username} <span class="italic text-indigo-400">{player.smurf ? 'S' : ''}</span>
 			</div>
 		</div>
-		<div class="w-12 items-center text-center">
+		<div
+			class="w-12 items-center text-center cursor-default"
+			use:tippy={{
+				content: `Impact: ${player.impact}`,
+				placement: 'bottom',
+				theme: 'light'
+			}}
+		>
 			{#if player.impact > 200}
 				<div id="splusplusrating" class="text-xl font-display">
 					{calcImpact(player.impact)}
@@ -70,7 +78,7 @@
 					<img src={player.backpack0.img} alt={player.backpack0.name} class="h-8" />
 					<img src={player.backpack1.img} alt={player.backpack1.name} class="h-8" />
 					<img src={player.backpack2.img} alt={player.backpack2.name} class="h-8" />
-					<div class="w-[66px]"></div>
+					<div class q="w-[66px]"></div>
 					<div class="px-2">
 						<img
 							src={player.itemNeutral.img}
