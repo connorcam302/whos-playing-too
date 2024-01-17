@@ -13,7 +13,7 @@
 		class={`bg-opacity-10 w-full h-full`}
 		style={`background-image: url('/roles/pos${role}.svg')`}
 	>
-		<video autoPlay muted loop playsInline class="h-full w-full object-cover">
+		<video autoPlay muted loop playsInline class="h-full w-full object-cover opacity-100">
 			<source
 				type="video/webm"
 				src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.webm`}
@@ -21,7 +21,7 @@
 			/>
 			<img
 				src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.png`}
-				alt="necrolyte"
+				alt="necrolytbg-[url('/hero-backdrop.png')] e"
 				class="w-full h-full"
 			/>
 		</video>

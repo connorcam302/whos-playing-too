@@ -30,7 +30,7 @@
 	id="box"
 	class="bg-neutral-800 border-[1px] border-neutral-200 border-opacity-15 bg-opacity-95 rounded-2xl px-2 py-2"
 >
-	<div class="font-display text-center text-4xl my-4">TEAM OF THE WEEK</div>
+	<div id="title" class="font-display text-center text-4xl my-4">TEAM OF THE WEEK</div>
 	<div class="flex gap-2">
 		<div
 			class="border-2 border-indigo-800 bg-indigo-900 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-xl"

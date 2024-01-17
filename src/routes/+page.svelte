@@ -6,6 +6,7 @@
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
 	import PlayerStatbox from '$lib/components/stats/PlayerStatbox.svelte';
+	import Features from '$lib/components/feature/Features.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 	import TeamOfTheWeek from '$lib/components/totw/TeamOfTheWeek.svelte';
 	import MaterialSymbolsSearchRounded from '~icons/material-symbols/search-rounded';
@@ -15,8 +16,8 @@
 
 	export let data;
 
-	const { heroStats, playerStats, playerList, heroList, totw } = data;
-	//console.log(matchBlocks, heroStats, playerStats, playerList);
+	const { heroStats, playerStats, playerList, heroList, totw, features } = data;
+	console.log(heroStats, playerStats, playerList, heroList, totw, features);
 	let filterPlayerList = playerList;
 	let filterHeroList = heroList;
 	let matchBlocks: any[] = [];
@@ -137,6 +138,9 @@
 <div class="flex flex-col gap-4">
 	<div>
 		<TeamOfTheWeek {totw} />
+	</div>
+	<div>
+		<Features {features} />
 	</div>
 	<div class="flex flex-wrap gap-4 items-center justify-center min-w-[1000px]">
 		<div class="grow">
