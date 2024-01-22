@@ -191,39 +191,47 @@
 		<div class="flex w-16 justify-center items-center">
 			<button on:click={() => handleHeroSort()}>HERO</button>
 			<div class="grow" />
-			{#if heroSortState == 1}
-				<BiSortDown />
-			{:else if heroSortState == 2}
-				<BiSortDownAlt />
-			{/if}
+			<div class="w-6">
+				{#if heroSortState == 1}
+					<BiSortDown />
+				{:else if heroSortState == 2}
+					<BiSortDownAlt />
+				{/if}
+			</div>
 		</div>
 		<div class="flex grow gap-2">
 			<div class="flex basis-1/3 justify-center items-center">
 				<button on:click={() => handleMachesSort()}>MATCHES</button>
 				<div class="grow" />
-				{#if matchesSortState == 1}
-					<BiSortDown />
-				{:else if matchesSortState == 2}
-					<BiSortDownAlt />
-				{/if}
+				<div class="w-6">
+					{#if matchesSortState == 1}
+						<BiSortDown />
+					{:else if matchesSortState == 2}
+						<BiSortDownAlt />
+					{/if}
+				</div>
 			</div>
 			<div class="flex basis-1/3 justify-center items-center">
 				<button on:click={() => handleWinRateSort()}>WINRATE</button>
 				<div class="grow" />
-				{#if winRateSortState == 1}
-					<BiSortDown />
-				{:else if winRateSortState == 2}
-					<BiSortDownAlt />
-				{/if}
+				<div class="w-6">
+					{#if winRateSortState == 1}
+						<BiSortDown />
+					{:else if winRateSortState == 2}
+						<BiSortDownAlt />
+					{/if}
+				</div>
 			</div>
 			<div class="flex basis-1/3 justify-center items-center">
 				<button on:click={() => handleImpactSort()}>IMPACT</button>
 				<div class="grow" />
-				{#if impactSortState == 1}
-					<BiSortDown />
-				{:else if impactSortState == 2}
-					<BiSortDownAlt />
-				{/if}
+				<div class="w-6">
+					{#if impactSortState == 1}
+						<BiSortDown />
+					{:else if impactSortState == 2}
+						<BiSortDownAlt />
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>

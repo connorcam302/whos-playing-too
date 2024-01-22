@@ -10,6 +10,8 @@
 	import IcOutlineCheck from '~icons/ic/outline-check';
 	import MaterialSymbolsKeyboardBackspaceRounded from '~icons/material-symbols/keyboard-backspace-rounded';
 	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
+	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
+	import MaterialSymbolsArrowForwardRounded from '~icons/material-symbols/arrow-forward-rounded';
 	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
 
 	import { onMount } from 'svelte';
@@ -44,8 +46,16 @@
 
 	let playerFilter = 0;
 	let heroFilter = 0;
+	$: pageNumber = 1;
+	$: incrementDisabled = false;
+	$: decrementDisabled = false;
 
-	const fetchMatches = (players: number[], heroes: number[], gameModes: string[]) => {
+	const fetchMatches = (
+		players: number[],
+		heroes: number[],
+		gameModes: string[],
+		pageNumber: number
+	) => {
 		matchBlocks = [];
 		let playerFilter = '';
 		if (players.length > 0) {
@@ -59,7 +69,12 @@
 		if (gameModes.length > 0) {
 			gameModeFilter = `gameMode=["${gameModes.join('","')}"]`;
 		}
-		fetch(`/api/matches/all?${playerFilter}&${heroFilter}&${gameModeFilter}`)
+		pageNumber = pageNumber - 1;
+		let pageNumberFilter = '';
+		if (pageNumber > -1) {
+			pageNumberFilter = `page=${pageNumber}`;
+		}
+		fetch(`/api/matches/all?${playerFilter}&${heroFilter}&${gameModeFilter}&${pageNumberFilter}`)
 			.then((res) => res.json())
 			.then((res) => {
 				matchBlocks = res;
@@ -88,7 +103,13 @@
 		if (gameModes.length > 0) {
 			gameModeCheckboxes = gameModeCheckboxes.filter((obj) => gameModes.includes(obj));
 		}
-		fetchMatches(players, heroes, gameModes);
+		let pageNumberFilter = 1;
+		if ($page.url.searchParams.has('page')) {
+			pageNumberFilter = JSON.parse($page.url.searchParams.get('page'));
+		}
+		pageNumber = pageNumberFilter;
+
+		fetchMatches(players, heroes, gameModes, pageNumberFilter);
 	});
 
 	const clearPlayerSearch = () => {
@@ -122,12 +143,28 @@
 		let heroList = heroCheckboxes.map((hero) => hero.id);
 		let gameMode = gameModeCheckboxes;
 
-		fetchMatches(playerList, heroList, gameMode);
+		fetchMatches(playerList, heroList, gameMode, pageNumber);
 		goto(
 			`${$page.url.pathname}?players=[${playerList.join(',')}]&heroes=[${heroList.join(
 				','
-			)}]&gameMode=["${gameMode.join('","')}"]`
+			)}]&gameMode=["${gameMode.join('","')}"]&page=${pageNumber}`
 		);
+	};
+
+	const incrementPage = () => {
+		pageNumber = pageNumber + 1;
+		applyFilters();
+		if (matchBlocks.length > 10) {
+			incrementDisabled = true;
+		}
+	};
+
+	const decrementPage = () => {
+		pageNumber = pageNumber - 1;
+		applyFilters();
+		if (pageNumber == 1) {
+			decrementDisabled = true;
+		}
 	};
 
 	let advancedFilters = false;
@@ -358,7 +395,7 @@
 				</button>
 			</div>
 		</div>
-		{#key matchBlocks}
+		{#key (matchBlocks, pageNumber)}
 			<div class="w-[812px] min-h-64" in:fade={{ duration: 400 }}>
 				{#if matchBlocks.length == 0}
 					<div class="flex justify-center items-center h-full">
@@ -368,11 +405,28 @@
 					</div>
 				{:else}
 					<div>
-						{#each matchBlocks as match}
+						{#each matchBlocks.slice(0, 10) as match}
 							<div class="mb-2">
 								<MatchBlock {match} />
 							</div>
 						{/each}
+						<div class="flex items-center justify-center gap-4">
+							<button
+								class="bg-rose-500 rounded-lg w-fit p-2 hover:bg-rose-700 transition-all duration-300 disabled:bg-neutral-800"
+								disabled={pageNumber == 1}
+								on:click={() => decrementPage()}
+							>
+								<MaterialSymbolsArrowBackRounded /></button
+							>
+							<div>{pageNumber}</div>
+							<button
+								class="bg-rose-500 rounded-lg w-fit p-2 hover:bg-rose-700 transition-all duration-300 disabled:bg-neutral-800"
+								disabled={matchBlocks.length < 10}
+								on:click={() => incrementPage()}
+							>
+								<MaterialSymbolsArrowForwardRounded />
+							</button>
+						</div>
 					</div>
 				{/if}
 			</div>

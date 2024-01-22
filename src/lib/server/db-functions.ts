@@ -5,7 +5,7 @@ import { getHeroString } from './private-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
 
-export const getHeroStats = async () => {
+export const getHeroStats = async (offset: number = dayjs(0).add(2, 'week').valueOf() / 1000) => {
 	const heroJson = await fetch(
 		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
 	);
@@ -17,6 +17,8 @@ export const getHeroStats = async () => {
 			matches: sql<number>`cast(count(${matchData.matchId}) as int)`
 		})
 		.from(matchData)
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
 		.groupBy(matchData.heroId)
 		.orderBy(matchData.heroId);
 
@@ -27,7 +29,13 @@ export const getHeroStats = async () => {
 		})
 		.from(matchData)
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')))
+		.where(
+			and(
+				eq(matchData.team, 'radiant'),
+				eq(matches.winner, 'radiant'),
+				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+			)
+		)
 		.groupBy(matchData.heroId)
 		.orderBy(matchData.heroId);
 
@@ -38,7 +46,13 @@ export const getHeroStats = async () => {
 		})
 		.from(matchData)
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire')))
+		.where(
+			and(
+				eq(matchData.team, 'dire'),
+				eq(matches.winner, 'dire'),
+				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+			)
+		)
 		.groupBy(matchData.heroId)
 		.orderBy(matchData.heroId);
 
@@ -49,6 +63,7 @@ export const getHeroStats = async () => {
 		})
 		.from(matchData)
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
 		.groupBy(matchData.heroId)
 		.orderBy(matchData.heroId);
 
@@ -78,7 +93,7 @@ export const getHeroStats = async () => {
 	return sortedHeroData;
 };
 
-export const getPlayerStats = async () => {
+export const getPlayerStats = async (offset: number = dayjs(0).add(2, 'week').valueOf() / 1000) => {
 	const playerMatches = await db
 		.select({
 			id: players.id,
@@ -88,6 +103,8 @@ export const getPlayerStats = async () => {
 		.from(matchData)
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 		.innerJoin(players, eq(accounts.owner, players.id))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
 		.groupBy(players.id)
 		.orderBy(players.id);
 
@@ -101,7 +118,13 @@ export const getPlayerStats = async () => {
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 		.innerJoin(players, eq(accounts.owner, players.id))
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')))
+		.where(
+			and(
+				eq(matchData.team, 'radiant'),
+				eq(matches.winner, 'radiant'),
+				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+			)
+		)
 		.groupBy(players.id)
 		.orderBy(players.id);
 
@@ -115,7 +138,13 @@ export const getPlayerStats = async () => {
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 		.innerJoin(players, eq(accounts.owner, players.id))
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire')))
+		.where(
+			and(
+				eq(matchData.team, 'radiant'),
+				eq(matches.winner, 'radiant'),
+				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+			)
+		)
 		.groupBy(players.id)
 		.orderBy(players.id);
 
@@ -128,6 +157,8 @@ export const getPlayerStats = async () => {
 		.from(matchData)
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 		.innerJoin(players, eq(accounts.owner, players.id))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
 		.groupBy(players.id)
 		.orderBy(players.id);
 
@@ -519,4 +550,13 @@ export const getFeatures = async () => {
 		mostGained,
 		mostLost
 	};
+};
+
+export const getPlayer = async (id: number) => {
+	const player = await db
+		.select({ id: players.id, username: players.username, accountId: accounts.accountId })
+		.from(players)
+		.where(and(eq(players.id, id), eq(accounts.smurf, false)))
+		.innerJoin(accounts, eq(accounts.owner, players.id));
+	return player[0];
 };

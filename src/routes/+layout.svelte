@@ -58,7 +58,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="flex justify-center">
+	<div class="flex justify-center items-center mx-auto">
 		<slot />
 	</div>
 </div>

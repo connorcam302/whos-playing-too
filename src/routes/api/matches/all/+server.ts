@@ -46,14 +46,19 @@ export const GET: RequestHandler = async ({ url, params }) => {
 
 	let playerFilter: number[] = allPlayerIds;
 	if (url.searchParams.has('players')) {
-		playerFilter = JSON.parse(url.searchParams.get('players'));
+		playerFilter = JSON.parse(url.searchParams.get('players')!);
 	}
 
 	const allHeroIds = heroes.map((hero) => hero.id);
 
 	let heroFilter: number[] = allHeroIds;
 	if (url.searchParams.has('heroes')) {
-		heroFilter = JSON.parse(url.searchParams.get('heroes'));
+		heroFilter = JSON.parse(url.searchParams.get('heroes')!);
+	}
+
+	let pageNumber = 0;
+	if (url.searchParams.has('page')) {
+		pageNumber = parseInt(url.searchParams.get('page')!);
 	}
 
 	const allGameModes = [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22];
@@ -68,7 +73,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 
 		let gameModeSet = new Set<number>();
 		let lobbySet = new Set<number>();
-		const modes = JSON.parse(url.searchParams.get('gameMode'));
+		const modes = JSON.parse(url.searchParams.get('gameMode')!);
 		if (modes.includes('ranked-all-pick')) {
 			gameModeSet.add(22);
 			lobbySet.add(7);
@@ -109,7 +114,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				inArray(matches.lobby, lobbyFilter)
 			)
 		)
-		.limit(100)
+		.limit((pageNumber + 1) * 10 + 1)
 		.groupBy(matches.id)
 		.orderBy(desc(matches.id));
 
@@ -166,5 +171,10 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		return { radiant, dire, matchData };
 	});
 
-	return json(matchBlocks);
+	const matchBlocksSorted = matchBlocks.sort(
+		(a, b) =>
+			b.matchData.startTime + b.matchData.duration - (a.matchData.startTime + a.matchData.duration)
+	);
+
+	return json(matchBlocksSorted.slice(-11));
 };

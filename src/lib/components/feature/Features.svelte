@@ -33,7 +33,7 @@
 </script>
 
 <div>
-	<div class="flex flex-wrap gap-2">
+	<div class="flex flex-wrap items-center justify-center gap-2">
 		<FeatureBox data={features.mostKills} title="Most Kills" type="kills" />
 		<FeatureBox data={features.mostDeaths} title="Most Deaths" type="deaths" />
 		<FeatureBox data={features.mostAssists} title="Most Assists" type="assists" />
