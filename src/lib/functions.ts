@@ -213,3 +213,13 @@ export const getRoleIcon = (role: number) => {
 		return '/roles/pos5.png';
 	}
 };
+
+export const getStatColour = (stat: string): string => {
+	if (stat === 'wins') {
+		return '#22c55e';
+	}
+	if (stat === 'losses') {
+		return '#d0021b';
+	}
+	return '#000000';
+};
