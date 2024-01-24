@@ -1,4 +1,4 @@
-import { getHeroStats, getPlayerStats, getPlayers } from '$lib/server/db-functions';
+import { getHeroStats, getAllPlayerStats, getPlayers } from '$lib/server/db-functions';
 
 export const load = async ({ url, params }) => {
 	const playerList = await getPlayers();

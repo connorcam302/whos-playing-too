@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { getGameMode } from '$lib/functions';
 	import UilExchange from 'virtual:icons/uil/exchange';
-	import UilLineAlt from 'virtual:icons/uil/line-alt';
 	import BiDashLg from '~icons/bi/dash-lg';
 	import UilQuestion from '~icons/uil/question';
 	import PlayerData from '$lib/components/match/PlayerData.svelte';

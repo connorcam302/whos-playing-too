@@ -93,7 +93,9 @@ export const getHeroStats = async (offset: number = dayjs(0).add(2, 'week').valu
 	return sortedHeroData;
 };
 
-export const getPlayerStats = async (offset: number = dayjs(0).add(2, 'week').valueOf() / 1000) => {
+export const getAllPlayerStats = async (
+	offset: number = dayjs(0).add(2, 'week').valueOf() / 1000
+) => {
 	const playerMatches = await db
 		.select({
 			id: players.id,
@@ -559,4 +561,106 @@ export const getPlayer = async (id: number) => {
 		.where(and(eq(players.id, id), eq(accounts.smurf, false)))
 		.innerJoin(accounts, eq(accounts.owner, players.id));
 	return player[0];
+};
+
+export const getAccounts = async (id: number) => {
+	const accountsList = await db.select().from(accounts).where(eq(accounts.owner, id));
+	return accountsList;
+};
+
+export const getPlayerStats = async (id: number, offset: number = 7) => {
+	const rankedWins = await db
+		.select({
+			wins: sql<number>`cast(count(${matchData.matchId}) as int)`
+		})
+		.from(players)
+		.innerJoin(accounts, eq(accounts.owner, players.id))
+		.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				or(
+					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
+					and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
+				),
+				eq(matches.lobby, 7),
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				eq(accounts.smurf, false),
+				eq(players.id, id)
+			)
+		)
+		.groupBy(players.id)
+		.orderBy(players.id);
+
+	const rankedLosses = await db
+		.select({
+			losses: sql<number>`cast(count(${matchData.matchId}) as int)`
+		})
+		.from(players)
+		.innerJoin(accounts, eq(accounts.owner, players.id))
+		.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				or(
+					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
+					and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
+				),
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				eq(matches.lobby, 7),
+				eq(accounts.smurf, false),
+				eq(players.id, id)
+			)
+		)
+		.groupBy(players.id)
+		.orderBy(players.id);
+
+	const wins = await db
+		.select({
+			wins: sql<number>`cast(count(${matchData.matchId}) as int)`
+		})
+		.from(players)
+		.innerJoin(accounts, eq(accounts.owner, players.id))
+		.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				or(
+					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
+					and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
+				),
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				eq(players.id, id)
+			)
+		)
+		.groupBy(players.id)
+		.orderBy(players.id);
+
+	const losses = await db
+		.select({
+			losses: sql<number>`cast(count(${matchData.matchId}) as int)`
+		})
+		.from(players)
+		.innerJoin(accounts, eq(accounts.owner, players.id))
+		.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				or(
+					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
+					and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
+				),
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				eq(players.id, id)
+			)
+		)
+		.groupBy(players.id)
+		.orderBy(players.id);
+
+	return {
+		rankedWins: rankedWins[0]?.wins || 0,
+		rankedLosses: rankedLosses[0]?.losses || 0,
+		wins: wins[0]?.wins || 0,
+		losses: losses[0]?.losses || 0
+	};
 };

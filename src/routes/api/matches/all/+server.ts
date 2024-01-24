@@ -2,7 +2,7 @@ import type { RequestHandler } from './$types';
 import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players } from '$lib/server/schema';
 import { desc, eq, sql, type InferSelectModel, and, inArray } from 'drizzle-orm';
-import { getHeroStats, getPlayerStats, getPlayers } from '$lib/server/db-functions';
+import { getPlayers } from '$lib/server/db-functions';
 import { json } from '@sveltejs/kit';
 
 type DotaAsset = { id: number; name: string; img: string };
