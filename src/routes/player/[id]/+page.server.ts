@@ -31,7 +31,7 @@ export const load = async ({ url, params }) => {
 	const weeklyStats = await getPlayerStats(params.id);
 	const allTimeStats = await getPlayerStats(params.id, 9999);
 
-	const heroStats = await getHeroStats(dayjs(0).add(10, 'year').valueOf() / 1000, params.id);
+	const heroStats = await getHeroStats(dayjs(0).add(2, 'week').valueOf() / 1000, params.id);
 	//const winGraph = getPlayerChart(params.id);
 
 	return { player, steamData, allSteamData, allTimeStats, weeklyStats, heroStats };
