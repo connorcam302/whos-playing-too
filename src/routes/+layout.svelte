@@ -3,6 +3,9 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
+	import { navigating } from '$app/stores';
+	import Loading from '$lib/components/Loading.svelte';
+
 	export let data;
 	const { playerList } = data;
 
@@ -68,8 +71,19 @@
 		</div>
 	</div>
 	{#key data.url}
-		<div class="flex justify-center items-center mx-auto" in:fade={{ delay: 120, duration: 250 }}>
-			<slot />
+		<div in:fade={{ delay: 120, duration: 250 }}>
+			{#if $navigating}
+				<div class="flex items-center justify-center w-full h-64">
+					<Loading />
+				</div>
+			{:else}
+				<div
+					class="flex justify-center items-center mx-auto"
+					in:fade={{ delay: 120, duration: 250 }}
+				>
+					<slot />
+				</div>
+			{/if}
 		</div>
 	{/key}
 </div>

@@ -103,6 +103,7 @@
 	console.log(data);
 </script>
 
+<div>Loading...</div>
 {#key player}
 	<div class="flex flex-col gap-4">
 		<div class="flex gap-2">
