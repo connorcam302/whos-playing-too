@@ -1,6 +1,9 @@
-import { db } from '$lib/server/database';
-import { accounts, matchData, matches, players } from '$lib/server/schema';
-import { desc, eq, sql, type InferSelectModel, and, inArray } from 'drizzle-orm';
+import type { Config } from '@sveltejs/adapter-vercel';
+
+export const config: Config = {
+	runtime: 'edge'
+};
+
 import {
 	getFeatures,
 	getHeroStats,
