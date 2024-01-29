@@ -5,6 +5,7 @@
 	import tippy from 'sveltejs-tippy';
 
 	import { calcImpact, getRoleIcon } from '$lib/functions';
+	import { goto } from '$app/navigation';
 
 	let backpack = true;
 
@@ -17,8 +18,14 @@
 	<div class="my-1 flex items-center gap-4">
 		<div class="flex gap-2 items-center">
 			<img src={player.hero.img} alt={player.hero.name} class="h-10" />
-			<div class="text-xl min-w-28">
-				{player.username} <span class="italic text-indigo-400">{player.smurf ? 'S' : ''}</span>
+			<div class="text-xl min-w-28 text-left">
+				<button
+					class="hover:text-neutral-400 duration-300"
+					on:click={() => goto(`/player/${player.id}`)}
+				>
+					{player.username}</button
+				>
+				<span class="italic text-indigo-400">{player.smurf ? 'S' : ''}</span>
 			</div>
 		</div>
 		<div
@@ -78,7 +85,7 @@
 					<img src={player.backpack0.img} alt={player.backpack0.name} class="h-8" />
 					<img src={player.backpack1.img} alt={player.backpack1.name} class="h-8" />
 					<img src={player.backpack2.img} alt={player.backpack2.name} class="h-8" />
-					<div class q="w-[66px]"></div>
+					<div class="w-[66px]"></div>
 					<div class="px-2">
 						<img
 							src={player.itemNeutral.img}

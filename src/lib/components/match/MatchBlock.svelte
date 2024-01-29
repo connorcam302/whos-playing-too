@@ -11,6 +11,12 @@
 
 	export let match: any;
 	const { matchData, radiant, dire } = match;
+
+	const fetchMatchData = async () => {
+		const res = await fetch(`/api/matches/${matchData.id}`);
+		const data = await res.json();
+		console.log(data);
+	};
 </script>
 
 <div class="w-fit">

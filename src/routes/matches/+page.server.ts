@@ -1,4 +1,5 @@
 import { getHeroStats, getAllPlayerStats, getPlayers } from '$lib/server/db-functions';
+import dayjs from 'dayjs';
 
 export const load = async ({ url, params }) => {
 	const playerList = await getPlayers();

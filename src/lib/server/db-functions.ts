@@ -1,72 +1,153 @@
 import { db } from '$lib/server/database';
 import { accounts, heroes, matchData, matches, players, teamOfTheWeek } from '$lib/server/schema';
-import { eq, sql, and, desc, or, gte } from 'drizzle-orm';
+import { eq, sql, and, desc, or, gte, lte } from 'drizzle-orm';
 import { getHeroString } from './private-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
 
-export const getHeroStats = async (offset: number = dayjs(0).add(2, 'week').valueOf() / 1000) => {
+export const getHeroStats = async (
+	offset: number = dayjs(0).add(2, 'week').valueOf() / 1000,
+	player: number = 0
+) => {
 	const heroJson = await fetch(
 		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
 	);
 	const heroes: DotaAsset[] = await heroJson.json();
 
-	const heroMatches = await db
-		.select({
-			hero: matchData.heroId,
-			matches: sql<number>`cast(count(${matchData.matchId}) as int)`
-		})
-		.from(matchData)
-		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
-		.groupBy(matchData.heroId)
-		.orderBy(matchData.heroId);
+	let heroMatches: any;
+	let heroWinsRadiant: any;
+	let heroWinsDire: any;
+	let heroAvgImpact: any;
 
-	const heroWinsRadiant = await db
-		.select({
-			hero: matchData.heroId,
-			radiantWins: sql<number>`cast(count(${matchData.matchId}) as int)`
-		})
-		.from(matchData)
-		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(
-			and(
-				eq(matchData.team, 'radiant'),
-				eq(matches.winner, 'radiant'),
-				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+	if (player === 0) {
+		heroMatches = await db
+			.select({
+				hero: matchData.heroId,
+				matches: sql<number>`cast(count(${matchData.matchId}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+
+		heroWinsRadiant = await db
+			.select({
+				hero: matchData.heroId,
+				radiantWins: sql<number>`cast(count(${matchData.matchId}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(
+				and(
+					eq(matchData.team, 'radiant'),
+					eq(matches.winner, 'radiant'),
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+				)
 			)
-		)
-		.groupBy(matchData.heroId)
-		.orderBy(matchData.heroId);
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
 
-	const heroWinsDire = await db
-		.select({
-			hero: matchData.heroId,
-			direWins: sql<number>`cast(count(${matchData.matchId}) as int)`
-		})
-		.from(matchData)
-		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(
-			and(
-				eq(matchData.team, 'dire'),
-				eq(matches.winner, 'dire'),
-				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+		heroWinsDire = await db
+			.select({
+				hero: matchData.heroId,
+				direWins: sql<number>`cast(count(${matchData.matchId}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(
+				and(
+					eq(matchData.team, 'dire'),
+					eq(matches.winner, 'dire'),
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+				)
 			)
-		)
-		.groupBy(matchData.heroId)
-		.orderBy(matchData.heroId);
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
 
-	const heroAvgImpact = await db
-		.select({
-			hero: matchData.heroId,
-			avgImpact: sql<number>`cast(avg(${matchData.impact}) as int)`
-		})
-		.from(matchData)
-		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
-		.groupBy(matchData.heroId)
-		.orderBy(matchData.heroId);
+		heroAvgImpact = await db
+			.select({
+				hero: matchData.heroId,
+				avgImpact: sql<number>`cast(avg(${matchData.impact}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+	} else {
+		heroMatches = await db
+			.select({
+				hero: matchData.heroId,
+				matches: sql<number>`cast(count(${matchData.matchId}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					eq(accounts.owner, player)
+				)
+			)
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
 
+		heroWinsRadiant = await db
+			.select({
+				hero: matchData.heroId,
+				radiantWins: sql<number>`cast(count(${matchData.matchId}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					eq(matchData.team, 'radiant'),
+					eq(matches.winner, 'radiant'),
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					eq(accounts.owner, player)
+				)
+			)
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+
+		heroWinsDire = await db
+			.select({
+				hero: matchData.heroId,
+				direWins: sql<number>`cast(count(${matchData.matchId}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					eq(matchData.team, 'dire'),
+					eq(matches.winner, 'dire'),
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					eq(accounts.owner, player)
+				)
+			)
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+
+		heroAvgImpact = await db
+			.select({
+				hero: matchData.heroId,
+				avgImpact: sql<number>`cast(avg(${matchData.impact}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					eq(accounts.owner, player)
+				)
+			)
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+	}
 	const heroData: {
 		hero: DotaAsset;
 		matches: number;
@@ -74,7 +155,6 @@ export const getHeroStats = async (offset: number = dayjs(0).add(2, 'week').valu
 		direWins: number;
 		avgImpact: number;
 	}[] = [];
-
 	heroMatches.forEach((hero) => {
 		const radiantWin = heroWinsRadiant.find((heroWin) => heroWin.hero === hero.hero);
 		const direWin = heroWinsDire.find((heroWin) => heroWin.hero === hero.hero);
@@ -635,7 +715,6 @@ export const getPlayerStats = async (id: number, offset: number = 7) => {
 		)
 		.groupBy(players.id)
 		.orderBy(players.id);
-
 	const losses = await db
 		.select({
 			losses: sql<number>`cast(count(${matchData.matchId}) as int)`
@@ -663,4 +742,77 @@ export const getPlayerStats = async (id: number, offset: number = 7) => {
 		wins: wins[0]?.wins || 0,
 		losses: losses[0]?.losses || 0
 	};
+};
+
+export const getPlayerChart = async (id: number, offset: number = 7) => {
+	let days: number[] = [];
+	for (let i = 0; i < offset; i++) {
+		const wins = await db
+			.select({
+				wins: sql<number>`cast(count(${matchData.matchId}) as int)`
+			})
+			.from(players)
+			.innerJoin(accounts, eq(accounts.owner, players.id))
+			.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(
+				and(
+					or(
+						and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
+						and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
+					),
+					gte(
+						matches.startTime,
+						dayjs()
+							.subtract(offset + i + 1, 'day')
+							.unix()
+					),
+					lte(
+						matches.startTime,
+						dayjs()
+							.subtract(offset + i, 'day')
+							.unix()
+					),
+					eq(players.id, id),
+					eq(matches.lobby, 7)
+				)
+			);
+
+		const losses = await db
+			.select({
+				losses: sql<number>`cast(count(${matchData.matchId}) as int)`
+			})
+			.from(players)
+			.innerJoin(accounts, eq(accounts.owner, players.id))
+			.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(
+				and(
+					or(
+						and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
+						and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
+					),
+					gte(
+						matches.startTime,
+						dayjs()
+							.subtract(offset + i + 1, 'day')
+							.unix()
+					),
+					lte(
+						matches.startTime,
+						dayjs()
+							.subtract(offset + i, 'day')
+							.unix()
+					),
+					eq(players.id, id),
+					eq(matches.lobby, 7)
+				)
+			);
+
+		console.log(wins, losses);
+		days.push(wins[0]?.wins - losses[0]?.losses);
+	}
+
+	const data = await Promise.all(days);
+	return data;
 };

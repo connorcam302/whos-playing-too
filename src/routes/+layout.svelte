@@ -1,6 +1,8 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { fade } from 'svelte/transition';
 	export let data;
 	const { playerList } = data;
 
@@ -11,6 +13,11 @@
 		{ link: '/leaderboard', title: 'Leaderboard' },
 		{ link: '/about', title: 'About' }
 	];
+
+	$: navigateTo = 0;
+	const navigate = (playerId: string) => {
+		goto('/player/' + playerId);
+	};
 </script>
 
 <div class="text-neutral-100 p-4 min-h-screen">
@@ -46,10 +53,12 @@
 					<select
 						name="players"
 						class="bg-neutral-800 w-48 py-[7px] accent-rose-500 rounded-xl border-x-8 border-transparent"
+						bind:value={navigateTo}
+						on:change={() => navigate(navigateTo)}
 					>
-						<option selected disabled>Search Players</option>
+						<option value={0} selected disabled>Search Players</option>
 						{#each playerList as player}
-							<option value={player.id} class="hover:bg-rose-500 accent-rose-500"
+							<option on:click={() => goto(`/player/${player.id}`)} value={player.id}
 								>{player.username}</option
 							>
 						{/each}
@@ -58,9 +67,11 @@
 			</div>
 		</div>
 	</div>
-	<div class="flex justify-center items-center mx-auto">
-		<slot />
-	</div>
+	{#key data.url}
+		<div class="flex justify-center items-center mx-auto" in:fade={{ delay: 120, duration: 250 }}>
+			<slot />
+		</div>
+	{/key}
 </div>
 
 <style>

@@ -1,7 +1,7 @@
 import { getPlayers } from '$lib/server/db-functions';
 
-export const load = async () => {
+export const load = async ({ url }) => {
 	const playerList = await getPlayers();
 
-	return { playerList };
+	return { playerList, url: url.pathname };
 };

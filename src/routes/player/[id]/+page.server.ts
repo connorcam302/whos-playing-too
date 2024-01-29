@@ -1,5 +1,12 @@
-import { getAccounts, getPlayer, getPlayerStats } from '$lib/server/db-functions';
+import {
+	getAccounts,
+	getHeroStats,
+	getPlayer,
+	getPlayerChart,
+	getPlayerStats
+} from '$lib/server/db-functions';
 import { STEAM_KEY } from '$env/static/private';
+import dayjs from 'dayjs';
 
 const getSteamData = async (steamId: number) => {
 	const steamData = await fetch(
@@ -24,5 +31,8 @@ export const load = async ({ url, params }) => {
 	const weeklyStats = await getPlayerStats(params.id);
 	const allTimeStats = await getPlayerStats(params.id, 9999);
 
-	return { player, steamData, allSteamData, allTimeStats, weeklyStats };
+	const heroStats = await getHeroStats(dayjs(0).add(10, 'year').valueOf() / 1000, params.id);
+	//const winGraph = getPlayerChart(params.id);
+
+	return { player, steamData, allSteamData, allTimeStats, weeklyStats, heroStats };
 };
