@@ -8,8 +8,6 @@
 		}[],
 		type: string;
 
-	console.log(data);
-
 	const makeDataSets = (
 		data: {
 			data: number[];
@@ -45,7 +43,6 @@
 
 	let ctx;
 	let chartCanvas: any;
-	console.log(data.length);
 
 	const findHighestValue = (arrayOfArrays: number[][]) => {
 		let highestValue = Number.MIN_SAFE_INTEGER;
@@ -139,7 +136,6 @@
 						onLeave: (event, legendItem, legend) => {
 							const chart = legend.chart;
 							chart.config.data.datasets.forEach((d, index) => {
-								console.log(d);
 								d.backgroundColor =
 									data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#f43f5e';
 								d.borderColor = data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#f43f5e';

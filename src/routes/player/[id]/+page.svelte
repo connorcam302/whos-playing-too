@@ -63,7 +63,6 @@
 		if ($page.url.searchParams.get('page')) {
 			pageNumber = $page.url.searchParams.get('page');
 		}
-		console.log(pageNumber);
 		fetchMatches(pageNumber, Number($page.params.id));
 	});
 
@@ -74,7 +73,6 @@
 		if (pageNumber > -1) {
 			pageNumberFilter = `page=${pageNumber}`;
 		}
-		console.log(`/api/matches/all?players=[${playerId}]&${pageNumberFilter}`);
 		fetch(`/api/matches/all?players=[${playerId}]&${pageNumberFilter}`)
 			.then((res) => res.json())
 			.then((res) => {
@@ -103,8 +101,9 @@
 
 	let chartType = 'days';
 
-	$: ({ player, steamData, allSteamData, allTimeStats, weeklyStats, heroStats, winGraph } = data);
-	console.log(data);
+	$: ({ player, steamData, allSteamData, allTimeStats, weeklyStats, heroStats, winGraph, timings } =
+		data);
+	console.log(data.timings);
 </script>
 
 {#key player}
