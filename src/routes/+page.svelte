@@ -43,9 +43,11 @@
 			<div class="grow" />
 			<div>Last 7 Days</div>
 		</div>
-		{#await features then features}
-			<Features {features} />
-		{/await}
+		<div class="min-h-32">
+			{#await features then features}
+				<Features {features} />
+			{/await}
+		</div>
 	</div>
 	<div class="flex flex-row gap-4">
 		<div class="flex flex-col gap-2 mt-2">
@@ -88,10 +90,14 @@
 			</div>
 			<div class="flex flex-col gap-4 items-center justify-center">
 				<div class="w-full">
-					<HeroStatbox {heroStats} />
+					{#await heroStats then heroStats}
+						<HeroStatbox {heroStats} />
+					{/await}
 				</div>
 				<div class="w-full">
-					<PlayerStatbox {playerStats} />
+					{#await playerStats then playerStats}
+						<PlayerStatbox {playerStats} />
+					{/await}
 				</div>
 			</div>
 		</div>

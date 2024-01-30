@@ -22,8 +22,8 @@ function longPromise(delay: number) {
 }
 
 export const load = async ({ url, params }) => {
-	const heroStats = await getHeroStats();
-	const playerStats = await getAllPlayerStats();
+	const heroStats = getHeroStats();
+	const playerStats = getAllPlayerStats();
 	const totw = await getTeamOfTheWeek();
 	const features = getFeatures();
 
