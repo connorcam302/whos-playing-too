@@ -254,7 +254,9 @@
 			</div>
 		</div>
 		<div>
-			<HeroStatbox {heroStats} />
+			{#await heroStats then heroStats}
+				<HeroStatbox {heroStats} />
+			{/await}
 		</div>
 
 		{#key matchBlocks}
