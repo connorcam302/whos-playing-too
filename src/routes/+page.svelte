@@ -43,7 +43,9 @@
 			<div class="grow" />
 			<div>Last 7 Days</div>
 		</div>
-		<Features {features} />
+		{#await features then features}
+			<Features {features} />
+		{/await}
 	</div>
 	<div class="flex flex-row gap-4">
 		<div class="flex flex-col gap-2 mt-2">

@@ -25,7 +25,7 @@ export const load = async ({ url, params }) => {
 	const heroStats = await getHeroStats();
 	const playerStats = await getAllPlayerStats();
 	const totw = await getTeamOfTheWeek();
-	const features = await getFeatures();
+	const features = getFeatures();
 
 	const timings = [
 		{ name: 'getHeroStats', time: await measurePromise(() => getHeroStats()) },
