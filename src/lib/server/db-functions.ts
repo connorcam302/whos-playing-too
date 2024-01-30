@@ -745,74 +745,96 @@ export const getPlayerStats = async (id: number, offset: number = 7) => {
 };
 
 export const getPlayerChart = async (id: number, offset: number = 7) => {
-	let days: number[] = [];
-	for (let i = 0; i < offset; i++) {
-		const wins = await db
-			.select({
-				wins: sql<number>`cast(count(${matchData.matchId}) as int)`
-			})
-			.from(players)
-			.innerJoin(accounts, eq(accounts.owner, players.id))
-			.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
-			.innerJoin(matches, eq(matches.id, matchData.matchId))
-			.where(
-				and(
-					or(
-						and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
-						and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
-					),
-					gte(
-						matches.startTime,
-						dayjs()
-							.subtract(offset + i + 1, 'day')
-							.unix()
-					),
-					lte(
-						matches.startTime,
-						dayjs()
-							.subtract(offset + i, 'day')
-							.unix()
-					),
-					eq(players.id, id),
-					eq(matches.lobby, 7)
-				)
-			);
+	const wins = await db
+		.select({
+			startTime: matches.startTime,
+			match: matches.id
+		})
+		.from(players)
+		.innerJoin(accounts, eq(accounts.owner, players.id))
+		.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				or(
+					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
+					and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
+				),
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				eq(players.id, id),
+				eq(matches.lobby, 7)
+			)
+		);
 
-		const losses = await db
-			.select({
-				losses: sql<number>`cast(count(${matchData.matchId}) as int)`
-			})
-			.from(players)
-			.innerJoin(accounts, eq(accounts.owner, players.id))
-			.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
-			.innerJoin(matches, eq(matches.id, matchData.matchId))
-			.where(
-				and(
-					or(
-						and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
-						and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
-					),
-					gte(
-						matches.startTime,
-						dayjs()
-							.subtract(offset + i + 1, 'day')
-							.unix()
-					),
-					lte(
-						matches.startTime,
-						dayjs()
-							.subtract(offset + i, 'day')
-							.unix()
-					),
-					eq(players.id, id),
-					eq(matches.lobby, 7)
-				)
-			);
+	const losses = await db
+		.select({
+			startTime: matches.startTime,
+			match: matches.id
+		})
+		.from(players)
+		.innerJoin(accounts, eq(accounts.owner, players.id))
+		.innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				or(
+					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
+					and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
+				),
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				eq(players.id, id),
+				eq(matches.lobby, 7)
+			)
+		);
 
-		console.log(wins, losses);
-		days.push(wins[0]?.wins - losses[0]?.losses);
-	}
+	let daysArray = new Array(offset).fill(0);
 
-	const data = await Promise.all(days);
-	return data;
+	daysArray.forEach((day, index) => {
+		const dayWins = wins.filter(
+			(match) =>
+				match.startTime >
+					dayjs()
+						.subtract(offset - index, 'day')
+						.unix() &&
+				match.startTime <
+					dayjs()
+						.subtract(offset - (index + 1), 'day')
+						.unix()
+		).length;
+
+		const dayLosses = losses.filter(
+			(match) =>
+				match.startTime >
+					dayjs()
+						.subtract(offset - index, 'day')
+						.unix() &&
+				match.startTime <
+					dayjs()
+						.subtract(offset - (index + 1), 'day')
+						.unix()
+		).length;
+		if (index === 0) {
+			daysArray[index] = dayWins - dayLosses;
+		} else {
+			daysArray[index] = dayWins - dayLosses + daysArray[index - 1];
+		}
+	});
+
+	const winsResult = wins.map((win) => ({ ...win, result: 'win' }));
+	const lossesResult = losses.map((loss) => ({ ...loss, result: 'loss' }));
+
+	const matchCount = wins.length + losses.length;
+
+	const gamesArray = [...winsResult, ...lossesResult].sort((a, b) => a.startTime - b.startTime);
+	let resultsArray: number[] = [];
+
+	gamesArray.forEach((game, index) => {
+		if (index === 0) {
+			resultsArray = [game.result === 'win' ? 1 : -1];
+		} else {
+			resultsArray = [...resultsArray, resultsArray[index - 1] + (game.result === 'win' ? 1 : -1)];
+		}
+	});
+
+	return { daysArray, resultsArray, matchCount };
 };

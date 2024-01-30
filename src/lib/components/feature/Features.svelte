@@ -28,7 +28,6 @@
 		mostLost: Player[];
 	};
 	export let features: Features;
-	console.log(features);
 	import FeatureBox from './FeatureBox.svelte';
 </script>
 

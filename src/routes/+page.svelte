@@ -62,8 +62,6 @@
 		if (gameModes.length > 0) {
 			gameModeFilter = `gameMode=["${gameModes.join('","')}"]`;
 		}
-		console.log(`/api/matches/all?${playerFilter}&${heroFilter}&${gameModeFilter}`);
-		console.log(playerFilter);
 		fetch(`/api/matches/all?${playerFilter}&${heroFilter}&${gameModeFilter}`)
 			.then((res) => res.json())
 			.then((res) => {

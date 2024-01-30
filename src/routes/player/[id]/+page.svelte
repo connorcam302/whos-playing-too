@@ -33,9 +33,12 @@
 	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
 	import MaterialSymbolsArrowForwardRounded from '~icons/material-symbols/arrow-forward-rounded';
 	import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded';
+	import IonLogoGameControllerB from '~icons/ion/logo-game-controller-b';
+	import MaterialSymbolsCalendarMonth from '~icons/material-symbols/calendar-month';
 	import Loading from '$lib/components/Loading.svelte';
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
+	import WinChart from '$lib/components/profile/WinChart.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
@@ -48,7 +51,7 @@
 		allTimeStats: Stats;
 		weeklyStats: Stats;
 		heroStats: any;
-		winGraph: any;
+		winGraph: { resultsArray: number[]; daysArray: number[] };
 	};
 
 	$: pageNumber = 1;
@@ -57,7 +60,6 @@
 	$: matchBlocks = [];
 
 	onMount(() => {
-		console.log($page.url.searchParams.get('page'));
 		if ($page.url.searchParams.get('page')) {
 			pageNumber = $page.url.searchParams.get('page');
 		}
@@ -99,11 +101,12 @@
 		}
 	};
 
+	let chartType = 'days';
+
 	$: ({ player, steamData, allSteamData, allTimeStats, weeklyStats, heroStats, winGraph } = data);
 	console.log(data);
 </script>
 
-<div>Loading...</div>
 {#key player}
 	<div class="flex flex-col gap-4">
 		<div class="flex gap-2">
@@ -113,48 +116,142 @@
 				<div class="text-lg opacity-50">{steamData.personaname}</div>
 			</div>
 			<div class="grow" />
-			<div
-				class="flex flex-col w-48 px-2
-		bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 rounded-xl h-fit py-2"
-			>
-				<div class="flex">
-					<div class="flex flex-col">
-						<div class="text-xl h-7 flex items-center"><UilExchange /></div>
-						<div class="text-xl h-7 flex items-center"><BiDashLg /></div>
-					</div>
-					<div class="grow flex flex-col items-center">
-						<div class="w-full flex gap-1 items-center justify-center">
-							<div class="text-xl text-green-400">{allTimeStats.rankedWins}</div>
-							<div class="text-xl">-</div>
-							<div class="text-xl text-red-500">{allTimeStats.rankedLosses}</div>
-						</div>
-						<div class="w-full flex gap-1 items-center justify-center">
-							<div class="text-xl text-green-400">{allTimeStats.wins}</div>
-							<div class="text-xl">-</div>
-							<div class="text-xl text-red-500">{allTimeStats.losses}</div>
-						</div>
-					</div>
-				</div>
 
-				<div class="text-sm text-center mt-2">Last 7 Days</div>
-				<div class="flex w-full">
-					<div class="flex flex-col">
-						<div class="text-xl h-7 flex items-center"><UilExchange /></div>
-						<div class="text-xl h-7 flex items-center"><BiDashLg /></div>
-					</div>
-					<div class="grow flex flex-col items-center">
-						<div class="w-full flex gap-1 items-center justify-center">
-							<div class="text-xl text-green-400">{weeklyStats.rankedWins}</div>
-							<div class="text-xl">-</div>
-							<div class="text-xl text-red-500">{weeklyStats.rankedLosses}</div>
+			<div class="flex flex-col justify-end">
+				<div
+					class="flex flex-col w-48 px-2
+		bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 rounded-xl h-fit py-2"
+				>
+					<div class="flex">
+						<div class="flex flex-col">
+							<div class="text-xl h-7 flex items-center"><UilExchange /></div>
+							<div class="text-xl h-7 flex items-center"><BiDashLg /></div>
 						</div>
-						<div class="w-full flex gap-1 items-center justify-center">
-							<div class="text-xl text-green-400">{weeklyStats.wins}</div>
-							<div class="text-xl">-</div>
-							<div class="text-xl text-red-500">{weeklyStats.losses}</div>
+						<div class="grow flex flex-col items-center">
+							<div class="w-full flex gap-1 items-center justify-center">
+								<div class="text-xl text-green-400">{allTimeStats.rankedWins}</div>
+								<div class="text-xl">-</div>
+								<div class="text-xl text-red-500">{allTimeStats.rankedLosses}</div>
+							</div>
+							<div class="w-full flex gap-1 items-center justify-center">
+								<div class="text-xl text-green-400">{allTimeStats.wins}</div>
+								<div class="text-xl">-</div>
+								<div class="text-xl text-red-500">{allTimeStats.losses}</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="text-sm text-center mt-2">Last 7 Days</div>
+					<div class="flex w-full">
+						<div class="flex flex-col">
+							<div class="text-xl h-7 flex items-center"><UilExchange /></div>
+							<div class="text-xl h-7 flex items-center"><BiDashLg /></div>
+						</div>
+						<div class="grow flex flex-col items-center">
+							<div class="w-full flex gap-1 items-center justify-center">
+								<div class="text-xl text-green-400">{weeklyStats.rankedWins}</div>
+								<div class="text-xl">-</div>
+								<div class="text-xl text-red-500">{weeklyStats.rankedLosses}</div>
+							</div>
+							<div class="w-full flex gap-1 items-center justify-center">
+								<div class="text-xl text-green-400">{weeklyStats.wins}</div>
+								<div class="text-xl">-</div>
+								<div class="text-xl text-red-500">{weeklyStats.losses}</div>
+							</div>
 						</div>
 					</div>
 				</div>
+				<div
+					class="flex flex-col w-64 px-2
+		bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 rounded-xl h-fit py-2 gap-2"
+				>
+					{#each allSteamData as profile}
+						<div class="flex items-center gap-2">
+							<div class="text-xs">
+								{profile.personaname.length > 16
+									? profile.personaname.substring(0, 16) + '...'
+									: profile.personaname}
+							</div>
+							<div class="grow" />
+							<a href={profile.profileurl} target="_blank" rel="noopener noreferrer">
+								<img src={'/steam.png'} alt="profilepicture" class="h-5" />
+							</a>
+							<a
+								href={`https://dotabuff.com/players/${(
+									BigInt(profile.steamid) - BigInt('76561197960265728')
+								).toString()}`}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<img src={'/dotabuff.png'} alt="profilepicture" class="h-5" />
+							</a>
+							<a
+								href={`https://www.opendota.com/players/${(
+									BigInt(profile.steamid) - BigInt('76561197960265728')
+								).toString()}`}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<img src={'/opendota.png'} alt="profilepicture" class="h-5" />
+							</a>
+							<a
+								href={`https://stratz.com/en-us/player/${(
+									BigInt(profile.steamid) - BigInt('76561197960265728')
+								).toString()}`}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<img src={'/stratz.png'} alt="profilepicture" class="h-5" />
+							</a>
+						</div>
+					{/each}
+				</div>
+			</div>
+		</div>
+		<div
+			class="flex flex-col px-2
+		bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 rounded-xl py-2"
+		>
+			<div class="flex flex-col">
+				{#if chartType == 'days'}
+					<div class="flex w-full px-4 text-xl">
+						<div class="basis-1/3" />
+						<div class="basis-1/3 text-center">Wins by Day</div>
+						<button
+							class="basis-1/3 flex justify-end items-center"
+							on:click={() => (chartType = 'games')}><MaterialSymbolsCalendarMonth /></button
+						>
+					</div>
+					<div>
+						<WinChart
+							data={[
+								{
+									data: winGraph.resultsArray,
+									player: { username: player.username, id: player.id, accounts: [player.accountId] }
+								}
+							]}
+							type="results"
+						/>
+					</div>
+				{:else}
+					<div class="flex w-full px-4 text-xl">
+						<div class="basis-1/3" />
+						<div class="basis-1/3 text-center">Wins by Games</div>
+						<button
+							class="basis-1/3 flex justify-end items-center"
+							on:click={() => (chartType = 'days')}><IonLogoGameControllerB /></button
+						>
+					</div>
+					<WinChart
+						data={[
+							{
+								data: winGraph.daysArray,
+								player: { username: player.username, id: player.id, accounts: [player.accountId] }
+							}
+						]}
+						type="days"
+					/>
+				{/if}
 			</div>
 		</div>
 		<div>

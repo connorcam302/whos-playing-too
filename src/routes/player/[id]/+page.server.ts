@@ -14,7 +14,6 @@ const getSteamData = async (steamId: number) => {
 			BigInt(steamId) + BigInt('76561197960265728')
 		).toString()}`
 	);
-	console.log(steamData);
 	const steamDataJson = await steamData.json();
 	return steamDataJson.response.players[0];
 };
@@ -32,7 +31,7 @@ export const load = async ({ url, params }) => {
 	const allTimeStats = await getPlayerStats(params.id, 9999);
 
 	const heroStats = await getHeroStats(dayjs(0).add(2, 'week').valueOf() / 1000, params.id);
-	//const winGraph = getPlayerChart(params.id);
+	const winGraph = await getPlayerChart(params.id, 31);
 
-	return { player, steamData, allSteamData, allTimeStats, weeklyStats, heroStats };
+	return { player, steamData, allSteamData, allTimeStats, weeklyStats, heroStats, winGraph };
 };

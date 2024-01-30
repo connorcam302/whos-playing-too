@@ -15,7 +15,6 @@
 	const fetchMatchData = async () => {
 		const res = await fetch(`/api/matches/${matchData.id}`);
 		const data = await res.json();
-		console.log(data);
 	};
 </script>
 
