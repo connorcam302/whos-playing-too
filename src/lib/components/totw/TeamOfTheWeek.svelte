@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+
 	export let totw: {
 		id: number;
 		onePlayer: number;
@@ -28,63 +30,88 @@
 
 <div
 	id="box"
-	class="bg-neutral-800 border-[1px] border-neutral-200 border-opacity-15 bg-opacity-95 rounded-2xl px-2 py-2"
+	class="bg-neutral-800 border-[1px] border-neutral-200 border-opacity-15 bg-opacity-95 rounded-lg px-2 py-2 h-80"
 >
-	<div id="title" class="font-display text-center text-4xl my-4">TEAM OF THE WEEK</div>
+	<div id="title" class="font-display text-center text-4xl my-1">TEAM OF THE WEEK</div>
 	<div class="flex gap-2">
 		<div
-			class="border-2 border-indigo-800 bg-indigo-900 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-xl"
+			class="border-2 border-indigo-800 bg-indigo-900 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
 		>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.oneHeroId, role: 1 }} />
 			</div>
 			<div class="flex my-2 h-8 justify-center items-center">
 				<img src={`/roles/pos1.svg`} class="h-8" alt="pos1" />
-				<div class="font-display text-2xl">{totw.onePlayerName}</div>
+				<button
+					on:click={() => goto(`/player/${totw.onePlayer}`)}
+					class="hover:text-neutral-400 duration-300"
+				>
+					<div class="font-display text-2xl">{totw.onePlayerName}</div>
+				</button>
 			</div>
 		</div>
 		<div
-			class="border-2 border-sky-700 bg-sky-800 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-xl"
+			class="border-2 border-sky-700 bg-sky-800 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
 		>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.twoHeroId, role: 2 }} />
 			</div>
 			<div class="flex my-2 h-8 justify-center items-center">
 				<img src={`/roles/pos1.svg`} class="h-8" alt="pos2" />
-				<div class="font-display text-2xl">{totw.twoPlayerName}</div>
+				<button
+					on:click={() => goto(`/player/${totw.twoPlayer}`)}
+					class="hover:text-neutral-400 duration-300"
+				>
+					<div class="font-display text-2xl">{totw.twoPlayerName}</div>
+				</button>
 			</div>
 		</div>
 		<div
-			class="border-2 border-orange-600 bg-orange-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-xl"
+			class="border-2 border-orange-600 bg-orange-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
 		>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.threeHeroId, role: 3 }} />
 			</div>
 			<div class="flex my-2 h-8 justify-center items-center">
 				<img src={`/roles/pos3.svg`} class="h-8" alt="pos3" />
-				<div class="font-display text-2xl">{totw.threePlayerName}</div>
+				<button
+					on:click={() => goto(`/player/${totw.threePlayer}`)}
+					class="hover:text-neutral-400 duration-300"
+				>
+					<div class="font-display text-2xl">{totw.threePlayerName}</div>
+				</button>
 			</div>
 		</div>
 		<div
-			class="border-2 border-red-600 bg-red-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-xl"
+			class="border-2 border-red-600 bg-red-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
 		>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.fourHeroId, role: 4 }} />
 			</div>
 			<div class="flex my-2 h-8 justify-center items-center">
 				<img src={`/roles/pos4.svg`} class="h-8" alt="pos4" />
-				<div class="font-display text-2xl">{totw.fourPlayerName}</div>
+				<button
+					on:click={() => goto(`/player/${totw.fourPlayer}`)}
+					class="hover:text-neutral-400 duration-300"
+				>
+					<div class="font-display text-2xl">{totw.fourPlayerName}</div>
+				</button>
 			</div>
 		</div>
 		<div
-			class="border-2 border-emerald-600 bg-emerald-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-xl"
+			class="border-2 border-emerald-600 bg-emerald-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
 		>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.fiveHeroId, role: 5 }} />
 			</div>
 			<div class="flex my-2 h-8 justify-center items-center">
 				<img src={`/roles/pos5.svg`} class="h-8" alt="pos5" />
-				<div class="font-display text-2xl">{totw.fivePlayerName}</div>
+				<button
+					on:click={() => goto(`/player/${totw.fivePlayer}`)}
+					class="hover:text-neutral-400 duration-300"
+				>
+					<div class="font-display text-2xl">{totw.fivePlayerName}</div>
+				</button>
 			</div>
 		</div>
 	</div>

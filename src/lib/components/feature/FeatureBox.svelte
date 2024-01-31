@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+
 	type Player = {
 		id: number;
 		username: string;
@@ -43,7 +45,12 @@
 							<div class="text-2xl font-bold text-center font-display">{title}</div>
 							<div class="flex-1 grow" />
 							<div class="flex flex-row justify-between text-3xl">
-								<div>{data[0].username}</div>
+								<button
+									on:click={() => goto(`/player/${data[0].id}`)}
+									class="hover:text-neutral-400 duration-300"
+								>
+									<div>{data[0].username}</div>
+								</button>
 								<div
 									class="font-bold text-4xl"
 									style={`color: ${getStatColour(title == 'Most MMR Gained' ? 'wins' : 'losses')};`}
@@ -59,12 +66,22 @@
 		<div
 			class="flex flex-row items-center px-4 py-0.5 rounded-xl border-white border-b-[1px] border-opacity-15"
 		>
-			<div class="h-7">{data[1].username}</div>
+			<button
+				on:click={() => goto(`/player/${data[1].id}`)}
+				class="hover:text-neutral-400 duration-300"
+			>
+				<div class="flex h-7 items-center">{data[1].username}</div>
+			</button>
 			<div class="grow" />
 			<div>{data[1][type]}</div>
 		</div>
 		<div class="flex flex-row items-center px-4 py-0.5 h-7">
-			<div class="flex h-7 items-center">{data[2].username}</div>
+			<button
+				on:click={() => goto(`/player/${data[2].id}`)}
+				class="hover:text-neutral-400 duration-300"
+			>
+				<div class="flex h-7 items-center">{data[2].username}</div>
+			</button>
 			<div class="grow" />
 			<div>{data[2][type]}</div>
 		</div>
@@ -83,7 +100,12 @@
 						<div class="text-2xl font-bold text-center font-display">{title}</div>
 						<div class="flex-1 grow" />
 						<div class="flex flex-row justify-between text-3xl">
-							<div>{data[0].username}</div>
+							<button
+								on:click={() => goto(`/player/${data[0].id}`)}
+								class="hover:text-neutral-400 duration-300"
+							>
+								<div>{data[0].username}</div>
+							</button>
 							<div>{data[0][type]}</div>
 						</div>
 					</div>
@@ -94,13 +116,23 @@
 			class="flex flex-row items-center px-4 py-0.5 rounded-xl border-white border-b-[1px] border-opacity-15"
 		>
 			<div><img src={data[1].hero.img} class="h-7 mr-2" /></div>
-			<div>{data[1].username}</div>
+			<button
+				on:click={() => goto(`/player/${data[1].id}`)}
+				class="hover:text-neutral-400 duration-300"
+			>
+				<div>{data[1].username}</div>
+			</button>
 			<div class="grow" />
 			<div>{data[1][type]}</div>
 		</div>
 		<div class="flex flex-row items-center px-4 py-0.5">
 			<div><img src={data[2].hero.img} class="h-7 mr-2" /></div>
-			<div>{data[2].username}</div>
+			<button
+				on:click={() => goto(`/player/${data[2].id}`)}
+				class="hover:text-neutral-400 duration-300"
+			>
+				<div>{data[2].username}</div>
+			</button>
 			<div class="grow" />
 			<div>{data[2][type]}</div>
 		</div>

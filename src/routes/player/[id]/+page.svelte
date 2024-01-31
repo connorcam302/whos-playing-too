@@ -143,7 +143,7 @@
 							</div>
 							<div class="w-2 h-2">
 								{#if mainAccount.gameextrainfo === 'Dota 2'}
-									<div class="bg-green-400 w-full h-full rounded-full" />
+									<div class="bg-rose-500 w-full h-full rounded-full" />
 								{/if}
 							</div>
 							<div class="grow" />
