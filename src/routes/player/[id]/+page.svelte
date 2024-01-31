@@ -15,6 +15,8 @@
 		profileurl: string;
 		steamid: string;
 		timecreated: number;
+		smurf: boolean;
+		gameextrainfo?: string;
 	};
 	type Player = {
 		accountId: number;
@@ -43,11 +45,12 @@
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
+	import tippy from 'sveltejs-tippy';
 
 	export let data: {
 		player: Player;
-		steamData: SteamProfile;
-		allSteamData: SteamProfile[];
+		mainAccount: SteamProfile;
+		smurfAccounts: SteamProfile[];
 		allTimeStats: Stats;
 		weeklyStats: Stats;
 		heroStats: any;
@@ -101,18 +104,117 @@
 
 	let chartType = 'days';
 
-	$: ({ player, steamData, allSteamData, allTimeStats, weeklyStats, heroStats, winGraph, timings } =
-		data);
-	console.log(data.timings);
+	$: ({
+		player,
+		mainAccount,
+		smurfAccounts,
+		allTimeStats,
+		weeklyStats,
+		heroStats,
+		winGraph,
+		timings
+	} = data);
+
+	console.log(data);
+
+	const toSteam32 = (accountId: string) => {
+		return BigInt(accountId) - BigInt('76561197960265728');
+	};
 </script>
 
 {#key player}
 	<div class="flex flex-col gap-4">
 		<div class="flex gap-2">
-			<img src={steamData.avatarfull} alt="profilepicture" class="h-40" />
-			<div class="flex flex-col justify-center">
-				<div class="text-4xl">{player.username}</div>
-				<div class="text-lg opacity-50">{steamData.personaname}</div>
+			<div class="flex items-center gap-2 px-2 py-2">
+				<img src={mainAccount.avatarfull} alt="profilepicture" class="h-36" />
+				<div class="flex flex-col justify-center h-full">
+					<div class="flex flex-col w-80 px-2 h-full py-4 gap-1">
+						<div class="text-4xl">{player.username}</div>
+						<div class="grow" />
+						<div class="flex items-center gap-2">
+							<div class="text-xs flex gap-1">
+								<div>
+									{mainAccount.personaname.length > 20
+										? mainAccount.personaname.substring(0, 20) + '...'
+										: mainAccount.personaname}
+								</div>
+
+								<div class="opacity-45">(main)</div>
+							</div>
+							<div class="w-2 h-2">
+								{#if mainAccount.gameextrainfo === 'Dota 2'}
+									<div class="bg-green-400 w-full h-full rounded-full" />
+								{/if}
+							</div>
+							<div class="grow" />
+							<a href={mainAccount.profileurl} target="_blank" rel="noopener noreferrer">
+								<img src={'/steam.png'} alt="profilepicture" class="h-5" />
+							</a>
+							<a
+								href={`https://dotabuff.com/players/${toSteam32(mainAccount.steamid).toString()}`}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<img src={'/dotabuff.png'} alt="profilepicture" class="h-5" />
+							</a>
+							<a
+								href={`https://www.opendota.com/players/${toSteam32(
+									mainAccount.steamid
+								).toString()}`}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<img src={'/opendota.png'} alt="profilepicture" class="h-5" />
+							</a>
+							<a
+								href={`https://stratz.com/en-us/player/${toSteam32(
+									mainAccount.steamid
+								).toString()}`}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								<img src={'/stratz.png'} alt="profilepicture" class="h-5" />
+							</a>
+						</div>
+						{#each smurfAccounts as profile}
+							<div class="flex items-center gap-2">
+								<div class="text-xs flex gap-1">
+									{profile.personaname.length > 25
+										? profile.personaname.substring(0, 25) + '...'
+										: profile.personaname}
+									{#if profile.steamid === mainAccount.steamid}
+										<div class="opacity-45">(main)</div>
+									{/if}
+								</div>
+								<div class="grow" />
+								<a href={profile.profileurl} target="_blank" rel="noopener noreferrer">
+									<img src={'/steam.png'} alt="profilepicture" class="h-5" />
+								</a>
+								<a
+									href={`https://dotabuff.com/players/${toSteam32(profile.steamid).toString()}`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<img src={'/dotabuff.png'} alt="profilepicture" class="h-5" />
+								</a>
+								<a
+									href={`https://www.opendota.com/players/${toSteam32(profile.steamid).toString()}`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<img src={'/opendota.png'} alt="profilepicture" class="h-5" />
+								</a>
+								<a
+									href={`https://stratz.com/en-us/player/${toSteam32(profile.steamid).toString()}`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<img src={'/stratz.png'} alt="profilepicture" class="h-5" />
+								</a>
+							</div>
+						{/each}
+					</div>
+				</div>
 			</div>
 			<div class="grow" />
 
@@ -159,51 +261,6 @@
 							</div>
 						</div>
 					</div>
-				</div>
-				<div
-					class="flex flex-col w-64 px-2
-		bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 rounded-xl h-fit py-2 gap-2"
-				>
-					{#each allSteamData as profile}
-						<div class="flex items-center gap-2">
-							<div class="text-xs">
-								{profile.personaname.length > 16
-									? profile.personaname.substring(0, 16) + '...'
-									: profile.personaname}
-							</div>
-							<div class="grow" />
-							<a href={profile.profileurl} target="_blank" rel="noopener noreferrer">
-								<img src={'/steam.png'} alt="profilepicture" class="h-5" />
-							</a>
-							<a
-								href={`https://dotabuff.com/players/${(
-									BigInt(profile.steamid) - BigInt('76561197960265728')
-								).toString()}`}
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<img src={'/dotabuff.png'} alt="profilepicture" class="h-5" />
-							</a>
-							<a
-								href={`https://www.opendota.com/players/${(
-									BigInt(profile.steamid) - BigInt('76561197960265728')
-								).toString()}`}
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<img src={'/opendota.png'} alt="profilepicture" class="h-5" />
-							</a>
-							<a
-								href={`https://stratz.com/en-us/player/${(
-									BigInt(profile.steamid) - BigInt('76561197960265728')
-								).toString()}`}
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<img src={'/stratz.png'} alt="profilepicture" class="h-5" />
-							</a>
-						</div>
-					{/each}
 				</div>
 			</div>
 		</div>

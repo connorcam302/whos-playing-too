@@ -8,14 +8,22 @@ import {
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
 
-const getSteamData = async (steamId: number) => {
+const getSteamData = async (steamIds: number[]) => {
+	console.log('steamIds', steamIds);
+	console.log(
+		steamIds
+			.map((id) => BigInt(id) + BigInt('76561197960265728'))
+			.join(',')
+			.toString()
+	);
 	const steamData = await fetch(
-		`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_KEY}&steamids=${(
-			BigInt(steamId) + BigInt('76561197960265728')
-		).toString()}`
+		`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_KEY}&steamids=${steamIds
+			.map((id) => BigInt(id) + BigInt('76561197960265728'))
+			.join(',')
+			.toString()}`
 	);
 	const steamDataJson = await steamData.json();
-	return steamDataJson.response.players[0];
+	return steamDataJson.response.players;
 };
 
 function measurePromise(fn: () => Promise<any>): Promise<number> {
@@ -36,12 +44,16 @@ function longPromise(delay: number) {
 export const load = async ({ url, params }) => {
 	const player = await getPlayer(params.id);
 	const accountIds = await getAccounts(params.id);
-	const allSteamData = await Promise.all(
-		accountIds.map(async (account) => {
-			return { ...(await getSteamData(account.accountId)), smurf: account.smurf };
-		})
+	const allSteamData = await getSteamData(accountIds.map((account) => account?.accountId));
+	const mainAccountId = accountIds.find((account) => account.smurf === false)?.accountId;
+	const mainAccount = allSteamData.find(
+		(account: any) =>
+			account.steamid === (BigInt(mainAccountId) + BigInt('76561197960265728')).toString()
 	);
-	const steamData = await getSteamData(player.accountId);
+	const smurfAccounts = allSteamData.filter(
+		(account: any) =>
+			account.steamid !== (BigInt(mainAccountId) + BigInt('76561197960265728')).toString()
+	);
 	const weeklyStats = await getPlayerStats(params.id);
 	const allTimeStats = await getPlayerStats(params.id, 9999);
 
@@ -51,15 +63,11 @@ export const load = async ({ url, params }) => {
 	const timings = [
 		{ name: 'getPlayer', time: await measurePromise(() => getPlayer(params.id)) },
 		{ name: 'getAccounts', time: await measurePromise(() => getAccounts(params.id)) },
-		{ name: 'getSteamData', time: await measurePromise(() => getSteamData(player.accountId)) },
+		{ name: 'getSteamData', time: await measurePromise(() => getSteamData([player.accountId])) },
 		{
 			name: 'allSteamData',
 			time: await measurePromise(() =>
-				Promise.all(
-					accountIds.map(async (account) => {
-						return { ...(await getSteamData(account.accountId)), smurf: account.smurf };
-					})
-				)
+				getSteamData(accountIds.map((account) => account?.accountId))
 			)
 		},
 		{ name: 'getPlayerStats', time: await measurePromise(() => getPlayerStats(params.id)) },
@@ -77,8 +85,8 @@ export const load = async ({ url, params }) => {
 
 	return {
 		player,
-		steamData,
-		allSteamData,
+		mainAccount,
+		smurfAccounts,
 		allTimeStats,
 		weeklyStats,
 		heroStats,

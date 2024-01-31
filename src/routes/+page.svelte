@@ -17,8 +17,8 @@
 
 	export let data;
 
-	const { heroStats, playerStats, totw, features, timings } = data;
-	console.log(timings);
+	const { heroStats, playerStats, totw, features, timings, allPlayerSteamData } = data;
+	console.log(data);
 	let matchBlocks: any[] = [];
 
 	onMount(() => {
@@ -31,6 +31,18 @@
 </script>
 
 <div class="flex flex-col items-center gap-4">
+	<div
+		class="flex w-96 bg-neutral-800 border-[1px] border-neutral-200 border-opacity-15 bg-opacity-95 rounded-2xl px-2 py-2"
+	>
+		<div class="flex gap-1 overflow-y-scroll">
+			{#each allPlayerSteamData as profile}
+				<div class="border-[1px] border-neutral-200 rounded-2xl flex-col w-32">
+					<div>{profile.username}</div>
+					<div>{profile.personaname}</div>
+				</div>
+			{/each}
+		</div>
+	</div>
 	<div>
 		<TeamOfTheWeek {totw} />
 	</div>
