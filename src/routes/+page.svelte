@@ -21,7 +21,6 @@
 	export let data;
 
 	const { heroStats, playerStats, totw, features, timings, allPlayerSteamData } = data;
-	console.log(data);
 	let matchBlocks: any[] = [];
 
 	onMount(() => {

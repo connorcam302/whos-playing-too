@@ -13,6 +13,7 @@
 	import tippy from 'sveltejs-tippy';
 	import { calcImpact } from '../../functions';
 	import Bar from './Bar.svelte';
+	import { goto } from '$app/navigation';
 	let order = { col: 'matches', direction: 'desc' };
 
 	let playerSortState = 0;
@@ -237,7 +238,10 @@
 		{#each sortedStats as player}
 			<div class="flex gap-2 py-1 pr-2 hover:bg-neutral-700 hover:bg-opacity-20 transition-all">
 				<div class="w-20">
-					{player.username}
+					<button
+						on:click={() => goto(`/player/${player.id}`)}
+						class="hover:text-neutral-400 duration-300">{player.username}</button
+					>
 				</div>
 				{#key order}
 					<div class="flex grow gap-4 items-center">

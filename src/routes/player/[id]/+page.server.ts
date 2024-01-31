@@ -9,13 +9,6 @@ import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
 
 const getSteamData = async (steamIds: number[]) => {
-	console.log('steamIds', steamIds);
-	console.log(
-		steamIds
-			.map((id) => BigInt(id) + BigInt('76561197960265728'))
-			.join(',')
-			.toString()
-	);
 	const steamData = await fetch(
 		`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_KEY}&steamids=${steamIds
 			.map((id) => BigInt(id) + BigInt('76561197960265728'))

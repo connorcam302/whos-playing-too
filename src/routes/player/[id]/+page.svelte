@@ -115,8 +115,6 @@
 		timings
 	} = data);
 
-	console.log(data);
-
 	const toSteam32 = (accountId: string) => {
 		return BigInt(accountId) - BigInt('76561197960265728');
 	};
