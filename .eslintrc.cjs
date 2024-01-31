@@ -21,11 +21,21 @@ module.exports = {
 	},
 	overrides: [
 		{
-			files: ['*.svelte'],
+			files: ['*.svelte', '*.ts'],
+			rules: {
+				'no-undef': 'off',
+				'@typescript-eslint/no-unused-vars': ['warn']
+			},
 			parser: 'svelte-eslint-parser',
 			parserOptions: {
 				parser: '@typescript-eslint/parser'
 			}
 		}
-	]
+	],
+	rules: {
+		// Add your rules here
+		'no-unused-vars': 'warn', // or 'off' if you want to ignore
+		'@typescript-eslint/no-explicit-any': 'off'
+		// Add other rules based on your preferences
+	}
 };
