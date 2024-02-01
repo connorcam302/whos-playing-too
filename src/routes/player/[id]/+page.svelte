@@ -120,6 +120,11 @@
 	};
 </script>
 
+<meta property="og:title" content={`whos-playing | ${player.username}`} />
+<meta property="og:description" content={`whos-playing | ${player.username}`} />
+<meta property="og:image" content={mainAccount.avatarfull} />
+<meta property="og:url" content={`https://whos-playing.com/player/${player.id}`} />
+
 {#key player}
 	<div class="flex flex-col gap-4">
 		<div class="flex gap-2">
