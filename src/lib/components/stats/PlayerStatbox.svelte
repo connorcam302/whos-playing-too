@@ -180,6 +180,8 @@
 
 	order = { col: 'matches', direction: 'desc' };
 	$: sortedStats = sortStats(order);
+
+	console.log(playerStats);
 </script>
 
 <div

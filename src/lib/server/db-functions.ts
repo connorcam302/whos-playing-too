@@ -229,8 +229,8 @@ export const getAllPlayerStats = async (
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .where(
             and(
-                eq(matchData.team, 'radiant'),
-                eq(matches.winner, 'radiant'),
+                eq(matchData.team, 'dire'),
+                eq(matches.winner, 'dire'),
                 gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
             )
         )
