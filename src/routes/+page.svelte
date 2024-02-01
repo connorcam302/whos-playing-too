@@ -38,7 +38,7 @@
 			<TeamOfTheWeek {totw} />
 		</div>
 		<div
-			class="flex bg-neutral-800 border-[1px] border-neutral-200 border-opacity-15 bg-opacity-95 rounded-xl px-2 py-2"
+			class="flex bg-zinc-800 border-[1px] border-zinc-200 border-opacity-15 bg-opacity-95 rounded-xl px-2 py-2"
 		>
 			<div class="flex flex-col gap-2 overflow-y-scroll">
 				{#each allPlayerSteamData as profile}
@@ -50,7 +50,7 @@
 								<div class="flex">
 									<button
 										on:click={() => goto(`/player/${profile.id}`)}
-										class="hover:text-neutral-400 duration-300"
+										class="hover:text-zinc-400 duration-300"
 									>
 										<div class="text-lg">{profile.username}</div>
 									</button>
@@ -58,7 +58,7 @@
 									<div class="bg-rose-500 w-3 h-3 rounded-full" />
 								</div>
 								<div class="flex grow text-sm">
-									<div class="text-neutral-400">
+									<div class="text-zinc-400">
 										{profile.personaname.length > 20
 											? profile.personaname.substring(0, 18) + '...'
 											: profile.personaname}
@@ -69,21 +69,21 @@
 						</div>
 					{:else}
 						<div
-							class="border-[2px] border-solid border-neutral-600 rounded-lg p-1 bg-neutral-600 bg-opacity-5 mr-2"
+							class="border-[2px] border-solid border-zinc-600 rounded-lg p-1 bg-zinc-600 bg-opacity-5 mr-2"
 						>
 							<div class="flex flex-col w-64 px-2 py-1">
 								<div class="flex">
 									<button
 										on:click={() => goto(`/player/${profile.id}`)}
-										class="hover:text-neutral-400 duration-300"
+										class="hover:text-zinc-400 duration-300"
 									>
 										<div class="text-lg">{profile.username}</div>
 									</button>
 									<div class="grow flex justify-end" />
-									<div class="bg-neutral-400 w-3 h-3 rounded-full" />
+									<div class="bg-zinc-400 w-3 h-3 rounded-full" />
 								</div>
 								<div class="flex grow text-sm">
-									<div class="text-neutral-400">
+									<div class="text-zinc-400">
 										{profile.personaname.length > 20
 											? profile.personaname.substring(0, 18) + '...'
 											: profile.personaname}

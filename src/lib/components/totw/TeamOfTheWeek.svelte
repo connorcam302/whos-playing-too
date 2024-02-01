@@ -30,7 +30,7 @@
 
 <div
 	id="box"
-	class="bg-neutral-800 border-[1px] border-neutral-200 border-opacity-15 bg-opacity-95 rounded-lg px-2 py-2 h-80"
+	class="bg-zinc-800 border-[1px] border-zinc-200 border-opacity-15 bg-opacity-95 rounded-lg px-2 py-2 h-80"
 >
 	<div id="title" class="font-display text-center text-4xl my-1">TEAM OF THE WEEK</div>
 	<div class="flex gap-2">
@@ -44,7 +44,7 @@
 				<img src={`/roles/pos1.svg`} class="h-8" alt="pos1" />
 				<button
 					on:click={() => goto(`/player/${totw.onePlayer}`)}
-					class="hover:text-neutral-400 duration-300"
+					class="hover:text-zinc-400 duration-300"
 				>
 					<div class="font-display text-2xl">{totw.onePlayerName}</div>
 				</button>
@@ -60,7 +60,7 @@
 				<img src={`/roles/pos1.svg`} class="h-8" alt="pos2" />
 				<button
 					on:click={() => goto(`/player/${totw.twoPlayer}`)}
-					class="hover:text-neutral-400 duration-300"
+					class="hover:text-zinc-400 duration-300"
 				>
 					<div class="font-display text-2xl">{totw.twoPlayerName}</div>
 				</button>
@@ -76,7 +76,7 @@
 				<img src={`/roles/pos3.svg`} class="h-8" alt="pos3" />
 				<button
 					on:click={() => goto(`/player/${totw.threePlayer}`)}
-					class="hover:text-neutral-400 duration-300"
+					class="hover:text-zinc-400 duration-300"
 				>
 					<div class="font-display text-2xl">{totw.threePlayerName}</div>
 				</button>
@@ -92,7 +92,7 @@
 				<img src={`/roles/pos4.svg`} class="h-8" alt="pos4" />
 				<button
 					on:click={() => goto(`/player/${totw.fourPlayer}`)}
-					class="hover:text-neutral-400 duration-300"
+					class="hover:text-zinc-400 duration-300"
 				>
 					<div class="font-display text-2xl">{totw.fourPlayerName}</div>
 				</button>
@@ -108,7 +108,7 @@
 				<img src={`/roles/pos5.svg`} class="h-8" alt="pos5" />
 				<button
 					on:click={() => goto(`/player/${totw.fivePlayer}`)}
-					class="hover:text-neutral-400 duration-300"
+					class="hover:text-zinc-400 duration-300"
 				>
 					<div class="font-display text-2xl">{totw.fivePlayerName}</div>
 				</button>

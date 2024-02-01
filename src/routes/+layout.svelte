@@ -78,7 +78,7 @@
 				</div>
 			{:else}
 				<div
-					class="flex justify-center items-center mx-auto"
+					class="flex justify-center items-center mx-auto text-white"
 					in:fade={{ delay: 120, duration: 250 }}
 				>
 					<slot />
