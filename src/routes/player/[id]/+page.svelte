@@ -64,7 +64,7 @@
 
 	onMount(() => {
 		if ($page.url.searchParams.get('page')) {
-			pageNumber = $page.url.searchParams.get('page');
+			pageNumber = Number($page.url.searchParams.get('page'));
 		}
 		fetchMatches(pageNumber, Number($page.params.id));
 	});
@@ -270,7 +270,7 @@
 				{#if chartType == 'days'}
 					<div class="flex w-full px-4 text-xl">
 						<div class="basis-1/3" />
-						<div class="basis-1/3 text-center">Wins by Day</div>
+						<div class="basis-1/3 text-center">Wins by Games</div>
 						<button
 							class="basis-1/3 flex justify-end items-center"
 							on:click={() => (chartType = 'games')}><MaterialSymbolsCalendarMonth /></button
@@ -290,7 +290,7 @@
 				{:else}
 					<div class="flex w-full px-4 text-xl">
 						<div class="basis-1/3" />
-						<div class="basis-1/3 text-center">Wins by Games</div>
+						<div class="basis-1/3 text-center">Wins by Day</div>
 						<button
 							class="basis-1/3 flex justify-end items-center"
 							on:click={() => (chartType = 'days')}><IonLogoGameControllerB /></button
