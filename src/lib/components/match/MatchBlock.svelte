@@ -70,9 +70,9 @@
 		backpack_0: number;
 		backpack_1: number;
 		backpack_2: number;
-		item_neutral: number;
+		item_zinc: number;
 		items: DotaAsset[];
-		neutralItem: DotaAsset;
+		zincItem: DotaAsset;
 		backpack: DotaAsset[];
 		kills: number;
 		deaths: number;
@@ -118,7 +118,7 @@
 	<div class="w-fit">
 		<div
 			id="box"
-			class="bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 p-1 rounded-xl w-auto"
+			class="bg-zinc-800 bg-opacity-95 border-[1px] border-zinc-200 border-opacity-15 p-1 rounded-xl w-auto"
 		>
 			<div class="w-full">
 				<div class="flex flex-row items-center gap-4 my-1 mx-2">
