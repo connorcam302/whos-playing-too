@@ -121,7 +121,13 @@
 </script>
 
 <meta property="og:title" content={`whos-playing | ${player.username}`} />
-<meta property="og:description" content={`whos-playing | ${player.username}`} />
+<meta
+	property="og:description"
+	content={`All Time Ranked: ${allTimeStats.rankedWins} - ${allTimeStats.rankedLosses}
+This Week Ranked: ${weeklyStats.rankedWins} - ${weeklyStats.rankedWins}
+All Time: ${allTimeStats.wins} - ${allTimeStats.losses}
+This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
+/>
 <meta property="og:image" content={mainAccount.avatarfull} />
 <meta property="og:url" content={`https://whos-playing.com/player/${player.id}`} />
 
@@ -363,3 +369,9 @@
 		{/key}
 	</div>
 {/key}
+
+<style>
+	meta[name='description'] {
+		white-space: pre-line;
+	}
+</style>
