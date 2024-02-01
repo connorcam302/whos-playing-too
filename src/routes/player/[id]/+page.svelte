@@ -124,7 +124,7 @@
 <meta
 	property="og:description"
 	content={`All Time Ranked: ${allTimeStats.rankedWins} - ${allTimeStats.rankedLosses}
-This Week Ranked: ${weeklyStats.rankedWins} - ${weeklyStats.rankedWins}
+This Week Ranked: ${weeklyStats.rankedWins} - ${weeklyStats.rankedLosses}
 All Time: ${allTimeStats.wins} - ${allTimeStats.losses}
 This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 />
