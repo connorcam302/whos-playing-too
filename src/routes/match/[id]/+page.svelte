@@ -20,38 +20,38 @@
 	<div class="w-full p-2">
 		<div class="w-full">
 			<button
-				class="text-white py-2 px-4 rounded-t-xl"
-				style={`background-color: ${chartState === 'winRate' ? '#27272a' : ''}`}
+				class="bg-zinc-800 text-white py-2 px-4 rounded-xl"
+				style={`background-color: ${chartState === 'winRate' ? '#27272a' : '#18181b'}`}
 				on:click={() => (chartState = 'winRate')}
 			>
 				Win Chance
 			</button>
 			<button
-				class="text-white py-2 px-4 rounded-t-xl"
-				style={`background-color: ${chartState === 'netWorth' ? '#27272a' : ''}`}
+				class="bg-zinc-800 text-white py-2 px-4 rounded-xl"
+				style={`background-color: ${chartState === 'netWorth' ? '#27272a' : '#18181b'}`}
 				on:click={() => (chartState = 'netWorth')}
 			>
 				Net Worth
 			</button>
 			<button
-				class="text-white py-2 px-4 rounded-t-xl"
-				style={`background-color: ${chartState === 'experience' ? '#27272a' : ''}`}
+				class="bg-zinc-800 text-white py-2 px-4 rounded-xl"
+				style={`background-color: ${chartState === 'experience' ? '#27272a' : '#18181b'}`}
 				on:click={() => (chartState = 'experience')}
 			>
 				Experience
 			</button>
 		</div>
-		<div class="bg-zinc-800 p-2">
+		<div class="p-2">
 			{#if chartState === 'winRate'}
-				<div class="w-full bg-zinc-800">
+				<div class="w-full">
 					<WinRateGraph data={matchDetails.winRates} />
 				</div>
 			{:else if chartState === 'netWorth'}
-				<div class="w-full bg-zinc-800">
+				<div class="w-full">
 					<NetWorthGraph data={matchDetails.radiantNetworthLead} />
 				</div>
 			{:else if chartState === 'experience'}
-				<div class="w-full bg-zinc-800">
+				<div class="w-full">
 					<ExperienceGraph data={matchDetails.radiantExperienceLead} />
 				</div>
 			{/if}

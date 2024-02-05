@@ -109,6 +109,7 @@
 
 	const fetchMatchData = async () => {
 		const res = await fetch(`/api/matches/${matchId}`);
+		if (!res.ok) return { error: res.status };
 		return await res.json();
 	};
 
@@ -123,6 +124,7 @@
 		showMatchData = true;
 		if (!matchDetails) {
 			matchDetails = await fetchMatchData();
+			console.log(matchDetails);
 		}
 	};
 
