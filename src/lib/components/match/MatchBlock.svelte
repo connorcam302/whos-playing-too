@@ -12,6 +12,8 @@
 	import { goto } from '$app/navigation';
 	import FxemojiPoo from '~icons/fxemoji/poo';
 	import MaterialSymbolsTrophyRounded from '~icons/material-symbols/trophy-rounded';
+
+	import IcBaselineLaunch from '~icons/ic/baseline-launch';
 	import { calcImpact } from '$lib/functions';
 	import tippy from 'tippy.js';
 
@@ -146,7 +148,13 @@
 						<div>
 							{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 						</div>
-						<div class="flex gap-1">
+						<div class="flex gap-1 items-center">
+							<button
+								on:click={() => goto(`/match/${matchDetails.matchData.match_id}`)}
+								class="text-xl"
+							>
+								<IcBaselineLaunch />
+							</button>
 							<a href={`https://www.dotabuff.com/matches/${matchData.id}`} target="_blank">
 								<img src="/dotabuff.png" alt="dotabuff" class="h-5" />
 							</a>
