@@ -15,6 +15,8 @@ export const load = async ({ params }) => {
 		}
 	).then((res) => res.json());
 
+	console.log(matchDetails);
+
 	const matchData = await fetchMatchData();
 
 	const abilityId = await fetch(
