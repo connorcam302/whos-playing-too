@@ -13,7 +13,10 @@ export const load = async ({ params }) => {
 		{
 			headers: { Authorization: `Bearer ${STRATZ_KEY}` }
 		}
-	).then((res) => res.json());
+	).then((res) => {
+		console.log(res);
+		return res.json();
+	});
 
 	console.log(matchDetails);
 
