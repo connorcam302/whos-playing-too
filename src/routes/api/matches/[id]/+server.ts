@@ -3,17 +3,28 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 import { laneRates } from '$lib/server/laneRates';
 import { heroMap } from '$lib/data/heroMap';
 import { itemMap } from '$lib/data/itemMap';
-import { accounts, accounts, accounts, players } from '$lib/server/schema';
+import { accounts, accounts, accounts, matchData, players } from '$lib/server/schema';
 import { db } from '$lib/server/database';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
-const getRoles = (team) => {
+const getRoles = (team: any[], definedRoles: any[]) => {
 	const heroes = laneRates;
-	const heroIds = team.map((hero) => hero.hero_id);
-	const roles = ['1', '2', '3', '4', '5'];
+	let heroIds = team.map((hero) => hero.hero_id);
+	let roles = ['1', '2', '3', '4', '5'];
 	const heroRoles: any[] = [];
 
+	definedRoles.forEach((role) => {
+		heroRoles.push({
+			id: role.heroId,
+			role: role.role
+		});
+		heroIds.splice(heroIds.indexOf(role.heroId), 1);
+
+		roles = roles.filter((entry) => entry !== role.role.toString());
+	});
+
 	roles.forEach((role) => {
+		console.log(heroIds);
 		const eligibleHeroes = heroes
 			.filter(
 				(hero) =>
@@ -33,23 +44,25 @@ const getRoles = (team) => {
 
 				return weightedAverageB - weightedAverageA;
 			});
-
+		console.log(eligibleHeroes);
 		if (eligibleHeroes.length > 0) {
 			// Assign the role based on the first eligible hero
+
 			heroRoles.push({
 				id: eligibleHeroes[0].id,
-				name: eligibleHeroes[0].name,
 				role: Number(role)
 			});
-			// Remove the assigned hero from the list to avoid duplicate assignments
+			console.log(eligibleHeroes[0].id);
 			heroIds.splice(heroIds.indexOf(eligibleHeroes[0].id), 1);
+
+			// Remove the assigned hero from the list to avoid duplicate assignments
 		} else {
 			// If no eligible hero for the role, assign 'Unknown'
-			heroRoles.push({ id: 0, name: undefined, role: role });
+			heroRoles.push({ id: 0, role: role });
 		}
 	});
 
-	return heroRoles;
+	return heroRoles.sort((a, b) => a.role - b.role);
 };
 
 const getImpactScore = (match: any, role: any, duration: any) => {
@@ -110,15 +123,16 @@ const getImpactScore = (match: any, role: any, duration: any) => {
 };
 
 export const GET: RequestHandler = async ({ url, params }) => {
-	const matchData = await fetch(
+	const steamMatchData = await fetch(
 		`https://api.steampowered.com/IDOTA2Match_570/getMatchDetails/v1?key=${STEAM_KEY}&match_id=${params.id}`
 	)
 		.then((res) => res.json())
 		.then((data) => data.result);
-	if (!matchData) {
+	if (!steamMatchData) {
 		return json({ error: 'Steam API Down.' });
 	}
-	const accountIds = matchData.players.map((player) => player.account_id);
+
+	const accountIds = steamMatchData.players.map((player) => player.account_id);
 
 	const allAccounts = await db
 		.select({
@@ -131,14 +145,24 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		.innerJoin(players, eq(accounts.owner, players.id))
 		.where(inArray(accounts.accountId, accountIds));
 
-	const radiant = matchData.players.filter((player) => player.player_slot <= 127);
-	const dire = matchData.players.filter((player) => player.player_slot >= 128);
+	const radiantPresetRoles = await db
+		.select({ heroId: matchData.heroId, role: matchData.role })
+		.from(matchData)
+		.where(and(eq(matchData.matchId, Number(params.id)), eq(matchData.team, 'radiant')));
 
-	const radiantRoles = getRoles(radiant);
-	const direRoles = getRoles(dire);
+	const direPresetRoles = await db
+		.select({ heroId: matchData.heroId, role: matchData.role })
+		.from(matchData)
+		.where(and(eq(matchData.matchId, Number(params.id)), eq(matchData.team, 'dire')));
+
+	const radiant = steamMatchData.players.filter((player) => player.player_slot <= 127);
+	const dire = steamMatchData.players.filter((player) => player.player_slot >= 128);
+
+	const radiantRoles = getRoles(radiant, radiantPresetRoles);
+	const direRoles = getRoles(dire, direPresetRoles);
 	const radiantData = radiant.map((player) => {
 		const role = radiantRoles.find((entry) => entry.id === player.hero_id)?.role;
-		const impactScore = getImpactScore(player, role, matchData.duration);
+		const impactScore = getImpactScore(player, role, steamMatchData.duration);
 		return {
 			...player,
 			role,
@@ -147,7 +171,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 	});
 	const direData = dire.map((player) => {
 		const role = direRoles.find((entry) => entry.id === player.hero_id)?.role;
-		const impactScore = getImpactScore(player, role, matchData.duration);
+		const impactScore = getImpactScore(player, role, steamMatchData.duration);
 		return {
 			...player,
 			role,
@@ -196,18 +220,18 @@ export const GET: RequestHandler = async ({ url, params }) => {
 			])
 		)
 	);
-	matchData.picks = [];
-	matchData.bans = [];
+	steamMatchData.picks = [];
+	steamMatchData.bans = [];
 
-	matchData.picks_bans.map((entry: { is_pick: boolean; hero_id: number; order: number }) => {
+	steamMatchData.picks_bans.map((entry: { is_pick: boolean; hero_id: number; order: number }) => {
 		if (entry.is_pick) {
-			matchData.picks.push(heroMap.get(entry.hero_id));
+			steamMatchData.picks.push(heroMap.get(entry.hero_id));
 		} else {
-			matchData.bans.push(heroMap.get(entry.hero_id));
+			steamMatchData.bans.push(heroMap.get(entry.hero_id));
 		}
 	});
 
-	delete matchData.players;
+	delete steamMatchData.players;
 
-	return json({ radiantData, direData, matchData });
+	return json({ radiantData, direData, matchData: steamMatchData });
 };

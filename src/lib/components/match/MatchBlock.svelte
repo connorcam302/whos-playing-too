@@ -149,10 +149,7 @@
 							{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 						</div>
 						<div class="flex gap-1 items-center">
-							<button
-								on:click={() => goto(`/match/${matchDetails.matchData.match_id}`)}
-								class="text-xl"
-							>
+							<button on:click={() => goto(`/match/${matchData.id}`)} class="text-xl">
 								<IcBaselineLaunch />
 							</button>
 							<a href={`https://www.dotabuff.com/matches/${matchData.id}`} target="_blank">
