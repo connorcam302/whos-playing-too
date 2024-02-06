@@ -47,7 +47,7 @@
 						let ctx = chart.ctx;
 						ctx.save();
 						let yAxis = chart.scales.y;
-						let yThreshold = yAxis.getPixelForValue(0.5085);
+						let yThreshold = yAxis.getPixelForValue(440);
 						let gradient = ctx.createLinearGradient(0, yAxis.top, 0, yAxis.bottom);
 						gradient.addColorStop(0, 'green');
 						let offset = (1 / yAxis.bottom) * yThreshold;
@@ -72,7 +72,7 @@
 						fill: {
 							above: 'rgba(34, 197, 94, 0.2)',
 							below: 'rgba(220, 38, 38, 0.2)',
-							target: { value: 0.5 }
+							target: { value: 0 }
 						}
 					}
 				]

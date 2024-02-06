@@ -7,6 +7,7 @@
 	import FxemojiPoo from '~icons/fxemoji/poo';
 	import MaterialSymbolsTrophyRounded from '~icons/material-symbols/trophy-rounded';
 	import IcBaselineLaunch from '~icons/ic/baseline-launch';
+	import MaterialSymbolsLightSettings from '~icons/material-symbols-light/settings';
 	import { calcImpact } from '$lib/functions';
 	import tippy from 'tippy.js';
 
@@ -126,7 +127,105 @@
 		}
 	};
 
-	console.log(matchDetails);
+	const arraySwap = (arr, index1, index2) => {
+		const temp = arr[index1];
+		arr[index1] = arr[index2];
+		arr[index2] = temp;
+	};
+
+	let radiantRoles = [
+		{ account_id: -1, hero_id: 0, role: 0, user: null },
+		{ account_id: -2, hero_id: 0, role: 0, user: null },
+		{ account_id: -3, hero_id: 0, role: 0, user: null },
+		{ account_id: -4, hero_id: 0, role: 0, user: null },
+		{ account_id: -5, hero_id: 0, role: 0, user: null }
+	];
+	let direRoles = [
+		{ account_id: -6, hero_id: 0, role: 0, user: null },
+		{ account_id: -7, hero_id: 0, role: 0, user: null },
+		{ account_id: -8, hero_id: 0, role: 0, user: null },
+		{ account_id: -9, hero_id: 0, role: 0, user: null },
+		{ account_id: -10, hero_id: 0, role: 0, user: null }
+	];
+
+	$: if (matchDetails) {
+		const radiantUserData = matchDetails.radiantData.filter((player) => player.user);
+		const direUserData = matchDetails.direData.filter((player) => player.user);
+
+		radiantUserData.forEach((player) => {
+			radiantRoles[player.role - 1] = player;
+		});
+
+		direUserData.forEach((player) => {
+			direRoles[player.role - 1] = player;
+		});
+	}
+
+	$: radiantSelected = null;
+	$: direSelected = null;
+
+	const radiantHandleClick = (player) => {
+		if (radiantSelected === null) {
+			radiantSelected = player;
+		} else if (radiantSelected === player) {
+			radiantSelected = null;
+		} else {
+			arraySwap(radiantRoles, radiantRoles.indexOf(player), radiantRoles.indexOf(radiantSelected));
+			radiantSelected = null;
+		}
+	};
+
+	const direHandleClick = (player) => {
+		if (direSelected === null) {
+			direSelected = player;
+		} else if (direSelected === player) {
+			direSelected = null;
+		} else {
+			arraySwap(direRoles, direRoles.indexOf(player), direRoles.indexOf(direSelected));
+			direSelected = null;
+		}
+	};
+
+	$: buttonState = 'Apply';
+
+	const applyRoleChange = async () => {
+		const radiantData = radiantRoles.map((player, index) => {
+			if (player?.user) {
+				return { heroId: player?.hero_id, role: index + 1 };
+			}
+		});
+		const direData = direRoles.map((player, index) => {
+			if (player?.user) {
+				return { heroId: player?.hero_id, role: index + 1 };
+			}
+		});
+		console.log(radiantData, direData);
+
+		buttonState = '...';
+
+		const radiantResponse = await fetch(
+			`/api/matches/${matchDetails.matchData.match_id}/set-roles`,
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ ...radiantData })
+			}
+		);
+
+		const direResponse = await fetch(`/api/matches/${matchDetails.matchData.match_id}/set-roles`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ ...direData })
+		});
+
+		await Promise.all([radiantResponse, direResponse]).then(() => location.reload());
+	};
+
+	$: fixRoleScreenShow = false;
 </script>
 
 <div class="px-4">
@@ -137,7 +236,11 @@
 	{:else}
 		<div class="flex flex-col gap-4 w-full my-2">
 			<div class="w-full flex justify-center gap-4 items-center">
-				<div class="basis-1/3" />
+				<div class="basis-1/3">
+					<button class="text-4xl" on:click={() => (fixRoleScreenShow = true)}>
+						<MaterialSymbolsLightSettings />
+					</button>
+				</div>
 				<div class="basis-1/3 flex items-center justify-center gap-4">
 					{#if matchDetails.matchData.radiant_win}
 						<div class="text-4xl text-emerald-500" style="text-shadow: #10b981 0 0 15px;">
@@ -564,6 +667,212 @@
 		</div>
 	{/if}
 </div>
+
+{#if fixRoleScreenShow}
+	<div
+		transition:fade={{ duration: 200 }}
+		id="backdrop"
+		class="h-screen fixed top-0 w-screen cursor-default flex justify-center items-center z-10"
+		on:click|self={() => (fixRoleScreenShow = false)}
+		on:keypress={(e) => e.key === 'Escape' && (fixRoleScreenShow = false)}
+		tabindex="0"
+		role="button"
+	>
+		<div
+			class="absolute opacity-100 bg-zinc-900 border-[1px] border-zinc-200 border-opacity-15 px-4 py-2 rounded-xl z-20"
+		>
+			<div class="flex flex-col gap-2">
+				<div class="flex gap-8">
+					{#if !radiantRoles.every((player) => player === null)}
+						<div>
+							{#key radiantSelected}
+								<div class="text-center">Radiant Roles</div>
+								<div class="flex flex-col gap-2 w-32">
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos1.png" alt="pos1" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											on:click={() => radiantHandleClick(radiantRoles[0])}
+											style={radiantSelected?.account_id === radiantRoles[0].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if radiantRoles[0]?.user}
+												<div>{radiantRoles[0]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos2.png" alt="pos2" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											on:click={() => radiantHandleClick(radiantRoles[1])}
+											style={radiantSelected?.account_id === radiantRoles[1].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if radiantRoles[1]?.user}
+												<div>{radiantRoles[1]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos3.png" alt="pos3" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											on:click={() => radiantHandleClick(radiantRoles[2])}
+											style={radiantSelected?.account_id === radiantRoles[2].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if radiantRoles[2]?.user}
+												<div>{radiantRoles[2]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos4.png" alt="pos4" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											on:click={() => radiantHandleClick(radiantRoles[3])}
+											style={radiantSelected?.account_id === radiantRoles[3].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if radiantRoles[3]?.user}
+												<div>{radiantRoles[3]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos5.png" alt="pos5" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											on:click={() => radiantHandleClick(radiantRoles[4])}
+											style={radiantSelected?.account_id === radiantRoles[4].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if radiantRoles[4]?.user}
+												<div>{radiantRoles[4]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+								</div>
+							{/key}
+						</div>
+					{/if}
+					{#if !direRoles.every((player) => player === null)}
+						<div>
+							{#key direSelected}
+								<div class="text-center">Dire Roles</div>
+								<div class="flex flex-col gap-2 w-32">
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos1.png" alt="pos1" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											on:click={() => direHandleClick(direRoles[0])}
+											style={direSelected?.account_id === direRoles[0].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if direRoles[0]?.user}
+												<div>{direRoles[0]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos2.png" alt="pos2" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											on:click={() => direHandleClick(direRoles[1])}
+											style={direSelected?.account_id === direRoles[1].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if direRoles[1]?.user}
+												<div>{direRoles[1]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos3.png" alt="pos3" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											on:click={() => direHandleClick(direRoles[2])}
+											style={direSelected?.account_id === direRoles[2].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if direRoles[2]?.user}
+												<div>{direRoles[2]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos4.png" alt="pos4" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											on:click={() => direHandleClick(direRoles[3])}
+											style={direSelected?.account_id === direRoles[3].account_id
+												? ' border-color: #f43f5e'
+												: ''}
+										>
+											{#if direRoles[3]?.user}
+												<div>{direRoles[3]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+									<div class="flex gap-1 items-center">
+										<img src="/roles/pos5.png" alt="pos5" class="h-6" />
+										<button
+											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											on:click={() => direHandleClick(direRoles[4])}
+											style={direSelected?.account_id === direRoles[4].account_id
+												? 'border-color: #f43f5e'
+												: ''}
+										>
+											{#if direRoles[4]?.user}
+												<div>{direRoles[4]?.user?.username}</div>
+											{:else}
+												<div class="text-zinc-400">Anonymous</div>
+											{/if}
+										</button>
+									</div>
+								</div>
+							{/key}
+						</div>
+					{/if}
+				</div>
+				<div class="flex w-full items-center justify-center">
+					{#key buttonState}
+						<button on:click={() => applyRoleChange()} class="rounded-xl px-4 py-1 bg-rose-500"
+							>{buttonState}</button
+						>
+					{/key}
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
 
 <style>
 	::-webkit-scrollbar {

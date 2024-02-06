@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { type MatchDetails } from './matchDetails.type';
+	import { fade } from 'svelte/transition';
 	import MatchTable from '$lib/components/match/MatchTable.svelte';
 	import WinRateGraph from './WinRateGraph.svelte';
 	import NetWorthGraph from './NetWorthGraph.svelte';
@@ -11,6 +12,8 @@
 	let chartState = 'winRate';
 
 	console.log(data);
+
+	$: fixRoleScreenShow = false;
 </script>
 
 <div class="flex flex-col items-center">
