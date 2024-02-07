@@ -38,7 +38,7 @@
 
 {#if type == 'winLoss'}
 	<div
-		class="bg-neutral-800 bg-opacity-100 border-[1px] border-neutral-200 border-opacity-15 rounded-xl w-72"
+		class="bg-zinc-800 bg-opacity-100 border-[1px] border-zinc-200 border-opacity-15 rounded-xl w-72"
 	>
 		<div class="rounded-xl border-white border-b-[1px] border-opacity-15 max-h-28">
 			<div class="rounded-xl border-white border-b-[1px] border-opacity-15">
@@ -53,7 +53,7 @@
 							<div class="flex flex-row justify-between text-3xl">
 								<button
 									on:click={() => goto(`/player/${data[0].id}`)}
-									class="hover:text-neutral-400 duration-300"
+									class="hover:text-zinc-400 duration-300"
 								>
 									<div>{data[0].username}</div>
 								</button>
@@ -74,7 +74,7 @@
 		>
 			<button
 				on:click={() => goto(`/player/${data[1].id}`)}
-				class="hover:text-neutral-400 duration-300"
+				class="hover:text-zinc-400 duration-300"
 			>
 				<div class="flex h-7 items-center">{data[1].username}</div>
 			</button>
@@ -84,7 +84,7 @@
 		<div class="flex flex-row items-center px-4 py-0.5 h-7">
 			<button
 				on:click={() => goto(`/player/${data[2].id}`)}
-				class="hover:text-neutral-400 duration-300"
+				class="hover:text-zinc-400 duration-300"
 			>
 				<div class="flex h-7 items-center">{data[2].username}</div>
 			</button>
@@ -94,7 +94,7 @@
 	</div>
 {:else}
 	<div
-		class="bg-neutral-800 bg-opacity-100 border-[1px] border-neutral-200 border-opacity-15 rounded-xl w-72"
+		class="bg-zinc-800 bg-opacity-100 border-[1px] border-zinc-200 border-opacity-15 rounded-xl w-72"
 	>
 		<div class="rounded-xl border-white border-b-[1px] border-opacity-15">
 			<MatchModal matchId={data[0].matchId}>
@@ -109,7 +109,7 @@
 							<div class="flex flex-row justify-between text-3xl">
 								<button
 									on:click={() => goto(`/player/${data[0].id}`)}
-									class="hover:text-neutral-400 duration-300"
+									class="hover:text-zinc-400 duration-300"
 								>
 									<div>{data[0].username}</div>
 								</button>
@@ -127,7 +127,7 @@
 				<div><img src={data[1]?.hero?.img} class="h-7 mr-2" alt={data[2]?.hero?.name} /></div>
 				<button
 					on:click={() => goto(`/player/${data[1].id}`)}
-					class="hover:text-neutral-400 duration-300"
+					class="hover:text-zinc-400 duration-300"
 				>
 					<div>{data[1].username}</div>
 				</button>
@@ -141,7 +141,7 @@
 				<div><img src={data[2]?.hero?.img} class="h-7 mr-2" alt={data[2]?.hero?.name} /></div>
 				<button
 					on:click={() => goto(`/player/${data[2].id}`)}
-					class="hover:text-neutral-400 duration-300"
+					class="hover:text-zinc-400 duration-300"
 				>
 					<div>{data[2].username}</div>
 				</button>

@@ -66,7 +66,7 @@
 		backpack_0: number;
 		backpack_1: number;
 		backpack_2: number;
-		item_zinc: number;
+		item_neutral: number;
 		items: DotaAsset[];
 		neutralItem: DotaAsset;
 		backpack: DotaAsset[];
@@ -694,7 +694,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
 											on:click={() => radiantHandleClick(radiantRoles[0])}
 											style={radiantSelected?.account_id === radiantRoles[0].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if radiantRoles[0]?.user}
@@ -710,7 +710,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
 											on:click={() => radiantHandleClick(radiantRoles[1])}
 											style={radiantSelected?.account_id === radiantRoles[1].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if radiantRoles[1]?.user}
@@ -726,7 +726,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
 											on:click={() => radiantHandleClick(radiantRoles[2])}
 											style={radiantSelected?.account_id === radiantRoles[2].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if radiantRoles[2]?.user}
@@ -742,7 +742,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
 											on:click={() => radiantHandleClick(radiantRoles[3])}
 											style={radiantSelected?.account_id === radiantRoles[3].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if radiantRoles[3]?.user}
@@ -758,7 +758,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
 											on:click={() => radiantHandleClick(radiantRoles[4])}
 											style={radiantSelected?.account_id === radiantRoles[4].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if radiantRoles[4]?.user}
@@ -783,7 +783,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
 											on:click={() => direHandleClick(direRoles[0])}
 											style={direSelected?.account_id === direRoles[0].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if direRoles[0]?.user}
@@ -799,7 +799,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
 											on:click={() => direHandleClick(direRoles[1])}
 											style={direSelected?.account_id === direRoles[1].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if direRoles[1]?.user}
@@ -815,7 +815,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
 											on:click={() => direHandleClick(direRoles[2])}
 											style={direSelected?.account_id === direRoles[2].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if direRoles[2]?.user}
@@ -831,7 +831,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
 											on:click={() => direHandleClick(direRoles[3])}
 											style={direSelected?.account_id === direRoles[3].account_id
-												? ' border-color: #f43f5e'
+												? ' border-color: #38bdf8'
 												: ''}
 										>
 											{#if direRoles[3]?.user}
@@ -847,7 +847,7 @@
 											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
 											on:click={() => direHandleClick(direRoles[4])}
 											style={direSelected?.account_id === direRoles[4].account_id
-												? 'border-color: #f43f5e'
+												? 'border-color: #38bdf8'
 												: ''}
 										>
 											{#if direRoles[4]?.user}
@@ -864,7 +864,7 @@
 				</div>
 				<div class="flex w-full items-center justify-center">
 					{#key buttonState}
-						<button on:click={() => applyRoleChange()} class="rounded-xl px-4 py-1 bg-rose-500"
+						<button on:click={() => applyRoleChange()} class="rounded-xl px-4 py-1 bg-sky-500"
 							>{buttonState}</button
 						>
 					{/key}

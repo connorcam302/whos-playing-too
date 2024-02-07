@@ -183,10 +183,8 @@
 	$: sortedStats = sortStats(order);
 </script>
 
-<div
-	class="bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 py-2 px-4 rounded-xl"
->
-	<div class="flex gap-2 my-1 pr-2 pb-1 border-white border-b-[1px] border-opacity-30">
+<div class="bg-zinc-800 py-2 px-4 rounded-xl">
+	<div class="flex gap-2 my-1 pr-2 pb-1">
 		<div class="flex w-16 justify-center items-center">
 			<button on:click={() => handleHeroSort()}>HERO</button>
 			<div class="grow" />
@@ -236,7 +234,7 @@
 	</div>
 	<div id="scrollbox" class="overflow-y-auto max-h-96">
 		{#each sortedStats as hero}
-			<div class="flex gap-2 py-1 pr-2 hover:bg-neutral-700 hover:bg-opacity-20 transition-all">
+			<div class="flex gap-2 py-1 pr-2 hover:bg-zinc-700 hover:bg-opacity-20 transition-all">
 				<div class="w-16">
 					<img src={hero.hero.img} alt={`${hero.hero.id}-${hero.hero.name}`} class="w-14" />
 				</div>
@@ -245,7 +243,7 @@
 						<div class="basis-1/3">
 							<div class="text-sm opacity-85 pb-1">{hero.matches}</div>
 							<Bar
-								colour="#f43f5e"
+								colour="#38bdf8"
 								percentage={(hero.matches / heroStatsOriginal[0].matches) * 100}
 							/>
 						</div>

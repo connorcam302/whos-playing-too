@@ -57,7 +57,7 @@
 					{
 						label: 'Win Rate',
 						data: data,
-						borderColor: '#f43f5e',
+						borderColor: '#38bdf8',
 						backgroundColor: '#f43a5e',
 						pointRadius: 0,
 						fill: {
@@ -96,8 +96,8 @@
 							const chart = legend.chart;
 							chart.config.data.datasets.forEach((d, index) => {
 								d.backgroundColor =
-									data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#f43f5e';
-								d.borderColor = data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#f43f5e';
+									data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#38bdf8';
+								d.borderColor = data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#38bdf8';
 							});
 							chart.update();
 						}

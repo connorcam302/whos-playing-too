@@ -20,9 +20,9 @@
 				id: data[i].player.id,
 				label: data[i].player.username,
 				backgroundColor:
-					data.length > 1 ? `hsl(${(data[i].player.id * 18) % 360}, 70%, 50%)` : '#f43f5e',
+					data.length > 1 ? `hsl(${(data[i].player.id * 18) % 360}, 70%, 50%)` : '#38bdf8',
 				borderColor:
-					data.length > 1 ? `hsl(${(data[i].player.id * 18) % 360}, 70%, 50%)` : '#f43f5e',
+					data.length > 1 ? `hsl(${(data[i].player.id * 18) % 360}, 70%, 50%)` : '#38bdf8',
 				data: data[i].data,
 				pointRadius: 0
 			});
@@ -137,8 +137,8 @@
 							const chart = legend.chart;
 							chart.config.data.datasets.forEach((d, index) => {
 								d.backgroundColor =
-									data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#f43f5e';
-								d.borderColor = data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#f43f5e';
+									data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#38bdf8';
+								d.borderColor = data.length > 1 ? `hsl(${(d.id * 18) % 360}, 70%, 50%)` : '#38bdf8';
 							});
 							chart.update();
 						}
