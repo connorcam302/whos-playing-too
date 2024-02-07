@@ -7,6 +7,10 @@
 	import { writable } from 'svelte/store';
 	import { setContext } from 'svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { dev } from '$app/environment';
+	import { inject } from '@vercel/analytics';
+
+	inject({ mode: dev ? 'development' : 'production' });
 
 	export let data;
 	const { playerList } = data;
