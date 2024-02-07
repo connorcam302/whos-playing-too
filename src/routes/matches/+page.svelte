@@ -125,7 +125,7 @@
 		playerCheckboxes = playerList;
 	};
 
-	const clearHeroSearch = () => {
+	const clearHeskyarch = () => {
 		searchHeroes = '';
 		filterHeroList = heroList;
 	};
@@ -173,13 +173,13 @@
 <div class="flex flex-col gap-4">
 	<div class="flex flex-wrap gap-4">
 		<div
-			class="flex flex-col gap-4 bg-neutral-800 border-[1px] border-neutral-200 border-opacity-15 h-fit py-2 px-4 rounded-xl w-64"
+			class="flex flex-col gap-4 bg-zinc-800 border-[1px] border-zinc-200 border-opacity-15 h-fit py-2 px-4 rounded-xl w-64"
 		>
 			<div class="">
 				<div class="text-md">Search Hero</div>
 				<select
 					name="players"
-					class="bg-neutral-700 w-full py-1 rounded-lg text-sm"
+					class="bg-zinc-700 w-full py-1 rounded-lg text-sm"
 					bind:value={playerFilter}
 					on:change={() =>
 						playerFilter === 0
@@ -196,7 +196,7 @@
 				<div class="text-md">Search Heroes</div>
 				<select
 					name="heroes"
-					class="bg-neutral-700 w-full py-1 rounded-lg text-sm"
+					class="bg-zinc-700 w-full py-1 rounded-lg text-sm"
 					bind:value={heroFilter}
 					on:change={() =>
 						heroFilter === 0
@@ -269,7 +269,7 @@
 								bind:value={searchPlayers}
 								on:input={() => (filterPlayerList = searchPlayersByName(playerList, searchPlayers))}
 								placeholder="Search Players"
-								class="w-full px-1 py-0.5 bg-neutral-800 text-neutral-100"
+								class="w-full px-1 py-0.5 bg-zinc-800 text-zinc-100"
 							/>
 							<button on:click={() => clearPlayerSearch()}>
 								<MaterialSymbolsCloseRounded />
@@ -309,12 +309,12 @@
 						</div>
 						<div class="flex text-sm mt-4">
 							<button
-								class="bg-rose-500 rounded-lg w-fit px-3 py-[1px] hover:bg-rose-700 transition-all duration-300"
+								class="bg-sky-500 rounded-lg w-fit px-3 py-[1px] hover:bg-sky-700 transition-all duration-300"
 								on:click={() => clearPlayerFilter()}>Clear</button
 							>
 							<div class="grow" />
 							<button
-								class="bg-rose-500 rounded-lg w-fit px-3 py-[1px] hover:bg-rose-700 transition-all duration-300"
+								class="bg-sky-500 rounded-lg w-fit px-3 py-[1px] hover:bg-sky-700 transition-all duration-300"
 								on:click={() => selectAllPlayersFilter()}>Select All</button
 							>
 						</div>
@@ -331,9 +331,9 @@
 								bind:value={searchHeroes}
 								on:input={() => (filterHeroList = searchHeroesByName(heroList, searchHeroes))}
 								placeholder="Search Heroes"
-								class="w-full px-1 py-0.5 bg-neutral-800 text-neutral-100"
+								class="w-full px-1 py-0.5 bg-zinc-800 text-zinc-100"
 							/>
-							<button on:click={() => clearHeroSearch()}>
+							<button on:click={() => clearHeskyarch()}>
 								<MaterialSymbolsCloseRounded />
 							</button>
 						</div>
@@ -371,12 +371,12 @@
 						</div>
 						<div class="flex text-sm mt-4">
 							<button
-								class="bg-rose-500 rounded-lg w-fit px-3 py-[1px] hover:bg-rose-700 transition-all duration-300"
+								class="bg-sky-500 rounded-lg w-fit px-3 py-[1px] hover:bg-sky-700 transition-all duration-300"
 								on:click={() => clearHeroFilter()}>Clear</button
 							>
 							<div class="grow" />
 							<button
-								class="bg-rose-500 rounded-lg w-fit px-3 py-[1px] hover:bg-rose-700 transition-all duration-300"
+								class="bg-sky-500 rounded-lg w-fit px-3 py-[1px] hover:bg-sky-700 transition-all duration-300"
 								on:click={() => selectAllHeroFilter()}>Select All</button
 							>
 						</div>
@@ -385,7 +385,7 @@
 			{/if}
 			<div class="flex justify-center mb-2">
 				<button
-					class="bg-rose-500 rounded-lg w-fit px-4 py-1 hover:bg-rose-700 transition-all duration-300"
+					class="bg-sky-500 rounded-lg w-fit px-4 py-1 hover:bg-sky-700 transition-all duration-300"
 					on:click={() => applyFilters()}
 				>
 					<div class="flex items-center gap-2">
@@ -396,7 +396,7 @@
 			</div>
 		</div>
 		{#key (matchBlocks, pageNumber)}
-			<div class="w-[812px] min-h-64" in:fade={{ duration: 400 }}>
+			<div class="min-h-64" in:fade={{ duration: 400 }}>
 				{#if matchBlocks.length == 0}
 					<div class="flex justify-center items-center h-full">
 						<div class="absolute">
@@ -412,7 +412,7 @@
 						{/each}
 						<div class="flex items-center justify-center gap-4">
 							<button
-								class="bg-rose-500 rounded-lg w-fit p-2 hover:bg-rose-700 transition-all duration-300 disabled:bg-neutral-800"
+								class="bg-sky-500 rounded-lg w-fit p-2 hover:bg-sky-700 transition-all duration-300 disabled:bg-zinc-800"
 								disabled={pageNumber == 1}
 								on:click={() => decrementPage()}
 							>
@@ -420,7 +420,7 @@
 							>
 							<div>{pageNumber}</div>
 							<button
-								class="bg-rose-500 rounded-lg w-fit p-2 hover:bg-rose-700 transition-all duration-300 disabled:bg-neutral-800"
+								class="bg-sky-500 rounded-lg w-fit p-2 hover:bg-sky-700 transition-all duration-300 disabled:bg-zinc-800"
 								disabled={matchBlocks.length < 10}
 								on:click={() => incrementPage()}
 							>

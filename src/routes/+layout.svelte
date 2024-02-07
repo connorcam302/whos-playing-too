@@ -4,6 +4,8 @@
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
 	import { navigating } from '$app/stores';
+	import { writable } from 'svelte/store';
+	import { setContext } from 'svelte';
 	import Loading from '$lib/components/Loading.svelte';
 
 	export let data;
@@ -21,55 +23,80 @@
 	const navigate = (playerId: string) => {
 		goto('/player/' + playerId);
 	};
+
+	$: innerWidth = 0;
+	$: innerHeight = 0;
+	$: viewport = 'desktop';
+
+	const handleViewport = (innerWidth: number) => {
+		if (innerWidth > 1200) {
+			viewport = 'desktop';
+		} else if (innerWidth > 667) {
+			viewport = 'tablet';
+		} else {
+			viewport = 'mobile';
+		}
+	};
+	$: handleViewport(innerWidth);
+
+	const viewportStore = writable();
+	$: viewportStore.set(viewport);
+	setContext('viewport', viewportStore);
+
+	$: console.log(innerWidth, innerHeight, viewport);
 </script>
 
-<div class="text-neutral-100 p-4 min-h-screen">
-	<div class="mx-auto mb-8">
-		<div>
-			<div class="w-full flex items-center justify-center gap-8">
-				<a
-					href="/"
-					class="flex items-center justify-center text-lg rounded-full text-center font-display gap-1w-48"
-				>
-					<div>whos-playing</div>
-				</a>
-				<div class="flex items-center justify-center h-full">
-					<div
-						class="w-fit my-2 bg-neutral-800 flex justify-center items-center rounded-full h-full"
+<svelte:window bind:innerWidth bind:innerHeight />
+
+<div class="text-zinc-100 p-4 min-h-screen">
+	{#if viewport === 'desktop'}
+		<div class="mx-auto mb-8">
+			<div>
+				<div class="w-full flex items-center justify-center gap-8">
+					<a
+						href="/"
+						class="flex items-center justify-center text-lg rounded-full text-center font-display gap-1w-48"
 					>
-						<div class="flex gap-4 justify-center items-center">
-							{#each links as link}
-								{#if link.link == $page.url.pathname}
-									<a href={link.link} class="bg-rose-500 py-1.5 px-2 rounded-full w-32 text-center"
-										>{link.title}</a
-									>
-								{:else}
-									<a href={link.link} class="py-1.5 px-2 rounded-full w-32 text-center"
-										>{link.title}</a
-									>
-								{/if}
-							{/each}
+						<div>whos-playing</div>
+					</a>
+					<div class="flex items-center justify-center h-full">
+						<div
+							class="w-fit my-2 bg-zinc-800 flex justify-center items-center rounded-full h-full"
+						>
+							<div class="flex gap-4 justify-center items-center">
+								{#each links as link}
+									{#if link.link == $page.url.pathname}
+										<a href={link.link} class="bg-sky-500 py-1.5 px-2 rounded-full w-32 text-center"
+											>{link.title}</a
+										>
+									{:else}
+										<a href={link.link} class="py-1.5 px-2 rounded-full w-32 text-center"
+											>{link.title}</a
+										>
+									{/if}
+								{/each}
+							</div>
 						</div>
 					</div>
-				</div>
-				<div>
-					<select
-						name="players"
-						class="bg-neutral-800 w-48 py-[7px] accent-rose-500 rounded-xl border-x-8 border-transparent"
-						bind:value={navigateTo}
-						on:change={() => navigate(navigateTo)}
-					>
-						<option value={0} selected disabled>Search Players</option>
-						{#each playerList as player}
-							<option on:click={() => goto(`/player/${player.id}`)} value={player.id}
-								>{player.username}</option
-							>
-						{/each}
-					</select>
+					<div>
+						<select
+							name="players"
+							class="bg-zinc-800 w-48 py-[7px] accent-sky-500 rounded-xl border-x-8 border-transparent"
+							bind:value={navigateTo}
+							on:change={() => navigate(navigateTo)}
+						>
+							<option value={0} selected disabled>Search Players</option>
+							{#each playerList as player}
+								<option on:click={() => goto(`/player/${player.id}`)} value={player.id}
+									>{player.username}</option
+								>
+							{/each}
+						</select>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	{/if}
 	{#key data.url}
 		<div in:fade={{ delay: 120, duration: 250 }}>
 			{#if $navigating}

@@ -65,7 +65,7 @@
 		backpack_0: number;
 		backpack_1: number;
 		backpack_2: number;
-		item_zinc: number;
+		item_neutral: number;
 		items: DotaAsset[];
 		neutralItem: DotaAsset;
 		backpack: DotaAsset[];

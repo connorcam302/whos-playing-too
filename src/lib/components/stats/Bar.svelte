@@ -25,5 +25,5 @@
 
 <div class="w-full flex">
 	<div class=" text-xs leading-none h-1" style="width: {percentage}%; background-color: {colour}" />
-	<div class=" text-xs leading-none h-1 bg-neutral-700" style="width: {100 - percentage}%;" />
+	<div class=" text-xs leading-none h-1 bg-zinc-700" style="width: {100 - percentage}%;" />
 </div>

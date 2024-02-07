@@ -20,7 +20,7 @@ type MatchData = {
 		| 'item3'
 		| 'item4'
 		| 'item5'
-		| 'itemNeutral'
+		| 'itemzinc'
 		| 'backpack0'
 		| 'backpack1'
 		| 'backpack2'
@@ -140,7 +140,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				backpack0: items.find((item) => item.id === player.match_data.backpack0)!,
 				backpack1: items.find((item) => item.id === player.match_data.backpack1)!,
 				backpack2: items.find((item) => item.id === player.match_data.backpack2)!,
-				itemNeutral: items.find((item) => item.id === player.match_data.itemNeutral)!,
+				itemzinc: items.find((item) => item.id === player.match_data.itemzinc)!,
 				hero: heroes.find((hero) => hero.id === player.match_data.heroId)!
 			};
 		});

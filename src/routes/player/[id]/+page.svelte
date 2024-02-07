@@ -152,7 +152,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 							</div>
 							<div class="w-2 h-2">
 								{#if mainAccount.gameextrainfo === 'Dota 2'}
-									<div class="bg-rose-500 w-full h-full rounded-full" />
+									<div class="bg-sky-500 w-full h-full rounded-full" />
 								{/if}
 							</div>
 							<div class="grow" />
@@ -230,7 +230,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 			<div class="flex flex-col justify-end">
 				<div
 					class="flex flex-col w-48 px-2
-		bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 rounded-xl h-fit py-2"
+		bg-zinc-800 bg-opacity-95 border-[1px] border-zinc-200 border-opacity-15 rounded-xl h-fit py-2"
 				>
 					<div class="flex">
 						<div class="flex flex-col">
@@ -275,7 +275,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 		</div>
 		<div
 			class="flex flex-col px-2
-		bg-neutral-800 bg-opacity-95 border-[1px] border-neutral-200 border-opacity-15 rounded-xl py-2"
+		bg-zinc-800 bg-opacity-95 border-[1px] border-zinc-200 border-opacity-15 rounded-xl py-2"
 		>
 			<div class="flex flex-col">
 				{#if chartType == 'days'}
@@ -326,7 +326,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 		</div>
 
 		{#key matchBlocks}
-			<div class="w-[812px] min-h-64" in:fade={{ duration: 400 }}>
+			<div class="min-h-64" in:fade={{ duration: 400 }}>
 				<div class="flex">
 					<button class="flex items-center gap-2" on:click={() => goto('/matches?players=[4]')}>
 						<div class="text-lg">Matches</div>
@@ -348,7 +348,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						{/each}
 						<div class="flex items-center justify-center gap-4">
 							<button
-								class="bg-rose-500 rounded-lg w-fit p-2 hover:bg-rose-700 transition-all duration-300 disabled:bg-neutral-800"
+								class="bg-sky-500 rounded-lg w-fit p-2 hover:bg-sky-700 transition-all duration-300 disabled:bg-zinc-800"
 								disabled={pageNumber == 1}
 								on:click={() => decrementPage()}
 							>
@@ -356,7 +356,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 							>
 							<div>{pageNumber}</div>
 							<button
-								class="bg-rose-500 rounded-lg w-fit p-2 hover:bg-rose-700 transition-all duration-300 disabled:bg-neutral-800"
+								class="bg-sky-500 rounded-lg w-fit p-2 hover:bg-sky-700 transition-all duration-300 disabled:bg-zinc-800"
 								disabled={matchBlocks.length < 10}
 								on:click={() => incrementPage()}
 							>

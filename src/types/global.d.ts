@@ -41,7 +41,7 @@ declare interface PlayerData {
 	goldPerMin: number;
 	lastHits: number;
 	xpPerMin: number;
-	itemNeutral: DotaAsset;
+	itemzinc: DotaAsset;
 	role: number;
 	impact: number;
 	hero: DotaAsset;

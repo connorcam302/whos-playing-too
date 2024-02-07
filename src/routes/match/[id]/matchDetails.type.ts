@@ -64,7 +64,7 @@ export interface Lane {
 	rangeCount: number;
 	siegeCount: number;
 	denyCount: number;
-	neutralCount: number;
+	zincCount: number;
 }
 
 export interface PickBan {
@@ -118,7 +118,7 @@ export interface Player {
 	abilities: Ability[];
 	isVictory: boolean;
 	networth: number;
-	neutral0Id: number;
+	zinc0Id: number;
 	dotaPlusHeroXp: number;
 	invisibleSeconds: number;
 	stats: Stats;
@@ -244,7 +244,7 @@ export interface DeathEvent {
 export interface FarmDistributionReport {
 	creepType: BountyGold[];
 	creepLocation: BountyGold[];
-	neutralLocation: BountyGold[];
+	zincLocation: BountyGold[];
 	ancientLocation: BountyGold[];
 	buildings: BountyGold[];
 	buyBackGold: number;
@@ -298,7 +298,7 @@ export interface InventoryReport {
 	backPack0?: BackPack0;
 	backPack1?: BackPack0;
 	backPack2?: BackPack2;
-	neutral0?: Neutral0;
+	zinc0?: zinc0;
 }
 
 export interface BackPack0 {
@@ -312,7 +312,7 @@ export interface BackPack2 {
 	charges?: number;
 }
 
-export interface Neutral0 {
+export interface zinc0 {
 	itemId: number;
 }
 
