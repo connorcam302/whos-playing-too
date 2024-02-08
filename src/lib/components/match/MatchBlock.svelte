@@ -120,13 +120,38 @@
 	<div class="w-full">
 		<div
 			id="box"
-			class="bg-zinc-800 bg-opacity-95 border-zinc-200 border-opacity-15 p-1 w-auto flex rounded-xl"
+			class="bg-zinc-800 bg-opacity-95 border-zinc-200 border-opacity-15 p-1 w-auto rounded-xl flex flex-col"
 		>
+			<div
+				class="flex items-center my-1 mx-2 text-zinc-300 gap-1 justify-center border-zinc-500 border-b-[1px]"
+			>
+				<div class="flex items-center justify-end">
+					<div class="flex">
+						<div class="flex items-center gap-1">
+							<div class="text-lg">
+								{#if matchData.lobby === 7}
+									<UilExchange />
+								{:else if matchData.lobby === 0}
+									<BiDashLg />
+								{:else}
+									<UilQuestion />
+								{/if}
+							</div>
+							<div class="text-base">{getGameMode(matchData.gameMode)}</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="grow" />
+				<div>
+					{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
+				</div>
+			</div>
 			<div class="flex items-center justify-center">
 				{#if radiant.length > 0}
 					{#if matchData.winner == 'radiant'}
 						<div
-							class="border-l-2 border-solid border-green-500 rounded-lg p-1 bg-green-700 bg-opacity-5 hover:bg-opacity-15 transition-all"
+							class="border-l-4 border-solid border-green-500 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
 							id="winner"
 						>
 							{#each radiant as player}
@@ -135,7 +160,7 @@
 						</div>
 					{:else}
 						<div
-							class="border-l-2 border-solid border-red-500 rounded-lg p-1 bg-green-700 bg-opacity-5 hover:bg-opacity-15 transition-all"
+							class="border-l-4 border-solid border-red-500 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
 							id="loser"
 						>
 							{#each radiant as player}
@@ -147,7 +172,7 @@
 				{#if dire.length > 0}
 					{#if matchData.winner == 'dire'}
 						<div
-							class="border-l-2 border-solid border-green-500 rounded-lg p-1 bg-green-700 bg-opacity-5 hover:bg-opacity-15 transition-all"
+							class="border-l-4 border-solid border-green-500 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
 							id="winner"
 						>
 							{#each dire as player}
@@ -156,7 +181,7 @@
 						</div>
 					{:else}
 						<div
-							class="border-l-2 border-solid border-red-500 rounded-lg p-1 bg-green-700 bg-opacity-5 hover:bg-opacity-15 transition-all"
+							class="border-l-4 border-solid border-red-500 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
 							id="loser"
 						>
 							{#each dire as player}
@@ -169,51 +194,10 @@
 			<div class="flex">
 				<div class="bg-zinc-400 w-full h-full" />
 			</div>
-			<div class="flex">
-				<div
-					class="flex flex-col items-center my-1 mx-2 text-zinc-300 text-xs gap-1 justify-center"
-				>
-					<div class="grow" />
-					<div class="flex items-center justify-start">
-						<div class="flex">
-							<div class="flex items-center">
-								{#if matchData.lobby === 7}
-									<UilExchange />
-								{:else if matchData.lobby === 0}
-									<BiDashLg />
-								{:else}
-									<UilQuestion />
-								{/if}
-								<div>{getGameMode(matchData.gameMode)}</div>
-							</div>
-						</div>
-					</div>
-					<div>
-						{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
-					</div>
-					<div class="grow" />
-				</div>
-			</div>
+			<div class="flex"></div>
 		</div>
 	</div>
 </MatchModal>
 
 <style>
-	#winner {
-		background-color: hsla(240, 3%, 15%, 0);
-		background-image: radial-gradient(at 100% 100%, hsla(142, 70%, 43%, 0) 0px, transparent 50%),
-			radial-gradient(at 17% 50%, hsla(142, 70%, 43%, 0.09) 0px, transparent 50%);
-		background-size: cover;
-		background-repeat: no-repeat;
-		background-position: center center;
-	}
-
-	#loser {
-		background-color: hsla(240, 3%, 15%, 0);
-		background-image: radial-gradient(at 0% 50%, hsla(0, 100%, 37%, 0) 0px, transparent 50%),
-			radial-gradient(at 17% 50%, hsla(0, 81%, 37%, 0.25) 0px, transparent 50%);
-		background-size: cover;
-		background-repeat: no-repeat;
-		background-position: center center;
-	}
 </style>
