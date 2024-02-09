@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import TitleBar from '$lib/components/totw/TitleBar.svelte';
 
 	export let totw: {
 		id: number;
@@ -30,88 +31,61 @@
 
 <div
 	id="box"
-	class="bg-zinc-800 border-[1px] border-zinc-200 border-opacity-15 bg-opacity-95 rounded-lg px-2 py-2 h-80"
+	class="border-zinc-200 border-opacity-15 rounded-lg px-2 pb-2 h-80 bg-[url('/radiant_backdrop.jpg')] bg-cover bg-bottom flex flex-col justify-center items-center"
 >
-	<div id="title" class="font-display text-center text-4xl my-1">TEAM OF THE WEEK</div>
+	<div id="title" class="font-display text-center w-fit text-4xl bg-zinc-900 p-2 px-4 rounded-b-xl">
+		TEAM OF THE WEEK
+	</div>
+	<div class="grow" />
 	<div class="flex gap-2">
-		<div
-			class="border-2 border-indigo-800 bg-indigo-900 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
-		>
+		<div class="flex flex-col justify-center">
+			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
+				<div class="w-full">
+					<TitleBar name={totw.onePlayerName} role={1} id={totw.onePlayer} team={'radiant'} />
+				</div>
+			</div>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.oneHeroId, role: 1 }} />
 			</div>
-			<div class="flex my-2 h-8 justify-center items-center">
-				<img src={`/roles/pos1.svg`} class="h-8" alt="pos1" />
-				<button
-					on:click={() => goto(`/player/${totw.onePlayer}`)}
-					class="hover:text-zinc-400 duration-300"
-				>
-					<div class="font-display text-2xl">{totw.onePlayerName}</div>
-				</button>
-			</div>
 		</div>
-		<div
-			class="border-2 border-sky-700 bg-sky-800 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
-		>
+		<div class="flex flex-col justify-center">
+			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
+				<div class="w-full">
+					<TitleBar name={totw.twoPlayerName} role={2} id={totw.twoPlayer} team={'radiant'} />
+				</div>
+			</div>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.twoHeroId, role: 2 }} />
 			</div>
-			<div class="flex my-2 h-8 justify-center items-center">
-				<img src={`/roles/pos1.svg`} class="h-8" alt="pos2" />
-				<button
-					on:click={() => goto(`/player/${totw.twoPlayer}`)}
-					class="hover:text-zinc-400 duration-300"
-				>
-					<div class="font-display text-2xl">{totw.twoPlayerName}</div>
-				</button>
-			</div>
 		</div>
-		<div
-			class="border-2 border-orange-600 bg-orange-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
-		>
+		<div class="flex flex-col justify-center">
+			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
+				<div class="w-full">
+					<TitleBar name={totw.threePlayerName} role={3} id={totw.threePlayer} team={'radiant'} />
+				</div>
+			</div>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.threeHeroId, role: 3 }} />
 			</div>
-			<div class="flex my-2 h-8 justify-center items-center">
-				<img src={`/roles/pos3.svg`} class="h-8" alt="pos3" />
-				<button
-					on:click={() => goto(`/player/${totw.threePlayer}`)}
-					class="hover:text-zinc-400 duration-300"
-				>
-					<div class="font-display text-2xl">{totw.threePlayerName}</div>
-				</button>
-			</div>
 		</div>
-		<div
-			class="border-2 border-red-600 bg-red-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
-		>
+		<div class="flex flex-col justify-center">
+			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
+				<div class="w-full">
+					<TitleBar name={totw.fourPlayerName} role={4} id={totw.fourPlayer} team={'radiant'} />
+				</div>
+			</div>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.fourHeroId, role: 4 }} />
 			</div>
-			<div class="flex my-2 h-8 justify-center items-center">
-				<img src={`/roles/pos4.svg`} class="h-8" alt="pos4" />
-				<button
-					on:click={() => goto(`/player/${totw.fourPlayer}`)}
-					class="hover:text-zinc-400 duration-300"
-				>
-					<div class="font-display text-2xl">{totw.fourPlayerName}</div>
-				</button>
-			</div>
 		</div>
-		<div
-			class="border-2 border-emerald-600 bg-emerald-700 bg-opacity-20 hover:bg-opacity-40 transition-all px-1 pt-3 rounded-lg"
-		>
+		<div class="flex flex-col justify-center">
+			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
+				<div class="w-full">
+					<TitleBar name={totw.fivePlayerName} role={5} id={totw.fivePlayer} team={'radiant'} />
+				</div>
+			</div>
 			<div class="w-48 h-48">
 				<FeaturePlayer data={{ hero: totw.fiveHeroId, role: 5 }} />
-			</div>
-			<div class="flex my-2 h-8 justify-center items-center">
-				<img src={`/roles/pos5.svg`} class="h-8" alt="pos5" />
-				<button
-					on:click={() => goto(`/player/${totw.fivePlayer}`)}
-					class="hover:text-zinc-400 duration-300"
-				>
-					<div class="font-display text-2xl">{totw.fivePlayerName}</div>
-				</button>
 			</div>
 		</div>
 	</div>

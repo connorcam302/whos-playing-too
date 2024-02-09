@@ -8,11 +8,8 @@
 	};
 </script>
 
-<div class="bg-[url('/hero-backdrop.png')] bg-cover bg-center bg-no-repeat w-full h-full">
-	<div
-		class={`bg-opacity-10 w-full h-full`}
-		style={`background-image: url('/roles/pos${role}.svg')`}
-	>
+<div class="bg-no-repeat w-full h-full">
+	<div class={`bg-opacity-10 w-full h-full`}>
 		<video autoPlay muted loop playsInline class="h-full w-full object-cover opacity-100">
 			<source
 				type="video/webm"
