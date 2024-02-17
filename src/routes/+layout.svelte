@@ -27,7 +27,30 @@
 	const navigate = (playerId: string) => {
 		goto('/player/' + playerId);
 	};
+
+	$: innerWidth = 0;
+	$: innerHeight = 0;
+	$: viewport = 'desktop';
+
+	const handleViewport = (innerWidth: number) => {
+		if (innerWidth > 1200) {
+			viewport = 'desktop';
+		} else if (innerWidth > 667) {
+			viewport = 'tablet';
+		} else {
+			viewport = 'mobile';
+		}
+	};
+	$: handleViewport(innerWidth);
+
+	const viewportStore = writable();
+	$: viewportStore.set(viewport);
+
+	setContext('viewport', viewportStore);
+	$: console.log(viewport);
 </script>
+
+<svelte:window bind:innerWidth bind:innerHeight />
 
 <div class="text-zinc-100 p-4 min-h-screen">
 	<div class="mx-auto mb-8">
@@ -85,7 +108,7 @@
 					class="flex justify-center items-center mx-auto text-white"
 					in:fade={{ delay: 120, duration: 250 }}
 				>
-					<slot />
+					<slot viewport />
 				</div>
 			{/if}
 		</div>

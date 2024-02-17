@@ -31,7 +31,7 @@
 
 <div
 	id="box"
-	class="border-zinc-200 border-opacity-15 rounded-lg px-2 pb-2 h-80 bg-[url('/radiant_backdrop.jpg')] bg-cover bg-bottom flex flex-col justify-center items-center"
+	class="border-zinc-200 border-opacity-15 rounded-lg px-2 pb-2 h-80 flex flex-col justify-center items-center"
 >
 	<div id="title" class="font-display text-center w-fit text-4xl bg-zinc-900 p-2 px-4 rounded-b-xl">
 		TEAM OF THE WEEK

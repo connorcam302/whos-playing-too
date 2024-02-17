@@ -1,3 +1,8 @@
+// Gets the game mode based on the game mode ID.
+// @param {number} id - The ID of the game mode.
+// @returns {string} - The game mode.
+// @example
+// getGameMode(1) // Output: 'All Pick'
 export const getGameMode = (id: number) => {
 	switch (id) {
 		case 0:
@@ -91,6 +96,11 @@ export const getGameMode = (id: number) => {
 	}
 };
 
+// Get the lobby type based on the lobby ID
+// @param {number} id - The ID of the lobby.
+// @returns {string} - The type of the lobby.
+// @example
+// getLobbyType(0) // Output: 'Unranked'
 export const getLobbyType = (id: number) => {
 	switch (id) {
 		case 0:
@@ -134,6 +144,11 @@ export const getLobbyType = (id: number) => {
 	}
 };
 
+// Get the impact of a player based on the player's impact score.
+// @param {number} impact - The impact score of the player.
+// @returns {string} - The impact of the player.
+// @example
+// calcImpact(200) // Output: 'S+'
 export const calcImpact = (impact: number) => {
 	if (impact > 200) {
 		return 'S++';
@@ -196,6 +211,11 @@ export const calcImpact = (impact: number) => {
 	}
 };
 
+// Gets the role icon based on the role ID.
+// @param {number} role - The ID of the role.
+// @returns {string} - The path to the role icon.
+// @example
+// getRoleIcon(1) // Output: '/roles/pos1.png'
 export const getRoleIcon = (role: number) => {
 	if (role === 1) {
 		return '/roles/pos1.png';
