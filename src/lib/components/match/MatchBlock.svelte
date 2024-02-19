@@ -120,11 +120,9 @@
 	<div class="w-full">
 		<div
 			id="box"
-			class="bg-zinc-800 bg-opacity-95 border-zinc-200 border-opacity-15 p-1 w-auto rounded-xl flex flex-col"
+			class="bg-zinc-800 bg-opacity-95 border-zinc-200 border-opacity-15 pt-1 w-auto rounded-lg flex flex-col"
 		>
-			<div
-				class="flex items-center my-1 mx-2 text-zinc-300 gap-1 justify-center border-zinc-500 border-b-[1px]"
-			>
+			<div class="flex items-center my-0.5 mx-2 text-zinc-300 gap-1 justify-center">
 				<div class="flex items-center justify-end">
 					<div class="flex">
 						<div class="flex items-center gap-1">
@@ -153,24 +151,25 @@
 					{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 				</div>
 			</div>
-			<div class="flex items-center justify-center">
+			<div class="flex items-center justify-center w-full grow">
 				{#if radiant.length > 0}
 					{#if matchData.winner == 'radiant'}
 						<div
-							class="bg-green-500 bg-opacity-15 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
+							class="bg-emerald-500 bg-opacity-15 rounded-lg transition-all w-full py-1"
 							id="winner"
 						>
 							{#each radiant as player}
-								<PlayerData {player} />
+								<div class="pl-2 hover:bg-black hover:bg-opacity-10">
+									<PlayerData {player} />
+								</div>
 							{/each}
 						</div>
 					{:else}
-						<div
-							class="bg-red-500 bg-opacity-15 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
-							id="loser"
-						>
+						<div class="bg-red-500 bg-opacity-15 rounded-lg transition-all w-full py-1" id="loser">
 							{#each radiant as player}
-								<PlayerData {player} />
+								<div class="pl-2 hover:bg-black hover:bg-opacity-10">
+									<PlayerData {player} />
+								</div>
 							{/each}
 						</div>
 					{/if}
@@ -178,20 +177,21 @@
 				{#if dire.length > 0}
 					{#if matchData.winner == 'dire'}
 						<div
-							class="bg-green-500 bg-opacity-15 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
+							class="bg-emerald-500 bg-opacity-15 rounded-lg transition-all w-full py-1"
 							id="winner"
 						>
 							{#each dire as player}
-								<PlayerData {player} />
+								<div class="pl-2 hover:bg-black hover:bg-opacity-10">
+									<PlayerData {player} />
+								</div>
 							{/each}
 						</div>
 					{:else}
-						<div
-							class="bg-red-500 bg-opacity-15 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
-							id="loser"
-						>
+						<div class="bg-red-500 bg-opacity-15 rounded-lg transition-all w-full py-1" id="loser">
 							{#each dire as player}
-								<PlayerData {player} />
+								<div class="pl-2 hover:bg-black hover:bg-opacity-10">
+									<PlayerData {player} />
+								</div>
 							{/each}
 						</div>
 					{/if}

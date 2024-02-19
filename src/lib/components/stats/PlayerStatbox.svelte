@@ -185,7 +185,7 @@
 </script>
 
 <div class="bg-zinc-800 py-2 px-4 rounded-xl">
-	<div class="flex gap-2 my-1 pr-2 pb-1">
+	<div class="flex gap-2 my-1 pr-2 pb-1 border-zinc-500 border-b-[1px]">
 		<div class="flex w-20 justify-center items-center">
 			<button on:click={() => handlePlayerSort()}>PLAYER</button>
 			<div class="grow" />

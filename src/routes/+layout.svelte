@@ -64,7 +64,7 @@
 		<Loading />
 	</div>
 {:else}
-	<div class="text-zinc-100 p-4 min-h-screen">
+	<div class="text-zinc-100 py-4 min-h-screen">
 		<div class="mx-auto mb-8">
 			<div>
 				<div class="w-full flex items-center justify-center gap-8">

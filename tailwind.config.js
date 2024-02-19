@@ -15,6 +15,9 @@ export default {
 			backgroundPosition: {
 				'pos-0': '0% 0%',
 				'pos-100': '100% 100%'
+			},
+			colors: {
+				'zinc-850': '#1d1d1f'
 			}
 		},
 		dropShadow: {

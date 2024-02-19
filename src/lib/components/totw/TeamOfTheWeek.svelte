@@ -39,53 +39,58 @@
 	<div class="grow" />
 	<div class="flex gap-2">
 		<div class="flex flex-col justify-center">
+			<div class="w-48 h-48">
+				<FeaturePlayer data={{ hero: totw.oneHeroId, role: 1 }} />
+			</div>
 			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
 				<div class="w-full">
 					<TitleBar name={totw.onePlayerName} role={1} id={totw.onePlayer} team={'radiant'} />
 				</div>
 			</div>
-			<div class="w-48 h-48">
-				<FeaturePlayer data={{ hero: totw.oneHeroId, role: 1 }} />
-			</div>
 		</div>
+		<div class="h-full w-0.5 bg-gradient-to-t from-transparent via-zinc-500 to-transparent" />
 		<div class="flex flex-col justify-center">
+			<div class="w-48 h-48">
+				<FeaturePlayer data={{ hero: totw.twoHeroId, role: 2 }} />
+			</div>
 			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
 				<div class="w-full">
 					<TitleBar name={totw.twoPlayerName} role={2} id={totw.twoPlayer} team={'radiant'} />
 				</div>
 			</div>
-			<div class="w-48 h-48">
-				<FeaturePlayer data={{ hero: totw.twoHeroId, role: 2 }} />
-			</div>
 		</div>
+
+		<div class="h-full w-0.5 bg-gradient-to-t from-transparent via-zinc-500 to-transparent" />
 		<div class="flex flex-col justify-center">
+			<div class="w-48 h-48">
+				<FeaturePlayer data={{ hero: totw.threeHeroId, role: 3 }} />
+			</div>
 			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
 				<div class="w-full">
 					<TitleBar name={totw.threePlayerName} role={3} id={totw.threePlayer} team={'radiant'} />
 				</div>
 			</div>
-			<div class="w-48 h-48">
-				<FeaturePlayer data={{ hero: totw.threeHeroId, role: 3 }} />
-			</div>
 		</div>
+		<div class="h-full w-0.5 bg-gradient-to-t from-transparent via-zinc-500 to-transparent" />
 		<div class="flex flex-col justify-center">
+			<div class="w-48 h-48">
+				<FeaturePlayer data={{ hero: totw.fourHeroId, role: 4 }} />
+			</div>
 			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
 				<div class="w-full">
 					<TitleBar name={totw.fourPlayerName} role={4} id={totw.fourPlayer} team={'radiant'} />
 				</div>
 			</div>
-			<div class="w-48 h-48">
-				<FeaturePlayer data={{ hero: totw.fourHeroId, role: 4 }} />
-			</div>
 		</div>
+		<div class="h-full w-0.5 bg-gradient-to-t from-transparent via-zinc-500 to-transparent" />
 		<div class="flex flex-col justify-center">
+			<div class="w-48 h-48">
+				<FeaturePlayer data={{ hero: totw.fiveHeroId, role: 5 }} />
+			</div>
 			<div class="flex my-2 h-12 w-44 justify-center items-center mx-auto px-2 rounded-xl">
 				<div class="w-full">
 					<TitleBar name={totw.fivePlayerName} role={5} id={totw.fivePlayer} team={'radiant'} />
 				</div>
-			</div>
-			<div class="w-48 h-48">
-				<FeaturePlayer data={{ hero: totw.fiveHeroId, role: 5 }} />
 			</div>
 		</div>
 	</div>
