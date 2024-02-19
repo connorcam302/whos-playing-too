@@ -15,7 +15,7 @@
 </script>
 
 <div>
-	<div class="my-1 flex items-center gap-4">
+	<div class="my-0.5 flex items-center gap-4">
 		<div class="flex gap-2 items-center">
 			<img src={player.hero.img} alt={player.hero.name} class="h-10" />
 			<div class="text-xl min-w-28 text-left">

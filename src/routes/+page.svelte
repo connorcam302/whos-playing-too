@@ -32,6 +32,7 @@
 	});
 
 	$: viewport = getContext('viewport');
+
 	$: console.log($viewport);
 </script>
 

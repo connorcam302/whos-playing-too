@@ -138,6 +138,12 @@
 								{/if}
 							</div>
 							<div class="text-base">{getGameMode(matchData.gameMode)}</div>
+							<div>|</div>
+							<div class="text-base">
+								{(matchData.duration / 60) | 0}:{matchData.duration % 60 < 10
+									? 0
+									: ''}{matchData.duration % 60}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -151,7 +157,7 @@
 				{#if radiant.length > 0}
 					{#if matchData.winner == 'radiant'}
 						<div
-							class="border-l-4 border-solid border-green-500 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
+							class="bg-green-500 bg-opacity-15 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
 							id="winner"
 						>
 							{#each radiant as player}
@@ -160,7 +166,7 @@
 						</div>
 					{:else}
 						<div
-							class="border-l-4 border-solid border-red-500 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
+							class="bg-red-500 bg-opacity-15 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
 							id="loser"
 						>
 							{#each radiant as player}
@@ -172,7 +178,7 @@
 				{#if dire.length > 0}
 					{#if matchData.winner == 'dire'}
 						<div
-							class="border-l-4 border-solid border-green-500 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
+							class="bg-green-500 bg-opacity-15 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
 							id="winner"
 						>
 							{#each dire as player}
@@ -181,7 +187,7 @@
 						</div>
 					{:else}
 						<div
-							class="border-l-4 border-solid border-red-500 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
+							class="bg-red-500 bg-opacity-15 rounded-lg p-1 pl-2 hover:bg-opacity-15 transition-all"
 							id="loser"
 						>
 							{#each dire as player}
