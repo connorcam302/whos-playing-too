@@ -5,7 +5,7 @@
 	import { fade } from 'svelte/transition';
 	import { navigating } from '$app/stores';
 	import { writable } from 'svelte/store';
-	import { setContext } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import Loading from '$lib/components/Loading.svelte';
 	import { dev } from '$app/environment';
 	import { inject } from '@vercel/analytics';
@@ -48,7 +48,10 @@
 			viewport = 'mobile';
 		}
 	};
-	$: handleViewport(innerWidth);
+
+	onMount(() => {
+		handleViewport(innerWidth);
+	});
 
 	const viewportStore = writable();
 	$: viewportStore.set(viewport);
@@ -64,10 +67,10 @@
 		<Loading />
 	</div>
 {:else}
-	<div class="text-zinc-100 py-4 min-h-screen">
+	<div class="text-zinc-100 min-h-screen">
 		<div class="mx-auto mb-8">
 			<div>
-				<div class="w-full flex items-center justify-center gap-8">
+				<div class="w-full flex items-center justify-center gap-8 bg-zinc-800">
 					<a
 						href="/"
 						class="flex items-center justify-center text-lg rounded-full text-center font-display gap-1w-48"
@@ -119,7 +122,7 @@
 					</div>
 				{:else}
 					<div
-						class="flex justify-center items-center mx-auto text-white"
+						class="flex justify-center items-center mx-auto text-white bg-zinc-900"
 						in:fade={{ delay: 120, duration: 250 }}
 					>
 						<slot viewport />

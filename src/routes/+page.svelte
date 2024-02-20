@@ -42,13 +42,14 @@
 {:else}
 	<div class="flex flex-col items-center gap-4 w-full">
 		<div class="flex flex-col w-full items-center justify-center">
-			<div class="flex h-80 gap-4">
+			<div class="flex h-fit gap-4">
 				<div>
 					<TeamOfTheWeek {totw} />
 				</div>
 			</div>
 		</div>
-		<div class="w-full bg-zinc-900 flex items-center justify-center">
+
+		<div class="w-full flex items-center justify-center">
 			<div class="flex flex-col gap-2 mt-2 max-w-screen-2xl">
 				<div class="flex">
 					<button class="flex items-center gap-2" on:click={() => goto('/records')}>
@@ -65,29 +66,32 @@
 				</div>
 			</div>
 		</div>
-		<div class="flex flex-col gap-2 w-full mt-2 max-w-[90vw]">
-			<div class="flex">
-				<button class="flex items-center gap-2" on:click={() => goto('/stats')}>
-					<div class="text-lg">Stats</div>
-					<div><MaterialSymbolsArrowForwardIosRounded /></div>
-				</button>
-				<div class="grow" />
-				<div>Last 14 Days</div>
-			</div>
-			<div class="flex flex-row gap-4 items-center justify-center">
-				<div class="w-full">
-					{#await heroStats then heroStats}
-						<HeroStatbox {heroStats} />
-					{/await}
+
+		<div class="w-full bg-zinc-900 flex justify-center">
+			<div class="flex flex-col gap-2 w-full mt-2 max-w-[90vw]">
+				<div class="flex">
+					<button class="flex items-center gap-2" on:click={() => goto('/stats')}>
+						<div class="text-lg">Stats</div>
+						<div><MaterialSymbolsArrowForwardIosRounded /></div>
+					</button>
+					<div class="grow" />
+					<div>Last 14 Days</div>
 				</div>
-				<div class="w-full">
-					{#await playerStats then playerStats}
-						<PlayerStatbox {playerStats} />
-					{/await}
+				<div class="flex flex-row gap-4 items-center justify-center">
+					<div class="w-full">
+						{#await heroStats then heroStats}
+							<HeroStatbox {heroStats} />
+						{/await}
+					</div>
+					<div class="w-full">
+						{#await playerStats then playerStats}
+							<PlayerStatbox {playerStats} />
+						{/await}
+					</div>
 				</div>
 			</div>
 		</div>
-		<div class="flex flex-row gap-4">
+		<div class="flex flex-row gap-4 w-full bg-zinc-900 items-center justify-center">
 			<div class="flex flex-col gap-2 mt-2">
 				<div class="flex">
 					<button class="flex items-center gap-2" on:click={() => goto('/matches')}>

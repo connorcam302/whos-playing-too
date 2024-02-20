@@ -359,7 +359,7 @@
 											<td>
 												<div class="w-full text-center flex items-center justify-center h-6">
 													<img
-														src={`/roles/pos${player.role}.png`}
+														src={`/roles/pos${player.role}.svg`}
 														alt={player.role.toString()}
 														class="h-6"
 													/>
@@ -523,7 +523,7 @@
 											<td>
 												<div class="w-full text-center flex items-center justify-center h-6">
 													<img
-														src={`/roles/pos${player.role}.png`}
+														src={`/roles/pos${player.role}.svg`}
 														alt={player.role.toString()}
 														class="h-6"
 													/>
