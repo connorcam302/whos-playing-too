@@ -6,6 +6,7 @@ export default {
             fontFamily: {
                 sans: ['Nunito Sans', 'sans-serif'],
                 body: ['Nunito Sans', 'sans-serif'],
+                dota: ['Cantarell', 'sans-serif'],
                 display: ['Poppins', 'sans-serif']
             },
             backgroundSize: {
@@ -14,6 +15,9 @@ export default {
             backgroundPosition: {
                 'pos-0': '0% 0%',
                 'pos-100': '100% 100%'
+            },
+            colors: {
+                backdrop: '#031018'
             }
         },
         dropShadow: {

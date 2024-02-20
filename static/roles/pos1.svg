@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0.00 0.00 100.00 100.00">
-<path fill="#ffffff" d="
+<path fill="#4555A9" d="
   M 50.57 60.32
   Q 53.96 63.34 57.08 67.02
   Q 59.73 70.15 57.24 73.47
@@ -34,7 +34,7 @@
   A 0.79 0.79 0.0 0 0 42.79 52.63
   Z"
 />
-<path fill="#ffffff" d="
+<path fill="#4555A9" d="
   M 37.09 66.50
   A 1.41 1.41 0.0 0 1 37.09 68.50
   L 25.90 79.68
