@@ -73,12 +73,5 @@ export const load = async ({ url, params }) => {
 		.sort((a, b) => b.lastlogoff - a.lastlogoff)
 		.sort((a, b) => (b.gameextrainfo === 'Dota 2') - (a.gameextrainfo === 'Dota 2'));
 
-	const timings = [
-		{ name: 'getHeroStats', time: await measurePromise(() => getHeroStats()) },
-		{ name: 'getAllPlayerStats', time: await measurePromise(() => getAllPlayerStats()) },
-		{ name: 'getTeamOfTheWeek', time: await measurePromise(() => getTeamOfTheWeek()) },
-		{ name: 'getFeatures', time: await measurePromise(() => getFeatures()) }
-	];
-
-	return { heroStats, playerStats, totw, features, timings, allPlayerSteamData };
+	return { heroStats, playerStats, totw, features, allPlayerSteamData };
 };

@@ -33,15 +33,13 @@
 	});
 
 	$: viewport = getContext('viewport');
-
-	$: console.log($viewport);
 </script>
 
 {#if $viewport !== 'desktop'}
 	<div>Mobile</div>
 {:else}
-	<div class="flex flex-col items-center gap-4 w-full">
-		<div class="flex flex-col w-full items-center justify-center">
+	<div class="flex w-full flex-col items-center gap-4">
+		<div class="flex w-full flex-col items-center justify-center">
 			<div class="flex h-fit gap-4">
 				<div>
 					<TeamOfTheWeek {totw} />
@@ -49,15 +47,13 @@
 			</div>
 		</div>
 
-		<div class="w-full flex items-center justify-center">
-			<div class="flex flex-col gap-2 mt-2 max-w-screen-2xl">
-				<div class="flex">
-					<button class="flex items-center gap-2" on:click={() => goto('/records')}>
-						<div class="text-lg">Records</div>
-						<div><MaterialSymbolsArrowForwardIosRounded /></div>
-					</button>
-					<div class="grow" />
-					<div>Last 7 Days</div>
+		<div class="flex w-full items-center justify-center">
+			<div class="mt-2 flex max-w-[1600px] flex-col gap-2">
+				<div class="my-2 flex flex-col items-center justify-center">
+					<div class="flex justify-center text-3xl">RECORDS</div>
+					<div class="text-sm text-zinc-400">
+						Records from the past 7 days played on main accounts
+					</div>
 				</div>
 				<div class="min-h-32">
 					{#await features then features}
@@ -66,59 +62,50 @@
 				</div>
 			</div>
 		</div>
-
-		<div class="w-full bg-zinc-900 flex justify-center">
-			<div class="flex flex-col gap-2 w-full mt-2 max-w-[90vw]">
-				<div class="flex">
-					<button class="flex items-center gap-2" on:click={() => goto('/stats')}>
-						<div class="text-lg">Stats</div>
-						<div><MaterialSymbolsArrowForwardIosRounded /></div>
-					</button>
-					<div class="grow" />
-					<div>Last 14 Days</div>
-				</div>
-				<div class="flex flex-row gap-4 items-center justify-center">
-					<div class="w-full">
-						{#await heroStats then heroStats}
-							<HeroStatbox {heroStats} />
-						{/await}
-					</div>
-					<div class="w-full">
-						{#await playerStats then playerStats}
-							<PlayerStatbox {playerStats} />
-						{/await}
-					</div>
-				</div>
+		<div>
+			<div class="my-2 flex flex-col items-center justify-center">
+				<div class="flex justify-center text-3xl">MATCHES & STATS</div>
+				<div class="text-sm text-zinc-400">Recent matches, and stats from the past 14 days</div>
 			</div>
-		</div>
-		<div class="flex flex-row gap-4 w-full bg-zinc-900 items-center justify-center">
-			<div class="flex flex-col gap-2 mt-2">
-				<div class="flex">
-					<button class="flex items-center gap-2" on:click={() => goto('/matches')}>
-						<div class="text-lg">Matches</div>
-						<div><MaterialSymbolsArrowForwardIosRounded /></div>
-					</button>
-				</div>
-				<div class="flex flex-wrap gap-4 justify-center">
-					{#key matchBlocks}
-						<div class="min-h-64" in:fade={{ duration: 500 }}>
-							{#if matchBlocks.length == 0}
-								<div class="flex justify-center items-center h-full">
-									<div class="absolute">
-										<Loading />
-									</div>
-								</div>
-							{:else}
-								<div class="flex flex-col gap-2">
-									{#each matchBlocks.slice(0, 10) as match}
-										<div>
-											<MatchBlock {match} />
+			<div class="flex max-w-screen-2xl gap-4">
+				<div class="flex w-full grow flex-row items-center justify-center gap-4 bg-zinc-900">
+					<div class="mt-2 flex flex-col gap-2">
+						<div class="flex flex-wrap justify-center gap-4">
+							{#key matchBlocks}
+								<div class="min-h-64" in:fade={{ duration: 500 }}>
+									{#if matchBlocks.length == 0}
+										<div class="flex h-full items-center justify-center">
+											<div class="absolute">
+												<Loading />
+											</div>
 										</div>
-									{/each}
+									{:else}
+										<div class="flex flex-col gap-2">
+											{#each matchBlocks.slice(0, 10) as match}
+												<div>
+													<MatchBlock {match} />
+												</div>
+											{/each}
+										</div>
+									{/if}
 								</div>
-							{/if}
+							{/key}
 						</div>
-					{/key}
+					</div>
+				</div>
+				<div class="mt-2 flex max-w-[90vw] grow-0 flex-col gap-2">
+					<div class="flex flex-col items-center justify-center gap-4">
+						<div class="w-full">
+							{#await heroStats then heroStats}
+								<HeroStatbox {heroStats} />
+							{/await}
+						</div>
+						<div class="w-full">
+							{#await playerStats then playerStats}
+								<PlayerStatbox {playerStats} />
+							{/await}
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

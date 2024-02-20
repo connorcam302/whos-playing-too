@@ -183,9 +183,9 @@
 	$: sortedStats = sortStats(order);
 </script>
 
-<div class="bg-zinc-800 py-2 px-4 rounded-xl">
-	<div class="flex gap-2 my-1 pr-2 pb-1 border-zinc-500 border-b-[1px]">
-		<div class="flex w-16 justify-center items-center">
+<div class="rounded-xl bg-zinc-800 px-4 py-2">
+	<div class="my-1 flex gap-2 border-b-[1px] border-zinc-500 pb-1 pr-2">
+		<div class="flex w-16 items-center justify-center">
 			<button on:click={() => handleHeroSort()}>HERO</button>
 			<div class="grow" />
 			<div class="w-6">
@@ -197,7 +197,7 @@
 			</div>
 		</div>
 		<div class="flex grow gap-2">
-			<div class="flex basis-1/3 justify-center items-center">
+			<div class="flex basis-1/3 items-center justify-center">
 				<button on:click={() => handleMachesSort()}>MATCHES</button>
 				<div class="grow" />
 				<div class="w-6">
@@ -208,7 +208,7 @@
 					{/if}
 				</div>
 			</div>
-			<div class="flex basis-1/3 justify-center items-center">
+			<div class="flex basis-1/3 items-center justify-center">
 				<button on:click={() => handleWinRateSort()}>WINRATE</button>
 				<div class="grow" />
 				<div class="w-6">
@@ -219,7 +219,7 @@
 					{/if}
 				</div>
 			</div>
-			<div class="flex basis-1/3 justify-center items-center">
+			<div class="flex basis-1/3 items-center justify-center">
 				<button on:click={() => handleImpactSort()}>IMPACT</button>
 				<div class="grow" />
 				<div class="w-6">
@@ -232,23 +232,23 @@
 			</div>
 		</div>
 	</div>
-	<div id="scrollbox" class="overflow-y-auto max-h-96">
+	<div id="scrollbox" class="max-h-96 overflow-y-auto">
 		{#each sortedStats as hero}
-			<div class="flex gap-2 py-1 pr-2 hover:bg-zinc-700 hover:bg-opacity-20 transition-all">
+			<div class="flex gap-2 py-1 pr-2 transition-all hover:bg-zinc-700 hover:bg-opacity-20">
 				<div class="w-16">
 					<img src={hero.hero.img} alt={`${hero.hero.id}-${hero.hero.name}`} class="w-14" />
 				</div>
 				{#key order}
-					<div class="flex grow gap-4 items-center">
+					<div class="flex grow items-center gap-4">
 						<div class="basis-1/3">
-							<div class="text-sm opacity-85 pb-1">{hero.matches}</div>
+							<div class="pb-1 text-sm opacity-85">{hero.matches}</div>
 							<Bar
 								colour="#38bdf8"
 								percentage={(hero.matches / heroStatsOriginal[0].matches) * 100}
 							/>
 						</div>
 						<div class="basis-1/3">
-							<div class="text-sm opacity-85 pb-1">
+							<div class="pb-1 text-sm opacity-85">
 								{Math.round(((hero.radiantWins + hero.direWins) / hero.matches) * 1000) / 10}%
 							</div>
 							<Bar percentage={((hero.radiantWins + hero.direWins) / hero.matches) * 100} />
@@ -261,7 +261,7 @@
 								theme: 'light'
 							}}
 						>
-							<div class="text-sm opacity-85 pb-1">{calcImpact(hero.avgImpact)}</div>
+							<div class="pb-1 text-sm opacity-85">{calcImpact(hero.avgImpact)}</div>
 							<Bar percentage={(hero.avgImpact / 140) * 100} colour="#9333ea" />
 						</div>
 					</div>

@@ -172,14 +172,12 @@
 
 <div class="flex flex-col gap-4">
 	<div class="flex flex-wrap gap-4">
-		<div
-			class="flex flex-col gap-4 bg-zinc-800 border-[1px] border-zinc-200 border-opacity-15 h-fit py-2 px-4 rounded-xl w-64"
-		>
+		<div class="flex h-fit w-64 flex-col gap-4 rounded-xl bg-zinc-800 px-4 py-2">
 			<div class="">
-				<div class="text-md">Search Hero</div>
+				<div class="text-md">Search Players</div>
 				<select
 					name="players"
-					class="bg-zinc-700 w-full py-1 rounded-lg text-sm"
+					class="w-full rounded-lg bg-zinc-700 py-1 text-sm"
 					bind:value={playerFilter}
 					on:change={() =>
 						playerFilter === 0
@@ -196,7 +194,7 @@
 				<div class="text-md">Search Heroes</div>
 				<select
 					name="heroes"
-					class="bg-zinc-700 w-full py-1 rounded-lg text-sm"
+					class="w-full rounded-lg bg-zinc-700 py-1 text-sm"
 					bind:value={heroFilter}
 					on:change={() =>
 						heroFilter === 0
@@ -246,7 +244,7 @@
 			</div>
 			<button
 				on:click={() => (advancedFilters = !advancedFilters)}
-				class="flex text-lg items-center justify-center"
+				class="flex items-center justify-center text-lg"
 			>
 				<div>Advanced Filters</div>
 				<div class="grow" />
@@ -269,14 +267,14 @@
 								bind:value={searchPlayers}
 								on:input={() => (filterPlayerList = searchPlayersByName(playerList, searchPlayers))}
 								placeholder="Search Players"
-								class="w-full px-1 py-0.5 bg-zinc-800 text-zinc-100"
+								class="w-full bg-zinc-800 px-1 py-0.5 text-zinc-100"
 							/>
 							<button on:click={() => clearPlayerSearch()}>
 								<MaterialSymbolsCloseRounded />
 							</button>
 						</div>
-						<div class="bg-white h-[1px] opacity-30 mx-2"></div>
-						<div id="scrollbox" class="overflow-y-auto h-64 px-1">
+						<div class="mx-2 h-[1px] bg-white opacity-30"></div>
+						<div id="scrollbox" class="h-64 overflow-y-auto px-1">
 							{#each playerList as player}
 								{#if filterPlayerList.includes(player)}
 									<div>
@@ -287,7 +285,7 @@
 											name={player.username}
 											value={player}
 											checked={true}
-											class="accent-white cursor-pointer"
+											class="cursor-pointer accent-white"
 										/>
 										<label for={player.username} class="cursor-pointer">{player.username}</label>
 									</div>
@@ -300,21 +298,21 @@
 											name={player.username}
 											value={player}
 											checked={true}
-											class="accent-white cursor-pointer"
+											class="cursor-pointer accent-white"
 										/>
 										<label for={player.username}>{player.username}</label>
 									</div>
 								{/if}
 							{/each}
 						</div>
-						<div class="flex text-sm mt-4">
+						<div class="mt-4 flex text-sm">
 							<button
-								class="bg-sky-500 rounded-lg w-fit px-3 py-[1px] hover:bg-sky-700 transition-all duration-300"
+								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
 								on:click={() => clearPlayerFilter()}>Clear</button
 							>
 							<div class="grow" />
 							<button
-								class="bg-sky-500 rounded-lg w-fit px-3 py-[1px] hover:bg-sky-700 transition-all duration-300"
+								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
 								on:click={() => selectAllPlayersFilter()}>Select All</button
 							>
 						</div>
@@ -331,14 +329,14 @@
 								bind:value={searchHeroes}
 								on:input={() => (filterHeroList = searchHeroesByName(heroList, searchHeroes))}
 								placeholder="Search Heroes"
-								class="w-full px-1 py-0.5 bg-zinc-800 text-zinc-100"
+								class="w-full bg-zinc-800 px-1 py-0.5 text-zinc-100"
 							/>
 							<button on:click={() => clearHeskyarch()}>
 								<MaterialSymbolsCloseRounded />
 							</button>
 						</div>
-						<div class="bg-white h-[1px] opacity-30 mx-2"></div>
-						<div id="scrollbox" class="overflow-y-auto h-64 px-1">
+						<div class="mx-2 h-[1px] bg-white opacity-30"></div>
+						<div id="scrollbox" class="h-64 overflow-y-auto px-1">
 							{#each heroList as hero}
 								{#if filterHeroList.includes(hero)}
 									<div>
@@ -349,7 +347,7 @@
 											name={hero.name}
 											value={hero}
 											checked={true}
-											class="accent-white cursor-pointer"
+											class="cursor-pointer accent-white"
 										/>
 										<label for={hero.name} class="cursor-pointer">{hero.name}</label>
 									</div>
@@ -362,30 +360,30 @@
 											name={hero.name}
 											value={hero}
 											checked={true}
-											class="accent-white cursor-pointer"
+											class="cursor-pointer accent-white"
 										/>
 										<label for={hero.name} class="cursor-pointer">{hero.name}</label>
 									</div>
 								{/if}
 							{/each}
 						</div>
-						<div class="flex text-sm mt-4">
+						<div class="mt-4 flex text-sm">
 							<button
-								class="bg-sky-500 rounded-lg w-fit px-3 py-[1px] hover:bg-sky-700 transition-all duration-300"
+								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
 								on:click={() => clearHeroFilter()}>Clear</button
 							>
 							<div class="grow" />
 							<button
-								class="bg-sky-500 rounded-lg w-fit px-3 py-[1px] hover:bg-sky-700 transition-all duration-300"
+								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
 								on:click={() => selectAllHeroFilter()}>Select All</button
 							>
 						</div>
 					</div>
 				</div>
 			{/if}
-			<div class="flex justify-center mb-2">
+			<div class="mb-2 flex justify-center">
 				<button
-					class="bg-sky-500 rounded-lg w-fit px-4 py-1 hover:bg-sky-700 transition-all duration-300"
+					class="w-fit rounded-lg bg-sky-500 px-4 py-1 transition-all duration-300 hover:bg-sky-700"
 					on:click={() => applyFilters()}
 				>
 					<div class="flex items-center gap-2">
@@ -398,7 +396,7 @@
 		{#key (matchBlocks, pageNumber)}
 			<div class="min-h-64" in:fade={{ duration: 400 }}>
 				{#if matchBlocks.length == 0}
-					<div class="flex justify-center items-center h-full">
+					<div class="flex h-full items-center justify-center">
 						<div class="absolute">
 							<Loading />
 						</div>
@@ -412,7 +410,7 @@
 						{/each}
 						<div class="flex items-center justify-center gap-4">
 							<button
-								class="bg-sky-500 rounded-lg w-fit p-2 hover:bg-sky-700 transition-all duration-300 disabled:bg-zinc-800"
+								class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
 								disabled={pageNumber == 1}
 								on:click={() => decrementPage()}
 							>
@@ -420,7 +418,7 @@
 							>
 							<div>{pageNumber}</div>
 							<button
-								class="bg-sky-500 rounded-lg w-fit p-2 hover:bg-sky-700 transition-all duration-300 disabled:bg-zinc-800"
+								class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
 								disabled={matchBlocks.length < 10}
 								on:click={() => incrementPage()}
 							>

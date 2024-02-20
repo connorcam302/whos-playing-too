@@ -180,13 +180,11 @@
 
 	order = { col: 'matches', direction: 'desc' };
 	$: sortedStats = sortStats(order);
-
-	console.log(playerStats);
 </script>
 
-<div class="bg-zinc-800 py-2 px-4 rounded-xl">
-	<div class="flex gap-2 my-1 pr-2 pb-1 border-zinc-500 border-b-[1px]">
-		<div class="flex w-20 justify-center items-center">
+<div class="rounded-xl bg-zinc-800 px-4 py-2">
+	<div class="my-1 flex gap-2 border-b-[1px] border-zinc-500 pb-1 pr-2">
+		<div class="flex w-20 items-center justify-center">
 			<button on:click={() => handlePlayerSort()}>PLAYER</button>
 			<div class="grow" />
 			<div class="w-6">
@@ -198,7 +196,7 @@
 			</div>
 		</div>
 		<div class="flex grow gap-2">
-			<div class="flex basis-1/3 justify-center items-center">
+			<div class="flex basis-1/3 items-center justify-center">
 				<button on:click={() => handleMachesSort()}>MATCHES</button>
 				<div class="grow" />
 				<div class="w-6">
@@ -209,7 +207,7 @@
 					{/if}
 				</div>
 			</div>
-			<div class="flex basis-1/3 justify-center items-center">
+			<div class="flex basis-1/3 items-center justify-center">
 				<button on:click={() => handleWinRateSort()}>WINRATE</button>
 				<div class="grow" />
 				<div class="w-6">
@@ -220,7 +218,7 @@
 					{/if}
 				</div>
 			</div>
-			<div class="flex basis-1/3 justify-center items-center">
+			<div class="flex basis-1/3 items-center justify-center">
 				<button on:click={() => handleImpactSort()}>IMPACT</button>
 				<div class="grow" />
 				<div class="w-6">
@@ -233,23 +231,23 @@
 			</div>
 		</div>
 	</div>
-	<div id="scrollbox" class="overflow-y-auto h-96">
+	<div id="scrollbox" class="h-96 overflow-y-auto">
 		{#each sortedStats as player}
-			<div class="flex gap-2 py-1 pr-2 hover:bg-zinc-700 hover:bg-opacity-20 transition-all">
+			<div class="flex gap-2 py-1 pr-2 transition-all hover:bg-zinc-700 hover:bg-opacity-20">
 				<div class="w-20">
 					<button
 						on:click={() => goto(`/player/${player.id}`)}
-						class="hover:text-zinc-400 duration-300">{player.username}</button
+						class="duration-300 hover:text-zinc-400">{player.username}</button
 					>
 				</div>
 				{#key order}
-					<div class="flex grow gap-4 items-center">
+					<div class="flex grow items-center gap-4">
 						<div class="basis-1/3">
-							<div class="text-sm opacity-85 pb-1">{player.matches}</div>
+							<div class="pb-1 text-sm opacity-85">{player.matches}</div>
 							<Bar colour="#38bdf8" percentage={(player.matches / playerStats[0].matches) * 100} />
 						</div>
 						<div class="basis-1/3">
-							<div class="text-sm opacity-85 pb-1">
+							<div class="pb-1 text-sm opacity-85">
 								{Math.round(((player.radiantWins + player.direWins) / player.matches) * 1000) / 10}%
 							</div>
 							<Bar percentage={((player.radiantWins + player.direWins) / player.matches) * 100} />
@@ -262,7 +260,7 @@
 								theme: 'light'
 							}}
 						>
-							<div class="text-sm opacity-85 pb-1">{calcImpact(player.avgImpact)}</div>
+							<div class="pb-1 text-sm opacity-85">{calcImpact(player.avgImpact)}</div>
 							<Bar percentage={(player.avgImpact / 140) * 100} colour="#9333ea" />
 						</div>
 					</div>

@@ -10,9 +10,9 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
-        "kit.alias":{
-            "*": ["./src/types/*.d.ts"]
-        }
+		"kit.alias": {
+			"*": ["./src/types/*.d.ts"]
+		}
 	}
 
 	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias

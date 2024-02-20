@@ -8,7 +8,7 @@
 	import MaterialSymbolsTrophyRounded from '~icons/material-symbols/trophy-rounded';
 	import IcBaselineLaunch from '~icons/ic/baseline-launch';
 	import MaterialSymbolsLightSettings from '~icons/material-symbols-light/settings';
-	import { calcImpact } from '$lib/functions';
+	import { calcImpact, getRoleIcon } from '$lib/functions';
 	import tippy from 'tippy.js';
 
 	dayjs.extend(relativeTime);
@@ -199,7 +199,6 @@
 				return { heroId: player?.hero_id, role: index + 1 };
 			}
 		});
-		console.log(radiantData, direData);
 
 		buttonState = '...';
 
@@ -234,14 +233,14 @@
 	{:else if matchDetails.error === 'Steam API Down.'}
 		<div>Steam API Down.</div>
 	{:else}
-		<div class="flex flex-col gap-4 w-full my-2">
-			<div class="w-full flex justify-center gap-4 items-center">
+		<div class="my-2 flex w-full flex-col gap-4">
+			<div class="flex w-full items-center justify-center gap-4">
 				<div class="basis-1/3">
 					<button class="text-4xl" on:click={() => (fixRoleScreenShow = true)}>
 						<MaterialSymbolsLightSettings />
 					</button>
 				</div>
-				<div class="basis-1/3 flex items-center justify-center gap-4">
+				<div class="flex basis-1/3 items-center justify-center gap-4">
 					{#if matchDetails.matchData.radiant_win}
 						<div class="text-4xl text-emerald-500" style="text-shadow: #10b981 0 0 15px;">
 							{matchDetails.matchData.radiant_score}
@@ -251,7 +250,7 @@
 							{matchDetails.matchData.radiant_score}
 						</div>
 					{/if}
-					<div class="flex flex-col justify-center items-center">
+					<div class="flex flex-col items-center justify-center">
 						<div class="text-4xl">
 							{toTime(matchDetails.matchData.duration)}
 						</div>
@@ -271,7 +270,7 @@
 						</div>
 					{/if}
 				</div>
-				<div class="basis-1/3 flex justify-end gap-2 items-center">
+				<div class="flex basis-1/3 items-center justify-end gap-2">
 					{#if modal}
 						<button
 							on:click={() => goto(`/match/${matchDetails.matchData.match_id}`)}
@@ -305,50 +304,50 @@
 			</div>
 			<div class="flex flex-col gap-8">
 				<div>
-					<div class="text-xl font-display flex gap-2">
+					<div class="flex gap-2 font-display text-xl">
 						<div>Radiant</div>
 						{#if matchDetails.matchData.radiant_win}
 							<MaterialSymbolsTrophyRounded class="text-amber-300" />
 						{/if}
 					</div>
-					<div class="overflow-x-auto max-w-[97vw]">
+					<div class="max-w-[97vw] overflow-x-auto">
 						<div class="min-w-[1432px]">
 							<table class="table-auto">
 								<thead>
 									<tr>
-										<th class="text-zinc-400 font-normal text-xs w-40">PLAYER</th>
-										<th class="text-zinc-400 font-normal text-xs w-16">POS</th>
-										<th class="text-zinc-400 font-normal text-xs w-20">LEVEL</th>
-										<th class="text-zinc-400 font-normal text-xs w-16">K</th>
-										<th class="text-zinc-400 font-normal text-xs w-16">D</th>
-										<th class="text-zinc-400 font-normal text-xs w-16">A</th>
-										<th class="text-zinc-400 font-normal text-xs w-20">IMP</th>
-										<th class="text-zinc-400 font-normal text-xs max-w-24">CS</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">NET</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">GPM</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">XPM</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">HD</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">TD</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">HH</th>
-										<th class="text-zinc-400 font-normal text-xs">ITEMS</th>
-										<th class="text-zinc-400 font-normal text-xs">BACK</th>
-										<th class="text-zinc-400 font-normal text-xs">AGHS</th>
+										<th class="w-40 text-xs font-normal text-zinc-400">PLAYER</th>
+										<th class="w-16 text-xs font-normal text-zinc-400">POS</th>
+										<th class="w-20 text-xs font-normal text-zinc-400">LEVEL</th>
+										<th class="w-16 text-xs font-normal text-zinc-400">K</th>
+										<th class="w-16 text-xs font-normal text-zinc-400">D</th>
+										<th class="w-16 text-xs font-normal text-zinc-400">A</th>
+										<th class="w-20 text-xs font-normal text-zinc-400">IMP</th>
+										<th class="max-w-24 text-xs font-normal text-zinc-400">CS</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">NET</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">GPM</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">XPM</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">HD</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">TD</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">HH</th>
+										<th class="text-xs font-normal text-zinc-400">ITEMS</th>
+										<th class="text-xs font-normal text-zinc-400">BACK</th>
+										<th class="text-xs font-normal text-zinc-400">AGHS</th>
 									</tr>
 								</thead>
 								<tbody>
 									{#each matchDetails.radiantData as player}
 										<tr class="border-y-[1px] border-white border-opacity-10 hover:bg-zinc-800">
 											<td>
-												<div class="flex items-center gap-2 w-40 py-2">
+												<div class="flex w-40 items-center gap-2 py-2">
 													<img src={player.hero.img} class="h-8" alt={player.hero.name} />
 													{#if player.user}
 														<button
 															on:click={() => goto(`/player/${player.user?.id}`)}
-															class="hover:text-zinc-300 transition-all duration-300"
+															class="transition-all duration-300 hover:text-zinc-300"
 															>{player.user.username}
 														</button>
 
-														<span class="italic text-indigo-400 text-lg"
+														<span class="text-lg italic text-indigo-400"
 															>{player.user.smurf ? 'S' : ''}</span
 														>
 													{:else}
@@ -357,9 +356,9 @@
 												</div>
 											</td>
 											<td>
-												<div class="w-full text-center flex items-center justify-center h-6">
+												<div class="flex h-6 w-full items-center justify-center text-center">
 													<img
-														src={`/roles/pos${player.role}.svg`}
+														src={getRoleIcon(player.role)}
 														alt={player.role.toString()}
 														class="h-6"
 													/>
@@ -371,7 +370,7 @@
 											<td class="w-10 text-center text-cyan-300">{player.assists}</td>
 											<td class="w-12 text-center">
 												<div
-													class="w-12 items-center text-center cursor-default"
+													class="w-12 cursor-default items-center text-center"
 													use:tippy={{
 														content: `Impact: ${player.impactScore}`,
 														placement: 'bottom',
@@ -391,7 +390,7 @@
 															{calcImpact(player.impactScore)}
 														</div>
 													{:else if player.impactScore <= 25}
-														<div id="frating" class="text-xl font-display flex justify-center">
+														<div id="frating" class="flex justify-center font-display text-xl">
 															<FxemojiPoo />
 														</div>
 													{/if}
@@ -401,11 +400,11 @@
 											<td class="w-20 text-center text-amber-300"
 												>{convertToKNumber(player.gold + player.gold_spent)}</td
 											>
-											<td class="text-center w-20">{convertToKNumber(player.gold_per_min)}</td>
-											<td class="text-center w-20">{convertToKNumber(player.xp_per_min)}</td>
-											<td class="text-center w-20">{convertToKNumber(player.hero_damage)}</td>
-											<td class="text-center w-20">{convertToKNumber(player.tower_damage)}</td>
-											<td class="text-center w-20">{convertToKNumber(player.hero_healing)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.gold_per_min)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.xp_per_min)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.hero_damage)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.tower_damage)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.hero_healing)}</td>
 											<td>
 												<div class="flex items-center">
 													{#each player.items as item}
@@ -420,7 +419,7 @@
 														src={player.neutralItem.img}
 														alt={player.neutralItem.name}
 														use:tippy={{ content: player.neutralItem.name, theme: 'light' }}
-														class="h-7 max-w-none rounded-full object-cover mx-2"
+														class="mx-2 h-7 max-w-none rounded-full object-cover"
 													/>
 												</div>
 											</td>
@@ -450,12 +449,12 @@
 											<td>
 												<div class="flex flex-col">
 													<img
-														class="object-contain w-6 mx-auto"
+														class="mx-auto w-6 object-contain"
 														src={`/scepter_${player.aghanims_scepter}.png`}
 														alt={`/scepter_${player.aghanims_scepter}`}
 													/>
 													<img
-														class="object-contain w-6 mx-auto"
+														class="mx-auto w-6 object-contain"
 														src={`/shard_${player.aghanims_shard}.png`}
 														alt={`/shard_${player.aghanims_shard}`}
 													/>
@@ -469,50 +468,50 @@
 					</div>
 				</div>
 				<div>
-					<div class="text-xl font-display flex gap-2">
+					<div class="flex gap-2 font-display text-xl">
 						<div>Dire</div>
 						{#if !matchDetails.matchData.radiant_win}
 							<MaterialSymbolsTrophyRounded class="text-amber-300" />
 						{/if}
 					</div>
-					<div class="overflow-x-auto max-w-[97vw]">
+					<div class="max-w-[97vw] overflow-x-auto">
 						<div class="min-w-[1432px]">
 							<table class="table-auto">
 								<thead>
 									<tr>
-										<th class="text-zinc-400 font-normal text-xs w-40">PLAYER</th>
-										<th class="text-zinc-400 font-normal text-xs w-16">POS</th>
-										<th class="text-zinc-400 font-normal text-xs w-20">LEVEL</th>
-										<th class="text-zinc-400 font-normal text-xs w-16">K</th>
-										<th class="text-zinc-400 font-normal text-xs w-16">D</th>
-										<th class="text-zinc-400 font-normal text-xs w-16">A</th>
-										<th class="text-zinc-400 font-normal text-xs w-20">IMP</th>
-										<th class="text-zinc-400 font-normal text-xs max-w-24">CS</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">NET</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">GPM</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">XPM</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">HD</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">TD</th>
-										<th class="text-zinc-400 font-normal text-xs w-24">HH</th>
-										<th class="text-zinc-400 font-normal text-xs">ITEMS</th>
-										<th class="text-zinc-400 font-normal text-xs">BACK</th>
-										<th class="text-zinc-400 font-normal text-xs">AGHS</th>
+										<th class="w-40 text-xs font-normal text-zinc-400">PLAYER</th>
+										<th class="w-16 text-xs font-normal text-zinc-400">POS</th>
+										<th class="w-20 text-xs font-normal text-zinc-400">LEVEL</th>
+										<th class="w-16 text-xs font-normal text-zinc-400">K</th>
+										<th class="w-16 text-xs font-normal text-zinc-400">D</th>
+										<th class="w-16 text-xs font-normal text-zinc-400">A</th>
+										<th class="w-20 text-xs font-normal text-zinc-400">IMP</th>
+										<th class="max-w-24 text-xs font-normal text-zinc-400">CS</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">NET</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">GPM</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">XPM</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">HD</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">TD</th>
+										<th class="w-24 text-xs font-normal text-zinc-400">HH</th>
+										<th class="text-xs font-normal text-zinc-400">ITEMS</th>
+										<th class="text-xs font-normal text-zinc-400">BACK</th>
+										<th class="text-xs font-normal text-zinc-400">AGHS</th>
 									</tr>
 								</thead>
 								<tbody>
 									{#each matchDetails.direData as player}
 										<tr class="border-y-[1px] border-white border-opacity-10">
 											<td>
-												<div class="flex items-center gap-2 w-40 py-2">
+												<div class="flex w-40 items-center gap-2 py-2">
 													<img src={player.hero.img} class="h-8" alt={player.hero.name} />
 													{#if player.user}
 														<button
 															on:click={() => goto(`/player/${player.user?.id}`)}
-															class="hover:text-zinc-300 transition-all duration-300"
+															class="transition-all duration-300 hover:text-zinc-300"
 															>{player.user.username}
 														</button>
 
-														<span class="italic text-indigo-400 text-lg"
+														<span class="text-lg italic text-indigo-400"
 															>{player.user.smurf ? 'S' : ''}</span
 														>
 													{:else}
@@ -521,9 +520,9 @@
 												</div>
 											</td>
 											<td>
-												<div class="w-full text-center flex items-center justify-center h-6">
+												<div class="flex h-6 w-full items-center justify-center text-center">
 													<img
-														src={`/roles/pos${player.role}.svg`}
+														src={getRoleIcon(player.role)}
 														alt={player.role.toString()}
 														class="h-6"
 													/>
@@ -535,7 +534,7 @@
 											<td class="w-10 text-center text-cyan-300">{player.assists}</td>
 											<td class="w-12 text-center">
 												<div
-													class="w-12 items-center text-center cursor-default"
+													class="w-12 cursor-default items-center text-center"
 													use:tippy={{
 														content: `Impact: ${player.impactScore}`,
 														placement: 'bottom',
@@ -555,7 +554,7 @@
 															{calcImpact(player.impactScore)}
 														</div>
 													{:else if player.impactScore <= 25}
-														<div id="frating" class="text-xl font-display flex justify-center">
+														<div id="frating" class="flex justify-center font-display text-xl">
 															<FxemojiPoo />
 														</div>
 													{/if}
@@ -565,11 +564,11 @@
 											<td class="w-20 text-center text-amber-300"
 												>{convertToKNumber(player.gold + player.gold_spent)}</td
 											>
-											<td class="text-center w-20">{convertToKNumber(player.gold_per_min)}</td>
-											<td class="text-center w-20">{convertToKNumber(player.xp_per_min)}</td>
-											<td class="text-center w-20">{convertToKNumber(player.hero_damage)}</td>
-											<td class="text-center w-20">{convertToKNumber(player.tower_damage)}</td>
-											<td class="text-center w-20">{convertToKNumber(player.hero_healing)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.gold_per_min)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.xp_per_min)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.hero_damage)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.tower_damage)}</td>
+											<td class="w-20 text-center">{convertToKNumber(player.hero_healing)}</td>
 											<td>
 												<div class="flex items-center">
 													{#each player.items as item}
@@ -584,7 +583,7 @@
 														src={player.neutralItem.img}
 														alt={player.neutralItem.name}
 														use:tippy={{ content: player.neutralItem.name, theme: 'light' }}
-														class="h-7 max-w-none rounded-full object-cover mx-2"
+														class="mx-2 h-7 max-w-none rounded-full object-cover"
 													/>
 												</div>
 											</td>
@@ -614,12 +613,12 @@
 											<td>
 												<div class="flex flex-col">
 													<img
-														class="object-contain w-6 mx-auto"
+														class="mx-auto w-6 object-contain"
 														src={`/scepter_${player.aghanims_scepter}.png`}
 														alt={`/scepter_${player.aghanims_scepter}`}
 													/>
 													<img
-														class="object-contain w-6 mx-auto"
+														class="mx-auto w-6 object-contain"
 														src={`/shard_${player.aghanims_shard}.png`}
 														alt={`/shard_${player.aghanims_shard}`}
 													/>
@@ -634,16 +633,16 @@
 				</div>
 				{#if pickOrder}
 					<div class="flex px-2">
-						<div class="flex gap-1 basis-11/12 overflow-x-scroll">
+						<div class="flex basis-11/12 gap-1 overflow-x-scroll">
 							{#each matchDetails.matchData.picks as pick, i}
-								<div class="flex flex-col text-xs text-center">
+								<div class="flex flex-col text-center text-xs">
 									<img src={pick.img} alt={pick.name} class="h-7 max-w-none" />
 									{#if matchDetails.direData.filter((player) => player.hero.id == pick.id).length + matchDetails.radiantData.filter((player) => player.hero.id == pick.id).length > 0}
-										<div class="py-[2px] bg-zinc-900 rounded-b-lg flex items-center justify-center">
+										<div class="flex items-center justify-center rounded-b-lg bg-zinc-900 py-[2px]">
 											Pick {i + 1}
 										</div>
 									{:else}
-										<div class="py-[2px] bg-red-900 rounded-b-lg flex items-center justify-center">
+										<div class="flex items-center justify-center rounded-b-lg bg-red-900 py-[2px]">
 											Pick {i + 1}
 										</div>
 									{/if}
@@ -651,11 +650,11 @@
 							{/each}
 						</div>
 						<div class="basis-2/12" />
-						<div class="flex gap-1 justify-end basis-11/12 overflow-x-auto">
+						<div class="flex basis-11/12 justify-end gap-1 overflow-x-auto">
 							{#each matchDetails.matchData.bans as ban, i}
-								<div class="flex flex-col text-xs text-center">
+								<div class="flex flex-col text-center text-xs">
 									<img src={ban.img} alt={ban.name} class="h-7 max-w-none" />
-									<div class="py-[2px] bg-red-900 rounded-b-lg flex items-center justify-center">
+									<div class="flex items-center justify-center rounded-b-lg bg-red-900 py-[2px]">
 										Ban {i + 1}
 									</div>
 								</div>
@@ -672,14 +671,14 @@
 	<div
 		transition:fade={{ duration: 200 }}
 		id="backdrop"
-		class="h-screen fixed top-0 w-screen cursor-default flex justify-center items-center z-10"
+		class="fixed top-0 z-10 flex h-screen w-screen cursor-default items-center justify-center"
 		on:click|self={() => (fixRoleScreenShow = false)}
 		on:keypress={(e) => e.key === 'Escape' && (fixRoleScreenShow = false)}
 		tabindex="0"
 		role="button"
 	>
 		<div
-			class="absolute opacity-100 bg-zinc-900 border-[1px] border-zinc-200 border-opacity-15 px-4 py-2 rounded-xl z-20"
+			class="absolute z-20 rounded-xl border-[1px] border-zinc-200 border-opacity-15 bg-zinc-900 px-4 py-2 opacity-100"
 		>
 			<div class="flex flex-col gap-2">
 				<div class="flex gap-8">
@@ -687,11 +686,11 @@
 						<div>
 							{#key radiantSelected}
 								<div class="text-center">Radiant Roles</div>
-								<div class="flex flex-col gap-2 w-32">
-									<div class="flex gap-1 items-center">
+								<div class="flex w-32 flex-col gap-2">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos1.png" alt="pos1" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => radiantHandleClick(radiantRoles[0])}
 											style={radiantSelected?.account_id === radiantRoles[0].account_id
 												? 'border-color: #38bdf8'
@@ -704,10 +703,10 @@
 											{/if}
 										</button>
 									</div>
-									<div class="flex gap-1 items-center">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos2.png" alt="pos2" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => radiantHandleClick(radiantRoles[1])}
 											style={radiantSelected?.account_id === radiantRoles[1].account_id
 												? 'border-color: #38bdf8'
@@ -720,10 +719,10 @@
 											{/if}
 										</button>
 									</div>
-									<div class="flex gap-1 items-center">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos3.png" alt="pos3" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => radiantHandleClick(radiantRoles[2])}
 											style={radiantSelected?.account_id === radiantRoles[2].account_id
 												? 'border-color: #38bdf8'
@@ -736,10 +735,10 @@
 											{/if}
 										</button>
 									</div>
-									<div class="flex gap-1 items-center">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos4.png" alt="pos4" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => radiantHandleClick(radiantRoles[3])}
 											style={radiantSelected?.account_id === radiantRoles[3].account_id
 												? 'border-color: #38bdf8'
@@ -752,10 +751,10 @@
 											{/if}
 										</button>
 									</div>
-									<div class="flex gap-1 items-center">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos5.png" alt="pos5" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow flex gap-2"
+											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => radiantHandleClick(radiantRoles[4])}
 											style={radiantSelected?.account_id === radiantRoles[4].account_id
 												? 'border-color: #38bdf8'
@@ -776,11 +775,11 @@
 						<div>
 							{#key direSelected}
 								<div class="text-center">Dire Roles</div>
-								<div class="flex flex-col gap-2 w-32">
-									<div class="flex gap-1 items-center">
+								<div class="flex w-32 flex-col gap-2">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos1.png" alt="pos1" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => direHandleClick(direRoles[0])}
 											style={direSelected?.account_id === direRoles[0].account_id
 												? 'border-color: #38bdf8'
@@ -793,10 +792,10 @@
 											{/if}
 										</button>
 									</div>
-									<div class="flex gap-1 items-center">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos2.png" alt="pos2" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => direHandleClick(direRoles[1])}
 											style={direSelected?.account_id === direRoles[1].account_id
 												? 'border-color: #38bdf8'
@@ -809,10 +808,10 @@
 											{/if}
 										</button>
 									</div>
-									<div class="flex gap-1 items-center">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos3.png" alt="pos3" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => direHandleClick(direRoles[2])}
 											style={direSelected?.account_id === direRoles[2].account_id
 												? 'border-color: #38bdf8'
@@ -825,10 +824,10 @@
 											{/if}
 										</button>
 									</div>
-									<div class="flex gap-1 items-center">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos4.png" alt="pos4" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => direHandleClick(direRoles[3])}
 											style={direSelected?.account_id === direRoles[3].account_id
 												? ' border-color: #38bdf8'
@@ -841,10 +840,10 @@
 											{/if}
 										</button>
 									</div>
-									<div class="flex gap-1 items-center">
+									<div class="flex items-center gap-1">
 										<img src="/roles/pos5.png" alt="pos5" class="h-6" />
 										<button
-											class="border-zinc-200 border-2 rounded-xl border-opacity-25 px-2 grow"
+											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
 											on:click={() => direHandleClick(direRoles[4])}
 											style={direSelected?.account_id === direRoles[4].account_id
 												? 'border-color: #38bdf8'
@@ -864,7 +863,7 @@
 				</div>
 				<div class="flex w-full items-center justify-center">
 					{#key buttonState}
-						<button on:click={() => applyRoleChange()} class="rounded-xl px-4 py-1 bg-sky-500"
+						<button on:click={() => applyRoleChange()} class="rounded-xl bg-sky-500 px-4 py-1"
 							>{buttonState}</button
 						>
 					{/key}
