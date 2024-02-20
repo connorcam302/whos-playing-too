@@ -35,6 +35,10 @@
 	$: viewport = getContext('viewport');
 </script>
 
+<svelte:head>
+	<title>whos-playing | Home</title>
+</svelte:head>
+
 {#if $viewport !== 'desktop'}
 	<div>Mobile</div>
 {:else}

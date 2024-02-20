@@ -1,4 +1,8 @@
 <script lang="ts">
 </script>
 
-<div></div>
+<svelte:head>
+	<title>whos-playing | Records</title>
+</svelte:head>
+
+<div>Page Under Development</div>

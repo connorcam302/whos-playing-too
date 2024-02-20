@@ -120,6 +120,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>whos-playing | {player.username || 'Unknown'}</title>
+</svelte:head>
+
 <meta property="og:title" content={`whos-playing | ${player.username}`} />
 <meta
 	property="og:description"
