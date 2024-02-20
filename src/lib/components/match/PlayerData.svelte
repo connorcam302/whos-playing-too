@@ -16,11 +16,11 @@
 
 <div>
 	<div class="my-0.5 flex items-center gap-4">
-		<div class="flex gap-2 items-center">
+		<div class="flex items-center gap-2">
 			<img src={player.hero.img} alt={player.hero.name} class="h-10" />
-			<div class="text-xl min-w-28 text-left">
+			<div class="min-w-28 text-left text-xl">
 				<button
-					class="hover:text-zinc-400 duration-300"
+					class="duration-300 hover:text-zinc-400"
 					on:click={() => goto(`/player/${player.id}`)}
 				>
 					{player.username}</button
@@ -29,7 +29,7 @@
 			</div>
 		</div>
 		<div
-			class="w-12 items-center text-center cursor-default"
+			class="w-12 cursor-default items-center text-center"
 			use:tippy={{
 				content: `Impact: ${player.impact}`,
 				placement: 'bottom',
@@ -37,19 +37,19 @@
 			}}
 		>
 			{#if player.impact > 200}
-				<div id="splusplusrating" class="text-xl font-display">
+				<div id="splusplusrating" class="font-display text-xl">
 					{calcImpact(player.impact)}
 				</div>
 			{:else if player.impact >= 140}
-				<div id="srating" class="text-xl font-display">
+				<div id="srating" class="font-display text-xl">
 					{calcImpact(player.impact)}
 				</div>
 			{:else if player.impact < 140 && player.impact > 25}
-				<div class="text-xl font-display">
+				<div class="font-display text-xl">
 					{calcImpact(player.impact)}
 				</div>
 			{:else if player.impact <= 25}
-				<div id="frating" class="text-xl font-display flex justify-center">
+				<div id="frating" class="flex justify-center font-display text-xl">
 					<FxemojiPoo />
 				</div>
 			{/if}
@@ -57,7 +57,7 @@
 		<div class="flex w-8 items-center justify-center">
 			<img src={getRoleIcon(player.role)} alt={`${player.role} role`} class="h-7" />
 		</div>
-		<div class="flex gap-1 w-24 items-center justify-center">
+		<div class="flex w-24 items-center justify-center gap-1">
 			<div class="text-green-300">{player.kills}</div>
 			<div>/</div>
 			<div class="text-red-400">{player.deaths}</div>
@@ -65,12 +65,12 @@
 			<div class="text-cyan-300">{player.assists}</div>
 		</div>
 		<button class="flex">
-			<img src={player.item0.img} alt={player.item0.name} class="w-[44px] h-8" />
-			<img src={player.item1.img} alt={player.item1.name} class="w-[44px] h-8" />
-			<img src={player.item2.img} alt={player.item2.name} class="w-[44px] h-8" />
-			<img src={player.item3.img} alt={player.item3.name} class="w-[44px] h-8" />
-			<img src={player.item4.img} alt={player.item4.name} class="w-[44px] h-8" />
-			<img src={player.item5.img} alt={player.item5.name} class="w-[44px] h-8" />
+			<img src={player.item0.img} alt={player.item0.name} class="h-8 w-[44px]" />
+			<img src={player.item1.img} alt={player.item1.name} class="h-8 w-[44px]" />
+			<img src={player.item2.img} alt={player.item2.name} class="h-8 w-[44px]" />
+			<img src={player.item3.img} alt={player.item3.name} class="h-8 w-[44px]" />
+			<img src={player.item4.img} alt={player.item4.name} class="h-8 w-[44px]" />
+			<img src={player.item5.img} alt={player.item5.name} class="h-8 w-[44px]" />
 			<div class="px-2">
 				<img
 					src={player.itemzinc.img}
@@ -81,12 +81,12 @@
 		</button>
 		<div class="flex flex-col">
 			<img
-				class="object-contain w-6 mr-2"
+				class="mr-2 w-6 object-contain"
 				src={`/scepter_${player.aghanimsScepter}.png`}
 				alt={`/scepter_${player.aghanimsScepter}`}
 			/>
 			<img
-				class="object-contain w-6 mr-2"
+				class="mr-2 w-6 object-contain"
 				src={`/shard_${player.aghanimsShard}.png`}
 				alt={`/shard_${player.aghanimsShard}`}
 			/>

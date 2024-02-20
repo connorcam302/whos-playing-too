@@ -124,7 +124,6 @@
 		showMatchData = true;
 		if (!matchDetails) {
 			matchDetails = await fetchMatchData();
-			console.log(matchDetails);
 		}
 	};
 
@@ -143,7 +142,7 @@
 
 <button
 	on:click={openMatchData}
-	class="hover:text-zinc-300 transition-all duration-300 w-full h-full"
+	class="h-full w-full transition-all duration-300 hover:text-zinc-300"
 >
 	<slot />
 </button>
@@ -152,14 +151,14 @@
 	<div
 		transition:fade={{ duration: 200 }}
 		id="backdrop"
-		class="h-screen fixed top-0 w-screen cursor-default flex justify-center items-center z-10"
+		class="fixed top-0 z-10 flex h-screen w-screen cursor-default items-center justify-center"
 		on:click|self={() => (showMatchData = false)}
 		on:keypress={(e) => e.key === 'Escape' && (showMatchData = false)}
 		tabindex="0"
 		role="button"
 	>
 		<div
-			class="absolute opacity-100 bg-zinc-900 border-[1px] border-zinc-200 border-opacity-15 px-4 py-2 rounded-xl z-20"
+			class="absolute z-20 rounded-xl border-[1px] border-zinc-200 border-opacity-15 bg-zinc-900 px-4 py-2 opacity-100"
 		>
 			<MatchTable {matchDetails} />
 		</div>

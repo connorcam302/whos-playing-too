@@ -23,7 +23,7 @@
 	}
 </script>
 
-<div class="w-full flex">
-	<div class=" text-xs leading-none h-1" style="width: {percentage}%; background-color: {colour}" />
-	<div class=" text-xs leading-none h-1 bg-zinc-700" style="width: {100 - percentage}%;" />
+<div class="flex w-full">
+	<div class=" h-1 text-xs leading-none" style="width: {percentage}%; background-color: {colour}" />
+	<div class=" h-1 bg-zinc-700 text-xs leading-none" style="width: {100 - percentage}%;" />
 </div>

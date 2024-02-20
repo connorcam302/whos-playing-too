@@ -24,7 +24,6 @@ const getRoles = (team: any[], definedRoles: any[]) => {
 	});
 
 	roles.forEach((role) => {
-		console.log(heroIds);
 		const eligibleHeroes = heroes
 			.filter(
 				(hero) =>
@@ -44,7 +43,6 @@ const getRoles = (team: any[], definedRoles: any[]) => {
 
 				return weightedAverageB - weightedAverageA;
 			});
-		console.log(eligibleHeroes);
 		if (eligibleHeroes.length > 0) {
 			// Assign the role based on the first eligible hero
 
@@ -52,7 +50,6 @@ const getRoles = (team: any[], definedRoles: any[]) => {
 				id: eligibleHeroes[0].id,
 				role: Number(role)
 			});
-			console.log(eligibleHeroes[0].id);
 			heroIds.splice(heroIds.indexOf(eligibleHeroes[0].id), 1);
 
 			// Remove the assigned hero from the list to avoid duplicate assignments

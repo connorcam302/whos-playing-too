@@ -11,8 +11,6 @@
 
 	let chartState = 'winRate';
 
-	console.log(data);
-
 	$: fixRoleScreenShow = false;
 </script>
 
@@ -23,21 +21,21 @@
 	<div class="w-full p-2">
 		<div class="w-full">
 			<button
-				class="bg-zinc-800 text-white py-2 px-4 rounded-xl"
+				class="rounded-xl bg-zinc-800 px-4 py-2 text-white"
 				style={`background-color: ${chartState === 'winRate' ? '#27272a' : '#18181b'}`}
 				on:click={() => (chartState = 'winRate')}
 			>
 				Win Chance
 			</button>
 			<button
-				class="bg-zinc-800 text-white py-2 px-4 rounded-xl"
+				class="rounded-xl bg-zinc-800 px-4 py-2 text-white"
 				style={`background-color: ${chartState === 'netWorth' ? '#27272a' : '#18181b'}`}
 				on:click={() => (chartState = 'netWorth')}
 			>
 				Net Worth
 			</button>
 			<button
-				class="bg-zinc-800 text-white py-2 px-4 rounded-xl"
+				class="rounded-xl bg-zinc-800 px-4 py-2 text-white"
 				style={`background-color: ${chartState === 'experience' ? '#27272a' : '#18181b'}`}
 				on:click={() => (chartState = 'experience')}
 			>

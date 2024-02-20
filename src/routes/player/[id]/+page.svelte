@@ -136,12 +136,12 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 		<div class="flex gap-2">
 			<div class="flex items-center gap-2 px-2 py-2">
 				<img src={mainAccount.avatarfull} alt="profilepicture" class="h-36" />
-				<div class="flex flex-col justify-center h-full">
-					<div class="flex flex-col w-80 px-2 h-full py-4 gap-1">
+				<div class="flex h-full flex-col justify-center">
+					<div class="flex h-full w-80 flex-col gap-1 px-2 py-4">
 						<div class="text-4xl">{player.username}</div>
 						<div class="grow" />
 						<div class="flex items-center gap-2">
-							<div class="text-xs flex gap-1">
+							<div class="flex gap-1 text-xs">
 								<div>
 									{mainAccount.personaname.length > 20
 										? mainAccount.personaname.substring(0, 20) + '...'
@@ -150,9 +150,9 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 
 								<div class="opacity-45">(main)</div>
 							</div>
-							<div class="w-2 h-2">
+							<div class="h-2 w-2">
 								{#if mainAccount.gameextrainfo === 'Dota 2'}
-									<div class="bg-sky-500 w-full h-full rounded-full" />
+									<div class="h-full w-full rounded-full bg-sky-500" />
 								{/if}
 							</div>
 							<div class="grow" />
@@ -187,7 +187,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						</div>
 						{#each smurfAccounts as profile}
 							<div class="flex items-center gap-2">
-								<div class="text-xs flex gap-1">
+								<div class="flex gap-1 text-xs">
 									{profile.personaname.length > 25
 										? profile.personaname.substring(0, 25) + '...'
 										: profile.personaname}
@@ -229,21 +229,21 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 
 			<div class="flex flex-col justify-end">
 				<div
-					class="flex flex-col w-48 px-2
-		bg-zinc-800 bg-opacity-95 border-[1px] border-zinc-200 border-opacity-15 rounded-xl h-fit py-2"
+					class="flex h-fit w-48 flex-col
+		rounded-xl border-[1px] border-zinc-200 border-opacity-15 bg-zinc-800 bg-opacity-95 px-2 py-2"
 				>
 					<div class="flex">
 						<div class="flex flex-col">
-							<div class="text-xl h-7 flex items-center"><UilExchange /></div>
-							<div class="text-xl h-7 flex items-center"><BiDashLg /></div>
+							<div class="flex h-7 items-center text-xl"><UilExchange /></div>
+							<div class="flex h-7 items-center text-xl"><BiDashLg /></div>
 						</div>
-						<div class="grow flex flex-col items-center">
-							<div class="w-full flex gap-1 items-center justify-center">
+						<div class="flex grow flex-col items-center">
+							<div class="flex w-full items-center justify-center gap-1">
 								<div class="text-xl text-green-400">{allTimeStats.rankedWins}</div>
 								<div class="text-xl">-</div>
 								<div class="text-xl text-red-500">{allTimeStats.rankedLosses}</div>
 							</div>
-							<div class="w-full flex gap-1 items-center justify-center">
+							<div class="flex w-full items-center justify-center gap-1">
 								<div class="text-xl text-green-400">{allTimeStats.wins}</div>
 								<div class="text-xl">-</div>
 								<div class="text-xl text-red-500">{allTimeStats.losses}</div>
@@ -251,19 +251,19 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						</div>
 					</div>
 
-					<div class="text-sm text-center mt-2">Last 7 Days</div>
+					<div class="mt-2 text-center text-sm">Last 7 Days</div>
 					<div class="flex w-full">
 						<div class="flex flex-col">
-							<div class="text-xl h-7 flex items-center"><UilExchange /></div>
-							<div class="text-xl h-7 flex items-center"><BiDashLg /></div>
+							<div class="flex h-7 items-center text-xl"><UilExchange /></div>
+							<div class="flex h-7 items-center text-xl"><BiDashLg /></div>
 						</div>
-						<div class="grow flex flex-col items-center">
-							<div class="w-full flex gap-1 items-center justify-center">
+						<div class="flex grow flex-col items-center">
+							<div class="flex w-full items-center justify-center gap-1">
 								<div class="text-xl text-green-400">{weeklyStats.rankedWins}</div>
 								<div class="text-xl">-</div>
 								<div class="text-xl text-red-500">{weeklyStats.rankedLosses}</div>
 							</div>
-							<div class="w-full flex gap-1 items-center justify-center">
+							<div class="flex w-full items-center justify-center gap-1">
 								<div class="text-xl text-green-400">{weeklyStats.wins}</div>
 								<div class="text-xl">-</div>
 								<div class="text-xl text-red-500">{weeklyStats.losses}</div>
@@ -274,8 +274,8 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 			</div>
 		</div>
 		<div
-			class="flex flex-col px-2
-		bg-zinc-800 bg-opacity-95 border-[1px] border-zinc-200 border-opacity-15 rounded-xl py-2"
+			class="flex flex-col rounded-xl
+		border-[1px] border-zinc-200 border-opacity-15 bg-zinc-800 bg-opacity-95 px-2 py-2"
 		>
 			<div class="flex flex-col">
 				{#if chartType == 'days'}
@@ -283,7 +283,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						<div class="basis-1/3" />
 						<div class="basis-1/3 text-center">Wins by Games</div>
 						<button
-							class="basis-1/3 flex justify-end items-center"
+							class="flex basis-1/3 items-center justify-end"
 							on:click={() => (chartType = 'games')}><MaterialSymbolsCalendarMonth /></button
 						>
 					</div>
@@ -303,7 +303,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						<div class="basis-1/3" />
 						<div class="basis-1/3 text-center">Wins by Day</div>
 						<button
-							class="basis-1/3 flex justify-end items-center"
+							class="flex basis-1/3 items-center justify-end"
 							on:click={() => (chartType = 'days')}><IonLogoGameControllerB /></button
 						>
 					</div>
@@ -334,7 +334,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					</button>
 				</div>
 				{#if matchBlocks.length == 0}
-					<div class="flex justify-center items-center h-full">
+					<div class="flex h-full items-center justify-center">
 						<div class="absolute">
 							<Loading />
 						</div>
@@ -348,7 +348,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						{/each}
 						<div class="flex items-center justify-center gap-4">
 							<button
-								class="bg-sky-500 rounded-lg w-fit p-2 hover:bg-sky-700 transition-all duration-300 disabled:bg-zinc-800"
+								class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
 								disabled={pageNumber == 1}
 								on:click={() => decrementPage()}
 							>
@@ -356,7 +356,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 							>
 							<div>{pageNumber}</div>
 							<button
-								class="bg-sky-500 rounded-lg w-fit p-2 hover:bg-sky-700 transition-all duration-300 disabled:bg-zinc-800"
+								class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
 								disabled={matchBlocks.length < 10}
 								on:click={() => incrementPage()}
 							>

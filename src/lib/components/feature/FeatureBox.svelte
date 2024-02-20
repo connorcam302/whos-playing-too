@@ -37,31 +37,30 @@
 </script>
 
 {#if type == 'winLoss'}
-	<div
-		class="bg-zinc-800 bg-opacity-100 border-[1px] border-zinc-200 border-opacity-15 rounded-xl w-72"
-	>
-		<div class="rounded-xl border-white border-b-[1px] border-opacity-15 max-h-28">
-			<div class="rounded-xl border-white border-b-[1px] border-opacity-15">
+	<div class="w-64 rounded-xl bg-zinc-800 bg-opacity-100">
+		<div class="max-h-28 rounded-xl">
+			<div class="rounded-xl">
 				<div
-					class={`bg-cover bg-center rounded-xl max-h-28 max-w-auto`}
-					id={title == 'Most MMR Lost' ? `down-arrows` : `up-arrows`}
+					class={`max-w-auto max-h-28 rounded-xl bg-cover bg-center`}
+					id={title === 'Most MMR Lost' ? `down-arrows` : `up-arrows`}
 				>
-					<div class="flex bg-black bg-opacity-70 py-2 px-4 rounded-xl h-28">
-						<div class="grow flex flex-col">
-							<div class="text-2xl font-bold text-center font-display">{title}</div>
+					<div class="flex h-28 rounded-xl bg-black bg-opacity-70 px-4 py-2">
+						<div class="flex grow flex-col">
+							<div class="text-center font-display text-2xl">{title}</div>
 							<div class="flex-1 grow" />
-							<div class="flex flex-row justify-between text-3xl">
+							<div class="flex flex-row justify-between text-2xl">
 								<button
 									on:click={() => goto(`/player/${data[0].id}`)}
-									class="hover:text-zinc-400 duration-300"
+									class="duration-300 hover:text-zinc-400"
 								>
 									<div>{data[0].username}</div>
 								</button>
 								<div
-									class="font-bold text-4xl"
+									id="feature"
+									class="text-4xl font-bold"
 									style={`color: ${getStatColour(title == 'Most MMR Gained' ? 'wins' : 'losses')};`}
 								>
-									{data[0][type]}
+									{title === 'Most MMR Lost' ? '' : '+'}{data[0][type]}
 								</div>
 							</div>
 						</div>
@@ -69,90 +68,99 @@
 				</div>
 			</div>
 		</div>
-		<div
-			class="flex flex-row items-center px-4 py-0.5 rounded-xl border-white border-b-[1px] border-opacity-15"
-		>
-			<button
-				on:click={() => goto(`/player/${data[1].id}`)}
-				class="hover:text-zinc-400 duration-300"
-			>
-				<div class="flex h-7 items-center">{data[1].username}</div>
-			</button>
-			<div class="grow" />
-			<div>{data[1][type]}</div>
-		</div>
-		<div class="flex flex-row items-center px-4 py-0.5 h-7">
-			<button
-				on:click={() => goto(`/player/${data[2].id}`)}
-				class="hover:text-zinc-400 duration-300"
-			>
-				<div class="flex h-7 items-center">{data[2].username}</div>
-			</button>
-			<div class="grow" />
-			<div>{data[2][type]}</div>
+		<div class="flex flex-col gap-1 py-1">
+			<div class="flex h-7 w-full flex-row items-center rounded-xl px-3">
+				<button
+					on:click={() => goto(`/player/${data[1].id}`)}
+					class="duration-300 hover:text-zinc-400"
+				>
+					<div>{data[1].username}</div>
+				</button>
+				<div class="grow" />
+				<div>{title === 'Most MMR Lost' ? '' : '+'}{data[1][type]}</div>
+			</div>
+			<div class="flex w-full px-2">
+				<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
+			</div>
+			<div class="flex h-7 w-full flex-row items-center px-3">
+				<button
+					on:click={() => goto(`/player/${data[2].id}`)}
+					class="duration-300 hover:text-zinc-400"
+				>
+					<div>{data[2].username}</div>
+				</button>
+				<div class="grow" />
+				<div>{title === 'Most MMR Lost' ? '' : '+'}{data[2][type]}</div>
+			</div>
 		</div>
 	</div>
 {:else}
-	<div
-		class="bg-zinc-800 bg-opacity-100 border-[1px] border-zinc-200 border-opacity-15 rounded-xl w-72"
-	>
-		<div class="rounded-xl border-white border-b-[1px] border-opacity-15">
+	<div class="w-64 rounded-xl bg-zinc-800 bg-opacity-100">
+		<div class="rounded-xl border-opacity-15">
 			<MatchModal matchId={data[0].matchId}>
 				<div
-					class={`bg-cover bg-center bg-no-repeat rounded-xl min-h-28 w-full`}
+					class={`min-h-28 w-full rounded-xl bg-cover bg-center bg-no-repeat`}
 					style={`background-image: url('${data[0]?.hero?.img}')`}
 				>
-					<div class="flex bg-black bg-opacity-70 py-2 px-4 rounded-xl min-h-28">
-						<div class="grow flex flex-col">
-							<div class="text-2xl font-bold text-center font-display">{title}</div>
+					<div class="flex min-h-28 rounded-xl bg-black bg-opacity-70 px-3 py-2">
+						<div class="flex grow flex-col">
+							<div class="text-center font-display text-xl">{title}</div>
 							<div class="flex-1 grow" />
 							<div class="flex flex-row justify-between text-3xl">
 								<button
 									on:click={() => goto(`/player/${data[0].id}`)}
-									class="hover:text-zinc-400 duration-300"
+									class="duration-300 hover:text-zinc-400"
 								>
 									<div>{data[0].username}</div>
 								</button>
-								<div>{data[0][type]}</div>
+								<div class="font-bold" id="feature" style="color: {getStatColour(type)};">
+									{data[0][type]}
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</MatchModal>
 		</div>
-		<MatchModal matchId={data[1].matchId}>
-			<div
-				class="flex flex-row items-center px-4 py-0.5 rounded-xl border-white border-b-[1px] border-opacity-15 w-full"
-			>
-				<div><img src={data[1]?.hero?.img} class="h-7 mr-2" alt={data[2]?.hero?.name} /></div>
-				<button
-					on:click={() => goto(`/player/${data[1].id}`)}
-					class="hover:text-zinc-400 duration-300"
-				>
-					<div>{data[1].username}</div>
-				</button>
-				<div class="grow" />
-				<div>{data[1][type]}</div>
+		<div class="flex flex-col gap-1 py-1">
+			<MatchModal matchId={data[1].matchId}>
+				<div class="flex w-full flex-row items-center rounded-xl px-3">
+					<div><img src={data[1]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
+					<button
+						on:click={() => goto(`/player/${data[1].id}`)}
+						class="duration-300 hover:text-zinc-400"
+					>
+						<div>{data[1].username}</div>
+					</button>
+					<div class="grow" />
+					<div class="font-bold" style="color: {getStatColour(type)};">{data[1][type]}</div>
+				</div>
+			</MatchModal>
+			<div class="flex w-full px-2">
+				<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
 			</div>
-		</MatchModal>
-
-		<MatchModal matchId={data[2].matchId}>
-			<div class="flex flex-row items-center px-4 py-0.5 w-full">
-				<div><img src={data[2]?.hero?.img} class="h-7 mr-2" alt={data[2]?.hero?.name} /></div>
-				<button
-					on:click={() => goto(`/player/${data[2].id}`)}
-					class="hover:text-zinc-400 duration-300"
-				>
-					<div>{data[2].username}</div>
-				</button>
-				<div class="grow" />
-				<div>{data[2][type]}</div>
-			</div>
-		</MatchModal>
+			<MatchModal matchId={data[2].matchId}>
+				<div class="flex w-full flex-row items-center px-3">
+					<div><img src={data[2]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
+					<button
+						on:click={() => goto(`/player/${data[2].id}`)}
+						class="duration-300 hover:text-zinc-400"
+					>
+						<div>{data[2].username}</div>
+					</button>
+					<div class="grow" />
+					<div class="font-bold" style="color: {getStatColour(type)};">{data[2][type]}</div>
+				</div>
+			</MatchModal>
+		</div>
 	</div>
 {/if}
 
 <style>
+	#feature {
+		text-shadow: 3px 3px 8px #000000;
+	}
+
 	@keyframes downScroll {
 		0% {
 			background-position: 0px -24000px;
