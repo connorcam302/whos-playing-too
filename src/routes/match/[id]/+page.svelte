@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type MatchDetails } from './matchDetails.type';
-	import { fade } from 'svelte/transition';
+	import { page } from '$app/stores';
 	import MatchTable from '$lib/components/match/MatchTable.svelte';
 	import WinRateGraph from './WinRateGraph.svelte';
 	import NetWorthGraph from './NetWorthGraph.svelte';
@@ -13,6 +13,10 @@
 
 	$: fixRoleScreenShow = false;
 </script>
+
+<svelte:head>
+	<title>whos-playing | Match {$page.params.id}</title>
+</svelte:head>
 
 <div class="flex flex-col items-center">
 	<div>

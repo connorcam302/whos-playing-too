@@ -170,6 +170,10 @@
 	let advancedFilters = false;
 </script>
 
+<svelte:head>
+	<title>whos-playing | Matches</title>
+</svelte:head>
+
 <div class="flex flex-col gap-4">
 	<div class="flex flex-wrap gap-4">
 		<div class="flex h-fit w-64 flex-col gap-4 rounded-xl bg-zinc-800 px-4 py-2">
