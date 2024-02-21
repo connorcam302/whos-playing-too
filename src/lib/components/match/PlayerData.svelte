@@ -1,5 +1,6 @@
 <script lang="ts">
 	export let player: PlayerData;
+	import { getContext } from 'svelte';
 	import Fa6SolidPoop from '~icons/fa6-solid/poop';
 	import FxemojiPoo from '~icons/fxemoji/poo';
 	import tippy from 'sveltejs-tippy';
@@ -7,17 +8,13 @@
 	import { calcImpact, getRoleIcon } from '$lib/functions';
 	import { goto } from '$app/navigation';
 
-	let backpack = true;
-
-	const toggleBackpack = () => {
-		backpack = !backpack;
-	};
+	$: viewport = getContext('viewport');
 </script>
 
 <div>
-	<div class="my-0.5 flex items-center gap-4">
+	<div class="my-0.5 flex items-center gap-2 md:gap-4">
 		<div class="flex items-center gap-2">
-			<img src={player.hero.img} alt={player.hero.name} class="h-10" />
+			<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
 			<div class="min-w-28 text-left text-xl">
 				<button
 					class="duration-300 hover:text-zinc-400"
@@ -64,33 +61,35 @@
 			<div>/</div>
 			<div class="text-cyan-300">{player.assists}</div>
 		</div>
-		<button class="flex">
-			<img src={player.item0.img} alt={player.item0.name} class="h-8 w-[44px]" />
-			<img src={player.item1.img} alt={player.item1.name} class="h-8 w-[44px]" />
-			<img src={player.item2.img} alt={player.item2.name} class="h-8 w-[44px]" />
-			<img src={player.item3.img} alt={player.item3.name} class="h-8 w-[44px]" />
-			<img src={player.item4.img} alt={player.item4.name} class="h-8 w-[44px]" />
-			<img src={player.item5.img} alt={player.item5.name} class="h-8 w-[44px]" />
-			<div class="px-2">
+		{#if $viewport === 'desktop'}
+			<div class="flex">
+				<img src={player.item0.img} alt={player.item0.name} class="h-8 w-[44px]" />
+				<img src={player.item1.img} alt={player.item1.name} class="h-8 w-[44px]" />
+				<img src={player.item2.img} alt={player.item2.name} class="h-8 w-[44px]" />
+				<img src={player.item3.img} alt={player.item3.name} class="h-8 w-[44px]" />
+				<img src={player.item4.img} alt={player.item4.name} class="h-8 w-[44px]" />
+				<img src={player.item5.img} alt={player.item5.name} class="h-8 w-[44px]" />
+				<div class="px-2">
+					<img
+						src={player.itemzinc.img}
+						alt={player.itemzinc.name}
+						class="h-8 w-8 rounded-full object-cover"
+					/>
+				</div>
+			</div>
+			<div class="flex flex-col">
 				<img
-					src={player.itemzinc.img}
-					alt={player.itemzinc.name}
-					class="h-8 w-8 rounded-full object-cover"
+					class="mr-2 w-6 object-contain"
+					src={`/scepter_${player.aghanimsScepter}.png`}
+					alt={`/scepter_${player.aghanimsScepter}`}
+				/>
+				<img
+					class="mr-2 w-6 object-contain"
+					src={`/shard_${player.aghanimsShard}.png`}
+					alt={`/shard_${player.aghanimsShard}`}
 				/>
 			</div>
-		</button>
-		<div class="flex flex-col">
-			<img
-				class="mr-2 w-6 object-contain"
-				src={`/scepter_${player.aghanimsScepter}.png`}
-				alt={`/scepter_${player.aghanimsScepter}`}
-			/>
-			<img
-				class="mr-2 w-6 object-contain"
-				src={`/shard_${player.aghanimsShard}.png`}
-				alt={`/shard_${player.aghanimsShard}`}
-			/>
-		</div>
+		{/if}
 	</div>
 </div>
 

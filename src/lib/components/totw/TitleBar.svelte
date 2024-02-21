@@ -11,7 +11,7 @@
 		</div>
 		<button
 			on:click={() => goto('player/' + id)}
-			class="text-2xl transition-all duration-300 hover:text-zinc-400">{name}</button
+			class="text-lg transition-all duration-300 hover:text-zinc-400 lg:text-2xl">{name}</button
 		>
 	</div>
 </div>

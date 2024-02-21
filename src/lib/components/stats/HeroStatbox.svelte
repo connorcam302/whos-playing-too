@@ -183,7 +183,7 @@
 	$: sortedStats = sortStats(order);
 </script>
 
-<div class="rounded-xl bg-zinc-800 px-4 py-2">
+<div class="max-w-[100vw] rounded-xl bg-zinc-800 px-2 py-2 md:px-4">
 	<div class="my-1 flex gap-2 border-b-[1px] border-zinc-500 pb-1 pr-2">
 		<div class="flex w-16 items-center justify-center">
 			<button on:click={() => handleHeroSort()}>HERO</button>

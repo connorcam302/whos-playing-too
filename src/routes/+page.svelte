@@ -39,7 +39,7 @@
 	<title>whos-playing | Home</title>
 </svelte:head>
 
-{#if $viewport !== 'desktop'}
+{#if $viewport == ''}
 	<div>Mobile</div>
 {:else}
 	<div class="flex w-full flex-col items-center gap-4">
@@ -71,7 +71,7 @@
 				<div class="flex justify-center text-3xl">MATCHES & STATS</div>
 				<div class="text-sm text-zinc-400">Recent matches, and stats from the past 14 days</div>
 			</div>
-			<div class="flex max-w-screen-2xl gap-4">
+			<div class="flex max-w-screen-2xl flex-col gap-4 md:flex-row">
 				<div class="flex w-full grow flex-row items-center justify-center gap-4 bg-zinc-900">
 					<div class="mt-2 flex flex-col gap-2">
 						<div class="flex flex-wrap justify-center gap-4">
@@ -86,7 +86,7 @@
 									{:else}
 										<div class="flex flex-col gap-2">
 											{#each matchBlocks.slice(0, 10) as match}
-												<div>
+												<div class="mx-1 md:mx-0">
 													<MatchBlock {match} />
 												</div>
 											{/each}
@@ -97,8 +97,8 @@
 						</div>
 					</div>
 				</div>
-				<div class="mt-2 flex max-w-[90vw] grow-0 flex-col gap-2">
-					<div class="flex flex-col items-center justify-center gap-4">
+				<div class="mt-2 flex grow-0 flex-col gap-2 md:max-w-[90vw]">
+					<div class="flex w-full flex-col items-center justify-center gap-4">
 						<div class="w-full">
 							{#await heroStats then heroStats}
 								<HeroStatbox {heroStats} />

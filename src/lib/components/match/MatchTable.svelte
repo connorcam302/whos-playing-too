@@ -311,7 +311,7 @@
 						{/if}
 					</div>
 					<div class="max-w-[97vw] overflow-x-auto">
-						<div class="min-w-[1432px]">
+						<div class="min-w-[1450px]">
 							<table class="table-auto">
 								<thead>
 									<tr>
@@ -475,7 +475,7 @@
 						{/if}
 					</div>
 					<div class="max-w-[97vw] overflow-x-auto">
-						<div class="min-w-[1432px]">
+						<div class="min-w-[1450px]">
 							<table class="table-auto">
 								<thead>
 									<tr>
@@ -486,7 +486,7 @@
 										<th class="w-16 text-xs font-normal text-zinc-400">D</th>
 										<th class="w-16 text-xs font-normal text-zinc-400">A</th>
 										<th class="w-20 text-xs font-normal text-zinc-400">IMP</th>
-										<th class="max-w-24 text-xs font-normal text-zinc-400">CS</th>
+										<th class="max-w-28 text-xs font-normal text-zinc-400">CS</th>
 										<th class="w-24 text-xs font-normal text-zinc-400">NET</th>
 										<th class="w-24 text-xs font-normal text-zinc-400">GPM</th>
 										<th class="w-24 text-xs font-normal text-zinc-400">XPM</th>
