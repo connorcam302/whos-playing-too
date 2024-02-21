@@ -80,24 +80,33 @@
 				<div class="flex w-full items-center justify-center gap-8 bg-zinc-800">
 					<a
 						href="/"
-						class="gap-1w-48 flex items-center justify-center rounded-full text-center font-display text-lg"
+						class="gap-1w-48 flex items-center justify-center gap-2 rounded-full text-center font-display text-lg"
 					>
+						<img src="/logo.png" alt="whos-playing logo" class="h-7 w-7" />
 						<div>whos-playing</div>
 					</a>
 					<div class="flex h-full items-center justify-center">
 						<div
 							class="my-2 flex h-full w-fit items-center justify-center rounded-full bg-zinc-800"
 						>
-							<div class="flex items-center justify-center gap-4">
+							<div class="flex items-center justify-center gap-4 py-2">
 								{#each links as link}
 									{#if link.link == $page.url.pathname}
-										<a href={link.link} class="w-32 rounded-full bg-sky-500 px-2 py-1.5 text-center"
-											>{link.title}</a
-										>
+										<div class="w-32 flex-col items-center justify-center">
+											<div class="mx-auto w-full grow rounded-full bg-sky-500 py-1 text-center">
+												<a href={link.link} class="text-center text-sky-950">{link.title}</a>
+											</div>
+										</div>
 									{:else}
-										<a href={link.link} class="w-32 rounded-full px-2 py-1.5 text-center"
-											>{link.title}</a
-										>
+										<div class="w-32 flex-col items-center justify-center">
+											<div class="mx-auto w-full grow rounded-full text-center">
+												<a
+													href={link.link}
+													class="text-center transition-all duration-300 hover:text-zinc-400"
+													>{link.title}</a
+												>
+											</div>
+										</div>
 									{/if}
 								{/each}
 							</div>
