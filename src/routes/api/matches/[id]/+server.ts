@@ -3,7 +3,7 @@ import { json, type RequestHandler } from '@sveltejs/kit';
 import { laneRates } from '$lib/server/laneRates';
 import { heroMap } from '$lib/data/heroMap';
 import { itemMap } from '$lib/data/itemMap';
-import { accounts, accounts, accounts, matchData, players } from '$lib/server/schema';
+import { accounts, matchData, players } from '$lib/server/schema';
 import { db } from '$lib/server/database';
 import { and, eq, inArray } from 'drizzle-orm';
 
