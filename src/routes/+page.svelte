@@ -33,13 +33,16 @@
 	});
 
 	$: viewport = getContext('viewport');
+	console.log(viewport);
+
+	$: stats = 'hero';
 </script>
 
 <svelte:head>
 	<title>whos-playing | Home</title>
 </svelte:head>
 
-{#if $viewport == ''}
+{#if viewport === 'mobile'}
 	<div>Mobile</div>
 {:else}
 	<div class="flex w-full flex-col items-center gap-4">
@@ -98,18 +101,33 @@
 					</div>
 				</div>
 				<div class="mt-2 flex grow-0 flex-col gap-2 md:max-w-[90vw]">
-					<div class="flex w-full flex-col items-center justify-center gap-4">
-						<div class="w-full">
-							{#await heroStats then heroStats}
-								<HeroStatbox {heroStats} />
-							{/await}
-						</div>
-						<div class="w-full">
-							{#await playerStats then playerStats}
-								<PlayerStatbox {playerStats} />
-							{/await}
-						</div>
-					</div>
+					{#key viewport}
+						{#if viewport !== 'mobile'}
+							<div class="flex w-full flex-col items-center justify-center gap-4">
+								<div class="w-full">
+									{#await heroStats then heroStats}
+										<HeroStatbox {heroStats} />
+									{/await}
+								</div>
+								<div class="w-full">
+									{#await playerStats then playerStats}
+										<PlayerStatbox {playerStats} />
+									{/await}
+								</div>
+							</div>
+						{:else}
+							<button
+								class="rounded-xl bg-zinc-800 px-4 py-2 text-white"
+								style={`background-color: ${stats === 'player' ? '#27272a' : '#18181b'}`}
+								on:click={() => (stats = 'player')}>Player</button
+							>
+							<button
+								class="rounded-xl bg-zinc-800 px-4 py-2 text-white"
+								style={`background-color: ${stats === 'hero' ? '#27272a' : '#18181b'}`}
+								on:click={() => (stats = 'hero')}>Hero</button
+							>
+						{/if}
+					{/key}
 				</div>
 			</div>
 		</div>
