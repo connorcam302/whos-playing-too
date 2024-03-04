@@ -157,9 +157,7 @@
 		tabindex="0"
 		role="button"
 	>
-		<div
-			class="absolute z-20 rounded-xl border-[1px] border-zinc-200 border-opacity-15 bg-zinc-900 px-4 py-2 opacity-100"
-		>
+		<div class="absolute z-20 rounded-xl bg-zinc-900 px-4 py-2 opacity-100">
 			<MatchTable {matchDetails} />
 		</div>
 	</div>
