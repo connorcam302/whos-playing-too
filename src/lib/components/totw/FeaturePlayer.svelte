@@ -1,4 +1,4 @@
-<s<TeamOfTheWeek {totw} />cript lang="ts">
+<script lang="ts">
 	export let data: { hero: string; role: number };
 	import { getColour } from '$lib/functions';
 

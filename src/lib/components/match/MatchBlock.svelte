@@ -162,7 +162,7 @@
 							>
 								{#each radiant as player}
 									<div class="pl-2 hover:bg-black hover:bg-opacity-10">
-										<PlayerData {player} />
+										<PlayerData {player} {matchData} />
 									</div>
 								{/each}
 							</div>
@@ -173,7 +173,7 @@
 							>
 								{#each radiant as player}
 									<div class="pl-2 hover:bg-black hover:bg-opacity-10">
-										<PlayerData {player} />
+										<PlayerData {player} {matchData} />
 									</div>
 								{/each}
 							</div>
@@ -187,7 +187,7 @@
 							>
 								{#each dire as player}
 									<div class="pl-2 hover:bg-black hover:bg-opacity-10">
-										<PlayerData {player} />
+										<PlayerData {player} {matchData} />
 									</div>
 								{/each}
 							</div>
@@ -198,7 +198,7 @@
 							>
 								{#each dire as player}
 									<div class="pl-2 hover:bg-black hover:bg-opacity-10">
-										<PlayerData {player} />
+										<PlayerData {player} {matchData} />
 									</div>
 								{/each}
 							</div>
