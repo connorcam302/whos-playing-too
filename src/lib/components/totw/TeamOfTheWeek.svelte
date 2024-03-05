@@ -32,9 +32,6 @@
 		fourHeroId: string;
 		fiveHeroId: string;
 	};
-
-	$: viewport = getContext('viewport');
-	$: console.log($viewport);
 </script>
 
 <div
@@ -50,8 +47,8 @@
 		</div>
 	</div>
 	<div class="grow" />
-	<div class="flex flex-wrap gap-2">
-		<div class="flex flex-col justify-center rounded-xl bg-zinc-800 pt-2">
+	<div class="flex flex-wrap justify-center gap-2">
+		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
 			<div class="mx-2 lg:max-h-48 lg:max-w-48">
 				<FeaturePlayer data={{ hero: totw.oneHeroId, role: 1 }} />
 			</div>
@@ -61,7 +58,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="flex flex-col justify-center rounded-xl bg-zinc-800 pt-2">
+		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
 			<div class="mx-2 lg:max-h-48 lg:max-w-48">
 				<FeaturePlayer data={{ hero: totw.twoHeroId, role: 2 }} />
 			</div>
@@ -72,7 +69,7 @@
 			</div>
 		</div>
 
-		<div class="flex flex-col justify-center rounded-xl bg-zinc-800 pt-2">
+		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
 			<div class="mx-2 lg:max-h-48 lg:max-w-48">
 				<FeaturePlayer data={{ hero: totw.threeHeroId, role: 3 }} />
 			</div>
@@ -82,7 +79,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="flex flex-col justify-center rounded-xl bg-zinc-800 pt-2">
+		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
 			<div class="mx-2 lg:max-h-48 lg:max-w-48">
 				<FeaturePlayer data={{ hero: totw.fourHeroId, role: 4 }} />
 			</div>
@@ -92,7 +89,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="flex flex-col justify-center rounded-xl bg-zinc-800 pt-2">
+		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
 			<div class="mx-2 lg:max-h-48 lg:max-w-48">
 				<FeaturePlayer data={{ hero: totw.fiveHeroId, role: 5 }} />
 			</div>

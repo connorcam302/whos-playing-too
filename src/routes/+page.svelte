@@ -33,13 +33,16 @@
 	});
 
 	$: viewport = getContext('viewport');
+	console.log(viewport);
+
+	$: stats = 'hero';
 </script>
 
 <svelte:head>
 	<title>whos-playing | Home</title>
 </svelte:head>
 
-{#if $viewport == ''}
+{#if viewport === 'mobile'}
 	<div>Mobile</div>
 {:else}
 	<div class="flex w-full flex-col items-center gap-4">
@@ -98,18 +101,46 @@
 					</div>
 				</div>
 				<div class="mt-2 flex grow-0 flex-col gap-2 md:max-w-[90vw]">
-					<div class="flex w-full flex-col items-center justify-center gap-4">
-						<div class="w-full">
-							{#await heroStats then heroStats}
-								<HeroStatbox {heroStats} />
-							{/await}
+					{#if $viewport !== 'mobile'}
+						<div class="flex w-full flex-col items-center justify-center gap-4">
+							<div class="w-full">
+								{#await heroStats then heroStats}
+									<HeroStatbox {heroStats} />
+								{/await}
+							</div>
+							<div class="w-full">
+								{#await playerStats then playerStats}
+									<PlayerStatbox {playerStats} />
+								{/await}
+							</div>
 						</div>
-						<div class="w-full">
-							{#await playerStats then playerStats}
-								<PlayerStatbox {playerStats} />
-							{/await}
+					{:else}
+						<div class="flex w-full">
+							<button
+								class="grow rounded-xl bg-zinc-800 px-4 py-2 text-white"
+								style={`background-color: ${stats === 'player' ? '#27272a' : '#18181b'}`}
+								on:click={() => (stats = 'player')}>Player</button
+							>
+							<button
+								class="grow rounded-xl bg-zinc-800 px-4 py-2 text-white"
+								style={`background-color: ${stats === 'hero' ? '#27272a' : '#18181b'}`}
+								on:click={() => (stats = 'hero')}>Hero</button
+							>
 						</div>
-					</div>
+						{#if stats === 'hero'}
+							<div in:fade={{ duration: 250 }}>
+								{#await heroStats then heroStats}
+									<HeroStatbox {heroStats} />
+								{/await}
+							</div>
+						{:else}
+							<div in:fade={{ duration: 250 }}>
+								{#await playerStats then playerStats}
+									<PlayerStatbox {playerStats} />
+								{/await}
+							</div>
+						{/if}
+					{/if}
 				</div>
 			</div>
 		</div>
