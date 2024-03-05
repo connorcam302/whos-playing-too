@@ -855,7 +855,7 @@ export const getMostKills = async (games: number = 10, smurf: boolean = false) =
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(desc(matchData.kills))
         .limit(games);
 
@@ -896,7 +896,7 @@ export const getMostDeaths = async (games: number = 10, smurf: boolean = false) 
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(desc(matchData.deaths))
         .limit(games);
 
@@ -937,7 +937,7 @@ export const getMostAssists = async (games: number = 10, smurf: boolean = false)
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(desc(matchData.assists))
         .limit(games);
 
@@ -979,7 +979,7 @@ export const getHighestImpact = async (games: number = 10, smurf: boolean = fals
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(desc(matchData.impact))
         .limit(games);
 
@@ -1021,7 +1021,7 @@ export const getLowestImpact = async (games: number = 10, smurf: boolean = false
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(matchData.impact)
         .limit(games);
 
@@ -1063,7 +1063,7 @@ export const getMostGPM = async (games: number = 10, smurf: boolean = false) => 
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(desc(matchData.goldPerMin))
         .limit(games);
 
@@ -1104,7 +1104,7 @@ export const getMostXPM = async (games: number = 10, smurf: boolean = false) => 
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(desc(matchData.xpPerMin))
         .limit(games);
 
@@ -1146,7 +1146,7 @@ export const getMostLastHits = async (games: number = 10, smurf: boolean = false
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(desc(matchData.lastHits))
         .limit(games);
 
@@ -1236,7 +1236,7 @@ export const getLeastHeroDamage = async (games: number = 10, smurf: boolean = fa
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.gameMode, 22)))
         .orderBy(matchData.heroDamage)
         .limit(games);
 

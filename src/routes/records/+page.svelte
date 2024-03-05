@@ -49,7 +49,6 @@
 	};
 
 	const { records } = data;
-	console.log(data);
 
 	const getImpactDetails = (match: any, role: any, duration: any) => {
 		console.log(match, role, duration);
