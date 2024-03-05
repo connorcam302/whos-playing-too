@@ -1,8 +1,15 @@
 import {
 	getHighestImpact,
+	getLeastHeroDamage,
+	getLowestImpact,
 	getMostAssists,
 	getMostDeaths,
-	getMostKills
+	getMostHeroDamage,
+	getMostKills,
+	getMostLastHits,
+	getMostBuildingDamage,
+	getMostGPM,
+	getMostXPM
 } from '$lib/server/db-functions';
 
 interface Record {
@@ -28,10 +35,39 @@ const createRecord = (title: string, recordTitle: string, records: any) => {
 };
 
 export const load = async ({ url, params }) => {
-	const mostKills = createRecord('Most Kills', 'Kills', await getMostKills(10, true));
-	const mostDeaths = createRecord('Most Deaths', 'Deaths', await getMostDeaths(10, true));
-	const mostAssists = createRecord('Most Assists', 'Assists', await getMostAssists(10, true));
-	const highestImpact = createRecord('Highest Impact', 'Impact', await getHighestImpact(10, true));
+	const mostKills = createRecord('Most Kills', 'Kills', await getMostKills());
+	const mostDeaths = createRecord('Most Deaths', 'Deaths', await getMostDeaths());
+	const mostAssists = createRecord('Most Assists', 'Assists', await getMostAssists());
+	const highestImpact = createRecord('Highest Impact', 'Impact', await getHighestImpact());
+	const lowestImpact = createRecord('Lowest Impact', 'Impact', await getLowestImpact());
+	const mostLastHits = createRecord('Most Last Hits', 'Last Hits', await getMostLastHits());
+	const highestGPM = createRecord('Highest GPM', 'GPM', await getMostGPM());
+	const highestXPM = createRecord('Highest XPM', 'XPM', await getMostXPM());
+	const mostHeroDamage = createRecord('Most Hero Damage', 'Hero Damage', await getMostHeroDamage());
+	const leastHeroDamage = createRecord(
+		'Least Hero Damage',
+		'Hero Damage',
+		await getLeastHeroDamage()
+	);
+	const mostBuildingDamage = createRecord(
+		'Most Building Damage',
+		'Building Damage',
+		await getMostBuildingDamage()
+	);
 
-	return { records: [mostKills, mostDeaths, mostAssists, highestImpact] };
+	return {
+		records: [
+			mostKills,
+			mostDeaths,
+			mostAssists,
+			highestImpact,
+			lowestImpact,
+			mostLastHits,
+			highestGPM,
+			highestXPM,
+			mostHeroDamage,
+			leastHeroDamage,
+			mostBuildingDamage
+		]
+	};
 };

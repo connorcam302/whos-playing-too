@@ -1,7 +1,7 @@
 import { db } from '$lib/server/database';
 import { accounts, heroes, matchData, matches, players, teamOfTheWeek } from '$lib/server/schema';
 import { heroData, type Hero } from '$lib/data/heroData';
-import { eq, sql, and, desc, or, gte, lte } from 'drizzle-orm';
+import { eq, sql, and, desc, or, gte, lte, ne, gt } from 'drizzle-orm';
 import { getHeroString } from './private-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
@@ -840,6 +840,7 @@ export const getMostKills = async (games: number = 10, smurf: boolean = false) =
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -854,7 +855,7 @@ export const getMostKills = async (games: number = 10, smurf: boolean = false) =
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(desc(matchData.kills))
         .limit(games);
 
@@ -880,6 +881,7 @@ export const getMostDeaths = async (games: number = 10, smurf: boolean = false) 
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -894,7 +896,7 @@ export const getMostDeaths = async (games: number = 10, smurf: boolean = false) 
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(desc(matchData.deaths))
         .limit(games);
 
@@ -920,6 +922,7 @@ export const getMostAssists = async (games: number = 10, smurf: boolean = false)
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -934,7 +937,7 @@ export const getMostAssists = async (games: number = 10, smurf: boolean = false)
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(desc(matchData.assists))
         .limit(games);
 
@@ -961,6 +964,7 @@ export const getHighestImpact = async (games: number = 10, smurf: boolean = fals
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -975,7 +979,7 @@ export const getHighestImpact = async (games: number = 10, smurf: boolean = fals
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(desc(matchData.impact))
         .limit(games);
 
@@ -1002,6 +1006,7 @@ export const getLowestImpact = async (games: number = 10, smurf: boolean = false
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -1016,10 +1021,18 @@ export const getLowestImpact = async (games: number = 10, smurf: boolean = false
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(matchData.impact)
         .limit(games);
-    return lowestImpact;
+
+    const data = lowestImpact.map((match) => {
+        return {
+            record: match.impact,
+            data: match
+        };
+    });
+
+    return data;
 };
 
 export const getMostGPM = async (games: number = 10, smurf: boolean = false) => {
@@ -1035,6 +1048,7 @@ export const getMostGPM = async (games: number = 10, smurf: boolean = false) => 
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -1049,10 +1063,17 @@ export const getMostGPM = async (games: number = 10, smurf: boolean = false) => 
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(desc(matchData.goldPerMin))
         .limit(games);
-    return mostGPM;
+
+    const data = mostGPM.map((match) => {
+        return {
+            record: match.gpm,
+            data: match
+        };
+    });
+    return data;
 };
 
 export const getMostXPM = async (games: number = 10, smurf: boolean = false) => {
@@ -1068,6 +1089,7 @@ export const getMostXPM = async (games: number = 10, smurf: boolean = false) => 
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -1082,10 +1104,18 @@ export const getMostXPM = async (games: number = 10, smurf: boolean = false) => 
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(desc(matchData.xpPerMin))
         .limit(games);
-    return mostXPM;
+
+    const data = mostXPM.map((match) => {
+        return {
+            record: match.xpm,
+            data: match
+        };
+    });
+
+    return data;
 };
 
 export const getMostLastHits = async (games: number = 10, smurf: boolean = false) => {
@@ -1101,6 +1131,7 @@ export const getMostLastHits = async (games: number = 10, smurf: boolean = false
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -1115,10 +1146,17 @@ export const getMostLastHits = async (games: number = 10, smurf: boolean = false
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(desc(matchData.lastHits))
         .limit(games);
-    return mostLastHits;
+
+    const data = mostLastHits.map((match) => {
+        return {
+            record: match.lastHits,
+            data: match
+        };
+    });
+    return data;
 };
 
 export const getMostHeroDamage = async (games: number = 10, smurf: boolean = false) => {
@@ -1134,6 +1172,8 @@ export const getMostHeroDamage = async (games: number = 10, smurf: boolean = fal
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            heroDamage: matchData.heroDamage,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -1148,10 +1188,23 @@ export const getMostHeroDamage = async (games: number = 10, smurf: boolean = fal
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(
+            and(
+                or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)),
+                eq(matches.lobby, 7),
+                gt(matchData.heroDamage, 0)
+            )
+        )
         .orderBy(desc(matchData.heroDamage))
         .limit(games);
-    return mostHeroDamage;
+
+    const data = mostHeroDamage.map((match) => {
+        return {
+            record: match.heroDamage,
+            data: match
+        };
+    });
+    return data;
 };
 
 export const getLeastHeroDamage = async (games: number = 10, smurf: boolean = false) => {
@@ -1167,6 +1220,8 @@ export const getLeastHeroDamage = async (games: number = 10, smurf: boolean = fa
             role: matchData.role,
             gpm: matchData.goldPerMin,
             xpm: matchData.xpPerMin,
+            heroDamage: matchData.heroDamage,
+            lastHits: matchData.lastHits,
             matchId: matchData.matchId,
             duration: matches.duration,
             startTime: matches.startTime,
@@ -1181,8 +1236,62 @@ export const getLeastHeroDamage = async (games: number = 10, smurf: boolean = fa
         .innerJoin(players, eq(accounts.owner, players.id))
         .innerJoin(matches, eq(matches.id, matchData.matchId))
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
-        .where(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)))
+        .where(and(or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)), eq(matches.lobby, 7)))
         .orderBy(matchData.heroDamage)
         .limit(games);
-    return leastHeroDamage;
+
+    const data = leastHeroDamage.map((match) => {
+        return {
+            record: match.heroDamage,
+            data: match
+        };
+    });
+    return data;
+};
+
+export const getMostBuildingDamage = async (games: number = 10, smurf: boolean = false) => {
+    const mostBuildingDamage = await db
+        .select({
+            id: players.id,
+            username: players.username,
+            smurf: accounts.smurf,
+            kills: matchData.kills,
+            deaths: matchData.deaths,
+            assists: matchData.assists,
+            impact: matchData.impact,
+            role: matchData.role,
+            towerDamage: matchData.towerDamage,
+            lastHits: matchData.lastHits,
+            matchId: matchData.matchId,
+            duration: matches.duration,
+            startTime: matches.startTime,
+            hero: {
+                id: heroes.id,
+                name: heroes.name,
+                img: heroes.img
+            }
+        })
+        .from(matchData)
+        .innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(players, eq(accounts.owner, players.id))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .innerJoin(heroes, eq(heroes.id, matchData.heroId))
+        .where(
+            and(
+                or(eq(accounts.smurf, false), eq(accounts.smurf, smurf)),
+                eq(matches.lobby, 7),
+                gt(matchData.towerDamage, 0)
+            )
+        )
+        .orderBy(desc(matchData.towerDamage))
+        .limit(games);
+
+    const data = mostBuildingDamage.map((match) => {
+        return {
+            record: match.towerDamage,
+            data: match
+        };
+    });
+
+    return data;
 };

@@ -285,8 +285,6 @@
 		kapmRating = Math.round(kapmRating * 100);
 		impact = Math.round(impact * 100);
 
-		console.log({ csMinRating, deathRating, kapmRating, impact });
-
 		return { csMinRating, deathRating, kapmRating, impact };
 	};
 
