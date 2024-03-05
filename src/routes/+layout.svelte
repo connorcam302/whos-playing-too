@@ -34,7 +34,6 @@
 	let mounted = false;
 
 	const handleViewport = (innerWidth: number) => {
-		console.log(innerWidth);
 		if (mounted) {
 			if (innerWidth === 0) {
 				viewport = 'loading';
@@ -63,7 +62,7 @@
 	$: viewportStore.set(viewport);
 
 	setContext('viewport', viewportStore);
-	$: console.log(viewport);
+	$: console.log(viewport, innerWidth);
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />

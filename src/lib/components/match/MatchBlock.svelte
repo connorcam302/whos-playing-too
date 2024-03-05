@@ -9,6 +9,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
+	dayjs.extend(relativeTime);
 	import { goto } from '$app/navigation';
 	import FxemojiPoo from '~icons/fxemoji/poo';
 	import MaterialSymbolsTrophyRounded from '~icons/material-symbols/trophy-rounded';
@@ -17,8 +18,6 @@
 	import { calcImpact } from '$lib/functions';
 	import tippy from 'tippy.js';
 	import { quintOut } from 'svelte/easing';
-
-	dayjs.extend(relativeTime);
 
 	type MatchData = {
 		radiant_win: boolean;

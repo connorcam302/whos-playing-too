@@ -140,10 +140,7 @@
 	};
 </script>
 
-<button
-	on:click={openMatchData}
-	class="h-full w-full transition-all duration-300 hover:text-zinc-300"
->
+<button on:click={openMatchData} class="h-full w-full transition-all duration-300">
 	<slot />
 </button>
 
