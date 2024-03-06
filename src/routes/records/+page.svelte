@@ -4,6 +4,8 @@
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import FxemojiPoo from '~icons/fxemoji/poo';
+	import MaterialSymbolsKeyboardArrowDown from '~icons/material-symbols/keyboard-arrow-down';
+	import MaterialSymbolsKeyboardArrowUp from '~icons/material-symbols/keyboard-arrow-up';
 	import MatchModal from '$lib/components/match/MatchModal.svelte';
 	dayjs.extend(relativeTime);
 
@@ -11,6 +13,7 @@
 		title: string;
 		recordTitle: string;
 		records: RecordData[];
+		length: number;
 	}
 
 	interface RecordData {
@@ -153,6 +156,16 @@
 	};
 
 	$: smurf = false;
+
+	const expandList = (length: number) => {
+		if (length === 3) {
+			return 5;
+		} else if (length === 5) {
+			return 10;
+		} else {
+			return 3;
+		}
+	};
 </script>
 
 <svelte:head>
@@ -169,7 +182,7 @@
 				<div class="flex flex-col items-center gap-2">
 					<div class="font-display text-3xl">{recordSet.title}</div>
 				</div>
-				<div class="flex grow flex-col items-center justify-start gap-4">
+				<div class="flex grow flex-col items-center justify-start gap-2">
 					<table class="w-full">
 						<thead>
 							<tr>
@@ -189,9 +202,9 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each recordSet.records as record, i}
+							{#each recordSet.records.slice(0, recordSet.length) as record, i}
 								<tr
-									class="my-2 border-y-[1px] border-white border-opacity-10 hover:bg-zinc-800"
+									class="border-y-[1px] border-white border-opacity-10 hover:bg-zinc-800"
 									style="background-color: {getColour(i + 1)}"
 								>
 									<td>
@@ -220,20 +233,25 @@
 										</MatchModal>
 									</td>
 
-									<td>
+									<td class="flex items-center">
 										<MatchModal matchId={record.data.matchId}>
-											<img src={record.data.hero.img} alt={record.data.hero.name} class="w-16" />
+											<img
+												src={record.data.hero.img}
+												alt={record.data.hero.name}
+												class="my-auto h-10"
+											/>
 										</MatchModal>
 									</td>
 									<td class="text-center">
-										<MatchModal matchId={record.data.matchId}>
-											<img
-												src={getRoleIcon(record.data.role)}
-												alt={`position ${record.data.role}`}
-												class="mx-auto h-7"
-												style="color: 'red'"
-											/>
-										</MatchModal>
+										<div class="flex items-center">
+											<MatchModal matchId={record.data.matchId}>
+												<img
+													src={getRoleIcon(record.data.role)}
+													alt={`position ${record.data.role}`}
+													class="mx-auto h-7"
+												/>
+											</MatchModal>
+										</div>
 									</td>
 									<td>
 										<MatchModal matchId={record.data.matchId}>
@@ -341,6 +359,13 @@
 							{/each}
 						</tbody>
 					</table>
+					<button on:click={() => (recordSet.length = expandList(recordSet.length))}>
+						{#if recordSet.length !== 10}
+							<MaterialSymbolsKeyboardArrowDown class="h-8 w-8" />
+						{:else}
+							<MaterialSymbolsKeyboardArrowUp class="h-8 w-8" />
+						{/if}
+					</button>
 				</div>
 			</div>
 		{/each}

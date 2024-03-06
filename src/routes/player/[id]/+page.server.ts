@@ -3,7 +3,7 @@ import {
 	getHeroStats,
 	getPlayer,
 	getPlayerChart,
-	getPlayerStats
+	getPlayerWinLoss
 } from '$lib/server/db-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
@@ -47,34 +47,11 @@ export const load = async ({ url, params }) => {
 		(account: any) =>
 			account.steamid !== (BigInt(mainAccountId) + BigInt('76561197960265728')).toString()
 	);
-	const weeklyStats = await getPlayerStats(params.id);
-	const allTimeStats = await getPlayerStats(params.id, 9999);
+	const weeklyStats = await getPlayerWinLoss(params.id);
+	const allTimeStats = await getPlayerWinLoss(params.id, 9999);
 
 	const heroStats = getHeroStats(dayjs(0).add(2, 'week').valueOf() / 1000, params.id);
 	const winGraph = await getPlayerChart(params.id, 31);
-
-	const timings = [
-		{ name: 'getPlayer', time: await measurePromise(() => getPlayer(params.id)) },
-		{ name: 'getAccounts', time: await measurePromise(() => getAccounts(params.id)) },
-		{ name: 'getSteamData', time: await measurePromise(() => getSteamData([player.accountId])) },
-		{
-			name: 'allSteamData',
-			time: await measurePromise(() =>
-				getSteamData(accountIds.map((account) => account?.accountId))
-			)
-		},
-		{ name: 'getPlayerStats', time: await measurePromise(() => getPlayerStats(params.id)) },
-		{
-			name: 'getHeroStats',
-			time: await measurePromise(() =>
-				getHeroStats(dayjs(0).add(2, 'week').valueOf() / 1000, params.id)
-			)
-		},
-		{
-			name: 'getPlayerChart',
-			time: await measurePromise(() => getPlayerChart(params.id, 31))
-		}
-	];
 
 	return {
 		player,
@@ -83,7 +60,6 @@ export const load = async ({ url, params }) => {
 		allTimeStats,
 		weeklyStats,
 		heroStats,
-		winGraph,
-		timings
+		winGraph
 	};
 };

@@ -24,7 +24,7 @@
 		{ link: '/matches', title: 'Matches' },
 		{ link: '/records', title: 'Records' },
 		{ link: '/stats', title: 'Stats' },
-		{ link: '/leaderboard', title: 'Leaderboard' },
+		{ link: '/comparison', title: 'Comparison' },
 		{ link: '/about', title: 'About' }
 	];
 
