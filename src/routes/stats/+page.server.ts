@@ -3,7 +3,7 @@ import {
 	getHeroStats,
 	getPlayer,
 	getPlayerChart,
-	getPlayerStats,
+	getPlayerWinLoss,
 	getPlayers
 } from '$lib/server/db-functions';
 

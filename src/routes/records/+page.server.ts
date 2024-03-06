@@ -55,19 +55,26 @@ export const load = async ({ url, params }) => {
 		await getMostBuildingDamage()
 	);
 
-	return {
-		records: [
-			mostKills,
-			mostDeaths,
-			mostAssists,
-			highestImpact,
-			lowestImpact,
-			mostLastHits,
-			highestGPM,
-			highestXPM,
-			mostHeroDamage,
-			leastHeroDamage,
-			mostBuildingDamage
-		]
-	};
+	const recordsRaw = [
+		mostKills,
+		mostDeaths,
+		mostAssists,
+		highestImpact,
+		lowestImpact,
+		mostLastHits,
+		highestGPM,
+		highestXPM,
+		mostHeroDamage,
+		leastHeroDamage,
+		mostBuildingDamage
+	];
+
+	const records = recordsRaw.map((record) => {
+		return {
+			...record,
+			length: 3
+		};
+	});
+
+	return { records };
 };
