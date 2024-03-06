@@ -25,6 +25,7 @@
 	}
 
 	import RoleDoughnut from '$lib/components/stats/RoleDoughnut.svelte';
+	import HeroiconsXMark from '~icons/heroicons/x-mark';
 	import { toTime } from '$lib/functions.js';
 	import tippy from 'sveltejs-tippy';
 	import { fade } from 'svelte/transition';
@@ -80,6 +81,10 @@
 	const getUpdatedPlayerList = () => {
 		return playerList.filter((player) => !playerStats.some((obj) => obj.id === player.id));
 	};
+
+	const removeFromPlayerStats = (id) => {
+		playerStats = playerStats.filter((player) => player.id !== id);
+	};
 </script>
 
 <svelte:head>
@@ -89,7 +94,13 @@
 <div>
 	<div class="flex flex-wrap items-center justify-center gap-4">
 		{#each playerStats as player}
-			<div class="flex w-48 flex-col gap-2 rounded-xl bg-zinc-800 p-2">
+			<div class="relative flex w-48 flex-col gap-2 rounded-xl bg-zinc-800 p-2">
+				<button
+					class="absolute right-2 top-2 flex"
+					on:click={() => removeFromPlayerStats(player.id)}
+				>
+					<HeroiconsXMark />
+				</button>
 				<div class="text-center text-2xl">{player.username}</div>
 				<div class="mx-auto h-24 w-24">
 					<RoleDoughnut data={player.roleDistribution} cutout={40} />
