@@ -67,6 +67,8 @@
 		playerMenu = !playerMenu;
 	};
 
+	$: playerStats = [];
+
 	const addToPlayerStats = (player) => {
 		const index = playerStats.findIndex((obj) => obj.id === player.id);
 		if (index === -1) {
