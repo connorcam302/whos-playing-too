@@ -26,16 +26,48 @@
 
 	import RoleDoughnut from '$lib/components/stats/RoleDoughnut.svelte';
 	import HeroiconsXMark from '~icons/heroicons/x-mark';
+	import UilExchange from '~icons/uil/exchange';
+	import BiDashLg from '~icons/bi/dash-lg';
+	import IcOutlineSearch from '~icons/ic/outline-search';
 	import { toTime } from '$lib/functions.js';
 	import tippy from 'sveltejs-tippy';
 	import { fade } from 'svelte/transition';
+	import WinChart from '$lib/components/profile/WinChart.svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	export let data;
 
 	const { playerList } = data;
 
+	const calculateWinRate = (wins: number, losses: number) => {
+		return Math.floor((wins / (wins + losses)) * 100);
+	};
+
+	$: pos1 = true;
+	$: pos2 = true;
+	$: pos3 = true;
+	$: pos4 = true;
+	$: pos5 = true;
+
+	$: ranked = true;
+	$: unranked = true;
+
+	$: time = 9999;
+
+	$: searchPlayer = '';
+	const searchPlayersByName = (allPlayers, searchString) => {
+		const lowerSearchString = searchString.toLowerCase();
+
+		return allPlayers.filter((player) => player.username.toLowerCase().includes(lowerSearchString));
+	};
+
 	const fetchPlayerData: Promise<Stats> = async (player: number) => {
-		const data = await fetch(`/api/stats/${player}`);
+		const data = await fetch(
+			`/api/stats/${player}?roles=[${pos1 ? 1 : -1},${pos2 ? 2 : -1},${pos3 ? 3 : -1},${
+				pos4 ? 4 : -1
+			},${pos5 ? 5 : -1}]&lobby=[${ranked ? 7 : -1},${unranked ? 0 : -1}]&time=${time}`
+		);
 		const json = await data.json();
 		return await json;
 	};
@@ -72,6 +104,7 @@
 
 	const addToPlayerStats = (player) => {
 		const index = playerStats.findIndex((obj) => obj.id === player.id);
+		searchPlayer = '';
 		if (index === -1) {
 			playerStats = [...playerStats, player];
 			togglePlayerMenu();
@@ -85,13 +118,206 @@
 	const removeFromPlayerStats = (id) => {
 		playerStats = playerStats.filter((player) => player.id !== id);
 	};
+
+	const handleRoleChange = (role: number) => {
+		let currentRole;
+		switch (role) {
+			case 1:
+				currentRole = pos1;
+				break;
+			case 2:
+				currentRole = pos2;
+				break;
+			case 3:
+				currentRole = pos3;
+				break;
+			case 4:
+				currentRole = pos4;
+				break;
+			case 5:
+				currentRole = pos5;
+				break;
+		}
+		if (
+			Number(pos1) + Number(pos2) + Number(pos3) + Number(pos4) + Number(pos5) > 1 ||
+			currentRole === false
+		) {
+			switch (role) {
+				case 1:
+					pos1 = !pos1;
+					break;
+				case 2:
+					pos2 = !pos2;
+					break;
+				case 3:
+					pos3 = !pos3;
+					break;
+				case 4:
+					pos4 = !pos4;
+					break;
+				case 5:
+					pos5 = !pos5;
+					break;
+			}
+
+			updatePlayerData();
+		}
+	};
+
+	const handleLobbyChange = (lobby: number) => {
+		let currentLobby;
+		switch (lobby) {
+			case 0:
+				currentLobby = unranked;
+				break;
+			case 7:
+				currentLobby = ranked;
+				break;
+		}
+		if (Number(ranked) + Number(unranked) > 1 || currentLobby === false) {
+			switch (lobby) {
+				case 0:
+					unranked = !unranked;
+					break;
+				case 7:
+					ranked = !ranked;
+					break;
+			}
+
+			updatePlayerData();
+		}
+	};
+
+	const handleTimeChange = () => {
+		updatePlayerData();
+	};
+
+	const updatePlayerData = async () => {
+		const playerData = playerStats.map((player) => fetchPlayerData(player.id));
+		playerStats = await Promise.all(playerData);
+	};
+
+	$: console.log(playerStats);
 </script>
 
 <svelte:head>
 	<title>whos-playing | Comparison</title>
 </svelte:head>
 
-<div>
+<div class="flex flex-col gap-4">
+	<div class="flex flex-wrap justify-center gap-6">
+		<div class="flex flex-col gap-1 text-sm">
+			Roles
+			<div class="flex gap-1">
+				<button
+					on:click={() => handleRoleChange(1)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos1 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Carry`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos1.svg" alt="pos1" />
+				</button>
+				<button
+					on:click={() => handleRoleChange(2)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos2 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Mid`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos2.svg" alt="pos2" />
+				</button>
+				<button
+					on:click={() => handleRoleChange(3)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos3 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Offlane`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos3.svg" alt="pos3" />
+				</button>
+				<button
+					on:click={() => handleRoleChange(4)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos4 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Soft Support`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos4.svg" alt="pos4" />
+				</button>
+				<button
+					on:click={() => handleRoleChange(5)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos5 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Hard Support`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos5.svg" alt="pos5" />
+				</button>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1 text-sm">
+			Lobby
+			<div class="flex gap-1">
+				<button
+					on:click={() => handleLobbyChange(7)}
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					style="background-color: {ranked ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Ranked`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<UilExchange />
+				</button>
+				<button
+					on:click={() => handleLobbyChange(0)}
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					style="background-color: {unranked ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Unranked`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<BiDashLg />
+				</button>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1 text-sm">
+			Date
+			<div>
+				<select
+					bind:value={time}
+					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
+					on:change={() => handleTimeChange()}
+				>
+					<option value={7}>Last 7 Days</option>
+					<option value={30}>Last 30 Days</option>
+					<option value={90}>Last 90 Days</option>
+					<option value={180}>Last 180 Days</option>
+					<option value={365}>Last 365 Days</option>
+					<option value={9999}>All Time</option>
+				</select>
+			</div>
+		</div>
+	</div>
 	<div class="flex flex-wrap items-center justify-center gap-4">
 		{#each playerStats as player}
 			<div class="relative flex w-48 flex-col gap-2 rounded-xl bg-zinc-800 p-2">
@@ -103,66 +329,89 @@
 				</button>
 				<div class="text-center text-2xl">{player.username}</div>
 				<div class="mx-auto h-24 w-24">
-					<RoleDoughnut data={player.roleDistribution} cutout={40} />
+					{#key player}
+						<RoleDoughnut data={player.roleDistribution} cutout={40} />
+					{/key}
+				</div>
+				<div>
+					<div class="flex w-full">
+						<div>Win Rate</div>
+						<div class="grow" />
+						<div>
+							{Math.round(calculateWinRate(player.wins, player.losses)) || 0}%
+						</div>
+					</div>
+					<div class="flex h-2 w-full items-end">
+						{#key player}
+							<div
+								class="h-1 bg-green-500 duration-200 hover:h-1.5 hover:bg-green-600"
+								style="width: {Math.floor(calculateWinRate(player.wins, player.losses))}%"
+								use:tippy={{
+									content: `Wins: ${player.wins}`,
+									placement: 'bottom',
+									theme: 'light'
+								}}
+							/>
+							<div
+								class="h-1 grow bg-red-500 duration-200 hover:h-1.5 hover:bg-red-600"
+								style="background-color: {player.wins === 0 && player.losses === 0
+									? '#71717a'
+									: ''};"
+								use:tippy={{
+									content: `${
+										player.wins === 0 && player.losses === 0
+											? 'No Matches'
+											: 'Losses: ' + player.losses
+									}`,
+									placement: 'bottom',
+									theme: 'light'
+								}}
+							/>
+						{/key}
+					</div>
 				</div>
 				<div>
 					<div class="flex w-full">
 						<div>Ranked WR</div>
 						<div class="grow" />
 						<div>
-							{Math.floor((player.rankedWins / (player.rankedWins + player.rankedLosses)) * 100)}%
+							{Math.round(calculateWinRate(player.rankedWins, player.rankedLosses)) || 0}%
 						</div>
 					</div>
 					<div class="flex h-2 w-full items-end">
-						<div
-							class="h-1 bg-green-500 duration-200 hover:h-1.5 hover:bg-green-600"
-							style="width: {Math.floor(
-								(player.rankedWins / (player.rankedWins + player.rankedLosses)) * 100
-							)}%"
-							use:tippy={{
-								content: `Wins: ${player.rankedWins}`,
-								placement: 'bottom',
-								theme: 'light'
-							}}
-						/>
-						<div
-							class="h-1 grow bg-red-500 duration-200 hover:h-1.5 hover:bg-red-600"
-							use:tippy={{
-								content: `Losses: ${player.rankedLosses}`,
-								placement: 'bottom',
-								theme: 'light'
-							}}
-						/>
+						{#key player}
+							<div
+								class="h-1 bg-green-500 duration-200 hover:h-1.5 hover:bg-green-600"
+								style="width: {Math.floor(
+									calculateWinRate(player.rankedWins, player.rankedLosses)
+								)}%; background-color: {player.rankedWins === 0 && player.rankedLosses === 0
+									? '#18181b'
+									: ''}"
+								use:tippy={{
+									content: `Wins: ${player.rankedWins}`,
+									placement: 'bottom',
+									theme: 'light'
+								}}
+							/>
+							<div
+								class="h-1 grow bg-red-500 duration-200 hover:h-1.5 hover:bg-red-600"
+								style="background-color: {player.rankedWins === 0 && player.rankedLosses === 0
+									? '#71717a'
+									: ''};"
+								use:tippy={{
+									content: `${
+										player.rankedWins === 0 && player.rankedLosses === 0
+											? 'No Matches'
+											: 'Losses: ' + player.rankedLosses
+									}`,
+									placement: 'bottom',
+									theme: 'light'
+								}}
+							/>
+						{/key}
 					</div>
 				</div>
-				<div>
-					<div class="flex w-full">
-						<div>Unranked WR</div>
-						<div class="grow" />
-						<div>
-							{Math.floor((player.wins / (player.wins + player.losses)) * 100)}%
-						</div>
-					</div>
-					<div class="flex h-2 w-full items-end">
-						<div
-							class="h-1 bg-green-500 duration-200 hover:h-1.5 hover:bg-green-600"
-							style="width: {Math.floor((player.wins / (player.wins + player.losses)) * 100)}%"
-							use:tippy={{
-								content: `Wins: ${player.wins}`,
-								placement: 'bottom',
-								theme: 'light'
-							}}
-						/>
-						<div
-							class="h-1 grow bg-red-500 duration-200 hover:h-1.5 hover:bg-red-600"
-							use:tippy={{
-								content: `Losses: ${player.losses}`,
-								placement: 'bottom',
-								theme: 'light'
-							}}
-						/>
-					</div>
-				</div>
+
 				<table>
 					<tr
 						class="border-y-[1px] border-white border-opacity-10"
@@ -226,14 +475,20 @@
 						style="background-color: {getColour(getRank(player.id, 'duration', playerStats))}"
 					>
 						<td class="pl-1">Duration</td>
-						<td class="pr-1 text-right">{toTime(Math.round(player.duration))}</td>
+						<td class="pr-1 text-right"
+							>{player.duration === '99999999999999'
+								? 'N/A'
+								: toTime(Math.round(player.duration))}</td
+						>
 					</tr>
 				</table>
 			</div>
 		{/each}
-		<button class="rounded-xl bg-zinc-800 px-2 py-1 text-lg" on:click={() => (playerMenu = true)}
-			>Add Player</button
-		>
+		<div class="flex min-h-64 items-center">
+			<button class="rounded-xl bg-zinc-800 px-4 py-1 text-lg" on:click={() => (playerMenu = true)}
+				>Add Player</button
+			>
+		</div>
 	</div>
 </div>
 
@@ -249,14 +504,27 @@
 	>
 		<div class="absolute w-64 rounded-xl bg-zinc-900 p-4 opacity-100">
 			<div class="flex flex-col gap-2">
-				{#each getUpdatedPlayerList() as player}
-					<button
-						class="rounded-xl bg-zinc-800 px-2 py-1"
-						on:click={async () => addToPlayerStats(await fetchPlayerData(player.id))}
-					>
-						{player.username}
-					</button>
-				{/each}
+				<div class="flex w-full items-center justify-center gap-1 rounded-xl bg-zinc-800 pr-2">
+					<IcOutlineSearch />
+					<input
+						type="text"
+						placeholder="Seach players..."
+						bind:value={searchPlayer}
+						class="bg-zinc-800"
+					/>
+				</div>
+				<div class="h-96 overflow-y-auto">
+					<div class="flex flex-col gap-2">
+						{#each searchPlayersByName(getUpdatedPlayerList(), searchPlayer) as player}
+							<button
+								class="mx-2 rounded-xl bg-zinc-800 px-2 py-1"
+								on:click={async () => addToPlayerStats(await fetchPlayerData(player.id))}
+							>
+								{player.username}
+							</button>
+						{/each}
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
