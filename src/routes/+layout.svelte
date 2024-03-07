@@ -72,21 +72,25 @@
 		<Loading />
 	</div>
 {:else}
-	<div class="min-h-screen max-w-[100vw] text-zinc-100">
+	<div class="flex min-h-screen flex-col text-zinc-100">
 		{#if viewport === 'desktop'}
-			<DesktopNavbar {playerList} {links} />
+			<div class="min-w-screen">
+				<DesktopNavbar {playerList} {links} />
+			</div>
 		{:else}
-			<ReducedNavbar {playerList} {links} />
+			<div class="min-w-screen">
+				<ReducedNavbar {playerList} {links} />
+			</div>
 		{/if}
 		{#key data.url}
-			<div in:fade={{ delay: 120, duration: 250 }}>
+			<div in:fade={{ delay: 120, duration: 250 }} class="grow">
 				{#if $navigating}
 					<div class="flex h-64 w-full items-center justify-center">
 						<Loading />
 					</div>
 				{:else}
 					<div
-						class="mx-auto flex items-center justify-center bg-zinc-900 text-white"
+						class="mx-auto flex grow items-center justify-center bg-zinc-900 text-white"
 						in:fade={{ delay: 120, duration: 250 }}
 					>
 						<slot viewport />

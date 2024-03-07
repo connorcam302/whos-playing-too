@@ -4,6 +4,12 @@
 	import { onMount } from 'svelte';
 	export let data: { role: number; count: number }[],
 		cutout: number = 50;
+	let blank = false;
+	if (data.length === 0) {
+		blank = true;
+		data = [{ role: -1, count: 1 }];
+	}
+	console.log(data);
 
 	const roleColour = (role: number) => {
 		switch (role) {
@@ -17,6 +23,8 @@
 				return '#C14755';
 			case 5:
 				return '#3B9C75';
+			default:
+				return '#71717a';
 		}
 	};
 
@@ -32,6 +40,8 @@
 				return 'Support';
 			case 5:
 				return 'Hard Support';
+			default:
+				return 'No Matches';
 		}
 	};
 
@@ -75,6 +85,9 @@
 				plugins: {
 					legend: {
 						display: false
+					},
+					tooltip: {
+						enabled: blank === false ? true : false
 					}
 				}
 			}
@@ -85,7 +98,7 @@
 <div
 	class="h-full w-full"
 	id="container"
-	style={`background-image: url("/roles/pos${roles[0]}.svg")`}
+	style={`background-image: url("/roles/${blank === false ? 'pos' + roles[0] : 'blank'}.svg")`}
 >
 	<canvas bind:this={chartCanvas} id="myChart" class="h-full w-full"></canvas>
 </div>

@@ -1,7 +1,7 @@
 import { db } from '$lib/server/database';
 import { accounts, heroes, matchData, matches, players, teamOfTheWeek } from '$lib/server/schema';
 import { heroData, type Hero } from '$lib/data/heroData';
-import { eq, sql, and, desc, or, gte, lte, ne, gt, avg } from 'drizzle-orm';
+import { eq, sql, and, desc, or, gte, lte, ne, gt, avg, inArray } from 'drizzle-orm';
 import { getHeroString } from './private-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
@@ -1296,7 +1296,20 @@ export const getMostBuildingDamage = async (games: number = 10, smurf: boolean =
 	return data;
 };
 
-export const getPlayerStats = async (id: number, offset: number = 31) => {
+export const getPlayerStats = async (
+	id: number,
+	offset: number = 31,
+	roleFilter: number[] = [1, 2, 3, 4, 5],
+	lobbyFilter: number[] = [0, 7]
+) => {
+	const playerData = await db
+		.select({
+			id: players.id,
+			username: players.username
+		})
+		.from(players)
+		.where(eq(players.id, id));
+
 	const rankedWins = await db
 		.select({
 			wins: sql<number>`cast(count(${matchData.matchId}) as int)`
@@ -1314,7 +1327,9 @@ export const getPlayerStats = async (id: number, offset: number = 31) => {
 				eq(matches.lobby, 7),
 				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
 				eq(accounts.smurf, false),
-				eq(players.id, id)
+				eq(players.id, id),
+				inArray(matchData.role, roleFilter),
+				inArray(matches.lobby, lobbyFilter)
 			)
 		)
 		.groupBy(players.id)
@@ -1337,7 +1352,9 @@ export const getPlayerStats = async (id: number, offset: number = 31) => {
 				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
 				eq(matches.lobby, 7),
 				eq(accounts.smurf, false),
-				eq(players.id, id)
+				eq(players.id, id),
+				inArray(matchData.role, roleFilter),
+				inArray(matches.lobby, lobbyFilter)
 			)
 		)
 		.groupBy(players.id)
@@ -1358,8 +1375,11 @@ export const getPlayerStats = async (id: number, offset: number = 31) => {
 					and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
 				),
 				eq(accounts.smurf, false),
+				eq(matches.gameMode, 22),
 				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
-				eq(players.id, id)
+				eq(players.id, id),
+				inArray(matchData.role, roleFilter),
+				inArray(matches.lobby, lobbyFilter)
 			)
 		)
 		.groupBy(players.id)
@@ -1379,8 +1399,11 @@ export const getPlayerStats = async (id: number, offset: number = 31) => {
 					and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
 				),
 				eq(accounts.smurf, false),
+				eq(matches.gameMode, 22),
 				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
-				eq(players.id, id)
+				eq(players.id, id),
+				inArray(matchData.role, roleFilter),
+				inArray(matches.lobby, lobbyFilter)
 			)
 		)
 		.groupBy(players.id)
@@ -1389,7 +1412,6 @@ export const getPlayerStats = async (id: number, offset: number = 31) => {
 	const playerStats = await db
 		.select({
 			id: players.id,
-			username: players.username,
 			kills: avg(matchData.kills),
 			deaths: avg(matchData.deaths),
 			assists: avg(matchData.assists),
@@ -1406,7 +1428,10 @@ export const getPlayerStats = async (id: number, offset: number = 31) => {
 			and(
 				eq(players.id, id),
 				eq(accounts.smurf, false),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix())
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				eq(matches.gameMode, 22),
+				inArray(matchData.role, roleFilter),
+				inArray(matches.lobby, lobbyFilter)
 			)
 		)
 
@@ -1428,19 +1453,47 @@ export const getPlayerStats = async (id: number, offset: number = 31) => {
 			and(
 				eq(players.id, id),
 				eq(accounts.smurf, false),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix())
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				eq(matches.gameMode, 22),
+				inArray(matchData.role, roleFilter),
+				inArray(matches.lobby, lobbyFilter)
 			)
 		)
 		.groupBy(matchData.role);
-
-	const stats = playerStats[0];
-
+	console.log({
+		rankedWins: rankedWins[0]?.wins || 0,
+		rankedLosses: rankedLosses[0]?.losses || 0,
+		wins: wins[0]?.wins || 0,
+		losses: losses[0]?.losses || 0,
+		...playerData[0],
+		kills: playerStats[0]?.kills || 0,
+		deaths: playerStats[0]?.deaths || 0,
+		assists: playerStats[0]?.assists || 0,
+		lastHits: playerStats[0]?.lastHits || 0,
+		heroDamage: playerStats[0]?.heroDamage || 0,
+		towerDamage: playerStats[0]?.towerDamage || 0,
+		gpm: playerStats[0]?.gpm || 0,
+		xpm: playerStats[0]?.xpm || 0,
+		impact: playerStats[0]?.impact || 0,
+		duration: playerStats[0]?.duration || '99999999999999',
+		roleDistribution: roles
+	});
 	return {
 		rankedWins: rankedWins[0]?.wins || 0,
 		rankedLosses: rankedLosses[0]?.losses || 0,
 		wins: wins[0]?.wins || 0,
 		losses: losses[0]?.losses || 0,
-		...stats,
+		...playerData[0],
+		kills: playerStats[0]?.kills || 0,
+		deaths: playerStats[0]?.deaths || 0,
+		assists: playerStats[0]?.assists || 0,
+		lastHits: playerStats[0]?.lastHits || 0,
+		heroDamage: playerStats[0]?.heroDamage || 0,
+		towerDamage: playerStats[0]?.towerDamage || 0,
+		gpm: playerStats[0]?.gpm || 0,
+		xpm: playerStats[0]?.xpm || 0,
+		impact: playerStats[0]?.impact || 0,
+		duration: playerStats[0]?.duration || '99999999999999',
 		roleDistribution: roles
 	};
 };
