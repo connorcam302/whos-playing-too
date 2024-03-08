@@ -179,7 +179,7 @@
 				<div class="flex flex-col items-center gap-2">
 					<div class="font-display text-3xl">{recordSet.title}</div>
 				</div>
-				<div class="flex grow flex-col items-center justify-start gap-2">
+				<div class="flex grow flex-col items-center justify-start gap-2 text-sm lg:text-base">
 					<table class="w-full">
 						<thead>
 							<tr>
@@ -194,7 +194,7 @@
 								<th class="w-8 text-center text-xs font-normal text-zinc-400">K</th>
 								<th class="w-8 text-center text-xs font-normal text-zinc-400">D</th>
 								<th class="w-8 text-center text-xs font-normal text-zinc-400">A</th>
-								<th class="w-16 text-center text-xs font-normal text-zinc-400">Impact</th>
+								<th class="w-10 text-center text-xs font-normal text-zinc-400">Impact</th>
 								<th class="w-32 text-center text-xs font-normal text-zinc-400">Date</th>
 							</tr>
 						</thead>
@@ -235,20 +235,16 @@
 											<img
 												src={record.data.hero.img}
 												alt={record.data.hero.name}
-												class="my-auto h-10"
+												class="m-auto max-w-16"
 											/>
 										</MatchModal>
 									</td>
 									<td class="text-center">
-										<div class="flex items-center">
-											<MatchModal matchId={record.data.matchId}>
-												<img
-													src={getRoleIcon(record.data.role)}
-													alt={`position ${record.data.role}`}
-													class="mx-auto h-7"
-												/>
-											</MatchModal>
-										</div>
+										<img
+											src={getRoleIcon(record.data.role)}
+											alt={`position ${record.data.role}`}
+											class="mx-auto max-w-8"
+										/>
 									</td>
 									<td>
 										<MatchModal matchId={record.data.matchId}>
@@ -277,7 +273,7 @@
 									<td class="text-center">
 										<MatchModal matchId={record.data.matchId}>
 											<div
-												class="w-16 cursor-default items-center text-center"
+												class="w-10 cursor-default items-center text-center text-base"
 												use:tippy={{
 													content: `
                 <div class='text-center'>Impact Rating: <span class='font-bold'>${
@@ -325,19 +321,19 @@
 												}}
 											>
 												{#if record.data.impact > 200}
-													<div id="splusplusrating" class="font-display text-xl">
+													<div id="splusplusrating" class="font-display">
 														{calcImpact(record.data.impact)}
 													</div>
 												{:else if record.data.impact >= 140}
-													<div id="srating" class="font-display text-xl">
+													<div id="srating" class="font-display">
 														{calcImpact(record.data.impact)}
 													</div>
 												{:else if record.data.impact < 140 && record.data.impact > 25}
-													<div class="font-display text-xl">
+													<div class="font-display">
 														{calcImpact(record.data.impact)}
 													</div>
 												{:else if record.data.impact <= 25}
-													<div id="frating" class="flex justify-center font-display text-xl">
+													<div id="frating" class="flex justify-center font-display">
 														<FxemojiPoo />
 													</div>
 												{/if}
@@ -345,7 +341,7 @@
 										</MatchModal>
 									</td>
 
-									<td class="text-center">
+									<td class="text-center text-xs lg:text-base">
 										<MatchModal matchId={record.data.matchId}>
 											{dayjs(record.data.startTime * 1000 + record.data.duration * 1000).from(
 												dayjs()
