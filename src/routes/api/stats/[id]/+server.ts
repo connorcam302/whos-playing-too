@@ -4,7 +4,6 @@ import { eq } from 'drizzle-orm';
 
 export const GET: RequestHandler = async ({ url, params }) => {
 	console.log(url.pathname, 'requested.');
-	console.log(params.id, 'requested.');
 
 	const rolesFilter = JSON.parse(url.searchParams.get('roles')!);
 
@@ -12,7 +11,18 @@ export const GET: RequestHandler = async ({ url, params }) => {
 
 	const timeFilter = JSON.parse(url.searchParams.get('time')!);
 
-	const userData = await getPlayerStats(Number(params.id), timeFilter, rolesFilter, lobbyFilter);
+	const heroFilter = JSON.parse(url.searchParams.get('hero')!);
+
+	const smurfFilter = JSON.parse(url.searchParams.get('smurf')!);
+
+	const userData = await getPlayerStats(
+		Number(params.id),
+		timeFilter,
+		rolesFilter,
+		lobbyFilter,
+		heroFilter,
+		smurfFilter
+	);
 
 	return json(userData);
 };

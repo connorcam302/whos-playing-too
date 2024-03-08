@@ -33,7 +33,6 @@
 	});
 
 	$: viewport = getContext('viewport');
-	console.log(viewport);
 
 	$: stats = 'hero';
 </script>

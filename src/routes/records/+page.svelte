@@ -54,7 +54,6 @@
 	const { records } = data;
 
 	const getImpactDetails = (match: any, role: any, duration: any) => {
-		console.log(match, role, duration);
 		let impact = 0;
 		const csMin = match.lastHits / (duration / 60);
 		const deathsPerMin = match.deaths / (duration / 60);
@@ -159,8 +158,6 @@
 
 	const expandList = (length: number) => {
 		if (length === 3) {
-			return 5;
-		} else if (length === 5) {
 			return 10;
 		} else {
 			return 3;
