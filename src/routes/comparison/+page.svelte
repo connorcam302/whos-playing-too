@@ -17,6 +17,8 @@
 		impact: number;
 		duration: number;
 		roleDistribution: RoleDistribution[];
+		mostPlayedHeroes: { count: number; hero: Hero }[];
+		versatility: number;
 	}
 
 	interface RoleDistribution {
@@ -24,21 +26,29 @@
 		count: number;
 	}
 
+	interface Hero {
+		id: number;
+		name: string;
+		img: string;
+	}
+
 	import RoleDoughnut from '$lib/components/stats/RoleDoughnut.svelte';
 	import HeroiconsXMark from '~icons/heroicons/x-mark';
 	import UilExchange from '~icons/uil/exchange';
 	import BiDashLg from '~icons/bi/dash-lg';
 	import IcOutlineSearch from '~icons/ic/outline-search';
+	import SimpleIconsRedhat from '~icons/simple-icons/redhat';
 	import { toTime } from '$lib/functions.js';
 	import tippy from 'sveltejs-tippy';
 	import { fade } from 'svelte/transition';
 	import WinChart from '$lib/components/profile/WinChart.svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { tick } from 'svelte';
 
 	export let data;
 
-	const { playerList } = data;
+	const { playerList, heroList } = data;
 
 	const calculateWinRate = (wins: number, losses: number) => {
 		return Math.floor((wins / (wins + losses)) * 100);
@@ -53,6 +63,10 @@
 	$: ranked = true;
 	$: unranked = true;
 
+	$: smurfs = false;
+
+	$: hero = -1;
+
 	$: time = 9999;
 
 	$: searchPlayer = '';
@@ -66,7 +80,9 @@
 		const data = await fetch(
 			`/api/stats/${player}?roles=[${pos1 ? 1 : -1},${pos2 ? 2 : -1},${pos3 ? 3 : -1},${
 				pos4 ? 4 : -1
-			},${pos5 ? 5 : -1}]&lobby=[${ranked ? 7 : -1},${unranked ? 0 : -1}]&time=${time}`
+			},${pos5 ? 5 : -1}]&lobby=[${ranked ? 7 : -1},${
+				unranked ? 0 : -1
+			}]&time=${time}&hero=${hero}&smurf=${smurfs}`
 		);
 		const json = await data.json();
 		return await json;
@@ -192,12 +208,26 @@
 		updatePlayerData();
 	};
 
+	const handleSmurfChange = () => {
+		smurfs = !smurfs;
+		updatePlayerData();
+	};
+
+	const handleHeroChange = () => {
+		updatePlayerData();
+	};
+
 	const updatePlayerData = async () => {
 		const playerData = playerStats.map((player) => fetchPlayerData(player.id));
 		playerStats = await Promise.all(playerData);
 	};
 
-	$: console.log(playerStats);
+	let searchInput: HTMLInputElement;
+	const openPlayerMenu = async () => {
+		togglePlayerMenu();
+		await tick();
+		searchInput?.focus();
+	};
 </script>
 
 <svelte:head>
@@ -301,6 +331,39 @@
 			</div>
 		</div>
 		<div class="flex flex-col gap-1 text-sm">
+			Smurf
+			<div class="flex gap-1">
+				<button
+					on:click={() => handleSmurfChange()}
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					style="background-color: {smurfs ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Smurf`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<SimpleIconsRedhat />
+				</button>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1 text-sm">
+			Heroes
+			<div>
+				<select
+					bind:value={hero}
+					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
+					on:change={() => handleHeroChange()}
+				>
+					<option value={-1}>All Heroes</option>
+					{#each heroList as hero}
+						<option value={hero.id}>{hero.name}</option>
+					{/each}
+				</select>
+			</div>
+		</div>
+
+		<div class="flex flex-col gap-1 text-sm">
 			Date
 			<div>
 				<select
@@ -333,6 +396,7 @@
 						<RoleDoughnut data={player.roleDistribution} cutout={40} />
 					{/key}
 				</div>
+
 				<div>
 					<div class="flex w-full">
 						<div>Win Rate</div>
@@ -411,7 +475,37 @@
 						{/key}
 					</div>
 				</div>
-
+				<div class="flex h-8 w-full items-center justify-center">
+					{#each player.mostPlayedHeroes as hero}
+						{#if hero === null}
+							<div class="grow basis-1/3 bg-zinc-900">
+								<img
+									src="/empty-slot.webp"
+									class="h-8 w-full"
+									alt="No Hero"
+									use:tippy={{
+										content: `No Hero`,
+										placement: 'bottom',
+										theme: 'light'
+									}}
+								/>
+							</div>
+						{:else}
+							<div class="h-8 grow basis-1/3">
+								<img
+									src={hero.hero.img}
+									alt={hero.hero.name}
+									use:tippy={{
+										content: `<b>${hero.hero.name}</b> - ${hero.count} games`,
+										placement: 'bottom',
+										theme: 'light',
+										allowHTML: true
+									}}
+								/>
+							</div>
+						{/if}
+					{/each}
+				</div>
 				<table>
 					<tr
 						class="border-y-[1px] border-white border-opacity-10"
@@ -441,7 +535,13 @@
 						<td class="pl-1">Impact</td>
 						<td class="pr-1 text-right">{Math.round(player.impact)}</td>
 					</tr>
-
+					<tr
+						class="border-y-[1px] border-white border-opacity-10"
+						style="background-color: {getColour(getRank(player.id, 'versatility', playerStats))};"
+					>
+						<td class="pl-1">Versatility</td>
+						<td class="pr-1 text-right">{player.versatility}</td>
+					</tr>
 					<tr
 						class="border-y-[1px] border-white border-opacity-10"
 						style="background-color: {getColour(getRank(player.id, 'heroDamage', playerStats))}"
@@ -485,7 +585,7 @@
 			</div>
 		{/each}
 		<div class="flex min-h-64 items-center">
-			<button class="rounded-xl bg-zinc-800 px-4 py-1 text-lg" on:click={() => (playerMenu = true)}
+			<button class="rounded-xl bg-zinc-800 px-4 py-1 text-lg" on:click={() => openPlayerMenu()}
 				>Add Player</button
 			>
 		</div>
@@ -510,7 +610,8 @@
 						type="text"
 						placeholder="Seach players..."
 						bind:value={searchPlayer}
-						class="bg-zinc-800"
+						class="border-transparent bg-transparent !outline-none focus:border-transparent"
+						bind:this={searchInput}
 					/>
 				</div>
 				<div class="h-96 overflow-y-auto">

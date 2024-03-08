@@ -9,7 +9,6 @@
 		blank = true;
 		data = [{ role: -1, count: 1 }];
 	}
-	console.log(data);
 
 	const roleColour = (role: number) => {
 		switch (role) {
@@ -105,8 +104,8 @@
 
 <style>
 	#container {
-		background-size: 50%; /* Adjust to your needs */
-		background-repeat: no-repeat; /* Adjust to your needs */
-		background-position: center center; /* Center the background image */
+		background-size: 50%;
+		background-repeat: no-repeat;
+		background-position: center center;
 	}
 </style>

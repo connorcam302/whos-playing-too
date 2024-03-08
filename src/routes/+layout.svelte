@@ -62,7 +62,6 @@
 	$: viewportStore.set(viewport);
 
 	setContext('viewport', viewportStore);
-	$: console.log(viewport, innerWidth);
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
