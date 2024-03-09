@@ -1,12 +1,20 @@
 <script lang="ts">
 	import { getRoleIcon, toTime, calcImpact } from '$lib/functions';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import tippy from 'tippy.js';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import FxemojiPoo from '~icons/fxemoji/poo';
 	import MaterialSymbolsKeyboardArrowDown from '~icons/material-symbols/keyboard-arrow-down';
 	import MaterialSymbolsKeyboardArrowUp from '~icons/material-symbols/keyboard-arrow-up';
+	import HeroiconsXMark from '~icons/heroicons/x-mark';
+	import UilExchange from '~icons/uil/exchange';
+	import BiDashLg from '~icons/bi/dash-lg';
+	import IcOutlineSearch from '~icons/ic/outline-search';
+	import SimpleIconsRedhat from '~icons/simple-icons/redhat';
 	import MatchModal from '$lib/components/match/MatchModal.svelte';
+	import Loading from '$lib/components/Loading.svelte';
 	dayjs.extend(relativeTime);
 
 	interface Record {
@@ -51,7 +59,8 @@
 		return '#FFFFFF00';
 	};
 
-	const { records } = data;
+	$: records = [];
+	$: heroList = data.heroList;
 
 	const getImpactDetails = (match: any, role: any, duration: any) => {
 		let impact = 0;
@@ -154,8 +163,6 @@
 		}
 	};
 
-	$: smurf = false;
-
 	const expandList = (length: number) => {
 		if (length === 3) {
 			return 10;
@@ -163,119 +170,392 @@
 			return 3;
 		}
 	};
+
+	$: pos1 = true;
+	$: pos2 = true;
+	$: pos3 = true;
+	$: pos4 = true;
+	$: pos5 = true;
+
+	$: ranked = true;
+	$: unranked = true;
+
+	$: smurfs = false;
+
+	$: hero = -1;
+
+	$: time = 365;
+
+	const fetchRecordData: Promise<Record[]> = async () => {
+		const data = await fetch(
+			`/api/records?roles=[${pos1 ? 1 : -1},${pos2 ? 2 : -1},${pos3 ? 3 : -1},${pos4 ? 4 : -1},${
+				pos5 ? 5 : -1
+			}]&lobby=[${ranked ? 7 : -1},${unranked ? 0 : -1}]&time=${time}&hero=${hero}&smurf=${smurfs}`
+		);
+		const json = await data.json();
+		return await json;
+	};
+
+	onMount(() => updateRecordData());
+
+	const handleRoleChange = (role: number) => {
+		let currentRole;
+		switch (role) {
+			case 1:
+				currentRole = pos1;
+				break;
+			case 2:
+				currentRole = pos2;
+				break;
+			case 3:
+				currentRole = pos3;
+				break;
+			case 4:
+				currentRole = pos4;
+				break;
+			case 5:
+				currentRole = pos5;
+				break;
+		}
+		if (
+			Number(pos1) + Number(pos2) + Number(pos3) + Number(pos4) + Number(pos5) > 1 ||
+			currentRole === false
+		) {
+			switch (role) {
+				case 1:
+					pos1 = !pos1;
+					break;
+				case 2:
+					pos2 = !pos2;
+					break;
+				case 3:
+					pos3 = !pos3;
+					break;
+				case 4:
+					pos4 = !pos4;
+					break;
+				case 5:
+					pos5 = !pos5;
+					break;
+			}
+
+			updateRecordData();
+		}
+	};
+
+	const handleLobbyChange = (lobby: number) => {
+		let currentLobby;
+		switch (lobby) {
+			case 0:
+				currentLobby = unranked;
+				break;
+			case 7:
+				currentLobby = ranked;
+				break;
+		}
+		if (Number(ranked) + Number(unranked) > 1 || currentLobby === false) {
+			switch (lobby) {
+				case 0:
+					unranked = !unranked;
+					break;
+				case 7:
+					ranked = !ranked;
+					break;
+			}
+
+			updateRecordData();
+		}
+	};
+
+	const handleTimeChange = () => {
+		updateRecordData();
+	};
+
+	const handleSmurfChange = () => {
+		smurfs = !smurfs;
+		updateRecordData();
+	};
+
+	const handleHeroChange = () => {
+		updateRecordData();
+	};
+
+	const updateRecordData = async () => {
+		records = [];
+		const data = await fetchRecordData();
+		records = data;
+	};
 </script>
 
 <svelte:head>
 	<title>whos-playing | Records</title>
 </svelte:head>
 
-<div class="flex flex-col items-center justify-center">
-	<div class="flex flex-col gap-4">
-		{#each records as recordSet}
-			<div
-				class="flex flex-col items-center gap-4 rounded-xl bg-zinc-800 p-2"
-				id={recordSet.recordTitle}
-			>
-				<div class="flex flex-col items-center gap-2">
-					<div class="font-display text-3xl">{recordSet.title}</div>
-				</div>
-				<div class="flex grow flex-col items-center justify-start gap-2 text-sm lg:text-base">
-					<table class="w-full">
-						<thead>
-							<tr>
-								<th class="w-8 text-center text-xs font-normal text-zinc-400">#</th>
-								<th class="w-24 text-center text-xs font-normal text-zinc-400">Player</th>
-								<th class="w-12 text-center text-xs font-normal text-zinc-400"
-									>{recordSet.recordTitle}</th
-								>
-								<th class="w-16 text-center text-xs font-normal text-zinc-400">Duration</th>
-								<th class="text-center text-xs font-normal text-zinc-400">Hero</th>
-								<th class="w-12 text-center text-xs font-normal text-zinc-400">Pos</th>
-								<th class="w-8 text-center text-xs font-normal text-zinc-400">K</th>
-								<th class="w-8 text-center text-xs font-normal text-zinc-400">D</th>
-								<th class="w-8 text-center text-xs font-normal text-zinc-400">A</th>
-								<th class="w-10 text-center text-xs font-normal text-zinc-400">Impact</th>
-								<th class="w-32 text-center text-xs font-normal text-zinc-400">Date</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each recordSet.records.slice(0, recordSet.length) as record, i}
-								<tr
-									class="border-y-[1px] border-white border-opacity-10 hover:bg-zinc-800"
-									style="background-color: {getColour(i + 1)}"
-								>
-									<td>
-										<MatchModal matchId={record.data.matchId}>
-											<div class="text-center font-display">
-												{i + 1}
-											</div>
-										</MatchModal>
-									</td>
-									<td>
-										<MatchModal matchId={record.data.matchId}>
-											<div class="text-left">
-												{record.data.username}
-												<span class="italic text-indigo-400">{record.data.smurf ? 'S' : ''}</span>
-											</div>
-										</MatchModal>
-									</td>
-									<td>
-										<MatchModal matchId={record.data.matchId}>
-											{record.record}
-										</MatchModal>
-									</td>
-									<td>
-										<MatchModal matchId={record.data.matchId}>
-											{toTime(record.data.duration)}
-										</MatchModal>
-									</td>
+<div class="flex flex-col items-center justify-center gap-4">
+	<div class="flex flex-wrap justify-center gap-6">
+		<div class="flex flex-col gap-1 text-sm">
+			Roles
+			<div class="flex gap-1">
+				<button
+					on:click={() => handleRoleChange(1)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos1 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Carry`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos1.svg" alt="pos1" />
+				</button>
+				<button
+					on:click={() => handleRoleChange(2)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos2 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Mid`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos2.svg" alt="pos2" />
+				</button>
+				<button
+					on:click={() => handleRoleChange(3)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos3 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Offlane`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos3.svg" alt="pos3" />
+				</button>
+				<button
+					on:click={() => handleRoleChange(4)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos4 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Soft Support`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos4.svg" alt="pos4" />
+				</button>
+				<button
+					on:click={() => handleRoleChange(5)}
+					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					style="background-color: {pos5 ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Hard Support`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<img src="/roles/pos5.svg" alt="pos5" />
+				</button>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1 text-sm">
+			Lobby
+			<div class="flex gap-1">
+				<button
+					on:click={() => handleLobbyChange(7)}
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					style="background-color: {ranked ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Ranked`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<UilExchange />
+				</button>
+				<button
+					on:click={() => handleLobbyChange(0)}
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					style="background-color: {unranked ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Unranked`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<BiDashLg />
+				</button>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1 text-sm">
+			Smurf
+			<div class="flex gap-1">
+				<button
+					on:click={() => handleSmurfChange()}
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					style="background-color: {smurfs ? '#27272a' : '#18181b'};"
+					use:tippy={{
+						content: `Smurf`,
+						placement: 'bottom',
+						theme: 'light'
+					}}
+				>
+					<SimpleIconsRedhat />
+				</button>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1 text-sm">
+			Heroes
+			<div>
+				<select
+					bind:value={hero}
+					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
+					on:change={() => handleHeroChange()}
+				>
+					<option value={-1}>All Heroes</option>
+					{#each heroList as hero}
+						<option value={hero.id}>{hero.name}</option>
+					{/each}
+				</select>
+			</div>
+		</div>
 
-									<td class="flex items-center">
-										<MatchModal matchId={record.data.matchId}>
-											<img
-												src={record.data.hero.img}
-												alt={record.data.hero.name}
-												class="m-auto max-w-16"
-											/>
-										</MatchModal>
-									</td>
-									<td class="text-center">
-										<img
-											src={getRoleIcon(record.data.role)}
-											alt={`position ${record.data.role}`}
-											class="mx-auto max-w-8"
-										/>
-									</td>
-									<td>
-										<MatchModal matchId={record.data.matchId}>
-											<div class="text-center text-green-400">
-												{record.data.kills}
-											</div>
-										</MatchModal>
-									</td>
+		<div class="flex flex-col gap-1 text-sm">
+			Date
+			<div>
+				<select
+					bind:value={time}
+					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
+					on:change={() => handleTimeChange()}
+				>
+					<option value={7}>Last 7 Days</option>
+					<option value={30}>Last 30 Days</option>
+					<option value={90}>Last 90 Days</option>
+					<option value={180}>Last 180 Days</option>
+					<option value={365}>Last 365 Days</option>
+					<option value={730}>Last 2 Years</option>
+					<option value={1095}>Last 3 Years</option>
+					<option value={1461}>Last 4 Years</option>
+					<option value={1826}>Last 5 Years</option>
+					<option value={9999}>All Time</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div>
+		{#if records.length === 0}
+			<div class="flex flex-col items-center gap-4 rounded-xl p-2">
+				<Loading />
+			</div>
+		{:else}
+			<div class="flex flex-col gap-4" in:fade={{ duration: 200 }}>
+				{#each records as recordSet}
+					<div
+						class="flex flex-col items-center gap-4 rounded-xl bg-zinc-800 p-2"
+						id={recordSet.recordTitle}
+					>
+						<div class="flex flex-col items-center gap-2">
+							<div class="font-display text-3xl">{recordSet.title}</div>
+						</div>
+						<div class="flex grow flex-col items-center justify-start gap-2 text-sm lg:text-base">
+							<table class="w-full">
+								<thead>
+									<tr>
+										<th class="w-8 text-center text-xs font-normal text-zinc-400">#</th>
+										<th class="w-24 text-center text-xs font-normal text-zinc-400">Player</th>
+										<th class="w-12 text-center text-xs font-normal text-zinc-400"
+											>{recordSet.recordTitle}</th
+										>
+										<th class="w-16 text-center text-xs font-normal text-zinc-400">Duration</th>
+										<th class="text-center text-xs font-normal text-zinc-400">Hero</th>
+										<th class="w-12 text-center text-xs font-normal text-zinc-400">Pos</th>
+										<th class="w-8 text-center text-xs font-normal text-zinc-400">K</th>
+										<th class="w-8 text-center text-xs font-normal text-zinc-400">D</th>
+										<th class="w-8 text-center text-xs font-normal text-zinc-400">A</th>
+										<th class="w-10 text-center text-xs font-normal text-zinc-400">Impact</th>
+										<th class="w-32 text-center text-xs font-normal text-zinc-400">Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each recordSet.records.slice(0, recordSet.length) as record, i}
+										<tr
+											class="border-y-[1px] border-white border-opacity-10 hover:bg-zinc-800"
+											style="background-color: {getColour(i + 1)}"
+										>
+											<td>
+												<MatchModal matchId={record.data.matchId}>
+													<div class="text-center font-display">
+														{i + 1}
+													</div>
+												</MatchModal>
+											</td>
+											<td>
+												<MatchModal matchId={record.data.matchId}>
+													<div class="text-left">
+														{record.data.username}
+														<span class="italic text-indigo-400"
+															>{record.data.smurf ? 'S' : ''}</span
+														>
+													</div>
+												</MatchModal>
+											</td>
+											<td>
+												<MatchModal matchId={record.data.matchId}>
+													{record.record}
+												</MatchModal>
+											</td>
+											<td>
+												<MatchModal matchId={record.data.matchId}>
+													{toTime(record.data.duration)}
+												</MatchModal>
+											</td>
 
-									<td>
-										<MatchModal matchId={record.data.matchId}>
-											<div class="text-center text-red-400">
-												{record.data.deaths}
-											</div>
-										</MatchModal>
-									</td>
+											<td class="flex items-center">
+												<MatchModal matchId={record.data.matchId}>
+													<img
+														src={record.data.hero.img}
+														alt={record.data.hero.name}
+														class="m-auto max-w-16"
+													/>
+												</MatchModal>
+											</td>
+											<td class="text-center">
+												<img
+													src={getRoleIcon(record.data.role)}
+													alt={`position ${record.data.role}`}
+													class="mx-auto max-w-8"
+												/>
+											</td>
+											<td>
+												<MatchModal matchId={record.data.matchId}>
+													<div class="text-center text-green-400">
+														{record.data.kills}
+													</div>
+												</MatchModal>
+											</td>
 
-									<td class="text-center">
-										<MatchModal matchId={record.data.matchId}>
-											<div class="text-center text-cyan-300">
-												{record.data.assists}
-											</div>
-										</MatchModal>
-									</td>
+											<td>
+												<MatchModal matchId={record.data.matchId}>
+													<div class="text-center text-red-400">
+														{record.data.deaths}
+													</div>
+												</MatchModal>
+											</td>
 
-									<td class="text-center">
-										<MatchModal matchId={record.data.matchId}>
-											<div
-												class="w-10 cursor-default items-center text-center text-base"
-												use:tippy={{
-													content: `
+											<td class="text-center">
+												<MatchModal matchId={record.data.matchId}>
+													<div class="text-center text-cyan-300">
+														{record.data.assists}
+													</div>
+												</MatchModal>
+											</td>
+
+											<td class="text-center">
+												<MatchModal matchId={record.data.matchId}>
+													<div
+														class="w-10 cursor-default items-center text-center text-base"
+														use:tippy={{
+															content: `
                 <div class='text-center'>Impact Rating: <span class='font-bold'>${
 									record.data.impact
 								}</span></div>
@@ -315,53 +595,55 @@
 
   </tbody>
 </table>`,
-													placement: 'bottom',
-													theme: 'light',
-													allowHTML: true
-												}}
-											>
-												{#if record.data.impact > 200}
-													<div id="splusplusrating" class="font-display">
-														{calcImpact(record.data.impact)}
+															placement: 'bottom',
+															theme: 'light',
+															allowHTML: true
+														}}
+													>
+														{#if record.data.impact > 200}
+															<div id="splusplusrating" class="font-display">
+																{calcImpact(record.data.impact)}
+															</div>
+														{:else if record.data.impact >= 140}
+															<div id="srating" class="font-display">
+																{calcImpact(record.data.impact)}
+															</div>
+														{:else if record.data.impact < 140 && record.data.impact > 25}
+															<div class="font-display">
+																{calcImpact(record.data.impact)}
+															</div>
+														{:else if record.data.impact <= 25}
+															<div id="frating" class="flex justify-center font-display">
+																<FxemojiPoo />
+															</div>
+														{/if}
 													</div>
-												{:else if record.data.impact >= 140}
-													<div id="srating" class="font-display">
-														{calcImpact(record.data.impact)}
-													</div>
-												{:else if record.data.impact < 140 && record.data.impact > 25}
-													<div class="font-display">
-														{calcImpact(record.data.impact)}
-													</div>
-												{:else if record.data.impact <= 25}
-													<div id="frating" class="flex justify-center font-display">
-														<FxemojiPoo />
-													</div>
-												{/if}
-											</div>
-										</MatchModal>
-									</td>
+												</MatchModal>
+											</td>
 
-									<td class="text-center text-xs lg:text-base">
-										<MatchModal matchId={record.data.matchId}>
-											{dayjs(record.data.startTime * 1000 + record.data.duration * 1000).from(
-												dayjs()
-											)}
-										</MatchModal>
-									</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-					<button on:click={() => (recordSet.length = expandList(recordSet.length))}>
-						{#if recordSet.length !== 10}
-							<MaterialSymbolsKeyboardArrowDown class="h-8 w-8" />
-						{:else}
-							<MaterialSymbolsKeyboardArrowUp class="h-8 w-8" />
-						{/if}
-					</button>
-				</div>
+											<td class="text-center text-xs lg:text-base">
+												<MatchModal matchId={record.data.matchId}>
+													{dayjs(record.data.startTime * 1000 + record.data.duration * 1000).from(
+														dayjs()
+													)}
+												</MatchModal>
+											</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+							<button on:click={() => (recordSet.length = expandList(recordSet.length))}>
+								{#if recordSet.length !== 10}
+									<MaterialSymbolsKeyboardArrowDown class="h-8 w-8" />
+								{:else}
+									<MaterialSymbolsKeyboardArrowUp class="h-8 w-8" />
+								{/if}
+							</button>
+						</div>
+					</div>
+				{/each}
 			</div>
-		{/each}
+		{/if}
 	</div>
 </div>
 

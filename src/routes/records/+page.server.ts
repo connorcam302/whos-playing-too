@@ -76,5 +76,11 @@ export const load = async ({ url, params }) => {
 		};
 	});
 
-	return { records };
+	const heroJson = await fetch(
+		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
+	);
+	const heroList: DotaAsset[] = await heroJson.json();
+	heroList.sort((a, b) => a.name.localeCompare(b.name));
+
+	return { records, heroList };
 };

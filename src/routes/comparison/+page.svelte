@@ -376,7 +376,11 @@
 					<option value={90}>Last 90 Days</option>
 					<option value={180}>Last 180 Days</option>
 					<option value={365}>Last 365 Days</option>
-					<option value={9999}>All Time</option>
+                    <option value={730}>Last 2 Years</option>
+                    <option value={1095}>Last 3 Years</option>
+                    <option value={1461}>Last 4 Years</option>
+                    <option value={1826}>Last 5 Years</option>
+                    <option value={9999}>All Time</option>
 				</select>
 			</div>
 		</div>

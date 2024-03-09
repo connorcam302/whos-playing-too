@@ -539,13 +539,21 @@
 											</td>
 											<td class="w-20 text-center">{player.last_hits} / {player.denies}</td>
 											<td class="w-20 text-center text-amber-300"
-												>{convertToKNumber(player.gold + player.gold_spent)}</td
+												>{convertToKNumber(player.net_worth)}</td
 											>
 											<td class="w-20 text-center">{convertToKNumber(player.gold_per_min)}</td>
-											<td class="w-20 text-center">{convertToKNumber(player.xp_per_min)}</td>
-											<td class="w-20 text-center">{convertToKNumber(player.hero_damage)}</td>
-											<td class="w-20 text-center">{convertToKNumber(player.tower_damage)}</td>
-											<td class="w-20 text-center">{convertToKNumber(player.hero_healing)}</td>
+											<td class="w-20 text-center"
+												>{convertToKNumber(player.xp_per_min) || 'N/A'}</td
+											>
+											<td class="w-20 text-center"
+												>{convertToKNumber(player.hero_damage) || 'N/A'}</td
+											>
+											<td class="w-20 text-center"
+												>{convertToKNumber(player.tower_damage) || 'N/A'}</td
+											>
+											<td class="w-20 text-center"
+												>{convertToKNumber(player.hero_healing) || 'N/A'}</td
+											>
 											<td>
 												<div class="flex items-center">
 													{#each player.items as item}
@@ -743,13 +751,19 @@
 											</td>
 											<td class="w-20 text-center">{player.last_hits} / {player.denies}</td>
 											<td class="w-20 text-center text-amber-300"
-												>{convertToKNumber(player.gold + player.gold_spent)}</td
+												>{convertToKNumber(player.net_worth)}</td
 											>
 											<td class="w-20 text-center">{convertToKNumber(player.gold_per_min)}</td>
 											<td class="w-20 text-center">{convertToKNumber(player.xp_per_min)}</td>
-											<td class="w-20 text-center">{convertToKNumber(player.hero_damage)}</td>
-											<td class="w-20 text-center">{convertToKNumber(player.tower_damage)}</td>
-											<td class="w-20 text-center">{convertToKNumber(player.hero_healing)}</td>
+											<td class="w-20 text-center"
+												>{convertToKNumber(player.hero_damage) || 'N/A'}</td
+											>
+											<td class="w-20 text-center"
+												>{convertToKNumber(player.tower_damage) || 'N/A'}</td
+											>
+											<td class="w-20 text-center"
+												>{convertToKNumber(player.hero_healing) || 'N/A'}</td
+											>
 											<td>
 												<div class="flex items-center">
 													{#each player.items as item}
