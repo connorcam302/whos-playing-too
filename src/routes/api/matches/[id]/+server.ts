@@ -120,6 +120,7 @@ const getImpactScore = (match: any, role: any, duration: any) => {
 };
 
 export const GET: RequestHandler = async ({ url, params }) => {
+	console.log('params', url);
 	const steamMatchData = await fetch(
 		`https://api.steampowered.com/IDOTA2Match_570/getMatchDetails/v1?key=${STEAM_KEY}&match_id=${params.id}`
 	)
@@ -220,13 +221,16 @@ export const GET: RequestHandler = async ({ url, params }) => {
 	steamMatchData.picks = [];
 	steamMatchData.bans = [];
 
-	steamMatchData.picks_bans.map((entry: { is_pick: boolean; hero_id: number; order: number }) => {
-		if (entry.is_pick) {
-			steamMatchData.picks.push(heroMap.get(entry.hero_id));
-		} else {
-			steamMatchData.bans.push(heroMap.get(entry.hero_id));
-		}
-	});
+	try {
+		steamMatchData.picks_bans = JSON.parse(steamMatchData.picks_bans);
+		steamMatchData.picks_bans.map((entry: { is_pick: boolean; hero_id: number; order: number }) => {
+			if (entry.is_pick) {
+				steamMatchData.picks.push(heroMap.get(entry.hero_id));
+			} else {
+				steamMatchData.bans.push(heroMap.get(entry.hero_id));
+			}
+		});
+	} catch (e) {}
 
 	delete steamMatchData.players;
 
