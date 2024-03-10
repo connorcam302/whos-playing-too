@@ -1580,6 +1580,7 @@ export const getPlayerStats = async (
                     and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
                 ),
                 gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+                eq(matches.lobby, 7),
                 eq(players.id, id),
                 inArray(matchData.role, roleFilter),
                 inArray(matches.lobby, lobbyFilter),
