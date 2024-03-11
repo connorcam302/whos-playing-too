@@ -484,33 +484,35 @@
 				</div>
 				<div class="flex h-8 w-full items-center justify-center">
 					{#each player.mostPlayedHeroes as hero}
-						{#if hero === null}
-							<div class="grow basis-1/3 bg-zinc-900">
-								<img
-									src="/empty-slot.webp"
-									class="h-8 w-full"
-									alt="No Hero"
-									use:tippy={{
-										content: `No Hero`,
-										placement: 'bottom',
-										theme: 'light'
-									}}
-								/>
-							</div>
-						{:else}
-							<div class="h-8 grow basis-1/3">
-								<img
-									src={hero.hero.img}
-									alt={hero.hero.name}
-									use:tippy={{
-										content: `<b>${hero.hero.name}</b> - ${hero.count} games`,
-										placement: 'bottom',
-										theme: 'light',
-										allowHTML: true
-									}}
-								/>
-							</div>
-						{/if}
+						{#key hero}
+							{#if hero === null}
+								<div class="grow basis-1/3 bg-zinc-900">
+									<img
+										src="/empty-slot.webp"
+										class="h-8 w-full"
+										alt="No Hero"
+										use:tippy={{
+											content: `No Hero`,
+											placement: 'bottom',
+											theme: 'light'
+										}}
+									/>
+								</div>
+							{:else}
+								<div class="h-8 grow basis-1/3">
+									<img
+										src={hero.hero.img}
+										alt={hero.hero.name}
+										use:tippy={{
+											content: `<b>${hero.hero.name}</b> - ${hero.count} games`,
+											placement: 'bottom',
+											theme: 'light',
+											allowHTML: true
+										}}
+									/>
+								</div>
+							{/if}
+						{/key}
 					{/each}
 				</div>
 				<table>
