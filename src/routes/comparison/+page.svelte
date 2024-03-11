@@ -376,11 +376,11 @@
 					<option value={90}>Last 90 Days</option>
 					<option value={180}>Last 180 Days</option>
 					<option value={365}>Last 365 Days</option>
-                    <option value={730}>Last 2 Years</option>
-                    <option value={1095}>Last 3 Years</option>
-                    <option value={1461}>Last 4 Years</option>
-                    <option value={1826}>Last 5 Years</option>
-                    <option value={9999}>All Time</option>
+					<option value={730}>Last 2 Years</option>
+					<option value={1095}>Last 3 Years</option>
+					<option value={1461}>Last 4 Years</option>
+					<option value={1826}>Last 5 Years</option>
+					<option value={9999}>All Time</option>
 				</select>
 			</div>
 		</div>
@@ -394,7 +394,10 @@
 				>
 					<HeroiconsXMark />
 				</button>
-				<div class="text-center text-2xl">{player.username}</div>
+				<button
+					class="text-center text-2xl transition-all duration-300 hover:text-zinc-400"
+					on:click={() => goto(`/player/${player.id}`)}>{player.username}</button
+				>
 				<div class="mx-auto h-24 w-24">
 					{#key player}
 						<RoleDoughnut data={player.roleDistribution} cutout={40} />
@@ -481,33 +484,35 @@
 				</div>
 				<div class="flex h-8 w-full items-center justify-center">
 					{#each player.mostPlayedHeroes as hero}
-						{#if hero === null}
-							<div class="grow basis-1/3 bg-zinc-900">
-								<img
-									src="/empty-slot.webp"
-									class="h-8 w-full"
-									alt="No Hero"
-									use:tippy={{
-										content: `No Hero`,
-										placement: 'bottom',
-										theme: 'light'
-									}}
-								/>
-							</div>
-						{:else}
-							<div class="h-8 grow basis-1/3">
-								<img
-									src={hero.hero.img}
-									alt={hero.hero.name}
-									use:tippy={{
-										content: `<b>${hero.hero.name}</b> - ${hero.count} games`,
-										placement: 'bottom',
-										theme: 'light',
-										allowHTML: true
-									}}
-								/>
-							</div>
-						{/if}
+						{#key hero}
+							{#if hero === null}
+								<div class="grow basis-1/3 bg-zinc-900">
+									<img
+										src="/empty-slot.webp"
+										class="h-8 w-full"
+										alt="No Hero"
+										use:tippy={{
+											content: `No Hero`,
+											placement: 'bottom',
+											theme: 'light'
+										}}
+									/>
+								</div>
+							{:else}
+								<div class="h-8 grow basis-1/3">
+									<img
+										src={hero.hero.img}
+										alt={hero.hero.name}
+										use:tippy={{
+											content: `<b>${hero.hero.name}</b> - ${hero.count} games`,
+											placement: 'bottom',
+											theme: 'light',
+											allowHTML: true
+										}}
+									/>
+								</div>
+							{/if}
+						{/key}
 					{/each}
 				</div>
 				<table>

@@ -2,6 +2,7 @@
 	import { getRoleIcon, toTime, calcImpact } from '$lib/functions';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { goto } from '$app/navigation';
 	import tippy from 'tippy.js';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -492,7 +493,12 @@
 											<td>
 												<MatchModal matchId={record.data.matchId}>
 													<div class="text-left">
-														{record.data.username}
+														<button
+															on:click={() => goto(`/player/${record.data.id}`)}
+															class="transition-all duration-300 hover:text-zinc-400"
+														>
+															{record.data.username}
+														</button>
 														<span class="italic text-indigo-400"
 															>{record.data.smurf ? 'S' : ''}</span
 														>

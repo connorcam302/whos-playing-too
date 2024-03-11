@@ -371,7 +371,7 @@
 						</div>
 					{/if}
 				</div>
-				<div class="flex basis-1/3 items-center justify-end gap-2">
+				<div class="flex basis-1/3 flex-wrap items-center justify-end gap-2">
 					{#if modal}
 						<button
 							on:click={() => goto(`/match/${matchDetails.matchData.match_id}`)}
