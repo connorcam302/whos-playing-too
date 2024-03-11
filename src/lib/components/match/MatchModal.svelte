@@ -138,9 +138,18 @@
 			return num;
 		}
 	};
+	$: if (showMatchData) {
+		document.body.style.overflow = 'hidden';
+	} else {
+		document.body.style.overflow = 'auto';
+	}
 </script>
 
-<button on:click={openMatchData} class="h-full w-full transition-all duration-300">
+<svelte:window
+	on:wheel|nonpassive={(e) => {
+		if (showMatchData) e.preventDefault();
+	}}
+/><button on:click={openMatchData} class="h-full w-full transition-all duration-300">
 	<slot />
 </button>
 
@@ -153,14 +162,21 @@
 		on:keypress={(e) => e.key === 'Escape' && (showMatchData = false)}
 		tabindex="0"
 		role="button"
+		class:scroll-lock={showMatchData}
 	>
-		<div class="absolute z-20 rounded-xl bg-zinc-900 px-4 py-2 opacity-100">
-			<MatchTable {matchDetails} />
+		<div class="absolute z-20 max-h-[75vh] overflow-auto lg:max-h-[90vh]">
+			<div class="rounded-xl bg-zinc-900 px-4 py-2 opacity-100">
+				<MatchTable {matchDetails} />
+			</div>
 		</div>
 	</div>
 {/if}
 
 <style>
+	.scroll-lock {
+		overflow-y: hidden;
+	}
+
 	::-webkit-scrollbar {
 		height: 3px;
 		background-color: transparent;

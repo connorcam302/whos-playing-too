@@ -147,10 +147,10 @@
 </script>
 
 <div>
-	<div class="my-0.5 flex items-center gap-2 md:gap-4">
+	<div class="my-0.5 flex items-center gap-1 text-sm md:gap-4 lg:text-base">
 		<div class="flex items-center gap-2">
 			<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
-			<div class="min-w-28 text-left text-xl">
+			<div class="min-w-20 text-left lg:min-w-28 lg:text-xl">
 				<button
 					class="duration-300 hover:text-zinc-400"
 					on:click={() => goto(`/player/${player.id}`)}
@@ -161,7 +161,7 @@
 			</div>
 		</div>
 		<div
-			class="w-12 cursor-default items-center text-center"
+			class="w-10 cursor-default items-center text-center"
 			use:tippy={{
 				content: `
                 <div class='text-center'>Impact Rating: <span class='font-bold'>${
@@ -203,49 +203,47 @@
 			}}
 		>
 			{#if player.impact > 200}
-				<div id="splusplusrating" class="font-display text-xl">
+				<div id="splusplusrating" class="font-display lg:text-xl">
 					{calcImpact(player.impact)}
 				</div>
 			{:else if player.impact >= 140}
-				<div id="srating" class="font-display text-xl">
+				<div id="srating" class="font-display lg:text-xl">
 					{calcImpact(player.impact)}
 				</div>
 			{:else if player.impact < 140 && player.impact > 25}
-				<div class="font-display text-xl">
+				<div class="font-display lg:text-xl">
 					{calcImpact(player.impact)}
 				</div>
 			{:else if player.impact <= 25}
-				<div id="frating" class="flex justify-center font-display text-xl">
+				<div id="frating" class="flex justify-center font-display lg:text-xl">
 					<FxemojiPoo />
 				</div>
 			{/if}
 		</div>
-		<div class="flex w-8 items-center justify-center">
+		<div class="flex w-6 items-center justify-center lg:w-8">
 			<img src={getRoleIcon(player.role)} alt={`${player.role} role`} class="h-7" />
 		</div>
-		<div class="flex w-24 items-center justify-center gap-1">
+		<div class="flex w-16 items-center justify-center gap-1 text-xs">
 			<div class="text-green-300">{player.kills}</div>
 			<div>/</div>
 			<div class="text-red-400">{player.deaths}</div>
 			<div>/</div>
 			<div class="text-cyan-300">{player.assists}</div>
 		</div>
-		{#if $viewport === 'desktop'}
-			<div class="flex">
-				<img src={player.item0.img} alt={player.item0.name} class="h-8 w-[44px]" />
-				<img src={player.item1.img} alt={player.item1.name} class="h-8 w-[44px]" />
-				<img src={player.item2.img} alt={player.item2.name} class="h-8 w-[44px]" />
-				<img src={player.item3.img} alt={player.item3.name} class="h-8 w-[44px]" />
-				<img src={player.item4.img} alt={player.item4.name} class="h-8 w-[44px]" />
-				<img src={player.item5.img} alt={player.item5.name} class="h-8 w-[44px]" />
-				<div class="px-2">
-					<img
-						src={player.itemzinc.img}
-						alt={player.itemzinc.name}
-						class="h-8 w-8 rounded-full object-cover"
-					/>
-				</div>
-			</div>
+		<div class="flex max-w-[86px] flex-wrap lg:max-w-96 lg:flex-row">
+			<img src={player.item0.img} alt={player.item0.name} class="h-5 lg:h-8 lg:w-[44px]" />
+			<img src={player.item1.img} alt={player.item1.name} class="h-5 lg:h-8 lg:w-[44px]" />
+			<img src={player.item2.img} alt={player.item2.name} class="h-5 lg:h-8 lg:w-[44px]" />
+			<img src={player.item3.img} alt={player.item3.name} class="h-5 lg:h-8 lg:w-[44px]" />
+			<img src={player.item4.img} alt={player.item4.name} class="h-5 lg:h-8 lg:w-[44px]" />
+			<img src={player.item5.img} alt={player.item5.name} class="h-5 lg:h-8 lg:w-[44px]" />
+		</div>
+		<img
+			src={player.itemzinc.img}
+			alt={player.itemzinc.name}
+			class="mr-1 h-6 w-6 rounded-full object-cover lg:mr-0 lg:h-8 lg:w-8"
+		/>
+		<div class="hidden lg:block">
 			<div class="flex flex-col">
 				<img
 					class="mr-2 w-6 object-contain"
@@ -258,7 +256,7 @@
 					alt={`/shard_${player.aghanimsShard}`}
 				/>
 			</div>
-		{/if}
+		</div>
 	</div>
 </div>
 

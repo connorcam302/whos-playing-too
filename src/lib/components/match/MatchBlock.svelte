@@ -160,7 +160,7 @@
 								id="winner"
 							>
 								{#each radiant as player}
-									<div class="pl-2 hover:bg-black hover:bg-opacity-10">
+									<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
 										<PlayerData {player} {matchData} />
 									</div>
 								{/each}
@@ -171,7 +171,7 @@
 								id="loser"
 							>
 								{#each radiant as player}
-									<div class="pl-2 hover:bg-black hover:bg-opacity-10">
+									<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
 										<PlayerData {player} {matchData} />
 									</div>
 								{/each}
@@ -185,7 +185,7 @@
 								id="winner"
 							>
 								{#each dire as player}
-									<div class="pl-2 hover:bg-black hover:bg-opacity-10">
+									<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
 										<PlayerData {player} {matchData} />
 									</div>
 								{/each}
@@ -196,7 +196,7 @@
 								id="loser"
 							>
 								{#each dire as player}
-									<div class="pl-2 hover:bg-black hover:bg-opacity-10">
+									<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
 										<PlayerData {player} {matchData} />
 									</div>
 								{/each}
