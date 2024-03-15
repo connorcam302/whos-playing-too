@@ -223,7 +223,7 @@
 		<div class="flex w-6 items-center justify-center lg:w-8">
 			<img src={getRoleIcon(player.role)} alt={`${player.role} role`} class="h-7" />
 		</div>
-		<div class="flex w-16 items-center justify-center gap-1 text-xs">
+		<div class="flex w-16 items-center justify-center gap-1 text-xs lg:text-base">
 			<div class="text-green-300">{player.kills}</div>
 			<div>/</div>
 			<div class="text-red-400">{player.deaths}</div>
