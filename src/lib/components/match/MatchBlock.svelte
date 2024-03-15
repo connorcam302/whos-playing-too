@@ -152,7 +152,7 @@
 						{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 					</div>
 				</div>
-				<div class="flex w-full grow items-center justify-center">
+				<div class="flex w-full grow flex-col items-center justify-center gap-1">
 					{#if radiant.length > 0}
 						{#if matchData.winner == 'radiant'}
 							<div
@@ -177,6 +177,15 @@
 								{/each}
 							</div>
 						{/if}
+					{/if}
+					{#if radiant.length > 0 && dire.length > 0}
+						<div class="flex items-center justify-center rounded-full">
+							<div
+								class="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm text-zinc-900"
+							>
+								vs
+							</div>
+						</div>
 					{/if}
 					{#if dire.length > 0}
 						{#if matchData.winner == 'dire'}
