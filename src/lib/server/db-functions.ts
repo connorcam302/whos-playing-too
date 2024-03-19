@@ -288,6 +288,7 @@ export const getPlayers = async () => {
         })
         .from(players)
         .innerJoin(accounts, eq(players.id, accounts.owner))
+        .orderBy(players.username)
         .groupBy(players.id);
 
     return playerList;
