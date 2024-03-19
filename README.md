@@ -2,6 +2,9 @@
 
 A Dota 2 game logger designed to scrape and show all of the matches played by set accounts. A remake of the original [whos-playing](https://who-was-playing.vercel.app/)
 
+## How does it work?
+Matches are pulled from the Steam Web API then combined with the OpenDota API for added detail. This scraper is written in NodeJS, once a minute the scraper is automatically ran by a AWS LightSail container cron. Once the matches have been scraped they are then written to a Supabase Postgres DB. These can then be read by the app which is hosted and autodeployed onto Vercel.
+
 ## Tech Stack
 
 - **Hosting**: [Vercel](https://vercel.com/)
