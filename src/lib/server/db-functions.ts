@@ -1,5 +1,13 @@
 import { db } from '$lib/server/database';
-import { accounts, heroes, matchData, matches, players, teamOfTheWeek } from '$lib/server/schema';
+import {
+    accounts,
+    flopOfTheWeek,
+    heroes,
+    matchData,
+    matches,
+    players,
+    teamOfTheWeek
+} from '$lib/server/schema';
 import { heroData, type Hero } from '$lib/data/heroData';
 import { eq, sql, and, desc, or, gte, lte, ne, gt, avg, inArray, countDistinct } from 'drizzle-orm';
 import { getHeroString } from './private-functions';
@@ -319,6 +327,28 @@ export const getTeamOfTheWeek = async () => {
     };
 
     return totwWithIds;
+};
+
+export const getFlopOfTheWeek = async () => {
+    const fotw = await db.select().from(flopOfTheWeek).orderBy(flopOfTheWeek.id).limit(1);
+
+    const playerList = await db.select().from(players);
+
+    const fotwWithIds = {
+        ...fotw[0],
+        onePlayerName: playerList.find((player) => player.id === fotw[0].onePlayer)?.username,
+        twoPlayerName: playerList.find((player) => player.id === fotw[0].twoPlayer)?.username,
+        threePlayerName: playerList.find((player) => player.id === fotw[0].threePlayer)?.username,
+        fourPlayerName: playerList.find((player) => player.id === fotw[0].fourPlayer)?.username,
+        fivePlayerName: playerList.find((player) => player.id === fotw[0].fivePlayer)?.username,
+        oneHeroId: heroData.find((hero) => hero.id === fotw[0].oneHero)?.name,
+        twoHeroId: heroData.find((hero) => hero.id === fotw[0].twoHero)?.name,
+        threeHeroId: heroData.find((hero) => hero.id === fotw[0].threeHero)?.name,
+        fourHeroId: heroData.find((hero) => hero.id === fotw[0].fourHero)?.name,
+        fiveHeroId: heroData.find((hero) => hero.id === fotw[0].fiveHero)?.name
+    };
+
+    return fotwWithIds;
 };
 
 export const getFeatures = async () => {

@@ -77,6 +77,7 @@ export const players = pgTable('players', {
 export const matchData = pgTable(
 	'match_data',
 	{
+		id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
 		// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 		playerId: bigint('player_id', { mode: 'number' })
 			.notNull()
@@ -182,5 +183,42 @@ export const teamOfTheWeek = pgTable('team_of_the_week', {
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	fivePlayer: bigint('5_player', { mode: 'number' }).references(() => players.id),
 	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-	fiveHero: bigint('5_hero', { mode: 'number' }).references(() => heroes.id)
+	fiveHero: bigint('5_hero', { mode: 'number' }).references(() => heroes.id),
+	oneMatch: bigint('1_match', { mode: 'number' }).references(() => matches.id),
+	twoMatch: bigint('2_match', { mode: 'number' }).references(() => matches.id),
+	threeMatch: bigint('3_match', { mode: 'number' }).references(() => matches.id),
+	fourMatch: bigint('4_match', { mode: 'number' }).references(() => matches.id),
+	fiveMatch: bigint('5_match', { mode: 'number' }).references(() => matches.id)
+});
+
+export const flopOfTheWeek = pgTable('flop_of_the_week', {
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint('id', { mode: 'number' }).primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	onePlayer: bigint('1_player', { mode: 'number' })
+		.notNull()
+		.references(() => players.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	oneHero: bigint('1_hero', { mode: 'number' }).references(() => heroes.id),
+	oneMatch: bigint('1_match', { mode: 'number' }).references(() => matches.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	twoPlayer: bigint('2_player', { mode: 'number' }).references(() => players.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	twoHero: bigint('2_hero', { mode: 'number' }).references(() => heroes.id),
+	twoMatch: bigint('2_match', { mode: 'number' }).references(() => matches.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	threePlayer: bigint('3_player', { mode: 'number' }).references(() => players.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	threeHero: bigint('3_hero', { mode: 'number' }).references(() => heroes.id),
+	threeMatch: bigint('3_match', { mode: 'number' }).references(() => matches.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fourPlayer: bigint('4_player', { mode: 'number' }).references(() => players.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fourHero: bigint('4_hero', { mode: 'number' }).references(() => heroes.id),
+	fourMatch: bigint('4_match', { mode: 'number' }).references(() => matches.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fivePlayer: bigint('5_player', { mode: 'number' }).references(() => players.id),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	fiveHero: bigint('5_hero', { mode: 'number' }).references(() => heroes.id),
+	fiveMatch: bigint('5_match', { mode: 'number' }).references(() => matches.id)
 });
