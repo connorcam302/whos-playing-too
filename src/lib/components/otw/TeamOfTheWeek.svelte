@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import TitleBar from '$lib/components/totw/TitleBar.svelte';
-	import FeaturePlayer from '$lib/components/totw/FeaturePlayer.svelte';
+	import TitleBar from '$lib/components/otw/TitleBar.svelte';
+	import FeaturePlayer from '$lib/components/otw/FeaturePlayer.svelte';
 	import { getContext } from 'svelte';
 	import dayjs from 'dayjs';
 	import weekday from 'dayjs/plugin/weekday';
@@ -40,10 +40,10 @@
 	<div class="my-2 flex flex-col items-center justify-center">
 		<div id="title" class="w-fit px-4 pt-1 text-center font-display text-4xl">TEAM OF THE WEEK</div>
 		<div class="text-center text-sm text-zinc-400">
-			{dayjs(dayjs().weekday(+1), 'YYYY-MM-DD').format('dddd Do [of] MMMM')} 00:00 - {dayjs(
-				dayjs().weekday(+7),
+			{dayjs(dayjs().weekday(-6), 'YYYY-MM-DD').format('dddd Do [of] MMMM')} - {dayjs(
+				dayjs().weekday(0),
 				'YYYY-MM-DD'
-			).format('dddd Do [of] MMMM')} 23:59
+			).format('dddd Do [of] MMMM')}
 		</div>
 	</div>
 	<div class="grow" />

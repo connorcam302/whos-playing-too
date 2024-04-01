@@ -5,23 +5,9 @@ import {
 	getAllPlayerStats,
 	getPlayers,
 	getTeamOfTheWeek,
-	getPlayer
+	getPlayer,
+	getFlopOfTheWeek
 } from '$lib/server/db-functions';
-
-function measurePromise(fn: () => Promise<any>): Promise<number> {
-	let onPromiseDone = () => performance.now() - start;
-
-	let start = performance.now();
-	return fn().then(onPromiseDone, onPromiseDone);
-}
-
-function longPromise(delay: number) {
-	return new Promise<string>((resolve) => {
-		setTimeout(() => {
-			resolve('Done');
-		}, delay);
-	});
-}
 
 const toSteam32 = (steam64: string) => {
 	return (BigInt(steam64.toString()) - BigInt('76561197960265728')).toString();
@@ -46,6 +32,7 @@ export const load = async ({ url, params }) => {
 	const heroStats = getHeroStats();
 	const playerStats = getAllPlayerStats();
 	const totw = await getTeamOfTheWeek();
+	const fotw = await getFlopOfTheWeek();
 	const features = getFeatures();
 	const players = await getPlayers();
 	const allAccounts: { id: number; accountId: number; username: string }[] = [];
@@ -73,5 +60,5 @@ export const load = async ({ url, params }) => {
 		.sort((a, b) => b.lastlogoff - a.lastlogoff)
 		.sort((a, b) => (b.gameextrainfo === 'Dota 2') - (a.gameextrainfo === 'Dota 2'));
 
-	return { heroStats, playerStats, totw, features, allPlayerSteamData };
+	return { heroStats, playerStats, totw, features, fotw };
 };

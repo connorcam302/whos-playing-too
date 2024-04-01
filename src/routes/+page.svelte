@@ -8,7 +8,8 @@
 	import PlayerStatbox from '$lib/components/stats/PlayerStatbox.svelte';
 	import Features from '$lib/components/feature/Features.svelte';
 	import Loading from '$lib/components/Loading.svelte';
-	import TeamOfTheWeek from '$lib/components/totw/TeamOfTheWeek.svelte';
+	import TeamOfTheWeek from '$lib/components/otw/TeamOfTheWeek.svelte';
+	import FlopOfTheWeek from '$lib/components/otw/FlopOfTheWeek.svelte';
 	import WhosPlaying from '$lib/components/WhosPlaying.svelte';
 	import MaterialSymbolsSearchRounded from '~icons/material-symbols/search-rounded';
 	import IcOutlineCheck from '~icons/ic/outline-check';
@@ -21,7 +22,8 @@
 
 	export let data;
 
-	const { heroStats, playerStats, totw, features, timings, allPlayerSteamData } = data;
+	const { heroStats, playerStats, totw, features, timings, allPlayerSteamData, fotw } = data;
+	console.log(data);
 	let matchBlocks: any[] = [];
 
 	onMount(() => {
@@ -35,6 +37,9 @@
 	$: viewport = getContext('viewport');
 
 	$: stats = 'hero';
+
+	const headers = ['totw', 'flop'];
+	$: header = headers[1];
 </script>
 
 <svelte:head>
@@ -48,8 +53,21 @@
 		<div class="flex w-full flex-col items-center justify-center">
 			<div class="flex h-fit gap-4">
 				<div>
-					<TeamOfTheWeek {totw} />
+					{#if header == 'totw'}
+						<TeamOfTheWeek {totw} />
+					{:else}
+						<FlopOfTheWeek {fotw} />
+					{/if}
 				</div>
+			</div>
+			<div class="flex gap-2">
+				{#each headers as h}
+					<button
+						class="h-2 w-2 rounded-full bg-white"
+						style={`background-color: ${header === h ? '#e4e4e7' : '#3f3f46'}`}
+						on:click={() => (header = h)}
+					/>
+				{/each}
 			</div>
 		</div>
 
