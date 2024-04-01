@@ -39,7 +39,7 @@
 	$: stats = 'hero';
 
 	const headers = ['totw', 'flop'];
-	$: header = headers[1];
+	$: header = headers[0];
 </script>
 
 <svelte:head>
@@ -50,13 +50,17 @@
 	<div>Mobile</div>
 {:else}
 	<div class="flex w-full flex-col items-center gap-4">
-		<div class="flex w-full flex-col items-center justify-center">
+		<div class="flex h-80 w-full flex-col items-center justify-center">
 			<div class="flex h-fit gap-4">
 				<div>
 					{#if header == 'totw'}
-						<TeamOfTheWeek {totw} />
-					{:else}
-						<FlopOfTheWeek {fotw} />
+						<div in:fade={{ duration: 250 }}>
+							<TeamOfTheWeek {totw} />
+						</div>
+					{:else if header == 'flop'}
+						<div in:fade={{ duration: 250 }}>
+							<FlopOfTheWeek {fotw} />
+						</div>
 					{/if}
 				</div>
 			</div>

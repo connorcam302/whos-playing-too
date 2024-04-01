@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import TitleBar from '$lib/components/otw/TitleBar.svelte';
 	import FeaturePlayer from '$lib/components/otw/FeaturePlayer.svelte';
+	import MatchModal from '$lib/components/match/MatchModal.svelte';
 	import { getContext } from 'svelte';
 	import dayjs from 'dayjs';
 	import weekday from 'dayjs/plugin/weekday';
@@ -31,6 +32,11 @@
 		threeHeroId: string;
 		fourHeroId: string;
 		fiveHeroId: string;
+		oneMatch: number;
+		twoMatch: number;
+		threeMatch: number;
+		fourMatch: number;
+		fiveMatch: number;
 	};
 </script>
 
@@ -49,55 +55,65 @@
 	<div class="grow" />
 	<div class="flex flex-wrap justify-center gap-2">
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<div class="mx-2 lg:max-h-48 lg:max-w-48">
-				<FeaturePlayer data={{ hero: totw.oneHeroId, role: 1 }} />
-			</div>
-			<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
-				<div class="w-full">
-					<TitleBar name={totw.onePlayerName} role={1} id={totw.onePlayer} team={'radiant'} />
+			<MatchModal matchId={totw.oneMatch}>
+				<div class="mx-2 lg:max-h-48 lg:max-w-48">
+					<FeaturePlayer data={{ hero: totw.oneHeroId, role: 1 }} />
 				</div>
-			</div>
+				<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
+					<div class="w-full">
+						<TitleBar name={totw.onePlayerName} role={1} id={totw.onePlayer} team={'radiant'} />
+					</div>
+				</div>
+			</MatchModal>
 		</div>
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<div class="mx-2 lg:max-h-48 lg:max-w-48">
-				<FeaturePlayer data={{ hero: totw.twoHeroId, role: 2 }} />
-			</div>
-			<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
-				<div class="w-full">
-					<TitleBar name={totw.twoPlayerName} role={2} id={totw.twoPlayer} team={'radiant'} />
+			<MatchModal matchId={totw.twoMatch}>
+				<div class="mx-2 lg:max-h-48 lg:max-w-48">
+					<FeaturePlayer data={{ hero: totw.twoHeroId, role: 2 }} />
 				</div>
-			</div>
+				<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
+					<div class="w-full">
+						<TitleBar name={totw.twoPlayerName} role={2} id={totw.twoPlayer} team={'radiant'} />
+					</div>
+				</div>
+			</MatchModal>
 		</div>
 
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<div class="mx-2 lg:max-h-48 lg:max-w-48">
-				<FeaturePlayer data={{ hero: totw.threeHeroId, role: 3 }} />
-			</div>
-			<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
-				<div class="w-full">
-					<TitleBar name={totw.threePlayerName} role={3} id={totw.threePlayer} team={'radiant'} />
+			<MatchModal matchId={totw.threeMatch}>
+				<div class="mx-2 lg:max-h-48 lg:max-w-48">
+					<FeaturePlayer data={{ hero: totw.threeHeroId, role: 3 }} />
 				</div>
-			</div>
+				<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
+					<div class="w-full">
+						<TitleBar name={totw.threePlayerName} role={3} id={totw.threePlayer} team={'radiant'} />
+					</div>
+				</div>
+			</MatchModal>
 		</div>
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<div class="mx-2 lg:max-h-48 lg:max-w-48">
-				<FeaturePlayer data={{ hero: totw.fourHeroId, role: 4 }} />
-			</div>
-			<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
-				<div class="w-full">
-					<TitleBar name={totw.fourPlayerName} role={4} id={totw.fourPlayer} team={'radiant'} />
+			<MatchModal matchId={totw.fourMatch}>
+				<div class="mx-2 lg:max-h-48 lg:max-w-48">
+					<FeaturePlayer data={{ hero: totw.fourHeroId, role: 4 }} />
 				</div>
-			</div>
+				<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
+					<div class="w-full">
+						<TitleBar name={totw.fourPlayerName} role={4} id={totw.fourPlayer} team={'radiant'} />
+					</div>
+				</div>
+			</MatchModal>
 		</div>
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<div class="mx-2 lg:max-h-48 lg:max-w-48">
-				<FeaturePlayer data={{ hero: totw.fiveHeroId, role: 5 }} />
-			</div>
-			<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
-				<div class="w-full">
-					<TitleBar name={totw.fivePlayerName} role={5} id={totw.fivePlayer} team={'radiant'} />
+			<MatchModal matchId={totw.fiveMatch}>
+				<div class="mx-2 lg:max-h-48 lg:max-w-48">
+					<FeaturePlayer data={{ hero: totw.fiveHeroId, role: 5 }} />
 				</div>
-			</div>
+				<div class="mx-auto my-2 flex h-10 max-w-44 items-center justify-center rounded-xl px-2">
+					<div class="w-full">
+						<TitleBar name={totw.fivePlayerName} role={5} id={totw.fivePlayer} team={'radiant'} />
+					</div>
+				</div>
+			</MatchModal>
 		</div>
 	</div>
 </div>

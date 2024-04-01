@@ -41,6 +41,8 @@
 
 	$: viewport = getContext('viewport');
 
+	console.log(player);
+
 	const getImpactScore = (match: any, role: any, duration: any) => {
 		let impact = 0;
 		const csMin = match.lastHits / (duration / 60);
@@ -239,8 +241,8 @@
 			<img src={player.item5.img} alt={player.item5.name} class="h-5 lg:h-8 lg:w-[44px]" />
 		</div>
 		<img
-			src={player.itemzinc.img}
-			alt={player.itemzinc.name}
+			src={player.itemNeutral.img}
+			alt={player.itemNeutral.name}
 			class="mr-1 h-6 w-6 rounded-full object-cover lg:mr-0 lg:h-8 lg:w-8"
 		/>
 		<div class="hidden lg:block">

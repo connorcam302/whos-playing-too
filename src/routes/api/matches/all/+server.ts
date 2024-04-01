@@ -140,7 +140,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				backpack0: items.find((item) => item.id === player.match_data.backpack0)!,
 				backpack1: items.find((item) => item.id === player.match_data.backpack1)!,
 				backpack2: items.find((item) => item.id === player.match_data.backpack2)!,
-				itemzinc: items.find((item) => item.id === player.match_data.itemzinc)!,
+				itemNeutral: items.find((item) => item.id === player.match_data.itemNeutral)!,
 				hero: heroes.find((hero) => hero.id === player.match_data.heroId)!
 			};
 		});
