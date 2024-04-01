@@ -9,6 +9,7 @@
 	import MaterialSymbolsTrophyRounded from '~icons/material-symbols/trophy-rounded';
 	import { calcImpact } from '$lib/functions';
 	import tippy from 'tippy.js';
+	import { onDestroy, onMount } from 'svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -138,18 +139,31 @@
 			return num;
 		}
 	};
-	$: if (showMatchData) {
-		document.body.style.overflow = 'hidden';
-	} else {
-		document.body.style.overflow = 'auto';
-	}
 </script>
 
 <svelte:window
 	on:wheel|nonpassive={(e) => {
 		if (showMatchData) e.preventDefault();
 	}}
-/><button on:click={openMatchData} class="h-full w-full transition-all duration-300">
+/>
+
+<svelte:head>
+	{#if showMatchData}
+		<style>
+			body {
+				overflow: hidden;
+			}
+		</style>
+	{:else}
+		<style>
+			body {
+				overflow: auto;
+			}
+		</style>
+	{/if}
+</svelte:head>
+
+<button on:click={openMatchData} class="h-full w-full transition-all duration-300">
 	<slot />
 </button>
 
