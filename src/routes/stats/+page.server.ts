@@ -4,7 +4,8 @@ import {
 	getPlayer,
 	getPlayerChart,
 	getPlayerWinLoss,
-	getPlayers
+	getPlayers,
+	getTOTWCounts
 } from '$lib/server/db-functions';
 
 export const load = async ({ url, params }) => {
@@ -31,5 +32,14 @@ export const load = async ({ url, params }) => {
 		})
 		.filter((data) => data !== undefined);
 
-	return { graph };
+	const totwCounts = await getTOTWCounts();
+	totwCounts.sort((a, b) => b.total.length - a.total.length);
+
+	const heroJson = await fetch(
+		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
+	);
+	const heroList: DotaAsset[] = await heroJson.json();
+	heroList.sort((a, b) => a.name.localeCompare(b.name));
+
+	return { graph, totwCounts, heroList };
 };

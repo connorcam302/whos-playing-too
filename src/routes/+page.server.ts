@@ -32,7 +32,7 @@ export const load = async ({ url, params }) => {
 	const heroStats = getHeroStats();
 	const playerStats = getAllPlayerStats();
 	const totw = await getTeamOfTheWeek();
-	const fotw = await getFlopOfTheWeek();
+	//const fotw = await getFlopOfTheWeek();
 	const features = getFeatures();
 	const players = await getPlayers();
 	const allAccounts: { id: number; accountId: number; username: string }[] = [];
@@ -60,5 +60,5 @@ export const load = async ({ url, params }) => {
 		.sort((a, b) => b.lastlogoff - a.lastlogoff)
 		.sort((a, b) => (b.gameextrainfo === 'Dota 2') - (a.gameextrainfo === 'Dota 2'));
 
-	return { heroStats, playerStats, totw, features, fotw };
+	return { heroStats, playerStats, totw, features };
 };
