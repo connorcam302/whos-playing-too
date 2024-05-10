@@ -1,6 +1,7 @@
 import { db } from '$lib/server/database';
 import {
     accounts,
+    accountsi,
     flopOfTheWeek,
     heroes,
     matchData,
@@ -9,7 +10,21 @@ import {
     teamOfTheWeek
 } from '$lib/server/schema';
 import { heroData, type Hero } from '$lib/data/heroData';
-import { eq, sql, and, desc, or, gte, lte, ne, gt, avg, inArray, countDistinct } from 'drizzle-orm';
+import {
+    eq,
+    sql,
+    and,
+    desc,
+    or,
+    gte,
+    lte,
+    ne,
+    gt,
+    avg,
+    inArray,
+    countDistinct,
+    count
+} from 'drizzle-orm';
 import { getHeroString } from './private-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
@@ -1808,4 +1823,137 @@ export const getPlayerStats = async (
         duration: playerStats[0]?.duration || '99999999999999',
         roleDistribution: roles
     };
+};
+
+export const getTOTWCounts = async () => {
+    const oneCount = await db
+        .select({
+            player: {
+                id: players.id,
+                username: players.username
+            },
+            matches: sql<
+                Array<{ row_id: number; matchId: number | null }>
+            >`array_agg(CASE WHEN ${teamOfTheWeek.oneMatch} IS NULL THEN ${teamOfTheWeek.id}::text || ',NULL' ELSE ${teamOfTheWeek.id}|| ',' || ${teamOfTheWeek.oneMatch} END)`
+        })
+        .from(teamOfTheWeek)
+        .innerJoin(players, eq(players.id, teamOfTheWeek.onePlayer))
+        .groupBy(players.id);
+    const twoCount = await db
+        .select({
+            player: {
+                id: players.id,
+                username: players.username
+            },
+            matches: sql<
+                Array<{ row_id: number; matchId: number | null }>
+            >`array_agg(CASE WHEN ${teamOfTheWeek.twoMatch} IS NULL THEN ${teamOfTheWeek.id}::text || ',NULL' ELSE ${teamOfTheWeek.id}|| ',' || ${teamOfTheWeek.twoMatch} END)`
+        })
+        .from(teamOfTheWeek)
+        .innerJoin(players, eq(players.id, teamOfTheWeek.twoPlayer))
+        .groupBy(players.id);
+
+    const threeCount = await db
+        .select({
+            player: {
+                id: players.id,
+                username: players.username
+            },
+            matches: sql<
+                Array<{ row_id: number; matchId: number | null }>
+            >`array_agg(CASE WHEN ${teamOfTheWeek.threeMatch} IS NULL THEN ${teamOfTheWeek.id}::text || ',NULL' ELSE ${teamOfTheWeek.id}|| ',' || ${teamOfTheWeek.threeMatch} END)`
+        })
+        .from(teamOfTheWeek)
+        .innerJoin(players, eq(players.id, teamOfTheWeek.threePlayer))
+        .groupBy(players.id);
+
+    const fourCount = await db
+        .select({
+            player: {
+                id: players.id,
+                username: players.username
+            },
+            matches: sql<
+                Array<{ row_id: number; matchId: number | null }>
+            >`array_agg(CASE WHEN ${teamOfTheWeek.fourMatch} IS NULL THEN ${teamOfTheWeek.id}::text || ',NULL' ELSE ${teamOfTheWeek.id}|| ',' || ${teamOfTheWeek.fourMatch} END)`
+        })
+        .from(teamOfTheWeek)
+        .innerJoin(players, eq(players.id, teamOfTheWeek.fourPlayer))
+        .groupBy(players.id);
+
+    const fiveCount = await db
+        .select({
+            player: {
+                id: players.id,
+                username: players.username
+            },
+            matches: sql<
+                Array<{ row_id: number; matchId: number | null }>
+            >`array_agg(CASE WHEN ${teamOfTheWeek.fiveMatch} IS NULL THEN ${teamOfTheWeek.id}::text || ',NULL' ELSE ${teamOfTheWeek.id}|| ',' || ${teamOfTheWeek.fiveMatch}  END)`
+        })
+        .from(teamOfTheWeek)
+        .innerJoin(players, eq(players.id, teamOfTheWeek.fivePlayer))
+        .groupBy(players.id);
+
+    const playerList = await db
+        .select({
+            id: players.id,
+            username: players.username
+        })
+        .from(players);
+
+    const totwCounts = playerList.map((player) => {
+        const one = oneCount.find((p) => p.player.id === player.id);
+        const two = twoCount.find((p) => p.player.id === player.id);
+        const three = threeCount.find((p) => p.player.id === player.id);
+        const four = fourCount.find((p) => p.player.id === player.id);
+        const five = fiveCount.find((p) => p.player.id === player.id);
+        const totalMatches = [one?.matches, two?.matches, three?.matches, four?.matches, five?.matches]
+            .filter((matches) => matches !== undefined)
+            .flat();
+
+        return {
+            player,
+            one: one?.matches || [],
+            two: two?.matches || [],
+            three: three?.matches || [],
+            four: four?.matches || [],
+            five: five?.matches || [],
+            total: totalMatches || []
+        };
+    });
+
+    return totwCounts;
+};
+
+export const getMatchDataFromIdAndPlayer = async (ids: number[], player: number) => {
+    const matchList = await db
+        .select({
+            id: players.id,
+            username: players.username,
+            kills: matchData.kills,
+            deaths: matchData.deaths,
+            assists: matchData.assists,
+            impact: matchData.impact,
+            role: matchData.role,
+            gpm: matchData.goldPerMin,
+            xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
+            matchId: matchData.matchId,
+            duration: matches.duration,
+            startTime: matches.startTime,
+            hero: {
+                id: heroes.id,
+                name: heroes.name,
+                img: heroes.img
+            }
+        })
+        .from(matchData)
+        .innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(players, eq(accounts.owner, players.id))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .innerJoin(heroes, eq(heroes.id, matchData.heroId))
+        .where(and(inArray(matchData.matchId, ids), eq(players.id, player)));
+
+    return matchList;
 };

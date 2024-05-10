@@ -41,8 +41,6 @@
 
 	$: viewport = getContext('viewport');
 
-	console.log(player);
-
 	const getImpactScore = (match: any, role: any, duration: any) => {
 		let impact = 0;
 		const csMin = match.lastHits / (duration / 60);

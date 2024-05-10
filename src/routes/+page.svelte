@@ -23,7 +23,6 @@
 	export let data;
 
 	const { heroStats, playerStats, totw, features, timings, allPlayerSteamData, fotw } = data;
-	console.log(data);
 	let matchBlocks: any[] = [];
 
 	onMount(() => {
@@ -53,7 +52,9 @@
 		<div class="flex h-80 w-full flex-col items-center justify-center">
 			<div class="flex h-fit gap-4">
 				<div>
-					{#if header == 'totw'}
+					<TeamOfTheWeek {totw} />
+					<!-- 
+                    {#if header == 'totw'}
 						<div in:fade={{ duration: 250 }}>
 							<TeamOfTheWeek {totw} />
 						</div>
@@ -62,8 +63,10 @@
 							<FlopOfTheWeek {fotw} />
 						</div>
 					{/if}
+                    -->
 				</div>
 			</div>
+			<!-- 
 			<div class="flex gap-2">
 				{#each headers as h}
 					<button
@@ -73,6 +76,7 @@
 					/>
 				{/each}
 			</div>
+                    -->
 		</div>
 
 		<div class="flex w-full items-center justify-center">
