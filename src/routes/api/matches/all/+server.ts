@@ -32,6 +32,7 @@ type MatchData = {
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
 
 export const GET: RequestHandler = async ({ url, params }) => {
+	console.log(url);
 	const itemJson = await fetch(
 		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/ITEMS.json`
 	);
@@ -74,6 +75,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		let gameModeSet = new Set<number>();
 		let lobbySet = new Set<number>();
 		const modes = JSON.parse(url.searchParams.get('gameMode')!);
+		console.log(modes);
 		if (modes.includes('ranked-all-pick')) {
 			gameModeSet.add(22);
 			lobbySet.add(7);
@@ -86,11 +88,24 @@ export const GET: RequestHandler = async ({ url, params }) => {
 			[0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21].forEach((mode) =>
 				gameModeSet.add(mode)
 			);
-			[-1, 0, 1, 2, 3, 4, 5, 6, 8].forEach((lobby) => lobbySet.add(lobby));
+			[-1, 1, 2, 3, 4, 5, 6, 8].forEach((lobby) => lobbySet.add(lobby));
 		}
 
 		gameModeFilter = Array.from(gameModeSet);
 		lobbyFilter = Array.from(lobbySet);
+		console.log(gameModeFilter, lobbyFilter);
+	}
+
+	let roleFilter: number[] = [];
+	if (url.searchParams.has('roles')) {
+		roleFilter = JSON.parse(url.searchParams.get('roles')!);
+	} else {
+		roleFilter = [1, 2, 3, 4, 5];
+	}
+
+	let smurfFilter: boolean[] = [false];
+	if (url.searchParams.has('smurf')) {
+		smurfFilter.push(Boolean(JSON.parse(url.searchParams.get('smurf')!)));
 	}
 
 	const matchArray = await db
@@ -111,7 +126,9 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				inArray(players.id, playerFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(matches.gameMode, gameModeFilter),
-				inArray(matches.lobby, lobbyFilter)
+				inArray(matches.lobby, lobbyFilter),
+				inArray(matchData.role, roleFilter),
+				inArray(accounts.smurf, smurfFilter)
 			)
 		)
 		.limit((pageNumber + 1) * 10 + 1)

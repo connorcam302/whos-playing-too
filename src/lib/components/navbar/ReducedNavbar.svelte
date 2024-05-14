@@ -29,7 +29,7 @@
 	}}
 />
 
-<div class="mx-auto mb-4 overflow-auto">
+<div class="mx-auto mb-4 h-[50px] overflow-auto">
 	<div class:scroll-lock={open} class="z-50">
 		<div>
 			<div class="z-10 flex w-full items-center justify-center gap-8 bg-zinc-800 px-4">

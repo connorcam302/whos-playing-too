@@ -23,18 +23,22 @@
 				<div>whos-playing</div>
 			</a>
 			<div class="flex h-full items-center justify-center">
-				<div class="my-2 flex h-full w-fit items-center justify-center rounded-full bg-zinc-800">
-					<div class="flex items-center justify-center gap-4 py-2">
+				<div class="flex h-full w-fit items-center justify-center rounded-full bg-zinc-800">
+					<div class="flex h-full items-center justify-center gap-4">
 						{#each links as link}
 							{#if link.link == $page.url.pathname}
-								<div class="w-32 flex-col items-center justify-center">
-									<div class="mx-auto w-full grow rounded-full bg-sky-500 py-1 text-center">
-										<a href={link.link} class="text-center text-sky-950">{link.title}</a>
+								<div
+									class="w-32 flex-col items-center justify-center border-b-2 border-b-sky-500 bg-gradient-to-t from-sky-950 py-2 pt-2 transition-all"
+								>
+									<div class="mx-auto w-full grow rounded-full py-1 text-center">
+										<a href={link.link} class="text-center">{link.title}</a>
 									</div>
 								</div>
 							{:else}
-								<div class="w-32 flex-col items-center justify-center">
-									<div class="mx-auto w-full grow rounded-full text-center">
+								<div
+									class="w-32 flex-col items-center justify-center border-b-2 border-b-transparent py-2 pt-2"
+								>
+									<div class="mx-auto w-full grow rounded-full py-1 text-center">
 										<a
 											href={link.link}
 											class="text-center transition-all duration-300 hover:text-zinc-400"
