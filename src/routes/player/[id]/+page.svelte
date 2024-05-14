@@ -88,7 +88,7 @@
 		matchBlocks = [];
 		let pageNumberFilter = '';
 		if (pageNumber > -1) {
-			pageNumberFilter = `page=${pageNumber}`;
+			pageNumberFilter = `page=${pageNumber - 1}`;
 		}
 		let heroFilter = '';
 		if (heroID > 0) {
@@ -621,42 +621,44 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					</div>
 				{/await}
 			</div>
-			{#key matchBlocks}
-				<div class="min-h-64" in:fade={{ duration: 400 }}>
-					{#if matchBlocks.length == 0}
-						<div class="flex h-full items-center justify-center">
-							<div class="absolute">
-								<Loading />
-							</div>
-						</div>
-					{:else}
-						<div>
-							{#each matchBlocks.slice(0, 10) as match}
-								<div class="mb-2">
-									<MatchBlock {match} />
+			<div class="w-auto">
+				{#key matchBlocks}
+					<div class="min-h-64" in:fade={{ duration: 400 }}>
+						{#if matchBlocks.length == 0}
+							<div class="flex h-full items-center justify-center">
+								<div class="absolute">
+									<Loading />
 								</div>
-							{/each}
-							<div class="flex items-center justify-center gap-4">
-								<button
-									class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
-									disabled={pageNumber == 1}
-									on:click={() => decrementPage()}
-								>
-									<MaterialSymbolsArrowBackRounded /></button
-								>
-								<div>{pageNumber}</div>
-								<button
-									class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
-									disabled={matchBlocks.length < 10}
-									on:click={() => incrementPage()}
-								>
-									<MaterialSymbolsArrowForwardRounded />
-								</button>
 							</div>
-						</div>
-					{/if}
-				</div>
-			{/key}
+						{:else}
+							<div>
+								{#each matchBlocks.slice(0, 10) as match}
+									<div class="mb-2">
+										<MatchBlock {match} />
+									</div>
+								{/each}
+								<div class="flex items-center justify-center gap-4">
+									<button
+										class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
+										disabled={pageNumber == 1}
+										on:click={() => decrementPage()}
+									>
+										<MaterialSymbolsArrowBackRounded /></button
+									>
+									<div>{pageNumber}</div>
+									<button
+										class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
+										disabled={matchBlocks.length < 10}
+										on:click={() => incrementPage()}
+									>
+										<MaterialSymbolsArrowForwardRounded />
+									</button>
+								</div>
+							</div>
+						{/if}
+					</div>
+				{/key}
+			</div>
 		</div>
 	{/key}
 </div>

@@ -75,7 +75,6 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		let gameModeSet = new Set<number>();
 		let lobbySet = new Set<number>();
 		const modes = JSON.parse(url.searchParams.get('gameMode')!);
-		console.log(modes);
 		if (modes.includes('ranked-all-pick')) {
 			gameModeSet.add(22);
 			lobbySet.add(7);
@@ -93,7 +92,6 @@ export const GET: RequestHandler = async ({ url, params }) => {
 
 		gameModeFilter = Array.from(gameModeSet);
 		lobbyFilter = Array.from(lobbySet);
-		console.log(gameModeFilter, lobbyFilter);
 	}
 
 	let roleFilter: number[] = [];
