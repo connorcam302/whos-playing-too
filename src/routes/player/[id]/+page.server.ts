@@ -50,16 +50,25 @@ export const load = async ({ url, params }) => {
 	const weeklyStats = await getPlayerWinLoss(params.id);
 	const allTimeStats = await getPlayerWinLoss(params.id, 9999);
 
-	const heroStats = getHeroStats(dayjs(0).add(2, 'week').valueOf() / 1000, params.id);
+	const heroStats = getHeroStats(dayjs(0).add(1, 'month').valueOf() / 1000, params.id);
+	const allTimeHeroStats = getHeroStats(dayjs(0).add(99, 'years').valueOf() / 1000, params.id);
 	const winGraph = await getPlayerChart(params.id, 31);
 
+	const heroJson = await fetch(
+		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
+	);
+	const heroList: DotaAsset[] = await heroJson.json();
+	heroList.sort((a, b) => a.name.localeCompare(b.name));
+
 	return {
+		heroList,
 		player,
 		mainAccount,
 		smurfAccounts,
 		allTimeStats,
 		weeklyStats,
 		heroStats,
+		allTimeHeroStats,
 		winGraph
 	};
 };

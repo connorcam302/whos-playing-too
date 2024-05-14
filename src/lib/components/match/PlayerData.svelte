@@ -153,7 +153,7 @@
 			<div class="min-w-20 text-left lg:min-w-28 lg:text-xl">
 				<button
 					class="duration-300 hover:text-zinc-400"
-					on:click={() => goto(`/player/${player.id}`)}
+					on:click={() => goto(`/player/${player.owner}`)}
 				>
 					{player.username}</button
 				>
