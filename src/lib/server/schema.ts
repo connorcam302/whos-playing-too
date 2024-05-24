@@ -147,7 +147,8 @@ export const matchData = pgTable(
 		// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 		level: bigint('level', { mode: 'number' }),
 		// You can use { mode: "bigint" } if numbers are exceeding js number limitations
-		towerDamage: bigint('tower_damage', { mode: 'number' })
+		towerDamage: bigint('tower_damage', { mode: 'number' }),
+		facet: bigint('facet', { mode: 'number' })
 	},
 	(table) => {
 		return {

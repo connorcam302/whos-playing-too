@@ -26,7 +26,7 @@
 	let matchBlocks: any[] = [];
 
 	onMount(() => {
-		fetch(`/api/matches/all`)
+		fetch(`/api/matches/all?smurf=true`)
 			.then((res) => res.json())
 			.then((res) => {
 				matchBlocks = res;
