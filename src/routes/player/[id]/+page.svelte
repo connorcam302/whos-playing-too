@@ -103,6 +103,10 @@
 		} else if (unranked) {
 			gameModeFilter = `gameMode=["${gameModes[1]}","${gameModes[2]}"]`;
 		}
+		let smurfFilter = 'false';
+		if (smurfs) {
+			smurfFilter = `smurf=true`;
+		}
 
 		pageNumber = pageNumber - 1;
 		let roleFilter = 'roles=[';
@@ -130,7 +134,7 @@
 			roleFilter
 		});
 		fetch(
-			`/api/matches/all?players=[${playerId}]&${heroFilter}&${gameModeFilter}&${pageNumberFilter}&${roleFilter}`
+			`/api/matches/all?players=[${playerId}]&${heroFilter}&${gameModeFilter}&${pageNumberFilter}&${roleFilter}&${smurfFilter}`
 		)
 			.then((res) => res.json())
 			.then((res) => {
@@ -220,14 +224,11 @@
 	const incrementPage = () => {
 		pageNumber = pageNumber + 1;
 		fetchMatches(pageNumber, player.id);
-		goto(`/player/${player.id}?page=${pageNumber}`);
 	};
 
 	const decrementPage = () => {
 		pageNumber = pageNumber - 1;
 		fetchMatches(pageNumber, player.id);
-
-		goto(`/player/${player.id}?page=${pageNumber}`);
 	};
 
 	let chartType = 'days';
@@ -475,14 +476,14 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 				</div>
 			</div>
 			<div class="flex flex-wrap gap-4">
-				<div class="flex h-full grow flex-col gap-2">
+				<div class="flex grow flex-col gap-2">
 					<div class="text-xl">All Time</div>
 					{#await allTimeHeroStats then allTimeHeroStats}
 						<HeroStatbox heroStats={allTimeHeroStats} />
 					{/await}
 				</div>
 
-				<div class="flex h-full grow flex-col gap-2">
+				<div class="flex grow flex-col gap-2">
 					<div class="text-xl">This Month</div>
 					{#await heroStats then heroStats}
 						<HeroStatbox {heroStats} />
@@ -633,7 +634,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						{:else}
 							<div>
 								{#each matchBlocks.slice(0, 10) as match}
-									<div class="mb-2">
+									<div class="mb-2 flex items-center justify-center">
 										<MatchBlock {match} />
 									</div>
 								{/each}

@@ -149,7 +149,14 @@
 <div>
 	<div class="my-0.5 flex items-center gap-1 text-sm md:gap-4 lg:text-base">
 		<div class="flex items-center gap-2">
-			<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
+			<div class="relative">
+				<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
+				{#if player.facet}
+					<div class="absolute bottom-0 right-0 rounded-tl-lg bg-black bg-opacity-75 text-xs">
+						<div class="px-2">F{player.facet}</div>
+					</div>
+				{/if}
+			</div>
 			<div class="min-w-20 text-left lg:min-w-28 lg:text-xl">
 				<button
 					class="duration-300 hover:text-zinc-400"
