@@ -1,5 +1,5 @@
 import { STEAM_KEY } from '$env/static/private';
-import { json, type RequestHandler } from '@sveltejs/kit';
+import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { laneRates } from '$lib/server/laneRates';
 import { heroMap } from '$lib/data/heroMap';
 import { itemMap } from '$lib/data/itemMap';
@@ -127,7 +127,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		.then((res) => res.json())
 		.then((data) => data.result);
 	if (!steamMatchData) {
-		return json({ error: 'Steam API Down.' });
+		return error(500, { message: 'Steam API Down.' });
 	}
 
 	const accountIds = steamMatchData.players.map((player) => player.account_id);

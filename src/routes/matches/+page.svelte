@@ -100,7 +100,6 @@
 		if ($page.url.searchParams.has('gameMode')) {
 			gameModes = JSON.parse($page.url.searchParams.get('gameMode'));
 		}
-		console.log('gameModeCheckboxes', gameModeCheckboxes);
 		if (gameModes.length > 0) {
 			gameModeCheckboxes = gameModeCheckboxes.filter((obj) => gameModes.includes(obj));
 		}
@@ -110,10 +109,6 @@
 		}
 		pageNumber = pageNumberFilter;
 
-		console.log('players', players);
-		console.log('heroes', heroes);
-		console.log('gameModes', gameModes);
-		console.log('pageNumberFilter', pageNumberFilter);
 		fetchMatches(players, heroes, gameModes, pageNumberFilter);
 	});
 

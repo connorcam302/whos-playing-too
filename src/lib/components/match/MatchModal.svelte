@@ -110,7 +110,10 @@
 
 	const fetchMatchData = async () => {
 		const res = await fetch(`/api/matches/${matchId}`);
-		if (!res.ok) return { error: res.status };
+		if (!res.ok) {
+			const error = await res.json();
+			return { error: res.status, message: error.message };
+		}
 		return await res.json();
 	};
 
@@ -125,18 +128,6 @@
 		showMatchData = true;
 		if (!matchDetails) {
 			matchDetails = await fetchMatchData();
-		}
-	};
-
-	const toTime = (time: number) => {
-		return `${(time / 60) | 0}:${time % 60 < 10 ? 0 : ''}${time % 60}`;
-	};
-
-	const convertToKNumber = (num: number) => {
-		if (num > 999) {
-			return `${(num / 1000).toFixed(1)}k`;
-		} else {
-			return num;
 		}
 	};
 </script>
@@ -180,7 +171,16 @@
 	>
 		<div class="absolute z-20 max-h-[75vh] overflow-auto lg:max-h-[90vh]">
 			<div class="rounded-xl bg-zinc-900 px-4 py-2 opacity-100">
-				<MatchTable {matchDetails} />
+				{#if matchDetails}
+					{#if matchDetails.error}
+						<div class="px-4 py-4 text-center">
+							<h1 class="font-display text-3xl">Error {matchDetails.error}</h1>
+							<p class="text-lg">{matchDetails.message}</p>
+						</div>
+					{:else}
+						<MatchTable {matchDetails} />
+					{/if}
+				{/if}
 			</div>
 		</div>
 	</div>
