@@ -11,8 +11,6 @@ import { getMatchDataFromIdAndPlayer } from '$lib/server/db-functions';
 export const POST: RequestHandler = async ({ request }) => {
 	const { matches, player } = await request.json();
 
-	console.log(matches, player);
-
 	const totwData = matches.map((str) => {
 		const [week, matchId] = str.split(',');
 		return { week: week, matchId: matchId === 'NULL' ? null : matchId };

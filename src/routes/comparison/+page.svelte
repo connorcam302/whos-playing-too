@@ -214,7 +214,6 @@
 	};
 
 	const handleHeroChange = () => {
-		console.log('hero changed');
 		updatePlayerData();
 	};
 
@@ -229,8 +228,6 @@
 		await tick();
 		searchInput?.focus();
 	};
-
-	$: console.log(hero);
 </script>
 
 <svelte:head>

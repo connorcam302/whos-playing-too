@@ -84,7 +84,6 @@
 	});
 
 	const fetchMatches = (pageNumber: number, playerId: number) => {
-		console.log('fetching matches');
 		matchBlocks = [];
 		let pageNumberFilter = '';
 		if (pageNumber > -1) {
@@ -126,13 +125,6 @@
 			roleFilter += '5,';
 		}
 		roleFilter = roleFilter.slice(0, -1) + ']';
-		console.log({
-			playerId,
-			heroFilter,
-			gameModeFilter,
-			pageNumberFilter,
-			roleFilter
-		});
 		fetch(
 			`/api/matches/all?players=[${playerId}]&${heroFilter}&${gameModeFilter}&${pageNumberFilter}&${roleFilter}&${smurfFilter}`
 		)
@@ -217,7 +209,6 @@
 	};
 
 	const handleHeroChange = (event: any) => {
-		console.log(event);
 		fetchMatches(pageNumber, Number($page.params.id));
 	};
 

@@ -4,10 +4,6 @@
 
 	const { hero, role } = data;
 
-	const handleVideoError = (e: Error) => {
-		console.error('Video error:', e);
-	};
-
 	const background = getColour(role);
 </script>
 

@@ -148,8 +148,6 @@
 		{ account_id: -10, hero_id: 0, role: 0, user: null }
 	];
 
-	console.log(matchDetails);
-
 	$: if (matchDetails) {
 		const radiantUserData = matchDetails.radiantData.filter((player) => player.user);
 		const direUserData = matchDetails.direData.filter((player) => player.user);

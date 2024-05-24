@@ -110,7 +110,6 @@
 
 	const fetchMatchData = async () => {
 		const res = await fetch(`/api/matches/${matchId}`);
-		console.log(res);
 		if (!res.ok) {
 			const error = await res.json();
 			return { error: res.status, message: error.message };
@@ -131,10 +130,6 @@
 			matchDetails = await fetchMatchData();
 		}
 	};
-
-	$: if (matchDetails) {
-		console.log(matchDetails);
-	}
 </script>
 
 <svelte:window
