@@ -484,14 +484,20 @@
 											style="background-color: {getColour(i + 1)}"
 										>
 											<td>
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													<div class="text-center font-display">
 														{i + 1}
 													</div>
 												</MatchModal>
 											</td>
 											<td>
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													<div class="text-left">
 														<button
 															on:click={() => goto(`/player/${record.data.id}`)}
@@ -506,18 +512,27 @@
 												</MatchModal>
 											</td>
 											<td>
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													{record.record}
 												</MatchModal>
 											</td>
 											<td>
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													{toTime(record.data.duration)}
 												</MatchModal>
 											</td>
 
 											<td class="flex items-center">
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													<img
 														src={record.data.hero.img}
 														alt={record.data.hero.name}
@@ -533,7 +548,10 @@
 												/>
 											</td>
 											<td>
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													<div class="text-center text-green-400">
 														{record.data.kills}
 													</div>
@@ -541,7 +559,10 @@
 											</td>
 
 											<td>
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													<div class="text-center text-red-400">
 														{record.data.deaths}
 													</div>
@@ -549,7 +570,10 @@
 											</td>
 
 											<td class="text-center">
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													<div class="text-center text-cyan-300">
 														{record.data.assists}
 													</div>
@@ -557,7 +581,10 @@
 											</td>
 
 											<td class="text-center">
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													<div
 														class="w-10 cursor-default items-center text-center text-base"
 														use:tippy={{
@@ -628,7 +655,10 @@
 											</td>
 
 											<td class="text-center text-xs lg:text-base">
-												<MatchModal matchId={record.data.matchId}>
+												<MatchModal
+													matchId={record.data.matchId}
+													sequenceNum={record.data.sequenceNumber}
+												>
 													{dayjs(record.data.startTime * 1000 + record.data.duration * 1000).from(
 														dayjs()
 													)}

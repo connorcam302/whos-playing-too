@@ -202,6 +202,8 @@
 
 		buttonState = '...';
 
+		console.log(radiantData, direData);
+
 		const radiantResponse = await fetch(
 			`/api/matches/${matchDetails.matchData.match_id}/set-roles`,
 			{
@@ -209,7 +211,10 @@
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ ...radiantData })
+				body: JSON.stringify({
+					roleData: { ...radiantData },
+					sequenceNum: matchDetails.matchData.match_seq_num
+				})
 			}
 		);
 
@@ -218,10 +223,13 @@
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({ ...direData })
+			body: JSON.stringify({
+				roleData: { ...direData },
+				sequenceNum: matchDetails.matchData.match_seq_num
+			})
 		});
 
-		await Promise.all([radiantResponse, direResponse]).then(() => location.reload());
+		//await Promise.all([radiantResponse, direResponse]).then(() => location.reload());
 	};
 
 	$: fixRoleScreenShow = false;

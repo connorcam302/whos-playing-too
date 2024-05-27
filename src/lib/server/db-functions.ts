@@ -370,6 +370,7 @@ export const getFeatures = async () => {
     const mostKills = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             kills: matchData.kills,
             matchId: matchData.matchId,
@@ -392,6 +393,7 @@ export const getFeatures = async () => {
     const mostDeaths = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             deaths: matchData.deaths,
             matchId: matchData.matchId,
@@ -414,6 +416,7 @@ export const getFeatures = async () => {
     const mostAssists = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             assists: matchData.assists,
             matchId: matchData.matchId,
@@ -436,6 +439,7 @@ export const getFeatures = async () => {
     const mostGPM = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             gpm: matchData.goldPerMin,
             matchId: matchData.matchId,
@@ -458,6 +462,7 @@ export const getFeatures = async () => {
     const mostXPM = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             xpm: matchData.xpPerMin,
             matchId: matchData.matchId,
@@ -480,6 +485,7 @@ export const getFeatures = async () => {
     const mostImpact = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             impact: matchData.impact,
             matchId: matchData.matchId,
@@ -502,6 +508,7 @@ export const getFeatures = async () => {
     const leastImpact = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             impact: matchData.impact,
             matchId: matchData.matchId,
@@ -525,6 +532,7 @@ export const getFeatures = async () => {
     const mostLastHits = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
@@ -547,6 +555,7 @@ export const getFeatures = async () => {
     const mostHeroDamage = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             heroDamage: matchData.heroDamage,
             matchId: matchData.matchId,
@@ -570,6 +579,7 @@ export const getFeatures = async () => {
     const leastHeroDamage = await db
         .select({
             id: players.id,
+            sequenceNumber: matches.sequenceNumber,
             username: players.username,
             heroDamage: matchData.heroDamage,
             matchId: matchData.matchId,
@@ -901,6 +911,7 @@ export const getMostKills = async (
             xpm: matchData.xpPerMin,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -965,6 +976,7 @@ export const getMostDeaths = async (
             xpm: matchData.xpPerMin,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1030,6 +1042,7 @@ export const getMostAssists = async (
             xpm: matchData.xpPerMin,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1095,6 +1108,7 @@ export const getHighestImpact = async (
             xpm: matchData.xpPerMin,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1160,6 +1174,7 @@ export const getLowestImpact = async (
             xpm: matchData.xpPerMin,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1225,6 +1240,7 @@ export const getMostGPM = async (
             xpm: matchData.xpPerMin,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1289,6 +1305,7 @@ export const getMostXPM = async (
             xpm: matchData.xpPerMin,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1354,6 +1371,7 @@ export const getMostLastHits = async (
             xpm: matchData.xpPerMin,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1419,6 +1437,7 @@ export const getMostHeroDamage = async (
             heroDamage: matchData.heroDamage,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1485,6 +1504,7 @@ export const getLeastHeroDamage = async (
             heroDamage: matchData.heroDamage,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
@@ -1549,6 +1569,7 @@ export const getMostBuildingDamage = async (
             towerDamage: matchData.towerDamage,
             lastHits: matchData.lastHits,
             matchId: matchData.matchId,
+            sequenceNumber: matches.sequenceNumber,
             duration: matches.duration,
             startTime: matches.startTime,
             hero: {
