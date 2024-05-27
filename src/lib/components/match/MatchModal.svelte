@@ -107,12 +107,16 @@
 	};
 
 	export let matchId: number | undefined;
+	export let sequenceNum: number | undefined;
 
 	const fetchMatchData = async () => {
-		const res = await fetch(`/api/matches/${matchId}`);
+		let res = await fetch(`/api/matches/${matchId}`);
 		if (!res.ok) {
-			const error = await res.json();
-			return { error: res.status, message: error.message };
+			res = await fetch(`/api/matches/sequence/${sequenceNum}`);
+			if (!res.ok) {
+				const error = await res.json();
+				return { error: res.status, message: error.message };
+			}
 		}
 		return await res.json();
 	};

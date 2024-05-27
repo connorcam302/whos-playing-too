@@ -11,6 +11,7 @@
 		id: number;
 		username: string;
 		matchId?: number;
+		sequenceNumber?: number;
 		kills?: number;
 		deaths?: number;
 		assists?: number;
@@ -100,7 +101,7 @@
 	{:else}
 		<div class="w-64 rounded-xl bg-zinc-800 bg-opacity-100">
 			<div class="rounded-xl border-opacity-15">
-				<MatchModal matchId={data[0].matchId}>
+				<MatchModal matchId={data[0].matchId} sequenceNum={data[0].sequenceNumber}>
 					<div
 						class={`min-h-28 w-full rounded-xl bg-cover bg-center bg-no-repeat`}
 						style={`background-image: url('${data[0]?.hero?.img}')`}
@@ -126,7 +127,7 @@
 				</MatchModal>
 			</div>
 			<div class="flex flex-col gap-1 py-1">
-				<MatchModal matchId={data[1].matchId}>
+				<MatchModal matchId={data[1].matchId} sequenceNum={data[1].sequenceNumber}>
 					<div class="flex w-full flex-row items-center rounded-xl px-3">
 						<div><img src={data[1]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
 						<button
@@ -142,7 +143,7 @@
 				<div class="flex w-full px-2">
 					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
 				</div>
-				<MatchModal matchId={data[2].matchId}>
+				<MatchModal matchId={data[2].matchId} sequenceNum={data[2].sequenceNumber}>
 					<div class="flex w-full flex-row items-center px-3">
 						<div><img src={data[2]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
 						<button
