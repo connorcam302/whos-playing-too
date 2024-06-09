@@ -45,4 +45,5 @@ declare interface PlayerData {
 	role: number;
 	impact: number;
 	hero: DotaAsset;
+	facet: number;
 }

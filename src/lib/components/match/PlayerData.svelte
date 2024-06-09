@@ -144,6 +144,44 @@
 
 	const impactDetails = getImpactScore(player, player.role, matchData.duration);
 	const distributionDetails = distribution(player.role);
+
+	const makeFacetBox = (facets: any, selectedFacet: number) => {
+		let facetBox = '<div class="flex flex-col gap-2 py-1">';
+		facets.forEach((facet: any, i: number) => {
+			const makeImageString = (icon: string) => {
+				return (
+					'https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/icons/facets/' +
+					icon +
+					'.png'
+				);
+			};
+
+			const facetColour = `color_${facet.color}_${facet.gradient_id}`;
+
+			if (i === selectedFacet) {
+				facetBox += `<div class='color_${facet.color}_${
+					facet.gradient_id
+				} px-1'><div class='flex gap-2 items-center'>	<img
+							src=${makeImageString(facet.icon)}
+							class="h-4 px-1 py-0.5 md:h-5 md:px-2 md:py-0.5"
+						/><div class='font-display text-lg'>${facet.title}</div></div><div class='text-sm leading-4'>${
+							facet.description
+						}</div></div>`;
+			} else {
+				facetBox += `<div class='px-1'><div class='flex gap-2 items-center'><img
+							src=${makeImageString(facet.icon)}
+							class="h-4 px-1 py-0.5 md:h-5 md:px-2 md:py-0.5 ${facetColour}"
+						/><div class='font-display text-lg'>${facet.title}</div></div><div class='text-sm leading-4'>${
+							facet.description
+						}</div></div>`;
+			}
+		});
+		facetBox += '</div>';
+		return facetBox;
+	};
+
+	const facetBox = makeFacetBox(player.facets, player.facet - 1);
+	console.log(player, matchData);
 </script>
 
 <div>
@@ -152,8 +190,23 @@
 			<div class="relative">
 				<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
 				{#if player.facet}
-					<div class="absolute bottom-0 right-0 rounded-tl-lg bg-black bg-opacity-75 text-xs">
-						<div class="px-2">F{player.facet}</div>
+					<div
+						class={`absolute bottom-0 right-0 color_${player.facets[player.facet - 1].color}_${
+							player.facets[player.facet - 1].gradient_id
+						}`}
+					>
+						<img
+							src={`https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/icons/facets/${
+								player.facets[player.facet - 1].icon
+							}.png`}
+							alt={player.facet}
+							class="h-4 px-1 py-0.5 md:h-5 md:px-2 md:py-0.5"
+							use:tippy={{
+								content: `${facetBox}`,
+								placement: 'bottom',
+								allowHTML: true
+							}}
+						/>
 					</div>
 				{/if}
 			</div>
@@ -363,5 +416,96 @@
 		100% {
 			background-position: left;
 		}
+	}
+	.color_Red_0 {
+		background: linear-gradient(to right, #9f3c3c, #4a2040);
+	}
+
+	.color_Red_1 {
+		background: linear-gradient(to right, #954533, #452732);
+	}
+
+	.color_Red_2 {
+		background: linear-gradient(to right, #a3735e, #4f2a25);
+	}
+
+	.color_Yellow_0 {
+		background: linear-gradient(to right, #c8a45c, #6f3d21);
+	}
+
+	.color_Yellow_1 {
+		background: linear-gradient(to right, #c6a158, #604928);
+	}
+
+	.color_Yellow_2 {
+		background: linear-gradient(to right, #cac194, #433828);
+	}
+
+	.color_Yellow_3 {
+		background: linear-gradient(to right, #c3a99a, #4d352b);
+	}
+
+	.color_Purple_0 {
+		background: linear-gradient(to right, #b57789, #412755);
+	}
+
+	.color_Purple_1 {
+		background: linear-gradient(to right, #9c70a4, #282752);
+	}
+
+	.color_Purple_2 {
+		background: linear-gradient(to right, #675cae, #261c44);
+	}
+
+	.color_Blue_0 {
+		background: linear-gradient(to right, #727cb2, #342d5b);
+	}
+
+	.color_Blue_1 {
+		background: linear-gradient(to right, #547ea6, #2a385e);
+	}
+
+	.color_Blue_2 {
+		background: linear-gradient(to right, #6baebc, #135459);
+	}
+
+	.color_Blue_3 {
+		background: linear-gradient(to right, #94b5ba, #385b59);
+	}
+
+	.color_Green_0 {
+		background: linear-gradient(to right, #a2b23e, #2d5a18);
+	}
+
+	.color_Green_1 {
+		background: linear-gradient(to right, #7ec2b2, #29493a);
+	}
+
+	.color_Green_2 {
+		background: linear-gradient(to right, #a2b23e, #2d5a18);
+	}
+
+	.color_Green_3 {
+		background: linear-gradient(to right, #9a9f6a, #223824);
+	}
+
+	.color_Green_4 {
+		background: linear-gradient(to right, #9fad8e, #3f4129);
+	}
+
+	.color_Gray_0 {
+		background: linear-gradient(to right, #565c61, #1b1b21);
+	}
+
+	.color_Gray_1 {
+		background: linear-gradient(to right, #6a6d73, #29272c);
+	}
+
+	.color_Gray_2 {
+		background: linear-gradient(to right, #95a9b1, #3e464f);
+	}
+
+	.color_Gray_3 {
+		background: linear-gradient(to right, #adb6be, #4e5557);
 	}
 </style>

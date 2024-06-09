@@ -11,7 +11,6 @@
 
 	export let match: any;
 	const { matchData, radiant, dire } = match;
-	console.log(matchData);
 </script>
 
 <div>
