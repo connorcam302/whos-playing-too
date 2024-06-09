@@ -4,6 +4,8 @@ import { accounts, matchData, matches, players } from '$lib/server/schema';
 import { desc, eq, sql, type InferSelectModel, and, inArray } from 'drizzle-orm';
 import { getPlayers } from '$lib/server/db-functions';
 import { json } from '@sveltejs/kit';
+import { heroData } from '$lib/data/heroData';
+import { heroAbilities } from '$lib/data/heroAbilities';
 
 type DotaAsset = { id: number; name: string; img: string };
 
@@ -142,6 +144,8 @@ export const GET: RequestHandler = async ({ url, params }) => {
             .where(eq(matchData.matchId, match.id));
 
         const block: PlayerMatchData[] = data.map((player) => {
+            const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name;
+            const facets = heroAbilities[`npc_dota_hero_${heroName}`].facets || [];
             return {
                 ...player.players,
                 ...player.accounts,
@@ -156,7 +160,8 @@ export const GET: RequestHandler = async ({ url, params }) => {
                 backpack1: items.find((item) => item.id === player.match_data.backpack1)!,
                 backpack2: items.find((item) => item.id === player.match_data.backpack2)!,
                 itemNeutral: items.find((item) => item.id === player.match_data.itemNeutral)!,
-                hero: heroes.find((hero) => hero.id === player.match_data.heroId)!
+                hero: heroes.find((hero) => hero.id === player.match_data.heroId)!,
+                facets
             };
         });
 

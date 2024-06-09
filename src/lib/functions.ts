@@ -1,3 +1,5 @@
+import { heroData } from './data/heroData';
+
 // Gets the game mode based on the game mode ID.
 // @param {number} id - The ID of the game mode.
 // @returns {string} - The game mode.
@@ -473,4 +475,8 @@ export const roleDistribution = (role: number, heroId: number) => {
 			};
 		}
 	}
+};
+
+export const getHeroIdSting = (heroId: number) => {
+	const hero = heroData.find((hero) => hero.id === heroId);
 };
