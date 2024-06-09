@@ -181,7 +181,6 @@
 	};
 
 	const facetBox = makeFacetBox(player.facets, player.facet - 1);
-	console.log(player, matchData);
 </script>
 
 <div>

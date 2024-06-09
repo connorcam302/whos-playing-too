@@ -202,8 +202,6 @@
 
 		buttonState = '...';
 
-		console.log(radiantData, direData);
-
 		const radiantResponse = await fetch(
 			`/api/matches/${matchDetails.matchData.match_id}/set-roles`,
 			{
@@ -229,7 +227,7 @@
 			})
 		});
 
-		//await Promise.all([radiantResponse, direResponse]).then(() => location.reload());
+		await Promise.all([radiantResponse, direResponse]).then(() => location.reload());
 	};
 
 	$: fixRoleScreenShow = false;
