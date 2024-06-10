@@ -45,8 +45,9 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { goto } from '$app/navigation';
 	import tippy from 'sveltejs-tippy';
+	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
+	import { browser } from '$app/environment';
 
 	export let data: {
 		player: Player;
@@ -74,7 +75,7 @@
 
 	$: smurfs = false;
 
-	let heroID = -1;
+	let hero = -1;
 
 	onMount(() => {
 		if ($page.url.searchParams.get('page')) {
@@ -83,15 +84,15 @@
 		fetchMatches(pageNumber, Number($page.params.id));
 	});
 
-	const fetchMatches = (pageNumber: number, playerId: number) => {
+	const fetchMatches = async (pageNumber: number, playerId: number) => {
 		matchBlocks = [];
 		let pageNumberFilter = '';
 		if (pageNumber > -1) {
 			pageNumberFilter = `page=${pageNumber - 1}`;
 		}
 		let heroFilter = '';
-		if (heroID > 0) {
-			heroFilter = `heroes=[${heroID}]`;
+		if (hero > 0) {
+			heroFilter = `heroes=[${hero}]`;
 		}
 		let gameModes: string[] = ['ranked-all-pick', 'unranked-all-pick', 'other'];
 		let gameModeFilter = '';
@@ -125,14 +126,12 @@
 			roleFilter += '5,';
 		}
 		roleFilter = roleFilter.slice(0, -1) + ']';
-		fetch(
-			`/api/matches/all?players=[${playerId}]&${heroFilter}&${gameModeFilter}&${pageNumberFilter}&${roleFilter}&${smurfFilter}`
-		)
-			.then((res) => res.json())
-			.then((res) => {
-				matchBlocks = res;
-			});
+		return await fetch(
+			`/api/matches/all/profile/${playerId}?players=[${playerId}]&${heroFilter}&${gameModeFilter}&${pageNumberFilter}&${roleFilter}&${smurfFilter}`
+		).then((res) => res.json());
 	};
+
+	onMount(() => updateMatchesData());
 
 	const handleRoleChange = (role: number) => {
 		let currentRole;
@@ -175,7 +174,7 @@
 					break;
 			}
 
-			fetchMatches(pageNumber, Number($page.params.id));
+			updateMatchesData();
 		}
 	};
 
@@ -199,27 +198,15 @@
 					break;
 			}
 
-			fetchMatches(pageNumber, Number($page.params.id));
+			updateMatchesData();
 		}
 	};
-
-	const handleSmurfChange = () => {
-		smurfs = !smurfs;
-		fetchMatches(pageNumber, Number($page.params.id));
-	};
-
-	const handleHeroChange = (event: any) => {
-		fetchMatches(pageNumber, Number($page.params.id));
-	};
-
-	const incrementPage = () => {
-		pageNumber = pageNumber + 1;
-		fetchMatches(pageNumber, player.id);
-	};
-
-	const decrementPage = () => {
-		pageNumber = pageNumber - 1;
-		fetchMatches(pageNumber, player.id);
+	const updateMatchesData = async () => {
+		if (browser) {
+			matchBlocks = [];
+			const data = await fetchMatches(pageNumber, Number($page.params.id));
+			matchBlocks = data;
+		}
 	};
 
 	let chartType = 'days';
@@ -239,6 +226,8 @@
 	const toSteam32 = (accountId: string) => {
 		return BigInt(accountId) - BigInt('76561197960265728');
 	};
+
+	$: hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5 && updateMatchesData();
 </script>
 
 <svelte:head>
@@ -256,7 +245,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 <meta property="og:image" content={mainAccount.avatarfull} />
 <meta property="og:url" content={`https://whos-playing.com/player/${player.id}`} />
 
-<div class="flex px-2">
+<div class="flex">
 	{#key player}
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-wrap items-center justify-center">
@@ -414,22 +403,46 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 				</div>
 			</div>
 			<div>
-				<div class="flex flex-col rounded-xl bg-zinc-800 bg-opacity-95 px-2 py-2">
-					<div class="flex flex-col">
-						{#if chartType == 'days'}
-							<div class="flex w-full px-4 text-xl">
-								<div class="basis-1/6" />
-								<div class="basis-4/6 text-center">Wins by Games</div>
-								<button
-									class="flex basis-1/6 items-center justify-end"
-									on:click={() => (chartType = 'games')}><MaterialSymbolsCalendarMonth /></button
-								>
-							</div>
-							<div>
+				{#if matchBlocks.length > 0}
+					<div class="flex flex-col rounded-xl bg-zinc-800 bg-opacity-95 px-2 py-2">
+						<div class="flex flex-col">
+							{#if chartType == 'days'}
+								<div class="flex w-full px-4 text-xl">
+									<div class="basis-1/6" />
+									<div class="basis-4/6 text-center">Wins by Games</div>
+									<button
+										class="flex basis-1/6 items-center justify-end"
+										on:click={() => (chartType = 'games')}><MaterialSymbolsCalendarMonth /></button
+									>
+								</div>
+								<div>
+									<WinChart
+										data={[
+											{
+												data: winGraph.resultsArray,
+												player: {
+													username: player.username,
+													id: player.id,
+													accounts: [player.accountId]
+												}
+											}
+										]}
+										type="results"
+									/>
+								</div>
+							{:else}
+								<div class="flex w-full px-4 text-xl">
+									<div class="basis-1/6" />
+									<div class="basis-4/6 text-center">Wins by Day</div>
+									<button
+										class="flex basis-1/6 items-center justify-end"
+										on:click={() => (chartType = 'days')}><IonLogoGameControllerB /></button
+									>
+								</div>
 								<WinChart
 									data={[
 										{
-											data: winGraph.resultsArray,
+											data: winGraph.daysArray,
 											player: {
 												username: player.username,
 												id: player.id,
@@ -437,45 +450,23 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 											}
 										}
 									]}
-									type="results"
+									type="days"
 								/>
-							</div>
-						{:else}
-							<div class="flex w-full px-4 text-xl">
-								<div class="basis-1/6" />
-								<div class="basis-4/6 text-center">Wins by Day</div>
-								<button
-									class="flex basis-1/6 items-center justify-end"
-									on:click={() => (chartType = 'days')}><IonLogoGameControllerB /></button
-								>
-							</div>
-							<WinChart
-								data={[
-									{
-										data: winGraph.daysArray,
-										player: {
-											username: player.username,
-											id: player.id,
-											accounts: [player.accountId]
-										}
-									}
-								]}
-								type="days"
-							/>
-						{/if}
+							{/if}
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
 			<div class="flex flex-wrap gap-4">
 				<div class="flex grow flex-col gap-2">
-					<div class="text-xl">All Time</div>
+					<div class="px-2 text-xl">All Time</div>
 					{#await allTimeHeroStats then allTimeHeroStats}
 						<HeroStatbox heroStats={allTimeHeroStats} />
 					{/await}
 				</div>
 
 				<div class="flex grow flex-col gap-2">
-					<div class="text-xl">This Month</div>
+					<div class="px-2 text-xl">This Month</div>
 					{#await heroStats then heroStats}
 						<HeroStatbox {heroStats} />
 					{/await}
@@ -580,8 +571,6 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					Smurf
 					<div class="flex gap-1">
 						<button
-							on:click={() => handleSmurfChange()}
-							on:change={() => handleSmurfChange()}
 							class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 							style="background-color: {smurfs ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -594,41 +583,41 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						</button>
 					</div>
 				</div>
-				{#await heroList then heroList}
-					<div class="flex flex-col gap-1 text-sm">
-						Heroes
-						<div>
-							<select
-								bind:value={heroID}
-								on:change={handleHeroChange}
-								on:input={handleHeroChange}
-								class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-							>
-								<option value={-1}>Select Hero</option>
-								{#each heroList as hero}
-									<option value={hero.id}>{hero.name}</option>
-								{/each}
-							</select>
-						</div>
+				<div class="flex flex-col gap-1 text-sm">
+					Heroes
+					<div>
+						<select
+							bind:value={hero}
+							class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
+						>
+							<option value={-1}>All Heroes</option>
+							{#each heroList as hero}
+								<option value={hero.id}>{hero.name}</option>
+							{/each}
+						</select>
 					</div>
-				{/await}
+				</div>
 			</div>
 			<div class="w-auto">
 				{#key matchBlocks}
 					<div class="min-h-64" in:fade={{ duration: 400 }}>
 						{#if matchBlocks.length == 0}
 							<div class="flex h-full items-center justify-center">
-								<div class="absolute">
+								<div class="h-64">
 									<Loading />
 								</div>
 							</div>
 						{:else}
-							<div>
-								{#each matchBlocks.slice(0, 10) as match}
-									<div class="mb-2 flex items-center justify-center">
-										<MatchBlock {match} />
-									</div>
-								{/each}
+							<div class="flex flex-col gap-2">
+								<div
+									class="mx-auto flex w-fit flex-col items-center justify-center rounded-lg bg-zinc-800 py-3 md:px-3"
+								>
+									{#each matchBlocks.slice(0, 20) as match}
+										<div class="w-full">
+											<MatchDropdown {match} />
+										</div>
+									{/each}
+								</div>
 								<div class="flex items-center justify-center gap-4">
 									<button
 										class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
@@ -640,7 +629,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 									<div>{pageNumber}</div>
 									<button
 										class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
-										disabled={matchBlocks.length < 10}
+										disabled={matchBlocks.length < 20}
 										on:click={() => incrementPage()}
 									>
 										<MaterialSymbolsArrowForwardRounded />
