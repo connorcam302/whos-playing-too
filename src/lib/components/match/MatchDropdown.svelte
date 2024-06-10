@@ -373,17 +373,17 @@
 			<div class="flex flex-col items-center justify-center gap-1">
 				{#if radiant.length > 0}
 					{#if matchData.winner == 'radiant'}
-						<div class="bg-emerald-500 bg-opacity-15 py-1 transition-all" id="winner">
+						<div class="w-full bg-emerald-700 bg-opacity-15 py-1 transition-all" id="winner">
 							{#each radiant as player}
-								<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
+								<div class="pl-1 hover:bg-black hover:bg-opacity-10">
 									<PlayerData {player} {matchData} />
 								</div>
 							{/each}
 						</div>
 					{:else}
-						<div class="bg-red-500 bg-opacity-15 py-1 transition-all" id="loser">
+						<div class="w-full bg-red-700 bg-opacity-15 py-1 transition-all" id="loser">
 							{#each radiant as player}
-								<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
+								<div class="pl-1 hover:bg-black hover:bg-opacity-10">
 									<PlayerData {player} {matchData} />
 								</div>
 							{/each}
@@ -401,17 +401,17 @@
 				{/if}
 				{#if dire.length > 0}
 					{#if matchData.winner == 'dire'}
-						<div class="bg-emerald-500 bg-opacity-15 py-1 transition-all" id="winner">
+						<div class="w-full bg-emerald-700 bg-opacity-15 py-1 transition-all" id="winner">
 							{#each dire as player}
-								<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
+								<div class="pl-1 hover:bg-black hover:bg-opacity-10">
 									<PlayerData {player} {matchData} />
 								</div>
 							{/each}
 						</div>
 					{:else}
-						<div class="bg-red-500 bg-opacity-15 py-1 transition-all" id="loser">
+						<div class="w-full bg-red-700 bg-opacity-15 py-1 transition-all" id="loser">
 							{#each dire as player}
-								<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
+								<div class="pl-1 hover:bg-black hover:bg-opacity-10">
 									<PlayerData {player} {matchData} />
 								</div>
 							{/each}
