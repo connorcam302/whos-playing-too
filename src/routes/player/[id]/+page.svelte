@@ -610,7 +610,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						{:else}
 							<div class="flex flex-col gap-2">
 								<div
-									class="mx-auto flex w-fit flex-col items-center justify-center gap-0.5 rounded-lg bg-zinc-800 py-3 md:px-3"
+									class="mx-auto flex w-fit flex-col items-center justify-center rounded-lg bg-zinc-800 py-3 md:px-3"
 								>
 									{#each matchBlocks.slice(0, 20) as match}
 										<div class="w-full">

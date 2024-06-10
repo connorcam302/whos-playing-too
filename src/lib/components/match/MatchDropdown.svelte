@@ -214,8 +214,8 @@
 <div class="w-full">
 	<MatchModal matchId={matchData.id} sequenceNum={matchData.sequenceNumber}>
 		<div
-			class="my-0.5 flex items-center gap-1 bg-opacity-15 text-sm md:gap-4 lg:text-base"
-			style="background-color: {winner ? '#10b98115' : '#ef444415'} "
+			class="flex items-center gap-1 bg-opacity-15 text-sm md:gap-4 lg:text-base"
+			style="background-color: {winner ? '#10b98125' : '#ef444425'} "
 		>
 			<div class="flex items-center gap-2">
 				<div class="relative">
