@@ -30,14 +30,33 @@
 		bans: DotaAsset[];
 	};
 
-	export let player: PlayerData, matchData: MatchData;
+	export let match: {
+		player: PlayerData;
+		radiant: PlayerData[];
+		dire: PlayerData[];
+		matchData: MatchData;
+	};
 	import { getContext } from 'svelte';
 	import Fa6SolidPoop from '~icons/fa6-solid/poop';
 	import FxemojiPoo from '~icons/fxemoji/poo';
 	import tippy from 'sveltejs-tippy';
+	import UilExchange from 'virtual:icons/uil/exchange';
+	import MaterialSymbolsExpandLessRounded from 'virtual:icons/material-symbols/expand-less-rounded';
+	import MaterialSymbolsExpandMoreRounded from 'virtual:icons/material-symbols/expand-more-rounded';
+	import BiDashLg from '~icons/bi/dash-lg';
+	import UilQuestion from '~icons/uil/question';
+	import dayjs from 'dayjs';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+	dayjs.extend(relativeTime);
+
+	import { getGameMode } from '$lib/functions';
 
 	import { calcImpact, getRoleIcon } from '$lib/functions';
 	import { goto } from '$app/navigation';
+	import PlayerData from './PlayerData.svelte';
+	import MatchBlock from './MatchBlock.svelte';
+
+	const { player, matchData, dire, radiant } = match;
 
 	$: viewport = getContext('viewport');
 
@@ -181,10 +200,16 @@
 	};
 
 	const facetBox = makeFacetBox(player.facets, player.facet - 1);
+	const winner = player.team === matchData.winner;
+
+	$: expanded = false;
 </script>
 
-<div>
-	<div class="my-0.5 flex items-center gap-1 text-sm md:gap-4 lg:text-base">
+<div class="w-full">
+	<div
+		class="my-0.5 flex items-center gap-1 bg-opacity-15 text-sm md:gap-4 lg:text-base"
+		style="background-color: {winner ? '#10b98115' : '#ef444415'} "
+	>
 		<div class="flex items-center gap-2">
 			<div class="relative">
 				<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
@@ -209,18 +234,9 @@
 					</div>
 				{/if}
 			</div>
-			<div class="min-w-20 text-left lg:min-w-28 lg:text-xl">
-				<button
-					class="duration-300 hover:text-zinc-400"
-					on:click={() => goto(`/player/${player.owner}`)}
-				>
-					{player.username}</button
-				>
-				<span class="italic text-indigo-400">{player.smurf ? 'S' : ''}</span>
-			</div>
 		</div>
 		<div
-			class="w-10 cursor-default items-center text-center"
+			class="w-8 cursor-default items-center text-center md:w-10"
 			use:tippy={{
 				content: `
                 <div class='text-center'>Impact Rating: <span class='font-bold'>${
@@ -315,6 +331,90 @@
 					alt={`/shard_${player.aghanimsShard}`}
 				/>
 			</div>
+		</div>
+		<div class="flex flex-col items-center justify-center text-[12px] md:text-sm">
+			<div class="flex items-center gap-1">
+				<div>
+					{#if matchData.lobby === 7}
+						<UilExchange />
+					{:else if matchData.lobby === 0}
+						<BiDashLg />
+					{:else}
+						<UilQuestion />
+					{/if}
+				</div>
+				<div>
+					{(matchData.duration / 60) | 0}:{matchData.duration % 60 < 10
+						? 0
+						: ''}{matchData.duration % 60}
+				</div>
+			</div>
+			<div class="">
+				{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
+			</div>
+		</div>
+		<button class="flex items-center justify-center" on:click={() => (expanded = !expanded)}>
+			{dire.length + radiant.length}
+			{#if expanded}
+				<MaterialSymbolsExpandLessRounded />
+			{:else}
+				<MaterialSymbolsExpandMoreRounded />
+			{/if}
+		</button>
+	</div>
+	<div
+		style="display: {expanded ? 'inline' : 'none'}; max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease-out;"
+	>
+		<div class="flex flex-col items-center justify-center gap-1">
+			{#if radiant.length > 0}
+				{#if matchData.winner == 'radiant'}
+					<div class="bg-emerald-500 bg-opacity-15 py-1 transition-all" id="winner">
+						{#each radiant as player}
+							<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
+								<PlayerData {player} {matchData} />
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<div class="bg-red-500 bg-opacity-15 py-1 transition-all" id="loser">
+						{#each radiant as player}
+							<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
+								<PlayerData {player} {matchData} />
+							</div>
+						{/each}
+					</div>
+				{/if}
+			{/if}
+			{#if radiant.length > 0 && dire.length > 0}
+				<div class="flex items-center justify-center rounded-full">
+					<div
+						class="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm text-zinc-900"
+					>
+						vs
+					</div>
+				</div>
+			{/if}
+			{#if dire.length > 0}
+				{#if matchData.winner == 'dire'}
+					<div class="bg-emerald-500 bg-opacity-15 py-1 transition-all" id="winner">
+						{#each dire as player}
+							<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
+								<PlayerData {player} {matchData} />
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<div class="bg-red-500 bg-opacity-15 py-1 transition-all" id="loser">
+						{#each dire as player}
+							<div class="pl-1 hover:bg-black hover:bg-opacity-10 lg:pl-2">
+								<PlayerData {player} {matchData} />
+							</div>
+						{/each}
+					</div>
+				{/if}
+			{/if}
 		</div>
 	</div>
 </div>
