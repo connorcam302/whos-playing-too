@@ -85,7 +85,6 @@
 	});
 
 	const fetchMatches = async (pageNumber: number, playerId: number) => {
-		console.log(hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5, pageNumber, playerId);
 		matchBlocks = [];
 		let pageNumberFilter = '';
 		if (pageNumber > -1) {
@@ -202,17 +201,6 @@
 			updateMatchesData();
 		}
 	};
-
-	const handleSmurfChange = () => {
-		smurfs = !smurfs;
-		updateMatchesData();
-	};
-
-	$: handleHeroChange = () => {
-		console.log(hero);
-		updateMatchesData();
-	};
-
 	const updateMatchesData = async () => {
 		if (browser) {
 			matchBlocks = [];
@@ -240,8 +228,6 @@
 	};
 
 	$: hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5 && updateMatchesData();
-
-	$: console.log(hero);
 </script>
 
 <svelte:head>
