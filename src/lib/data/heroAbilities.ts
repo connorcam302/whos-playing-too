@@ -4,8 +4,8 @@ export const heroAbilities = {
             'antimage_mana_break',
             'antimage_blink',
             'antimage_counterspell',
-            'antimage_mana_overload',
             'antimage_counterspell_ally',
+            'antimage_persectur',
             'antimage_mana_void'
         ],
         talents: [
@@ -30,7 +30,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_antimage',
+                name: 'special_bonus_unique_antimage_8',
                 level: 3
             },
             {
@@ -49,7 +49,7 @@ export const heroAbilities = {
                 color: 'Purple',
                 gradient_id: 1,
                 title: "Magebane's Mirror",
-                description: 'Counterspell Ally reflects spells back to their caster.'
+                description: 'Counterspell Ally reflects amplified versions of spells back to their caster.'
             },
             {
                 name: 'antimage_mana_thirst',
@@ -313,8 +313,7 @@ export const heroAbilities = {
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'Cold Comfort',
-                description:
-                    "Every time Crystal Maiden casts a spell, allies close to her receive mana equal to a percentage of the spell's mana cost."
+                description: 'Increases Mana Regeneration Amplification to 25%.'
             }
         ]
     },
@@ -337,7 +336,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_lifesteal_20',
+                name: 'special_bonus_attack_range_75',
                 level: 2
             },
             {
@@ -387,7 +386,8 @@ export const heroAbilities = {
             'earthshaker_aftershock',
             'generic_hidden',
             'generic_hidden',
-            'earthshaker_echo_slam'
+            'earthshaker_echo_slam',
+            'earthshaker_spirit_cairn'
         ],
         talents: [
             {
@@ -439,7 +439,7 @@ export const heroAbilities = {
                 gradient_id: 1,
                 title: 'Slugger',
                 description:
-                    'Enemies killed with Enchant Totem are sent flying, dealing damage to enemies they hit.'
+                    "Enemies killed with Enchant Totem or Earthshaker's other abilities are sent flying, dealing damage to enemies they hit."
             }
         ]
     },
@@ -454,7 +454,7 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_unique_juggernaut_4',
+                name: 'special_bonus_unique_juggernaut_5',
                 level: 1
             },
             {
@@ -462,7 +462,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_juggernaut_5',
+                name: 'special_bonus_unique_juggernaut_healing_ward_heal',
                 level: 2
             },
             {
@@ -619,8 +619,7 @@ export const heroAbilities = {
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Lasting Presence',
-                description:
-                    'Presence of the Dark Lord temporarily reduces more armor after nearby enemy heroes are killed.'
+                description: 'Every hero kill increases max souls by 1 until Shadow Fiend dies.'
             },
             {
                 name: 'nevermore_shadowmire',
@@ -629,7 +628,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Shadowmire',
                 description:
-                    'Applies a stacking 8% movement speed and 8 attack speed debuff on enemies hit.'
+                    'Applies a stacking 5% movement speed and 5 attack speed debuff on enemies hit.'
             }
         ]
     },
@@ -704,7 +703,7 @@ export const heroAbilities = {
             'phantom_lancer_spirit_lance',
             'phantom_lancer_doppelwalk',
             'phantom_lancer_phantom_edge',
-            'generic_hidden',
+            'phantom_lancer_illusory_armaments',
             'generic_hidden',
             'phantom_lancer_juxtapose'
         ],
@@ -738,7 +737,7 @@ export const heroAbilities = {
                 level: 4
             },
             {
-                name: 'special_bonus_20_crit_2',
+                name: 'special_bonus_unique_phantom_lancer_illusory_armaments_dmg',
                 level: 4
             }
         ],
@@ -913,7 +912,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_razor_3',
+                name: 'special_bonus_strength_12',
                 level: 2
             },
             {
@@ -941,7 +940,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Thunderhead',
                 description:
-                    "While Eye of the Storm is active, strike chance is 2x as high and Lightning strikes all enemies within Eye of the Storm's radius. Does not apply to the same enemy twice from a single instance."
+                    "While Eye of the Storm is active, strike chance is 2x as high, strike cooldown is reduced by 2.5s, and Lightning strikes all enemies within Eye of the Storm's radius. Does not apply to the same enemy twice from a single instance."
             },
             {
                 name: 'razor_spellamp',
@@ -964,7 +963,7 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_unique_sand_king_2',
+                name: 'special_bonus_unique_sand_king_3',
                 level: 1
             },
             {
@@ -972,11 +971,11 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_sand_king_3',
+                name: 'special_bonus_unique_sand_king_2',
                 level: 2
             },
             {
-                name: 'special_bonus_unique_sand_king_scorpion_strike_damage',
+                name: 'special_bonus_unique_sand_king_8',
                 level: 2
             },
             {
@@ -1069,7 +1068,7 @@ export const heroAbilities = {
                 gradient_id: 1,
                 title: 'Shock Collar',
                 description:
-                    'Electric Vortex applies a debuff to the enemy that lasts for 5s that triggers an Overload Charge if they attack.'
+                    'Electric Vortex applies a debuff to the enemy that lasts for 5s making their next attack target themself and trigger an Overload Charge.'
             },
             {
                 name: 'storm_spirit_static_slide',
@@ -1259,7 +1258,7 @@ export const heroAbilities = {
                 color: 'Purple',
                 gradient_id: 2,
                 title: 'Avenging Missile',
-                description: 'Magic Missile deals +0.75 bonus damage for every creep the enemy has killed.'
+                description: 'Magic Missile deals 0.75 bonus damage for every creep the enemy has killed.'
             },
             {
                 name: 'vvengefulspirit_melee',
@@ -1317,11 +1316,11 @@ export const heroAbilities = {
         ],
         facets: [
             {
-                name: 'windrunner_tailwind',
-                icon: 'speed',
+                name: 'windrunner_focusfire',
+                icon: 'focus_fire',
                 color: 'Yellow',
                 gradient_id: 2,
-                title: 'Tailwind',
+                title: 'Focus Fire',
                 description:
                     'Windrun grants additional bonus movement speed to Windranger and nearby allies.'
             },
@@ -1331,8 +1330,7 @@ export const heroAbilities = {
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Whirlwind',
-                description:
-                    "Focus Fire no longer requires a target, instead firing at random enemies within Windranger's attack range. Fires a fixed number of attacks per second, and can only hit the same enemy every 4 shots. Prioritizes Heroes."
+                description: 'Focus Fire randomly attacks enemies within range.'
             }
         ]
     },
@@ -1405,7 +1403,7 @@ export const heroAbilities = {
             'kunkka_torrent',
             'kunkka_tidebringer',
             'kunkka_x_marks_the_spot',
-            'kunkka_torrent_storm',
+            'kunkka_admirals_rum',
             'kunkka_tidal_wave',
             'kunkka_ghostship',
             'kunkka_return'
@@ -1436,7 +1434,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_kunkka_3',
+                name: 'special_bonus_spell_aoe_100',
                 level: 4
             },
             {
@@ -1470,7 +1468,7 @@ export const heroAbilities = {
             'lina_light_strike_array',
             'lina_fiery_soul',
             'lina_flame_cloak',
-            'generic_hidden',
+            'lina_combustion',
             'lina_laguna_blade'
         ],
         talents: [
@@ -1676,11 +1674,11 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_shadow_shaman_2',
+                name: 'special_bonus_unique_shadow_shaman_7',
                 level: 2
             },
             {
-                name: 'special_bonus_unique_shadow_shaman_7',
+                name: 'special_bonus_unique_shadow_shaman_2',
                 level: 3
             },
             {
@@ -1712,7 +1710,7 @@ export const heroAbilities = {
                 gradient_id: 1,
                 title: 'Massive Serpent Ward',
                 description:
-                    'Summons a single massive Serpent Ward with 10x damage and bounty values and 7.5x health.'
+                    'Summons a single massive Serpent Ward with 10x damage and bounty values and 10x health.'
             }
         ]
     },
@@ -1971,7 +1969,7 @@ export const heroAbilities = {
                 color: 'Purple',
                 gradient_id: 2,
                 title: 'Exterminator',
-                description: 'Tricks of the Trade has 4x Agility Bonus when attacking non-hero units.'
+                description: 'Tricks of the Trade has 4.5x Agility Bonus when attacking non-hero units.'
             }
         ]
     },
@@ -2025,7 +2023,7 @@ export const heroAbilities = {
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Event Horizon',
-                description: 'Units in a 600 radius moving away from Enigma have a 15% movespeed penalty.'
+                description: 'Units in a 600 radius moving away from Enigma have a 9% movespeed penalty.'
             },
             {
                 name: 'enigma_fragment',
@@ -2061,7 +2059,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_tinker_4',
+                name: 'special_bonus_unique_tinker',
                 level: 2
             },
             {
@@ -2073,7 +2071,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_tinker',
+                name: 'special_bonus_unique_tinker_4',
                 level: 4
             },
             {
@@ -2098,7 +2096,7 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: 'Translocator',
                 description:
-                    'When a Self-Defense Matrix barrier on Tinker is fully absorbed, he blinks in a random forward direction.\n\nDISPEL TYPE: Strong Dispel'
+                    'When a Self-Defense Matrix barrier on Tinker is fully absorbed, he blinks in a random forward direction.\n\nDISPEL TYPE: Basic Dispel'
             }
         ]
     },
@@ -2133,7 +2131,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_attack_range_100',
+                name: 'special_bonus_unique_sniper_shrapnel_damage',
                 level: 3
             },
             {
@@ -2223,7 +2221,7 @@ export const heroAbilities = {
                 gradient_id: 3,
                 title: 'Rapid Decay',
                 description:
-                    'Necrophos gains movement speed equal to 25% of movement speed lost by enemies.'
+                    'Necrophos gains movement speed equal to 40% of movement speed lost by enemies.'
             }
         ]
     },
@@ -2299,7 +2297,7 @@ export const heroAbilities = {
             'beastmaster_inner_beast',
             'beastmaster_drums_of_slom',
             'beastmaster_primal_roar',
-            'generic_hidden'
+            'beastmaster_rugged'
         ],
         talents: [
             {
@@ -2367,7 +2365,7 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_attack_damage_20',
+                name: 'special_bonus_unique_queen_of_pain_1',
                 level: 1
             },
             {
@@ -2379,7 +2377,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_queen_of_pain_1',
+                name: 'special_bonus_attack_damage_30',
                 level: 2
             },
             {
@@ -2425,7 +2423,7 @@ export const heroAbilities = {
             'venomancer_venomous_gale',
             'venomancer_poison_sting',
             'venomancer_plague_ward',
-            'generic_hidden',
+            'venomancer_sepsis',
             'generic_hidden',
             'venomancer_noxious_plague'
         ],
@@ -2480,7 +2478,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Plague Carrier',
                 description:
-                    'Plague Wards can be attached to allies and have 3 charges. Attached wards give only 20% of their gold bounty when killed.'
+                    'Plague Wards can be attached to allies and have 3 charges. Attached wards health depends on the max health of the carrier and give only 20% of their gold bounty when killed.'
             }
         ]
     },
@@ -2491,7 +2489,7 @@ export const heroAbilities = {
             'faceless_void_time_lock',
             'faceless_void_time_walk_reverse',
             'faceless_void_distortion_field',
-            'faceless_void_chronosphere'
+            'generic_hidden'
         ],
         talents: [
             {
@@ -2529,11 +2527,11 @@ export const heroAbilities = {
         ],
         facets: [
             {
-                name: 'faceless_void_temporal_impunity',
-                icon: 'armor',
+                name: 'faceless_void_chronosphere',
+                icon: 'area_of_effect',
                 color: 'Green',
                 gradient_id: 0,
-                title: 'Temporal Impunity',
+                title: 'Chronosphere',
                 description: 'Prevents all damage for a short duration after casting Time Walk.'
             },
             {
@@ -2543,7 +2541,7 @@ export const heroAbilities = {
                 gradient_id: 1,
                 title: 'Time Zone',
                 description:
-                    'Chronosphere is replaced by an effect that dramatically slows down enemies and speeds up allies in an area.'
+                    'Faceless Void can cast Time Zone , dramatically slowing down enemies and speeding up allies in an area.'
             }
         ]
     },
@@ -2629,7 +2627,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_hp_250',
+                name: 'special_bonus_unique_death_prophet_silence_aoe',
                 level: 2
             },
             {
@@ -2637,7 +2635,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_death_prophet_crypt_swarm_damage',
+                name: 'special_bonus_hp_400',
                 level: 3
             },
             {
@@ -2668,7 +2666,16 @@ export const heroAbilities = {
                 color: 'Green',
                 gradient_id: 1,
                 title: 'Spirit Collector',
-                description: "Other heroes' deaths empower your next Exorcism."
+                description: 'Hero deaths empower your next Exorcism.'
+            },
+            {
+                name: 'death_prophet_delayed_damage',
+                icon: 'healing',
+                color: 'Red',
+                gradient_id: 1,
+                title: 'Mourning Ritual',
+                description:
+                    'Death Prophet delays a percentage of incoming damage, taking the damage in even intervals over a short duration.'
             }
         ]
     },
@@ -2747,19 +2754,19 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_unique_pugna_decrepify_ally_movespeed',
-                level: 1
-            },
-            {
-                name: 'special_bonus_hp_200',
-                level: 1
-            },
-            {
                 name: 'special_bonus_unique_pugna_4',
-                level: 2
+                level: 1
             },
             {
                 name: 'special_bonus_unique_pugna_6',
+                level: 1
+            },
+            {
+                name: 'special_bonus_unique_pugna_decrepify_ally_movespeed',
+                level: 2
+            },
+            {
+                name: 'special_bonus_hp_350',
                 level: 2
             },
             {
@@ -2795,7 +2802,7 @@ export const heroAbilities = {
                 color: 'Purple',
                 gradient_id: 2,
                 title: 'Rewards of Ruin',
-                description: 'Pugna receives 1.5% spell amplification per destroyed enemy tower.'
+                description: 'Pugna receives 1.25% spell amplification per destroyed tower.'
             }
         ]
     },
@@ -2806,7 +2813,8 @@ export const heroAbilities = {
             'templar_assassin_psi_blades',
             'templar_assassin_trap',
             'templar_assassin_trap_teleport',
-            'templar_assassin_psionic_trap'
+            'templar_assassin_psionic_trap',
+            'templar_assassin_third_eye'
         ],
         talents: [
             {
@@ -2845,11 +2853,12 @@ export const heroAbilities = {
         facets: [
             {
                 name: 'templar_assassin_voidblades',
-                icon: 'slow',
+                icon: 'ricochet',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Voidblades',
-                description: 'Enemies hit by Psi Blades split damage are slowed.'
+                description:
+                    'Meld bonus damage and armor reductions are applied to all enemies in the Psi Blades spill range'
             },
             {
                 name: 'templar_assassin_refractor',
@@ -2868,7 +2877,7 @@ export const heroAbilities = {
             'viper_nethertoxin',
             'viper_corrosive_skin',
             'viper_nose_dive',
-            'generic_hidden',
+            'viper_predator',
             'viper_viper_strike'
         ],
         talents: [
@@ -2928,12 +2937,12 @@ export const heroAbilities = {
     npc_dota_hero_luna: {
         abilities: [
             'luna_lucent_beam',
+            'luna_lunar_orbit',
             'luna_moon_glaive',
             'luna_lunar_blessing',
             'generic_hidden',
-            'generic_hidden',
             'luna_eclipse',
-            'luna_selemenes_favor'
+            'generic_hidden'
         ],
         talents: [
             {
@@ -2971,12 +2980,12 @@ export const heroAbilities = {
         ],
         facets: [
             {
-                name: 'luna_lunar_orbit',
+                name: 'luna_moonshield',
                 icon: 'armor',
                 color: 'Gray',
                 gradient_id: 3,
-                title: 'Lunar Orbit',
-                description: 'Rotating glaives provide damage reduction while active.'
+                title: 'Moonshield',
+                description: 'Lunar Orbit provide damage reduction while active.'
             },
             {
                 name: 'luna_moonstorm',
@@ -2984,8 +2993,7 @@ export const heroAbilities = {
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Moonstorm',
-                description:
-                    'Grants Luna an attack damage bonus buff every time an enemy hero is hit by Lucent Beam. Lucent Beams created by Eclipse grant 50% of the damage amount.'
+                description: 'Rotating glaives provide damage reduction while active.'
             }
         ]
     },
@@ -3178,7 +3186,7 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: 'Hookup',
                 description:
-                    'When hitting an ally, Hookshot has a larger impact radius, grants the allies a physical damage barrier, equal to the hookshot damage, and partially refunds its cooldown.'
+                    'When hitting an ally, Hookshot has a larger impact radius, grants Clockwerk and the hit allies a physical damage barrier, equal to the hookshot damage, and partially refunds its cooldown.'
             },
             {
                 name: 'rattletrap_expanded_armature',
@@ -3248,7 +3256,8 @@ export const heroAbilities = {
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Misanthropy',
-                description: 'Diabolic Edict explosion rate increased but it no longer damages buildings.'
+                description:
+                    'Diabolic Edict hits enemies with an increased explosion rate but it no longer damages buildings.'
             }
         ]
     },
@@ -3317,7 +3326,7 @@ export const heroAbilities = {
     },
     npc_dota_hero_life_stealer: {
         abilities: [
-            'life_stealer_rage',
+            'generic_hidden',
             'life_stealer_open_wounds',
             'life_stealer_ghoul_frenzy',
             'life_stealer_feast',
@@ -3361,12 +3370,13 @@ export const heroAbilities = {
         ],
         facets: [
             {
-                name: 'life_stealer_maxhp_gain',
-                icon: 'armor',
+                name: 'life_stealer_rage',
+                icon: 'lifestealer_rage',
                 color: 'Yellow',
                 gradient_id: 3,
-                title: 'Corpse Eater',
-                description: 'Lifestealer gains 2 HP whenever he kills a unit.'
+                title: 'Rage',
+                description:
+                    'Lifestealer can cast Rage , becoming Debuff Immune and increasing magic resistance.'
             },
             {
                 name: 'life_stealer_rage_dispell',
@@ -3375,7 +3385,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Unfettered',
                 description:
-                    'Rage gets replaced by an ability allowing Lifestealer to dispel himself and become more resilient even when stunned.'
+                    'Lifestealer can cast Unfettered to dispel himself and become more resilient. Can cast while stunned.'
             }
         ]
     },
@@ -3516,11 +3526,11 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_unique_omniknight_6',
+                name: 'special_bonus_unique_omniknight_guardian_angel_duration',
                 level: 1
             },
             {
-                name: 'special_bonus_attack_base_damage_50',
+                name: 'special_bonus_attack_base_damage_35',
                 level: 1
             },
             {
@@ -3536,7 +3546,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_omniknight_3',
+                name: 'special_bonus_unique_omniknight_6',
                 level: 3
             },
             {
@@ -3556,7 +3566,7 @@ export const heroAbilities = {
                 gradient_id: 3,
                 title: 'Omnipresent',
                 description:
-                    "Omniknight's damage to a target is increased by 1% for every 0.4s they spend affected by the aura."
+                    "Omniknight's damage to a target is increased by 1% for every 0.3s they spend affected by the aura."
             },
             {
                 name: 'omniknight_dmgheals',
@@ -3576,7 +3586,7 @@ export const heroAbilities = {
             'enchantress_bunny_hop',
             'enchantress_little_friends',
             'enchantress_untouchable',
-            'enchantress_forest_freebie'
+            'enchantress_rabblerouser'
         ],
         talents: [
             {
@@ -3692,6 +3702,15 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: 'Nothl Transfusion',
                 description: 'Life Break also heals friendly units in a radius around the target.'
+            },
+            {
+                name: 'huskar_nothl_conflagration',
+                icon: 'damage',
+                color: 'Yellow',
+                gradient_id: 0,
+                title: 'Incendiary',
+                description:
+                    'Burning Spears also burns enemies for a percentage of their max health. Costs Max Health instead of Current Health. Reduces burn duration.'
             }
         ]
     },
@@ -3809,7 +3828,8 @@ export const heroAbilities = {
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Necrotic Webs',
-                description: 'Reduces health regeneration of enemies on webs.'
+                description:
+                    'Reduces health regeneration of enemies on webs that are in the same web network as Broodmother.'
             },
             {
                 name: 'broodmother_feeding_frenzy',
@@ -3891,7 +3911,8 @@ export const heroAbilities = {
             'weaver_geminate_attack',
             'generic_hidden',
             'generic_hidden',
-            'weaver_time_lapse'
+            'weaver_time_lapse',
+            'weaver_rewoven'
         ],
         talents: [
             {
@@ -3899,7 +3920,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_strength_8',
+                name: 'special_bonus_strength_7',
                 level: 1
             },
             {
@@ -3957,7 +3978,7 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_attack_range_200',
+                name: 'special_bonus_attack_range_150',
                 level: 1
             },
             {
@@ -4174,7 +4195,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_hp_regen_4',
+                name: 'special_bonus_hp_regen_5',
                 level: 1
             },
             {
@@ -4284,6 +4305,15 @@ export const heroAbilities = {
                 title: "Devil's Bargain",
                 description:
                     'Doom can sell items for %bonus_item_sellback_percent% of their value, but his buyback costs are increased by %bonus_buyback_penalty%%.'
+            },
+            {
+                name: 'doom_bringer_impending_doom',
+                icon: 'cooldown',
+                color: 'Gray',
+                gradient_id: 0,
+                title: 'Impending Doom',
+                description:
+                    "Every 6.66 minutes, Doom's duration is increased by 0.66s. Doom DPS decreased."
             }
         ]
     },
@@ -4346,7 +4376,8 @@ export const heroAbilities = {
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Exposure',
-                description: 'Cold Feet applies in an AoE, depending on the current level of Ice Blast.'
+                description:
+                    'Cold Feet becomes an AoE point targeted ability, with the radius depending on the current level of Ice Blast.'
             }
         ]
     },
@@ -4408,7 +4439,7 @@ export const heroAbilities = {
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Bear Down',
-                description: 'Debuffs inflicted by Ursa last 20% longer.'
+                description: 'Debuffs inflicted by Ursa last longer.'
             }
         ]
     },
@@ -4704,7 +4735,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_silencer_4',
+                name: 'special_bonus_unique_silencer_arcane_curse_duration',
                 level: 2
             },
             {
@@ -4712,7 +4743,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_silencer_arcane_curse_undispellable',
+                name: 'special_bonus_unique_silencer_4',
                 level: 3
             },
             {
@@ -4852,7 +4883,7 @@ export const heroAbilities = {
         facets: [
             {
                 name: 'lycan_pack_leader',
-                icon: 'wolf',
+                icon: 'summons',
                 color: 'Gray',
                 gradient_id: 1,
                 title: 'Pack Leader',
@@ -4867,6 +4898,14 @@ export const heroAbilities = {
                 title: 'Spirit Wolves',
                 description:
                     'Summoned Wolves are invulnerable and uncontrollable spirits that do not attack, but provide health and damage bonuses to Lycan.'
+            },
+            {
+                name: 'lycan_alpha_wolves',
+                icon: 'wolf',
+                color: 'Green',
+                gradient_id: 2,
+                title: 'Alpha Wolves',
+                description: 'Max level decreased to -1.'
             }
         ]
     },
@@ -4877,7 +4916,8 @@ export const heroAbilities = {
             'brewmaster_drunken_brawler',
             'brewmaster_primal_companion',
             'generic_hidden',
-            'brewmaster_primal_split'
+            'brewmaster_primal_split',
+            'brewmaster_belligerent'
         ],
         talents: [
             {
@@ -4986,7 +5026,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Promulgate',
                 description:
-                    'If the target is an enemy, they lose 15% of their health, regaining half of it after the effect is lifted. If the target is an ally, increases their health by that amount instead.'
+                    'If the target is an enemy, they lose 20% of their health, regaining half of it after the effect is lifted. If the target is an ally, increases their health by that amount instead.'
             },
             {
                 name: 'shadow_demon_facet_soul_mastery',
@@ -5003,7 +5043,7 @@ export const heroAbilities = {
             'lone_druid_spirit_bear',
             'lone_druid_spirit_link',
             'lone_druid_savage_roar',
-            'generic_hidden',
+            'lone_druid_gift_bearer',
             'generic_hidden',
             'lone_druid_true_form'
         ],
@@ -5059,6 +5099,14 @@ export const heroAbilities = {
                 title: 'Unbearable',
                 description:
                     'Lone Druid morphs his Spirit Bear into an enraged form that gains bonus armor, attack speed, demolish damage, and a 75% cooldown on Entangling Claws.'
+            },
+            {
+                name: 'lone_druid_bear_necessities',
+                icon: 'item',
+                color: 'Gray',
+                gradient_id: 1,
+                title: 'Bear Necessities',
+                description: "Lone Druid's items are more powerful and his inventory is smaller."
             }
         ]
     },
@@ -5085,7 +5133,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_strength_12',
+                name: 'special_bonus_strength_10',
                 level: 2
             },
             {
@@ -5122,7 +5170,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Irrationality',
                 description:
-                    'Reality Rift has equal chances of applying Break, Disarm, or Nothing for 50% of the base debuff duration in addition to its normal effects.'
+                    'Reality Rift has equal chances of applying Break, Disarm, or Silence for 50% of the base debuff duration in addition to its normal effects.'
             }
         ]
     },
@@ -5552,7 +5600,7 @@ export const heroAbilities = {
                 level: 4
             },
             {
-                name: 'special_bonus_unique_nyx_vendetta_cd_manacost',
+                name: 'special_bonus_agility_80',
                 level: 4
             }
         ],
@@ -5563,7 +5611,7 @@ export const heroAbilities = {
                 color: 'Blue',
                 gradient_id: 3,
                 title: 'Mana Burn',
-                description: "Nyx's damage from spells and items burns enemies' mana."
+                description: "Nyx Assassin's ability damage burns enemies' mana."
             },
             {
                 name: 'nyx_assassin_scuttle',
@@ -5779,7 +5827,8 @@ export const heroAbilities = {
             'visage_stone_form_self_cast',
             'visage_silent_as_the_grave',
             'visage_summon_familiars',
-            'visage_summon_familiars_stone_form'
+            'visage_summon_familiars_stone_form',
+            'visage_lurker'
         ],
         talents: [
             {
@@ -5833,6 +5882,15 @@ export const heroAbilities = {
                 title: 'Faithful Followers',
                 description:
                     "Familiars will automatically attack the target Visage tried to attack last, and will return if that target is out of Visage's attack range, or Visage issues the cancel current action or hold position commands.\n\nThe ability can be toggled to the Auto-Cast state to command the Familiars to return to Visage and not leave his side until the state has been disabled."
+            },
+            {
+                name: 'visage_gold_assumption',
+                icon: 'gold',
+                color: 'Yellow',
+                gradient_id: 0,
+                title: 'Death Toll',
+                description:
+                    'Soul Assumption kills give 35 gold per soul charge, up to 105 140 175 210 gold. Reduced gold from creeps. Enemy heroes killed within 3s of being affected by Soul Assumption also give gold.'
             }
         ]
     },
@@ -5903,9 +5961,9 @@ export const heroAbilities = {
         abilities: [
             'medusa_split_shot',
             'medusa_mystic_snake',
-            'medusa_mana_shield',
+            'medusa_gorgon_grasp',
             'medusa_cold_blooded',
-            'generic_hidden',
+            'medusa_mana_shield',
             'medusa_stone_gaze'
         ],
         talents: [
@@ -5934,7 +5992,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_medusa_6',
+                name: 'special_bonus_special_bonus_unique_medusa_gorgons_grasp_volleys',
                 level: 4
             },
             {
@@ -5953,23 +6011,23 @@ export const heroAbilities = {
                     'Mystic Snakes returning to Medusa empower her next 3 attacks with +1 additional damage for each 6 mana restored. Lasts up to 5s.'
             },
             {
-                name: 'medusa_mana_pact',
-                icon: 'mana',
-                color: 'Blue',
-                gradient_id: 1,
-                title: 'Mana Pact',
+                name: 'medusa_slow_attacks',
+                icon: 'slow',
+                color: 'Yellow',
+                gradient_id: 2,
+                title: 'Venomous Volley',
                 description:
-                    'Mana Shield can be activated, draining 3% of max mana per second to gain 3% attack speed bonus per second, up to 30%. Maximum effect reached after 10s. Buff lasts 15s and Cooldown is 35s.'
+                    'Mana Shield can be activated, draining 3% of max mana per second to gain 3.5% attack speed bonus per second, up to 35%. Maximum effect reached after 10s. Buff lasts 15s and Cooldown is 35s.'
             }
         ]
     },
     npc_dota_hero_troll_warlord: {
         abilities: [
-            'troll_warlord_berserkers_rage',
+            'troll_warlord_switch_stance',
             'troll_warlord_whirling_axes_ranged',
             'troll_warlord_whirling_axes_melee',
             'troll_warlord_fervor',
-            'generic_hidden',
+            'troll_warlord_berserkers_rage',
             'troll_warlord_battle_trance'
         ],
         talents: [
@@ -6134,11 +6192,11 @@ export const heroAbilities = {
         ],
         facets: [
             {
-                name: 'magnataur_run_through',
-                icon: 'movement',
+                name: 'magnataur_reverse_polarity',
+                icon: 'vortex_in',
                 color: 'Gray',
                 gradient_id: 3,
-                title: 'Run Through',
+                title: 'Reverse Polarity',
                 description: 'Deals additional damage when skewering enemies into trees or cliffs.'
             },
             {
@@ -6147,8 +6205,7 @@ export const heroAbilities = {
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Reverse Reverse Polarity',
-                description:
-                    'Reverse Polarity pushes enemies away all around Magnus instead of pulling enemies that are in front of him.'
+                description: 'Reverse Polarity pushes enemies away all around Magnus.'
             }
         ]
     },
@@ -6225,7 +6282,8 @@ export const heroAbilities = {
             'bristleback_bristleback',
             'bristleback_hairball',
             'generic_hidden',
-            'bristleback_warpath'
+            'bristleback_warpath',
+            'bristleback_prickly'
         ],
         talents: [
             {
@@ -6265,7 +6323,7 @@ export const heroAbilities = {
             {
                 name: 'bristleback_berserk',
                 icon: 'damage',
-                color: 'Red',
+                color: 'Yellow',
                 gradient_id: 0,
                 title: 'Berserk',
                 description: 'Warpath grants scaling Attack Speed instead of Damage.'
@@ -6274,10 +6332,19 @@ export const heroAbilities = {
                 name: 'bristleback_snot_rocket',
                 icon: 'snot',
                 color: 'Green',
-                gradient_id: 3,
+                gradient_id: 0,
                 title: 'Snot Rocket',
                 description:
                     'Instead of releasing Quill Spray from taking damage, he instead launches Nasal Goo of the current level at all nearby enemies.'
+            },
+            {
+                name: 'bristleback_seeing_red',
+                icon: 'no_vision',
+                color: 'Red',
+                gradient_id: 0,
+                title: 'Seeing Red',
+                description:
+                    "Warpath can be activated to grant bonus attack damage and movement speed for a short duration. While Seeing Red, Bristleback's vision is reduced to a narrow cone and he does not share vision with his allies."
             }
         ]
     },
@@ -6369,7 +6436,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_skywrath_arcane_bolt_lifesteal',
+                name: 'special_bonus_unique_skywrath_concussive_shot_slow',
                 level: 2
             },
             {
@@ -6414,7 +6481,7 @@ export const heroAbilities = {
             'abaddon_death_coil',
             'abaddon_aphotic_shield',
             'abaddon_frostmourne',
-            'abaddon_font_of_avernus',
+            'abaddon_withering_mist',
             'generic_hidden',
             'abaddon_borrowed_time'
         ],
@@ -6480,7 +6547,8 @@ export const heroAbilities = {
             'elder_titan_move_spirit',
             'generic_hidden',
             'elder_titan_earth_splitter',
-            'elder_titan_return_spirit'
+            'elder_titan_return_spirit',
+            'elder_titan_tip_the_scales'
         ],
         talents: [
             {
@@ -6542,7 +6610,7 @@ export const heroAbilities = {
             'legion_commander_overwhelming_odds',
             'legion_commander_press_the_attack',
             'legion_commander_moment_of_courage',
-            'generic_hidden',
+            'legion_commander_outfight_them',
             'generic_hidden',
             'legion_commander_duel'
         ],
@@ -6607,7 +6675,7 @@ export const heroAbilities = {
             'ember_spirit_sleight_of_fist',
             'ember_spirit_flame_guard',
             'ember_spirit_activate_fire_remnant',
-            'generic_hidden',
+            'ember_spirit_immolation',
             'ember_spirit_fire_remnant'
         ],
         talents: [
@@ -6652,7 +6720,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Double Impact',
                 description:
-                    'When Sleight of Fist connects with 2 or more enemies, the enemy closest to Ember Spirit will be attacked a second time. Damage for the second attack is reduced by 40%.'
+                    'When Sleight of Fist connects with 2 or more enemies, the enemy closest to Ember Spirit will be attacked a second time. Damage for the second attack is reduced by 50%.'
             },
             {
                 name: 'ember_spirit_chain_gang',
@@ -6725,6 +6793,15 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: 'Stepping Stone',
                 description: 'Has a fixed cooldown instead of charges.'
+            },
+            {
+                name: 'earth_spirit_ready_to_roll',
+                icon: 'spinning',
+                color: 'Yellow',
+                gradient_id: 1,
+                title: 'Ready to Roll',
+                description:
+                    'Rolling over an allied hero grants the allied hero 15% bonus movespeed for 4s. If he rolls over an allied hero, Earth Spirit will travel further and faster, and stun enemies for longer,'
             }
         ]
     },
@@ -6846,7 +6923,7 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: 'Dying Light',
                 description:
-                    'Phoenix deals 4.5% of his missing health as magic damage to all enemies in a 450 radius every second.'
+                    'Phoenix deals 4.5% of his missing health as magic damage to all enemies in a 400 radius every second.'
             },
             {
                 name: 'phoenix_hotspot',
@@ -6917,7 +6994,7 @@ export const heroAbilities = {
                 color: 'Green',
                 gradient_id: 1,
                 title: 'Clairvoyant Cure',
-                description: 'Heal amplification increased by 1% per hero level.'
+                description: 'Heal amplification increased by 0.75% per hero level.'
             }
         ]
     },
@@ -6971,7 +7048,8 @@ export const heroAbilities = {
                 color: 'Gray',
                 gradient_id: 0,
                 title: "Squee's Scope",
-                description: 'Techies gains 1 attack range for each point of attack speed.'
+                description:
+                    'Techies gains 1 attack range and attack projectile speed for each point of attack speed.'
             },
             {
                 name: 'techies_spleens_secret_sauce',
@@ -7092,7 +7170,7 @@ export const heroAbilities = {
                 level: 4
             },
             {
-                name: 'special_bonus_unique_arc_warden_7',
+                name: 'special_bonus_unique_arc_warden_flux_silences',
                 level: 4
             }
         ],
@@ -7120,7 +7198,7 @@ export const heroAbilities = {
             'abyssal_underlord_firestorm',
             'abyssal_underlord_pit_of_malice',
             'abyssal_underlord_atrophy_aura',
-            'generic_hidden',
+            'abyssal_underlord_raid_boss',
             'generic_hidden',
             'abyssal_underlord_dark_portal'
         ],
@@ -7231,7 +7309,7 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: "Wukong's Faithful",
                 description:
-                    "Monkey King's soldiers do not disperse unless he spends more than 3 seconds outside the area."
+                    "Monkey King's soldiers last longer and do not disperse unless he spends more than 3 seconds outside the area."
             },
             {
                 name: 'monkey_king_simian_stride',
@@ -7239,7 +7317,7 @@ export const heroAbilities = {
                 color: 'Green',
                 gradient_id: 4,
                 title: 'Simian Stride',
-                description: 'Tree Dance has no cooldown while Monkey King is at full health.'
+                description: 'Tree Dance has no cooldown while Monkey King is above 90% health.'
             }
         ]
     },
@@ -7367,7 +7445,7 @@ export const heroAbilities = {
                 color: 'Green',
                 gradient_id: 4,
                 title: 'Thorny Thicket',
-                description: 'Creates extra brambles. These brambles last 6s.'
+                description: 'Creates extra brambles. These brambles last 4s.'
             }
         ]
     },
@@ -7486,7 +7564,7 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: 'Victory Feast',
                 description:
-                    'If Mars is in the Arena when an enemy dies inside of it, he restores 20% of his max health and mana and gets a 20% attack damage buff for 15s.'
+                    'If Mars is in the Arena when an enemy dies inside of it, he restores 30% of his max health and mana and gets a 20% attack damage buff for 15s.'
             },
             {
                 name: 'mars_arena',
@@ -7549,16 +7627,17 @@ export const heroAbilities = {
                 color: 'Purple',
                 gradient_id: 1,
                 title: 'Sanctuary',
-                description: 'Resonant Pulse creates an all damage barrier.'
+                description:
+                    'Resonant Pulse creates a larger all damage barrier instead of a physical barrier.'
             },
             {
-                name: 'void_spirit_phys_barrier',
-                icon: 'nuke',
+                name: 'void_spirit_aether_artifice',
+                icon: 'illusion',
                 color: 'Gray',
                 gradient_id: 3,
-                title: 'Symmetry',
+                title: 'Call of the Void',
                 description:
-                    'Void Spirit gains a physical damage barrier when dealing magic damage to enemy heroes.'
+                    'Upon exiting Dissimilate, Aether Remnants are created at the 3 portals furthest from Void Spirit.'
             }
         ]
     },
@@ -7660,7 +7739,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_corruption_4',
+                name: 'special_bonus_corruption_3',
                 level: 3
             },
             {
@@ -7881,7 +7960,8 @@ export const heroAbilities = {
                 color: 'Yellow',
                 gradient_id: 3,
                 title: 'Ferocity',
-                description: 'When activated, Uproar provides 10% increased area of effect per stack.'
+                description:
+                    'Each hit increases increased the area of effect of all abilities and items by 20% per hit. Buff lasts 10 seconds.'
             }
         ]
     },
@@ -7948,7 +8028,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Ofrenda',
                 description:
-                    'Muerta can place an Ofrenda on the map to respawn there instead of the fountain.'
+                    'Muerta can place a beneficial Ofrenda on the map to respawn there instead of the fountain.'
             }
         ]
     }
