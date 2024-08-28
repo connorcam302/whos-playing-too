@@ -332,6 +332,8 @@
 			}
 		}
 	};
+
+	console.log(matchDetails);
 </script>
 
 <div class="px-4">
