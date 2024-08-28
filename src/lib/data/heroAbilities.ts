@@ -44,21 +44,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'antimage_magebanes_mirror',
                 icon: 'ricochet',
                 color: 'Purple',
                 gradient_id: 1,
                 title: "Magebane's Mirror",
-                description: 'Counterspell Ally reflects amplified versions of spells back to their caster.'
+                description:
+                    'Counterspell and Counterspell Ally reflect spells back at their caster instead of just blocking.'
             },
             {
+                id: 1,
                 name: 'antimage_mana_thirst',
                 icon: 'mana',
                 color: 'Blue',
                 gradient_id: 3,
                 title: 'Mana Thirst',
-                description:
-                    "Passively grants attack damage when an enemy hero's mana falls below 60%, with the bonuses increasing as their mana falls further.\n\n If the enemies mana falls below 15% Anti-Mage gains the maximum amount of damage, as well as vision and True Sight of that hero. Applies to enemy heroes within 2500 range. Bonuses stack per hero."
+                description: 'Anti-Mage gains damage when his enemies are at low mana.'
             }
         ]
     },
@@ -86,7 +88,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_axe_4',
+                name: 'special_bonus_unique_axe_7',
                 level: 2
             },
             {
@@ -94,7 +96,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_axe_7',
+                name: 'special_bonus_unique_axe_4',
                 level: 3
             },
             {
@@ -108,21 +110,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'axe_one_man_army',
                 icon: 'strength',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'One Man Army',
-                description: "Axe gains Strength based on his armor as long as he's away from his allies."
+                description: "Axe gains Strength based on his armor as long as he's away from his allies.",
+                abilities: ['axe_one_man_army']
             },
             {
+                id: 1,
                 name: 'axe_call_out',
                 icon: 'armor',
                 color: 'Red',
                 gradient_id: 2,
                 title: 'Call Out',
                 description:
-                    "Berserker's Call gives Axe increased bonus armor and increases the attack speed of the affected units."
+                    "Berserker's Call gives attacking enemies more attack speed and Axe more armor for the duration."
             }
         ]
     },
@@ -173,6 +178,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'bane_dream_stalker',
                 icon: 'damage',
                 color: 'Gray',
@@ -181,6 +187,7 @@ export const heroAbilities = {
                 description: 'Bane has increased attack speed when attacking Nightmared units.'
             },
             {
+                id: 1,
                 name: 'bane_sleepwalk',
                 icon: 'movement',
                 color: 'Purple',
@@ -235,6 +242,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'bloodseeker_arterial_spray',
                 icon: 'movement',
                 color: 'Red',
@@ -243,13 +251,13 @@ export const heroAbilities = {
                 description: 'Ruptured units are pushed when attacked by Bloodseeker.'
             },
             {
+                id: 1,
                 name: 'bloodseeker_bloodrush',
                 icon: 'speed',
                 color: 'Gray',
                 gradient_id: 1,
                 title: 'Bloodrush',
-                description:
-                    'Can be activated to grant bonus movement speed for a short duration. Grants no passive movement speed while on cooldown. Cannot be cast when all enemy heroes are at full health.'
+                description: 'Bloodseeker can supercharge the movement speed from Thirst temporarily.'
             }
         ]
     },
@@ -299,6 +307,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'crystal_maiden_frozen_expanse',
                 icon: 'area_of_effect',
                 color: 'Gray',
@@ -308,12 +317,14 @@ export const heroAbilities = {
                     "Freezing Field also passively increases Crystal Maiden's cast range and area of effect."
             },
             {
+                id: 1,
                 name: 'crystal_maiden_cold_comfort',
                 icon: 'mana',
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'Cold Comfort',
-                description: 'Increases Mana Regeneration Amplification to 25%.'
+                description:
+                    "Crystal Maiden restores her allies' Mana when casting spells. Increases innate Mana Regen Amplification."
             }
         ]
     },
@@ -362,14 +373,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'drow_ranger_high_ground',
                 icon: 'damage',
                 color: 'Gray',
                 gradient_id: 1,
                 title: 'Vantage Point',
-                description: 'Drow deals 20% more damage when attacking from high ground.'
+                description: 'Drow deals 20% more damage when attacking from high ground.',
+                abilities: ['drow_ranger_vantage_point']
             },
             {
+                id: 1,
                 name: 'drow_ranger_sidestep',
                 icon: 'multi_arrow',
                 color: 'Blue',
@@ -425,6 +439,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'earthshaker_tectonic_buildup',
                 icon: 'area_of_effect',
                 color: 'Red',
@@ -433,6 +448,7 @@ export const heroAbilities = {
                 description: 'Aftershock radius is increased by 50 every 10 hero levels.'
             },
             {
+                id: 1,
                 name: 'earthshaker_slugger',
                 icon: 'movement',
                 color: 'Yellow',
@@ -488,6 +504,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'juggernaut_bladestorm',
                 icon: 'spinning',
                 color: 'Yellow',
@@ -496,13 +513,15 @@ export const heroAbilities = {
                 description: 'Blade Fury can now critically strike based on the level of Blade Dance.'
             },
             {
+                id: 1,
                 name: 'juggernaut_agigain',
                 icon: 'agility',
                 color: 'Red',
                 gradient_id: 2,
                 title: 'Bladeform',
                 description:
-                    "Juggernaut gains Agility and Movement Speed as long as he's not taking damage."
+                    "Juggernaut gains Agility and Movement Speed as long as he's not taking damage.",
+                abilities: ['juggernaut_bladeform']
             }
         ]
     },
@@ -551,20 +570,25 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'mirana_moonlight',
                 icon: 'moon',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Moonlight Shadow',
-                description: "Mirana's Ultimate grants allies invisiblity and movement speed."
+                description: "Mirana's Ultimate grants allies invisiblity and movement speed.",
+                abilities: ['mirana_invis']
             },
             {
+                id: 1,
                 name: 'mirana_sunlight',
                 icon: 'sun',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Solar Flare',
-                description: "Mirana's Ultimate grants allies increasing attack speed and damage over time."
+                description:
+                    "Mirana's Ultimate grants allies increasing attack speed and damage over time.",
+                abilities: ['mirana_solar_flare']
             }
         ]
     },
@@ -614,21 +638,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'nevermore_lasting_presence',
                 icon: 'armor_broken',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Lasting Presence',
-                description: 'Every hero kill increases max souls by 1 until Shadow Fiend dies.'
+                description:
+                    "Presence of the Dark Lord temporarily reduces more armor after nearby enemy heroes are killed. Every hero kill increases Necromastery's max souls by 1 until Shadow Fiend dies."
             },
             {
+                id: 1,
                 name: 'nevermore_shadowmire',
                 icon: 'slow',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Shadowmire',
-                description:
-                    'Applies a stacking 5% movement speed and 5 attack speed debuff on enemies hit.'
+                description: 'Shadowraze slows enemies.'
             }
         ]
     },
@@ -680,21 +706,26 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'morphling_agi',
                 icon: 'agility',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Ebb',
-                description: "The target is also knocked back based on Morphling's strength."
+                description:
+                    "Morphling's Primary Attribute is now Agility and Adaptive Strike pushes enemies.",
+                abilities: ['morphling_ebb']
             },
             {
+                id: 1,
                 name: 'morphling_str',
                 icon: 'strength',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Flow',
                 description:
-                    "Morphling's Primary Attribute is now Strength and Attribute Shift can accelerate his cooldowns."
+                    "Morphling's Primary Attribute is now Strength and Attribute Shift can accelerate his cooldowns.",
+                abilities: ['morphling_flow']
             }
         ]
     },
@@ -743,15 +774,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'phantom_lancer_convergence',
                 icon: 'illusion',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Convergence',
                 description:
-                    'Spawns an additional illusion per 25% of health that Phantom Lancer is missing.'
+                    "Doppelganger spawns additional illusions, with the amount depending on Phantom Lancer's current health."
             },
             {
+                id: 1,
                 name: 'phantom_lancer_divergence',
                 icon: 'summons',
                 color: 'Blue',
@@ -807,22 +840,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'puck_jostling_rift',
                 icon: 'movement',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Jostling Rift',
-                description:
-                    'Waning Rift pushes enemies away. If the ability is in alt-cast state, it will pull them instead.'
+                description: 'Waning Rift can push or pull targets.'
             },
             {
+                id: 1,
                 name: 'puck_curveball',
                 icon: 'curve_ball',
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'Curveball',
                 description:
-                    "Illusory Orb can now be vector targeted to manipulate the orb's travel path. The orb moves faster and lasts longer, but if it exceeds the max cast range it will be destroyed."
+                    "Puck's Illusory Orb can be curved in any direction, moves faster, and lasts longer."
             }
         ]
     },
@@ -871,6 +905,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'pudge_fresh_meat',
                 icon: 'meat',
                 color: 'Green',
@@ -879,6 +914,7 @@ export const heroAbilities = {
                 description: 'Dismember increases Strength when dealing damage to heroes.'
             },
             {
+                id: 1,
                 name: 'pudge_flayers_hook',
                 icon: 'pudge_hook',
                 color: 'Red',
@@ -934,21 +970,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'razor_thunderhead',
                 icon: 'barrier',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Thunderhead',
                 description:
-                    "While Eye of the Storm is active, strike chance is 2x as high, strike cooldown is reduced by 2.5s, and Lightning strikes all enemies within Eye of the Storm's radius. Does not apply to the same enemy twice from a single instance."
+                    "Storm Surge lightning strikes more often and hits all units within Eye of the Storm's area of effect when it is active."
             },
             {
+                id: 1,
                 name: 'razor_spellamp',
                 icon: 'nuke',
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Dynamo',
-                description: 'Razor gains 1% spell amplification for every 20 points of attack damage.'
+                description: 'Razor gains 1% spell amplification for every 20 points of attack damage.',
+                abilities: ['razor_dynamo']
             }
         ]
     },
@@ -997,6 +1036,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'sand_king_sandshroud',
                 icon: 'vision',
                 color: 'Gray',
@@ -1006,13 +1046,13 @@ export const heroAbilities = {
                     'Sand Storm has increased radius and grants Sand King Invisibility while in it.'
             },
             {
+                id: 1,
                 name: 'sand_king_dust_devil',
                 icon: 'speed',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Dust Devil',
-                description:
-                    'Sand Storm follows Sand King at a rate of 70% of his movement speed and is still active at a distance of up to 2500 units away from Sand King.'
+                description: 'Sand Storm follows Sand King when he moves or Burrowstrikes.'
             }
         ]
     },
@@ -1062,15 +1102,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'storm_spirit_shock_collar',
                 icon: 'nuke',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Shock Collar',
                 description:
-                    'Electric Vortex applies a debuff to the enemy that lasts for 5s making their next attack target themself and trigger an Overload Charge.'
+                    'Electric Vortex applies a debuff that triggers an Overload Charge if they attack.'
             },
             {
+                id: 1,
                 name: 'storm_spirit_static_slide',
                 icon: 'movement',
                 color: 'Gray',
@@ -1126,6 +1168,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'sven_heavy_plate',
                 icon: 'armor',
                 color: 'Blue',
@@ -1134,13 +1177,15 @@ export const heroAbilities = {
                 description: 'Warcry provides a physical damage barrier.'
             },
             {
+                id: 1,
                 name: 'sven_strscaling',
                 icon: 'strength',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Wrath of God',
                 description:
-                    'Sven gains additional attack damage from Strength, but has decreased base damage.'
+                    'Sven gains additional attack damage from Strength, but has decreased base damage.',
+                abilities: ['sven_wrath_of_god']
             }
         ]
     },
@@ -1190,6 +1235,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'tiny_crash_landing',
                 icon: 'nuke',
                 color: 'Gray',
@@ -1199,12 +1245,14 @@ export const heroAbilities = {
                     'Tossed units slow and deal bonus damage to other targets at the Toss destination.'
             },
             {
+                id: 1,
                 name: 'tiny_insurmountable',
                 icon: 'armor',
                 color: 'Green',
                 gradient_id: 4,
                 title: 'Insurmountable',
-                description: 'Tiny gains Status and Slow Resistance from Strength.'
+                description: 'Tiny gains Status and Slow Resistance from Strength.',
+                abilities: ['tiny_insurmountable']
             }
         ]
     },
@@ -1253,6 +1301,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'vengefulspirit_avenging_missile',
                 icon: 'nuke',
                 color: 'Purple',
@@ -1261,12 +1310,14 @@ export const heroAbilities = {
                 description: 'Magic Missile deals 0.75 bonus damage for every creep the enemy has killed.'
             },
             {
+                id: 1,
                 name: 'vvengefulspirit_melee',
                 icon: 'fist',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Soul Strike',
-                description: "Vengeful Spirit's ranged attacks behave as if they were melee attacks."
+                description: "Vengeful Spirit's ranged attacks behave as if they were melee attacks.",
+                abilities: ['vengefulspirit_soul_strike']
             }
         ]
     },
@@ -1316,15 +1367,27 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
+                name: 'windrunner_tailwind',
+                deprecated: 'true',
+                icon: 'speed',
+                color: 'Yellow',
+                gradient_id: 2,
+                title: 'Tailwind',
+                description:
+                    'Windrun grants additional bonus movement speed to Windranger and nearby allies.'
+            },
+            {
+                id: 1,
                 name: 'windrunner_focusfire',
                 icon: 'focus_fire',
                 color: 'Yellow',
                 gradient_id: 2,
                 title: 'Focus Fire',
-                description:
-                    'Windrun grants additional bonus movement speed to Windranger and nearby allies.'
+                description: 'Focus Fire rapidly attacks a single target.'
             },
             {
+                id: 2,
                 name: 'windrunner_whirlwind',
                 icon: 'multi_arrow',
                 color: 'Green',
@@ -1346,7 +1409,7 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_unique_zeus_jump_cooldown',
+                name: 'special_bonus_mp_regen_175',
                 level: 1
             },
             {
@@ -1354,7 +1417,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_zeus_jump_postjump_movespeed',
+                name: 'special_bonus_unique_zeus_4',
                 level: 2
             },
             {
@@ -1374,12 +1437,13 @@ export const heroAbilities = {
                 level: 4
             },
             {
-                name: 'special_bonus_unique_zeus_4',
+                name: 'special_bonus_unique_zeus_static_field_dmg',
                 level: 4
             }
         ],
         facets: [
             {
+                id: 0,
                 name: 'zuus_livewire',
                 icon: 'range',
                 color: 'Blue',
@@ -1388,13 +1452,14 @@ export const heroAbilities = {
                 description: 'Static Field deals more damage to nearby enemies.'
             },
             {
+                id: 1,
                 name: 'zuus_divine_rampage',
                 icon: 'nuke',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Divine Rampage',
                 description:
-                    'Damage is dealt to one enemy at a time, moving from lowest health hero to highest. If an enemy is killed by this ability, the damage for all subsequent enemies is increased.'
+                    "When Thundergod's Wrath kills an enemy, it deals more damage to the other enemies."
             }
         ]
     },
@@ -1444,6 +1509,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'kunkka_high_tide',
                 icon: 'cooldown',
                 color: 'Blue',
@@ -1452,13 +1518,14 @@ export const heroAbilities = {
                 description: 'Tidebringer cooldown is reduced per enemy hero it hits.'
             },
             {
+                id: 1,
                 name: 'kunkka_grog',
                 icon: 'armor',
                 color: 'Yellow',
                 gradient_id: 2,
                 title: 'Grog Blossom',
                 description:
-                    "When X Marks the Spot returns its target, nearby allies gain Ghostship's Damage Delay buff."
+                    "When X Marks the Spot returns its target, nearby allies gain Ghostship's improved Admiral's Rum buff."
             }
         ]
     },
@@ -1507,6 +1574,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'lina_supercharge',
                 icon: 'damage',
                 color: 'Yellow',
@@ -1516,12 +1584,14 @@ export const heroAbilities = {
                     'Casting Laguna Blade temporarily supercharges Lina, granting her stacks of Fiery Soul.'
             },
             {
+                id: 1,
                 name: 'lina_dot',
                 icon: 'nuke',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Slow Burn',
-                description: "Lina's spells deal extra damage over time."
+                description: "Lina's spells deal extra damage over time.",
+                abilities: ['lina_slow_burn']
             }
         ]
     },
@@ -1570,6 +1640,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'lich_frostbound',
                 icon: 'snowflake',
                 color: 'Blue',
@@ -1579,12 +1650,14 @@ export const heroAbilities = {
                     'Chain Frost lingers on its last target if it fails to bounce and can bounce again if new targets become available.'
             },
             {
+                id: 1,
                 name: 'lich_growing_cold',
                 icon: 'cooldown',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Growing Cold',
-                description: 'Killing an enemy with Chain Frost increases the number of bounces.'
+                description:
+                    'When an enemy is killed by Chain Frost or while under the effect of Frost Shield, the duration of these abilities is extended.'
             }
         ]
     },
@@ -1633,21 +1706,22 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'lion_essence_eater',
                 icon: 'nuke',
                 color: 'Purple',
                 gradient_id: 2,
                 title: 'Essence Eater',
-                description: 'Mana Drain deals damage equal to 100% of mana stolen.'
+                description: 'Mana Drain mana per second increased and damage equal to 100% of mana stolen.'
             },
             {
+                id: 1,
                 name: 'lion_fist_of_death',
                 icon: 'fist',
                 color: 'Red',
                 gradient_id: 2,
                 title: 'Fist of Death',
-                description:
-                    'After casting Finger of Death, Lion switches from ranged to melee attacks and gains bonus damage and cleave. Enemy heroes killed within 3s of being punched will add Finger of Death stacks.'
+                description: 'Lion gains a strong Melee cleaving attack after casting Finger of Death.'
             }
         ]
     },
@@ -1696,14 +1770,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'shadow_shaman_cluster_cluck',
                 icon: 'chicken',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Cluster Cluck',
-                description: 'Creates 3 other chicken illusions as well.'
+                description:
+                    'Hex can turn allies into a flock of chickens, removing other negative effects.'
             },
             {
+                id: 1,
                 name: 'shadow_shaman_massive_serpent_ward',
                 icon: 'snake',
                 color: 'Red',
@@ -1733,7 +1810,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_hp_275',
+                name: 'special_bonus_hp_300',
                 level: 2
             },
             {
@@ -1759,6 +1836,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'slardar_leg_day',
                 icon: 'speed',
                 color: 'Red',
@@ -1768,6 +1846,7 @@ export const heroAbilities = {
                     'Slardar has slow resistance and even more movement speed at the beginning of Guardian Sprint.'
             },
             {
+                id: 1,
                 name: 'slardar_brineguard',
                 icon: 'armor',
                 color: 'Purple',
@@ -1823,6 +1902,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'tidehunter_kraken_swell',
                 icon: 'armor',
                 color: 'Green',
@@ -1832,12 +1912,14 @@ export const heroAbilities = {
                     'Kraken Shell gains permanent Damage Block when an enemy hero dies under the effects of Anchor Smash.'
             },
             {
+                id: 1,
                 name: 'tidehunter_sizescale',
                 icon: 'overshadow',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Krill Eater',
-                description: 'Tidehunter grows larger and gains extra bonuses per level.'
+                description: 'Tidehunter grows larger and gains extra bonuses per level.',
+                abilities: ['tidehunter_krill_eater']
             }
         ]
     },
@@ -1886,6 +1968,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'witch_doctor_headhunter',
                 icon: 'ricochet',
                 color: 'Gray',
@@ -1894,6 +1977,7 @@ export const heroAbilities = {
                 description: 'Paralyzing Cask deals more damage each bounce.'
             },
             {
+                id: 1,
                 name: 'witch_doctor_voodoo_festeration',
                 icon: 'nuke',
                 color: 'Red',
@@ -1902,12 +1986,13 @@ export const heroAbilities = {
                 description: 'Voodoo Restoration deals damage to enemies and only heals Witch Doctor.'
             },
             {
+                id: 2,
                 name: 'witch_doctor_cleft_death',
                 icon: 'death_ward',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Cleft Death',
-                description: 'Death Ward attacks 1 targets at once with reduced damage.'
+                description: 'Death Ward attacks multiple targets with reduced damage.'
             }
         ]
     },
@@ -1956,6 +2041,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'riki_contract_killer',
                 icon: 'xp',
                 color: 'Gray',
@@ -1964,6 +2050,7 @@ export const heroAbilities = {
                 description: 'Riki receives bonus experience for assists and kills.'
             },
             {
+                id: 1,
                 name: 'riki_exterminator',
                 icon: 'agility',
                 color: 'Purple',
@@ -2018,20 +2105,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'enigma_gravity',
                 icon: 'slow',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Event Horizon',
-                description: 'Units in a 600 radius moving away from Enigma have a 9% movespeed penalty.'
+                description: 'Units in a 600 radius moving away from Enigma have a 9% movespeed penalty.',
+                abilities: ['enigma_event_horizon']
             },
             {
+                id: 1,
                 name: 'enigma_fragment',
                 icon: 'summons',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Splitting Image',
-                description: 'Enigma spawns Eidolons upon receiving damage.'
+                description: 'Enigma spawns Eidolons upon receiving damage.',
+                abilities: ['enigma_splitting_image']
             }
         ]
     },
@@ -2081,6 +2172,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'tinker_repair_bots',
                 icon: 'healing',
                 color: 'Blue',
@@ -2090,13 +2182,14 @@ export const heroAbilities = {
                     'March of the Machines applies a non-stacking heal over time when passing through allied heroes.'
             },
             {
+                id: 1,
                 name: 'tinker_translocator',
                 icon: 'movement',
                 color: 'Yellow',
                 gradient_id: 2,
                 title: 'Translocator',
                 description:
-                    'When a Self-Defense Matrix barrier on Tinker is fully absorbed, he blinks in a random forward direction.\n\nDISPEL TYPE: Basic Dispel'
+                    'When a Self-Defense Matrix barrier on Tinker is fully absorbed, he blinks in a random forward direction.<br><br>DISPEL TYPE: Basic Dispel'
             }
         ]
     },
@@ -2145,6 +2238,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'sniper_ghillie_suit',
                 icon: 'vision',
                 color: 'Yellow',
@@ -2153,6 +2247,7 @@ export const heroAbilities = {
                 description: "While Take Aim is active, Sniper's attacks do not reveal him from fog of war."
             },
             {
+                id: 1,
                 name: 'sniper_scattershot',
                 icon: 'nuke',
                 color: 'Red',
@@ -2207,6 +2302,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'necrolyte_profane_potency',
                 icon: 'area_of_effect',
                 color: 'Yellow',
@@ -2215,13 +2311,13 @@ export const heroAbilities = {
                 description: "Sadist also grants Necrophos' AoE abilities and items bonus Radius per kill."
             },
             {
+                id: 1,
                 name: 'necrolyte_rapid_decay',
                 icon: 'speed',
                 color: 'Green',
                 gradient_id: 3,
                 title: 'Rapid Decay',
-                description:
-                    'Necrophos gains movement speed equal to 40% of movement speed lost by enemies.'
+                description: 'Ghost Shroud steals speed from his enemies.'
             }
         ]
     },
@@ -2270,6 +2366,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'warlock_golem',
                 icon: 'summons',
                 color: 'Red',
@@ -2279,13 +2376,15 @@ export const heroAbilities = {
                     "Chaotic Offering Golems deal more burn damage based on Warlock's health and mana regeneration."
             },
             {
+                id: 1,
                 name: 'warlock_grimoire',
                 icon: 'xp',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Black Grimoire',
                 description:
-                    'Grants Warlock the item Black Grimoire, which can be consumed to gain experience for each kill Warlock participated in. Starts with 1 charge.'
+                    'Grants Warlock the item Black Grimoire, which can be consumed to gain experience for each kill Warlock participated in. Starts with 1 charge.',
+                abilities: ['warlock_black_grimoire']
             }
         ]
     },
@@ -2335,22 +2434,22 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'beastmaster_wild_hunt',
                 icon: 'summons',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Wild Hunt',
-                description:
-                    'Attack Speed bonus is increased by the number of units affected by Inner Beast.'
+                description: 'Beastmaster attacks faster when his units are nearby.'
             },
             {
+                id: 1,
                 name: 'beastmaster_beast_mode',
                 icon: 'damage',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Beast Mode',
-                description:
-                    "Can be activated to increase Beastmaster's attack speed and allow him to apply the Wild Axes damage amplification debuff on his attack target."
+                description: 'Beastmaster can get a self attack speed and damage amplification boost.'
             }
         ]
     },
@@ -2399,22 +2498,26 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'queenofpain_lifesteal',
                 icon: 'healing',
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Succubus',
                 description:
-                    'Queen of Pain gains Spell Lifesteal that increases with proximity to her enemies.'
+                    'Queen of Pain gains Spell Lifesteal that increases with proximity to her enemies.',
+                abilities: ['queenofpain_succubus']
             },
             {
+                id: 1,
                 name: 'queenofpain_selfdmg',
                 icon: 'nuke',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Masochist',
                 description:
-                    'Queen of Pain has bonus Spell Amplification but a percentage of her spell damage is reflected back to her.'
+                    'Queen of Pain has bonus Spell Amplification but a percentage of her spell damage is reflected back to her.',
+                abilities: ['queenofpain_masochist']
             }
         ]
     },
@@ -2463,22 +2566,22 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'venomancer_patient_zero',
                 icon: 'snot',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Patient Zero',
-                description:
-                    'Noxious Plague spreads 1 times. Impact damage for spreads after the first one is reduced by 100%.'
+                description: 'Noxious Plague spreads again.'
             },
             {
+                id: 1,
                 name: 'venomancer_plague_carrier',
                 icon: 'summons',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Plague Carrier',
-                description:
-                    'Plague Wards can be attached to allies and have 3 charges. Attached wards health depends on the max health of the carrier and give only 20% of their gold bounty when killed.'
+                description: 'Plague Wards can be attached to allies and have extra charges.'
             }
         ]
     },
@@ -2527,21 +2630,35 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
+                name: 'faceless_void_temporal_impunity',
+                deprecated: 'true',
+                icon: 'armor',
+                color: 'Green',
+                gradient_id: 0,
+                title: 'Temporal Impunity',
+                description: 'Prevents all damage for a short duration after casting Time Walk.'
+            },
+            {
+                id: 1,
                 name: 'faceless_void_chronosphere',
                 icon: 'area_of_effect',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Chronosphere',
-                description: 'Prevents all damage for a short duration after casting Time Walk.'
+                description: 'Faceless Void can cast Chronosphere , trapping enemies in a sphere.',
+                abilities: ['faceless_void_chronosphere']
             },
             {
+                id: 2,
                 name: 'faceless_void_time_zone',
                 icon: 'chrono_cube',
                 color: 'Purple',
                 gradient_id: 1,
                 title: 'Time Zone',
                 description:
-                    'Faceless Void can cast Time Zone , dramatically slowing down enemies and speeding up allies in an area.'
+                    'Faceless Void can cast Time Zone , dramatically slowing down enemies and speeding up allies in an area.',
+                abilities: ['faceless_void_time_zone']
             }
         ]
     },
@@ -2590,21 +2707,25 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'skeleton_king_facet_bone_guard',
                 icon: 'summons',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Bone Guard',
-                description:
-                    'When reincarnating, 2 skeletons are spawned and attack each nearby enemy hero.'
+                description: 'Wraith King can summon skeletons to fight for him.',
+                abilities: ['skeleton_king_bone_guard']
             },
             {
+                id: 1,
                 name: 'skeleton_king_facet_cursed_blade',
                 icon: 'damage',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Spectral Blade',
-                description: 'When reincarnating, nearby enemy heroes have their curse cooldowns reset.'
+                description:
+                    "Wraith King's attacks curse enemies, dealing additional damage after a delay.",
+                abilities: ['skeleton_king_spectral_blade']
             }
         ]
     },
@@ -2653,6 +2774,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'death_prophet_suppress',
                 icon: 'slow',
                 color: 'Purple',
@@ -2661,21 +2783,25 @@ export const heroAbilities = {
                 description: 'Silenced enemies are also slowed.'
             },
             {
+                id: 1,
                 name: 'death_prophet_ghosts',
                 icon: 'spirit',
                 color: 'Green',
                 gradient_id: 1,
                 title: 'Spirit Collector',
-                description: 'Hero deaths empower your next Exorcism.'
+                description: 'Hero deaths empower your next Exorcism.',
+                abilities: ['death_prophet_spirit_collector']
             },
             {
+                id: 2,
                 name: 'death_prophet_delayed_damage',
                 icon: 'healing',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Mourning Ritual',
                 description:
-                    'Death Prophet delays a percentage of incoming damage, taking the damage in even intervals over a short duration.'
+                    'Death Prophet delays a percentage of incoming damage, taking the damage in even intervals over a short duration.',
+                abilities: ['death_prophet_mourning_ritual']
             }
         ]
     },
@@ -2724,6 +2850,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'phantom_assassin_veiled_one',
                 icon: 'mana',
                 color: 'Blue',
@@ -2733,6 +2860,7 @@ export const heroAbilities = {
                     'Blur is no longer dispelled when attacking and reduces mana costs during and after Blur.'
             },
             {
+                id: 1,
                 name: 'phantom_assassin_methodical',
                 icon: 'damage',
                 color: 'Gray',
@@ -2788,6 +2916,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'pugna_siphoning_ward',
                 icon: 'healing',
                 color: 'Green',
@@ -2797,6 +2926,7 @@ export const heroAbilities = {
                     'Nether Ward restores mana and health to Pugna based on how much damage is dealt.'
             },
             {
+                id: 1,
                 name: 'pugna_rewards_of_ruin',
                 icon: 'siege',
                 color: 'Purple',
@@ -2852,22 +2982,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'templar_assassin_voidblades',
                 icon: 'ricochet',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Voidblades',
                 description:
-                    'Meld bonus damage and armor reductions are applied to all enemies in the Psi Blades spill range'
+                    'Attacking a target with Meld also applies the bonus damage and debuff to enemies hit by the Psi Blades spill.'
             },
             {
+                id: 1,
                 name: 'templar_assassin_refractor',
                 icon: 'damage',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Refractor',
-                description:
-                    'Whenever a shield instance is consumed, Templar Assassin gains a damage instance.'
+                description: 'Refraction gains a damage charge every time a shield charge gets consumed.'
             }
         ]
     },
@@ -2894,7 +3025,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_viper_6',
+                name: 'special_bonus_unique_viper_7',
                 level: 2
             },
             {
@@ -2902,7 +3033,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_viper_7',
+                name: 'special_bonus_unique_viper_predator_damage',
                 level: 3
             },
             {
@@ -2916,15 +3047,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'viper_poison_burst',
                 icon: 'area_of_effect',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Poison Burst',
                 description:
-                    'After Poison Attack stacks expire, enemies around the target take additional damage equal to 100% of the magic damage dealt by Poison Attack.'
+                    'After Poison Attack stacks expire, enemies around the target take additional damage.'
             },
             {
+                id: 1,
                 name: 'viper_caustic_bath',
                 icon: 'armor',
                 color: 'Yellow',
@@ -2980,6 +3113,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
+                name: 'luna_lunar_orbit',
+                deprecated: 'true',
+                icon: 'armor',
+                color: 'Gray',
+                gradient_id: 3,
+                title: 'Lunar Orbit Facet',
+                description: ''
+            },
+            {
+                id: 1,
                 name: 'luna_moonshield',
                 icon: 'armor',
                 color: 'Gray',
@@ -2988,12 +3132,13 @@ export const heroAbilities = {
                 description: 'Lunar Orbit provide damage reduction while active.'
             },
             {
+                id: 2,
                 name: 'luna_moonstorm',
                 icon: 'damage',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Moonstorm',
-                description: 'Rotating glaives provide damage reduction while active.'
+                description: 'Hitting enemies with Lucent Beams or Eclipse grants Luna bonus attack damage.'
             }
         ]
     },
@@ -3043,31 +3188,34 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'dragon_knight_fire_dragon',
                 icon: 'dragon_fire',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Fire Dragon',
                 description:
-                    'Cleave is transformed into Splash damage, adding the bonus damage percentage while in Elder Dragon Form.'
+                    'Dragon Knight has Splash Damage on his attacks that get stronger when in Elder Dragon Form.'
             },
             {
+                id: 1,
                 name: 'dragon_knight_corrosive_dragon',
                 icon: 'dragon_poison',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Corrosive Dragon',
                 description:
-                    'Damage and Armor Reduction from Corrosive Breath is increased while in Elder Dragon Form.'
+                    'Dragon Knight has Corrosive Powers on his attacks that get stronger when in Elder Dragon Form.'
             },
             {
+                id: 2,
                 name: 'dragon_knight_frost_dragon',
                 icon: 'dragon_frost',
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Frost Dragon',
                 description:
-                    'Attack speed, movement speed and healing reduction from Frost Breath is increased while in Elder Dragon Form.'
+                    'Dragon Knight has Slow and Healing Reduction Effects on his attacks that get stronger when in Elder Dragon Form.'
             }
         ]
     },
@@ -3116,21 +3264,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'dazzle_facet_nothl_boon',
                 icon: 'armor',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Nothl Boon',
-                description: "Dazzle's overhealing is converted into a barrier."
+                description: "Dazzle's overhealing is converted into a barrier.",
+                abilities: ['dazzle_nothl_boon']
             },
             {
+                id: 1,
                 name: 'dazzle_poison_bloom',
                 icon: 'ricochet',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Poison Bloom',
-                description:
-                    'Every 4 attacks, the poison will deal additional damage and split to additional enemy units in a 450 AoE.'
+                description: 'Dazzle can refresh and spread his Poison Touch when attacking enemies.'
             }
         ]
     },
@@ -3180,15 +3330,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'rattletrap_hookup',
                 icon: 'cooldown',
                 color: 'Gray',
                 gradient_id: 2,
                 title: 'Hookup',
                 description:
-                    'When hitting an ally, Hookshot has a larger impact radius, grants Clockwerk and the hit allies a physical damage barrier, equal to the hookshot damage, and partially refunds its cooldown.'
+                    'When hitting an ally, Hookshot has a larger impact radius, grants armor, and partially refunds its cooldown and manacost.'
             },
             {
+                id: 1,
                 name: 'rattletrap_expanded_armature',
                 icon: 'area_of_effect',
                 color: 'Red',
@@ -3243,21 +3395,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'leshrac_attacks_mana',
                 icon: 'mana',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Chronoptic Nourishment',
-                description: "Leshrac's attacks restore mana."
+                description: "Leshrac's attacks restore mana.",
+                abilities: ['leshrac_chronoptic_nourishment']
             },
             {
+                id: 1,
                 name: 'leshrac_misanthropy',
                 icon: 'nuke',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Misanthropy',
-                description:
-                    'Diabolic Edict hits enemies with an increased explosion rate but it no longer damages buildings.'
+                description: 'Diabolic Edict explosion rate increased but it no longer damages buildings.'
             }
         ]
     },
@@ -3306,21 +3460,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'furion_soothing_saplings',
                 icon: 'healing',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Soothing Saplings',
-                description:
-                    'Allies inside and nearby on the outside of the sprout are healed over time. Allied buildings are healed at a 50% rate.'
+                description: 'Allies inside and nearby on the outside of Sprout are healed over time.'
             },
             {
+                id: 1,
                 name: 'furion_ironwood_treant',
                 icon: 'siege',
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'Ironwood Treant',
-                description: 'Treant multiplier increased.'
+                description:
+                    "Nature's Call creates only 1 =1 =1 =1 Treant that has more health, more damage, increased vision, increased movement speed, and is Reinforced."
             }
         ]
     },
@@ -3370,22 +3526,38 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
+                name: 'life_stealer_maxhp_gain',
+                deprecated: 'true',
+                icon: 'armor',
+                color: 'Yellow',
+                gradient_id: 3,
+                title: 'Corpse Eater',
+                description:
+                    'Lifestealer gains 1 HP whenever he kills a creep, and 15 whenever he kills a hero.',
+                abilities: ['life_stealer_corpse_eater']
+            },
+            {
+                id: 1,
                 name: 'life_stealer_rage',
                 icon: 'lifestealer_rage',
                 color: 'Yellow',
                 gradient_id: 3,
                 title: 'Rage',
                 description:
-                    'Lifestealer can cast Rage , becoming Debuff Immune and increasing magic resistance.'
+                    'Lifestealer can cast Rage , becoming Debuff Immune and increasing magic resistance.',
+                abilities: ['life_stealer_rage']
             },
             {
+                id: 2,
                 name: 'life_stealer_rage_dispell',
                 icon: 'broken_chain',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Unfettered',
                 description:
-                    'Lifestealer can cast Unfettered to dispel himself and become more resilient. Can cast while stunned.'
+                    'Lifestealer can cast Unfettered to dispel himself and become more resilient. Can cast while stunned.',
+                abilities: ['life_stealer_unfettered']
             }
         ]
     },
@@ -3434,20 +3606,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'dark_seer_atkspd',
                 icon: 'damage',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Quick Wit',
-                description: 'Dark Seer also gains Attack Speed from Intelligence.'
+                description: 'Dark Seer also gains Attack Speed from Intelligence.',
+                abilities: ['dark_seer_quick_wit']
             },
             {
+                id: 1,
                 name: 'dark_seer_movespd',
                 icon: 'speed',
                 color: 'Purple',
                 gradient_id: 2,
                 title: 'Heart of Battle',
-                description: 'Dark Seer moves faster when near other heroes.'
+                description: 'Dark Seer moves faster when near other heroes.',
+                abilities: ['dark_seer_heart_of_battle']
             }
         ]
     },
@@ -3497,15 +3673,16 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'clinkz_suppressive_fire',
                 icon: 'no_vision',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Suppressive Fire',
-                description:
-                    'Clinkz and each Skeleton Archer apply a stacking debuff, one stack per attacking Skeleton Archer, causing them to miss 5% of their attacks per stack. Applies to buildings as well.'
+                description: 'Strafe attacks cause enemies to miss more often.'
             },
             {
+                id: 1,
                 name: 'clinkz_engulfing_step',
                 icon: 'teleport',
                 color: 'Yellow',
@@ -3560,21 +3737,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'omniknight_omnipresent',
                 icon: 'damage',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Omnipresent',
-                description:
-                    "Omniknight's damage to a target is increased by 1% for every 0.3s they spend affected by the aura."
+                description: 'Omniknight deals more damage to heroes inside his Degen Aura.'
             },
             {
+                id: 1,
                 name: 'omniknight_dmgheals',
                 icon: 'healing',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Healing Hammer',
-                description: 'Ability damage done to enemies by Omniknight heals him over time.'
+                description: 'Ability damage done to enemies by Omniknight heals him over time.',
+                abilities: ['omniknight_healing_hammer']
             }
         ]
     },
@@ -3598,7 +3777,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_attack_damage_45',
+                name: 'special_bonus_unique_enchantress_enchant_attackspeed',
                 level: 2
             },
             {
@@ -3624,22 +3803,22 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'enchantress_overprotective_wisps',
                 icon: 'healing',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Overprotective Wisps',
-                description:
-                    'Whenever Enchantress takes more than 250 damage from enemy heroes, 1 wisps appear for 4s to heal her. A maximum of 4 overprotective wisps can exist at the same time.'
+                description: 'Summon Healing Wisps upon receiving damage.'
             },
             {
+                id: 1,
                 name: 'enchantress_spellbound',
                 icon: 'range',
                 color: 'Yellow',
                 gradient_id: 2,
                 title: 'Spellbound',
-                description:
-                    'Cast Range of Enchant is increased. If the enemy is a hero, Enchantress has increased attack range against the target.'
+                description: 'Enchant and attacks on Enchanted targets have extra range.'
             }
         ]
     },
@@ -3688,6 +3867,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'huskar_bloodbath',
                 icon: 'area_of_effect',
                 color: 'Red',
@@ -3696,6 +3876,7 @@ export const heroAbilities = {
                 description: 'Life Break also slows enemies in a radius around the target.'
             },
             {
+                id: 1,
                 name: 'huskar_nothl_transfusion',
                 icon: 'healing',
                 color: 'Blue',
@@ -3704,6 +3885,7 @@ export const heroAbilities = {
                 description: 'Life Break also heals friendly units in a radius around the target.'
             },
             {
+                id: 2,
                 name: 'huskar_nothl_conflagration',
                 icon: 'damage',
                 color: 'Yellow',
@@ -3760,6 +3942,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'night_stalker_blinding_void',
                 icon: 'no_vision',
                 color: 'Blue',
@@ -3769,12 +3952,14 @@ export const heroAbilities = {
                     'Enemies affected by Void do not share vision with their allies. Affected enemies take damage per second when they are not visible to their allies.'
             },
             {
+                id: 1,
                 name: 'night_stalker_dayswap',
                 icon: 'moon',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Night Reign',
-                description: 'The game now starts at night instead of day. Night is longer than day.'
+                description: 'The game now starts at night instead of day. Night is longer than day.',
+                abilities: ['night_stalker_night_reign']
             }
         ]
     },
@@ -3823,15 +4008,16 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'broodmother_necrotic_webs',
                 icon: 'debuff',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Necrotic Webs',
-                description:
-                    'Reduces health regeneration of enemies on webs that are in the same web network as Broodmother.'
+                description: 'Reduces health regeneration of enemies on webs.'
             },
             {
+                id: 1,
                 name: 'broodmother_feeding_frenzy',
                 icon: 'summons',
                 color: 'Red',
@@ -3886,6 +4072,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'bounty_hunter_shuriken',
                 icon: 'nuke',
                 color: 'Red',
@@ -3894,13 +4081,15 @@ export const heroAbilities = {
                 description: 'Shuriken Toss applies its damage and slow to all enemies it passes through.'
             },
             {
+                id: 1,
                 name: 'bounty_hunter_mugging',
                 icon: 'gold',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Cutpurse',
                 description:
-                    'Bounty Hunter steals gold when targeting enemy heroes with his abilities or items.'
+                    'Bounty Hunter steals gold when targeting enemy heroes with his abilities or items.',
+                abilities: ['bounty_hunter_cutpurse']
             }
         ]
     },
@@ -3950,6 +4139,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'weaver_skitterstep',
                 icon: 'speed',
                 color: 'Red',
@@ -3958,6 +4148,7 @@ export const heroAbilities = {
                 description: 'Shukuchi movespeed increased and slows enemies when passing through them.'
             },
             {
+                id: 1,
                 name: 'weaver_hivemind',
                 icon: 'xp',
                 color: 'Blue',
@@ -4012,22 +4203,26 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'jakiro_fire',
                 icon: 'nuke',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Liquid Fire',
                 description:
-                    'Jakiro can imbue his attacks with Attack Speed Slow and Damage over Time in an AoE.'
+                    'Jakiro can imbue his attacks with Attack Speed Slow and Damage over Time in an AoE.',
+                abilities: ['jakiro_liquid_fire']
             },
             {
+                id: 1,
                 name: 'jakiro_ice',
                 icon: 'snowflake',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Liquid Frost',
                 description:
-                    'Jakiro can imbue his attacks with Movement Speed Slow and a debuff that amplifies damage from his other spells.'
+                    'Jakiro can imbue his attacks with Movement Speed Slow and a debuff that amplifies damage from his other spells.',
+                abilities: ['jakiro_liquid_ice']
             }
         ]
     },
@@ -4076,14 +4271,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'batrider_buff_on_displacement',
                 icon: 'speed',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Stoked',
-                description: 'Batrider gains Move Speed and Spell Amplification when displacing enemies.'
+                description: 'Batrider gains Move Speed and Spell Amplification when displacing enemies.',
+                abilities: ['batrider_stoked']
             },
             {
+                id: 1,
                 name: 'batrider_arsonist',
                 icon: 'siege',
                 color: 'Red',
@@ -4138,6 +4336,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'chen_centaur_convert',
                 icon: 'area_of_effect',
                 color: 'Blue',
@@ -4146,6 +4345,7 @@ export const heroAbilities = {
                 description: 'Summon Convert calls forth either a Centaur Courser or Centaur Conqueror.'
             },
             {
+                id: 1,
                 name: 'chen_wolf_convert',
                 icon: 'damage',
                 color: 'Yellow',
@@ -4154,6 +4354,7 @@ export const heroAbilities = {
                 description: 'Summon Convert calls forth either a Giant Wolf or Alpha Wolf.'
             },
             {
+                id: 2,
                 name: 'chen_hellbear_convert',
                 icon: 'slow',
                 color: 'Red',
@@ -4162,6 +4363,7 @@ export const heroAbilities = {
                 description: 'Summon Convert calls forth either a Hellbear or Hellbear Smasher.'
             },
             {
+                id: 3,
                 name: 'chen_troll_convert',
                 icon: 'summons',
                 color: 'Green',
@@ -4170,6 +4372,7 @@ export const heroAbilities = {
                 description: 'Summon Convert calls forth either a Hill Troll or Dark Troll Summoner.'
             },
             {
+                id: 4,
                 name: 'chen_satyr_convert',
                 icon: 'mana',
                 color: 'Purple',
@@ -4225,21 +4428,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'spectre_forsaken',
                 icon: 'spectre',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Forsaken',
                 description:
-                    "If an enemy has only non-hero allies nearby, it will take 60% of Desolate's damage."
+                    'Desolate can deal partial damage to enemies and is applied by Spectral Dagger.'
             },
             {
+                id: 1,
                 name: 'spectre_twist_the_knife',
                 icon: 'nuke',
                 color: 'Purple',
                 gradient_id: 2,
                 title: 'Twist the Knife',
-                description: 'Haunt illusions no longer disappear when their target dies.'
+                description:
+                    'Reality also casts Spectral Dagger on the target and has a decreased cooldown.'
             }
         ]
     },
@@ -4289,6 +4495,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'doom_bringer_gluttony',
                 icon: 'meat',
                 color: 'Red',
@@ -4298,15 +4505,18 @@ export const heroAbilities = {
                     'Devour now has 2 charges and stolen creep abilities are upgraded by one level.'
             },
             {
+                id: 1,
                 name: 'doom_bringer_boost_selling',
                 icon: 'gold',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: "Devil's Bargain",
                 description:
-                    'Doom can sell items for %bonus_item_sellback_percent% of their value, but his buyback costs are increased by %bonus_buyback_penalty%%.'
+                    'Doom can sell items for 90% of their value, but his buyback costs are increased by 15%.',
+                abilities: ['doom_bringer_devils_bargain']
             },
             {
+                id: 2,
                 name: 'doom_bringer_impending_doom',
                 icon: 'cooldown',
                 color: 'Gray',
@@ -4363,21 +4573,22 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'ancient_apparition_bone_chill',
                 icon: 'debuff',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Bone Chill',
-                description: "Each Death Rime Stack also reduces the enemy's Strength."
+                description: "Ancient Apparition's abilities reduce the enemy's Strength."
             },
             {
+                id: 1,
                 name: 'ancient_apparition_exposure',
                 icon: 'area_of_effect',
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Exposure',
-                description:
-                    'Cold Feet becomes an AoE point targeted ability, with the radius depending on the current level of Ice Blast.'
+                description: 'Cold Feet applies in an AoE, depending on the current level of Ice Blast.'
             }
         ]
     },
@@ -4400,7 +4611,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_ursa_earthshock_furyswipes',
+                name: 'special_bonus_unique_ursa',
                 level: 2
             },
             {
@@ -4412,7 +4623,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_ursa',
+                name: 'special_bonus_unique_ursa_earthshock_furyswipes',
                 level: 3
             },
             {
@@ -4426,6 +4637,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'ursa_grudge_bearer',
                 icon: 'damage',
                 color: 'Red',
@@ -4434,12 +4646,14 @@ export const heroAbilities = {
                 description: 'When damaged during Enrage, Ursa gains bonus attack damage.'
             },
             {
+                id: 1,
                 name: 'ursa_debuff_reduce',
                 icon: 'cooldown',
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Bear Down',
-                description: 'Debuffs inflicted by Ursa last longer.'
+                description: 'Debuffs inflicted by Ursa last longer.',
+                abilities: ['ursa_bear_down']
             }
         ]
     },
@@ -4488,6 +4702,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'spirit_breaker_bull_rush',
                 icon: 'speed',
                 color: 'Red',
@@ -4496,13 +4711,14 @@ export const heroAbilities = {
                 description: 'Charge of Darkness bonus movement speed lingers after charge ends.'
             },
             {
+                id: 1,
                 name: 'spirit_breaker_imbalanced',
                 icon: 'movement',
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'Imbalanced',
                 description:
-                    'Enemy targets hit by Nether Strike will be moved further by allied knockback effects.'
+                    'Enemy targets hit by Nether Strike will be moved further by allied forced movement effects.'
             }
         ]
     },
@@ -4553,15 +4769,16 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'gyrocopter_secondary_strikes',
                 icon: 'nuke',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Secondary Strikes',
-                description:
-                    'The delay between hits is decreased by -0.2s. Any enemy hero hit by a call down missile strike will be marked, and another, tracking missile strike that has a 200 impact radius will be fired at them. This missile deals 50% damage.'
+                description: 'Call Down creates delayed secondary explosions around heroes it hits.'
             },
             {
+                id: 1,
                 name: 'gyrocopter_afterburner',
                 icon: 'speed',
                 color: 'Yellow',
@@ -4618,6 +4835,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'alchemist_seed_money',
                 icon: 'gold',
                 color: 'Yellow',
@@ -4626,12 +4844,13 @@ export const heroAbilities = {
                 description: 'Alchemist starts with 250 more gold.'
             },
             {
+                id: 1,
                 name: 'alchemist_mixologist',
                 icon: 'cooldown',
                 color: 'Purple',
                 gradient_id: 2,
                 title: 'Mixologist',
-                description: 'While Alchemist is affected by Chemical Rage, cooldown is reduced by 50%.'
+                description: 'Unstable Concoction and Berserk Potion recharge faster when in Chemical Rage.'
             }
         ]
     },
@@ -4694,21 +4913,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'invoker_agnostic',
                 icon: 'invoker_passive',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Agnostic',
-                description: 'Passively grants bonus attack damage.'
+                description:
+                    "Your orbs passively grant <font color='#7998b5'>Damage Over Time</font>, <font color='#d671a9'>Attack Speed</font> and <font color='#cabe68'>Attack Damage</font> when leveled."
             },
             {
+                id: 1,
                 name: 'invoker_elitist',
                 icon: 'invoker_active',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Elitist',
                 description:
-                    'Invoker applies a debuff that increases Spell Damage taken by the target for each Exort instance that lasts 4 seconds.'
+                    "Your active orbs grant <font color='#7998b5'>Lifesteal</font>, <font color='#d671a9'>Movespeed</font> and <font color='#cabe68'>Spell Amplification</font>."
             }
         ]
     },
@@ -4757,14 +4979,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'silencer_irrepressible',
                 icon: 'silencer',
                 color: 'Purple',
                 gradient_id: 1,
                 title: 'Irrepressible',
-                description: 'Silencer cannot be silenced.'
+                description: 'Silencer cannot be silenced.',
+                abilities: ['silencer_irrepressible']
             },
             {
+                id: 1,
                 name: 'silencer_reverberating_silence',
                 icon: 'debuff',
                 color: 'Gray',
@@ -4819,6 +5044,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'obsidian_destroyer_obsidian_decimator',
                 icon: 'mana',
                 color: 'Blue',
@@ -4827,13 +5053,14 @@ export const heroAbilities = {
                 description: 'When Essence Flux restores mana, it also temporarily increases maximum mana.'
             },
             {
+                id: 1,
                 name: 'obsidian_destroyer_overwhelming_devourer',
                 icon: 'healing',
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'Overwhelming Devourer',
                 description:
-                    'Affected Heroes gain a Mana Allergy Debuff for 7 seconds, healing Outworld Destroyer every time they cast a spell.'
+                    "Heroes affected by Astral Imprisonment and Sanity's Eclipse heal Outworld Destroyer every time they cast a spell."
             }
         ]
     },
@@ -4882,30 +5109,33 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'lycan_pack_leader',
                 icon: 'summons',
                 color: 'Gray',
                 gradient_id: 1,
                 title: 'Pack Leader',
-                description:
-                    "Movement and critical strike bonuses are also applied to all units under Lycan's control. Enemy heroes killed by Lycan or his units extends Shapeshift duration by 5s."
+                description: 'Enemy heroes killed by Lycan or his units extend Shapeshift duration.'
             },
             {
+                id: 1,
                 name: 'lycan_spirit_wolves',
                 icon: 'spirit',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Spirit Wolves',
                 description:
-                    'Summoned Wolves are invulnerable and uncontrollable spirits that do not attack, but provide health and damage bonuses to Lycan.'
+                    "Summon Wolves creates invulnerable non-attacking wolves that buff Lycan's health and attack damage."
             },
             {
+                id: 2,
                 name: 'lycan_alpha_wolves',
                 icon: 'wolf',
                 color: 'Green',
                 gradient_id: 2,
                 title: 'Alpha Wolves',
-                description: 'Max level decreased to -1.'
+                description:
+                    'Increases the max level of Summon Wolves while lowering the max level of Howl and Feral Impulse.'
             }
         ]
     },
@@ -4955,22 +5185,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'brewmaster_roll_out_the_barrel',
                 icon: 'nuke',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Roll Out the Barrel',
-                description:
-                    'Cinder Brew is now a rolling barrel of ale that drenches enemies in its path and explodes at the end.'
+                description: 'Throw a barrel at enemies, damaging them and applying Cinder Brew.'
             },
             {
+                id: 1,
                 name: 'brewmaster_drunken_master',
                 icon: 'speed',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Drunken Master',
                 description:
-                    'When brewed up, Brewmaster moves with a varying amount of movement speed, altering between 20% slower and 50% faster for the duration.'
+                    'When brewed up, Brewmaster moves with a varying amount of movement speed, altering between 15% slower and 50% faster for the duration.'
             }
         ]
     },
@@ -5020,21 +5251,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'shadow_demon_promulgate',
                 icon: 'nuke',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Promulgate',
                 description:
-                    'If the target is an enemy, they lose 20% of their health, regaining half of it after the effect is lifted. If the target is an ally, increases their health by that amount instead.'
+                    "Disseminate instantly removes a percentage of the opponent's health for its duration."
             },
             {
+                id: 1,
                 name: 'shadow_demon_facet_soul_mastery',
                 icon: 'illusion',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Shadow Servant',
-                description: 'Shadow Demon creates illusions of heroes that die near him.'
+                description: 'Shadow Demon creates illusions of heroes that die near him.',
+                abilities: ['shadow_demon_shadow_servant']
             }
         ]
     },
@@ -5083,30 +5317,34 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'lone_druid_bear_with_me',
                 icon: 'healing',
                 color: 'Green',
                 gradient_id: 1,
                 title: 'Bear with Me',
                 description:
-                    'Lone Druid morphs himself into a raging bear, losing his ranged advantage, but gaining increased bonus armor, more health, and improved versions of Entangling Claws and Demolish.'
+                    "Spirit Link's Shared Armor is increased and Lone Druid's attacks heal the Spirit Bear."
             },
             {
+                id: 1,
                 name: 'lone_druid_unbearable',
                 icon: 'overshadow',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Unbearable',
                 description:
-                    'Lone Druid morphs his Spirit Bear into an enraged form that gains bonus armor, attack speed, demolish damage, and a 75% cooldown on Entangling Claws.'
+                    'True Form transforms the Spirit Bear instead of Lone Druid. Increases the distance from Lone Druid at which the Spirit Bear can attack.'
             },
             {
+                id: 2,
                 name: 'lone_druid_bear_necessities',
                 icon: 'item',
                 color: 'Gray',
                 gradient_id: 1,
                 title: 'Bear Necessities',
-                description: "Lone Druid's items are more powerful and his inventory is smaller."
+                description: "Lone Druid's items are more powerful and his inventory is smaller.",
+                abilities: ['lone_druid_bear_necessities']
             }
         ]
     },
@@ -5155,15 +5393,18 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'chaos_knight_strong_illusions',
                 icon: 'illusion',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Phantasmagoria',
                 description:
-                    'All Chaos Knight Illusions are Strong Illusions and take less damage when near him.'
+                    'All Chaos Knight Illusions are Strong Illusions and take less damage when near him.',
+                abilities: ['chaos_knight_phantasmagoria']
             },
             {
+                id: 1,
                 name: 'chaos_knight_irrationality',
                 icon: 'rng',
                 color: 'Gray',
@@ -5221,21 +5462,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'meepo_more_meepo',
                 icon: 'summons',
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'More Meepo',
-                description:
-                    "Can now be upgraded at level 3 and every 7 levels afterwards to a max level of 4. Duplicate Meepos receive 85% of the main Meepo's bonus attributes."
+                description: 'Obtain extra Meepos sooner and get 1 extra Meepo.'
             },
             {
+                id: 1,
                 name: 'meepo_pack_rat',
                 icon: 'item',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Pack Rat',
-                description: 'All Meepos can use the item in the neutral item slot. '
+                description: 'All Meepos can use the item in the neutral item slot. ',
+                abilities: ['meepo_pack_rat']
             }
         ]
     },
@@ -5285,6 +5528,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'treant_primeval_power',
                 icon: 'damage',
                 color: 'Yellow',
@@ -5293,13 +5537,13 @@ export const heroAbilities = {
                 description: 'Treant gains +5 base attack damage per hero level.'
             },
             {
+                id: 1,
                 name: 'treant_sapling',
                 icon: 'tree',
                 color: 'Green',
                 gradient_id: 2,
                 title: 'Sapling',
-                description:
-                    'Leech Seed can be ground targeted, planting a tree that heals allies and damages all enemies in the effect radius for the duration of the ability. Damage to creeps is reduced by 50%. If the tree is cut down, it immediately re-grows again.'
+                description: 'Leech Seed can be ground targeted to plant a tree.'
             }
         ]
     },
@@ -5349,14 +5593,16 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'ogre_magi_fat_chance',
                 icon: 'rng',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Fat Chance',
-                description: "Multicast chance is increased by 0.06% of Ogre Magi's Strength."
+                description: "Multicast chance is increased by  0.06% of Ogre Magi's Strength."
             },
             {
+                id: 1,
                 name: 'ogre_magi_learning_curve',
                 icon: 'ogre',
                 color: 'Blue',
@@ -5412,6 +5658,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'undying_rotting_mitts',
                 icon: 'summons',
                 color: 'Green',
@@ -5420,6 +5667,7 @@ export const heroAbilities = {
                 description: 'While transformed into a Flesh Golem, attacks spawn a zombie.'
             },
             {
+                id: 1,
                 name: 'undying_ripped',
                 icon: 'strength',
                 color: 'Red',
@@ -5480,6 +5728,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'rubick_frugal_filch',
                 icon: 'mana',
                 color: 'Purple',
@@ -5488,6 +5737,7 @@ export const heroAbilities = {
                 description: 'Stolen spells also have lower mana cost.'
             },
             {
+                id: 1,
                 name: 'rubick_arcane_accumulation',
                 icon: 'area_of_effect',
                 color: 'Green',
@@ -5543,6 +5793,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'disruptor_thunderstorm',
                 icon: 'area_of_effect',
                 color: 'Red',
@@ -5551,12 +5802,14 @@ export const heroAbilities = {
                 description: 'Thunder Strike additionally hits all enemies within Kinetic Field.'
             },
             {
+                id: 1,
                 name: 'disruptor_line_walls',
                 icon: 'fence',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Kinetic Fence',
-                description: 'Replaces Kinetic Field with the ability to create impassable walls.'
+                description: 'Replaces Kinetic Field with the ability to create impassable walls.',
+                abilities: ['disruptor_kinetic_fence']
             }
         ]
     },
@@ -5606,14 +5859,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'nyx_assassin_burn_mana',
                 icon: 'nuke',
                 color: 'Blue',
                 gradient_id: 3,
                 title: 'Mana Burn',
-                description: "Nyx Assassin's ability damage burns enemies' mana."
+                description: "Nyx Assassin's ability damage burns enemies' mana.",
+                abilities: ['nyx_assassin_innate_mana_burn']
             },
             {
+                id: 1,
                 name: 'nyx_assassin_scuttle',
                 icon: 'speed',
                 color: 'Red',
@@ -5669,22 +5925,26 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'naga_siren_passive_riptide',
                 icon: 'armor_broken',
                 color: 'Yellow',
                 gradient_id: 2,
                 title: 'Rip Tide',
                 description:
-                    'Every 6 attacks from Naga and her illusions, enemies around them are damaged and their Armor is reduced.'
+                    'Every 6 attacks from Naga and her illusions, enemies around them are damaged and their Armor is reduced.',
+                abilities: ['naga_siren_rip_tide']
             },
             {
+                id: 1,
                 name: 'naga_siren_active_riptide',
                 icon: 'nuke',
                 color: 'Green',
                 gradient_id: 2,
                 title: 'Deluge',
                 description:
-                    'Naga Siren can create a splash around herself and her illusions, damaging enemies and reducing their Status Resistance.'
+                    'Naga Siren can create a splash around herself and her illusions, damaging enemies and reducing their Status Resistance.',
+                abilities: ['naga_siren_deluge']
             }
         ]
     },
@@ -5737,20 +5997,25 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'keeper_of_the_light_facet_solar_bind',
                 icon: 'slow',
                 color: 'Yellow',
                 gradient_id: 1,
-                title: '',
-                description: 'Grants the Solar Bind ability while active.'
+                title: 'Solar Bind',
+                description: 'Grants the Solar Bind ability while active.',
+                abilities: ['keeper_of_the_light_radiant_bind']
             },
             {
+                id: 1,
                 name: 'keeper_of_the_light_facet_recall',
                 icon: 'teleport',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Recall',
-                description: 'Grants the Recall ability while active.'
+                description:
+                    "After a short delay, teleports the targeted friendly hero to your location. If the targeted friendly hero takes player based damage during this time, the ability is interrupted. When cast, the teleport target's movement speed is increased. Upon teleporting, Chakra Magic and the increased movement speed buff are applied to both Keeper of the Light and the teleport target.\n\n If alt-cast, teleports Keeper of the Light to the target Ally instead. \n\n Ability Level increases with levels of Spirit Form.",
+                abilities: ['keeper_of_the_light_recall']
             }
         ]
     },
@@ -5801,6 +6066,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'wisp_kritzkrieg',
                 icon: 'damage',
                 color: 'Blue',
@@ -5810,6 +6076,7 @@ export const heroAbilities = {
                     'Overcharge grants attack speed and spell amplification to Io and any Tethered allies.'
             },
             {
+                id: 1,
                 name: 'wisp_medigun',
                 icon: 'armor',
                 color: 'Gray',
@@ -5866,31 +6133,32 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'visage_sepulchre',
                 icon: 'area_of_effect',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Sepulchre',
                 description:
-                    'The ability can be cast in the alt-cast state to recall Visages familiars after 4s, during which they cannot attack or act.'
+                    'Grave Chill also affects units around the target. Visage can also recall his familiars.'
             },
             {
+                id: 1,
                 name: 'visage_faithful_followers',
                 icon: 'summons',
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'Faithful Followers',
-                description:
-                    "Familiars will automatically attack the target Visage tried to attack last, and will return if that target is out of Visage's attack range, or Visage issues the cancel current action or hold position commands.\n\nThe ability can be toggled to the Auto-Cast state to command the Familiars to return to Visage and not leave his side until the state has been disabled."
+                description: 'Familiars automatically move with Visage and attack his targets.'
             },
             {
+                id: 2,
                 name: 'visage_gold_assumption',
                 icon: 'gold',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Death Toll',
-                description:
-                    'Soul Assumption kills give 35 gold per soul charge, up to 105 140 175 210 gold. Reduced gold from creeps. Enemy heroes killed within 3s of being affected by Soul Assumption also give gold.'
+                description: 'Soul Assumption kills give up to 105 140 175 210 bonus gold.'
             }
         ]
     },
@@ -5939,6 +6207,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'slark_leeching_leash',
                 icon: 'agility',
                 color: 'Green',
@@ -5947,6 +6216,7 @@ export const heroAbilities = {
                 description: 'Pounce applies stacks of Essence Shift when striking enemy heroes.'
             },
             {
+                id: 1,
                 name: 'slark_dark_reef_renegade',
                 icon: 'cooldown',
                 color: 'Blue',
@@ -6002,22 +6272,34 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'medusa_engorged',
                 icon: 'snake',
                 color: 'Green',
                 gradient_id: 1,
                 title: 'Engorged',
-                description:
-                    'Mystic Snakes returning to Medusa empower her next 3 attacks with +1 additional damage for each 6 mana restored. Lasts up to 5s.'
+                description: 'Mystic Snake grants Medusa attack damage.'
             },
             {
+                id: 1,
+                name: 'medusa_mana_pact',
+                deprecated: 'true',
+                icon: 'mana',
+                color: 'Blue',
+                gradient_id: 1,
+                title: 'Mana Pact',
+                description: 'Medusa can gain attack speed at the cost of mana over time.'
+            },
+            {
+                id: 2,
                 name: 'medusa_slow_attacks',
                 icon: 'slow',
                 color: 'Yellow',
                 gradient_id: 2,
                 title: 'Venomous Volley',
                 description:
-                    'Mana Shield can be activated, draining 3% of max mana per second to gain 3.5% attack speed bonus per second, up to 35%. Maximum effect reached after 10s. Buff lasts 15s and Cooldown is 35s.'
+                    'Every 5 attacks, Medusa applies poison to her arrow that briefly reduces movement speed, attack speed, and cast speed.',
+                abilities: ['medusa_venomed_volley']
             }
         ]
     },
@@ -6066,6 +6348,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'troll_warlord_insensitive',
                 icon: 'armor',
                 color: 'Blue',
@@ -6074,12 +6357,13 @@ export const heroAbilities = {
                 description: 'Fervor grants armor per stack while in melee form.'
             },
             {
+                id: 1,
                 name: 'troll_warlord_bad_influence',
                 icon: 'damage',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Bad Influence',
-                description: 'Battle Trance grants allied heroes 30% of the attack speed bonus.'
+                description: 'Battle Trance grants allied heroes 40% of the attack speed bonus.'
             }
         ]
     },
@@ -6129,21 +6413,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'centaur_counter_strike',
                 icon: 'nuke',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Counter-Strike',
-                description:
-                    'Double Edge damage is increased by 25% of the damage Centaur took in the last 6s from enemy Heroes, up to a total of 100% bonus Double Edge damage. Damage resets when Double Edge is cast.'
+                description: 'Double Edge damage is increased when Centaur is attacked.'
             },
             {
+                id: 1,
                 name: 'centaur_horsepower',
                 icon: 'speed',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Horsepower',
-                description: 'Centaur Warrunner gains Movement Speed based on his Strength.'
+                description: 'Centaur Warrunner gains Movement Speed based on his Strength.',
+                abilities: ['centaur_horsepower']
             }
         ]
     },
@@ -6192,14 +6478,26 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
+                name: 'magnataur_run_through',
+                deprecated: 'true',
+                icon: 'movement',
+                color: 'Gray',
+                gradient_id: 3,
+                title: 'Run Through',
+                description: 'Skewer deals bonus damage when pushing enemies through trees and cliffs.'
+            },
+            {
+                id: 1,
                 name: 'magnataur_reverse_polarity',
                 icon: 'vortex_in',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Reverse Polarity',
-                description: 'Deals additional damage when skewering enemies into trees or cliffs.'
+                description: 'Reverse Polarity pulls all nearby enemies in.'
             },
             {
+                id: 2,
                 name: 'magnataur_reverse_reverse_polarity',
                 icon: 'vortex_out',
                 color: 'Gray',
@@ -6257,21 +6555,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'shredder_shredder',
                 icon: 'tree',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Shredder',
-                description:
-                    'When Timbersaw collides with the target tree, it shatters, sending 10 splinters in all directions, up to 700 distance. If a splinter hits an enemy, they take damage and are slowed for a brief duration.'
+                description: 'Timber Chain splinters the tree into all directions around Timbersaw.'
             },
             {
+                id: 1,
                 name: 'shredder_second_chakram',
                 icon: 'spinning',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Twisted Chakram',
-                description: 'This facet grants the ability Twisted Chakram .'
+                description:
+                    'Launches a second independent Chakram that follows a curved path and returns to Timbersaw, damaging and slowing enemies it passes through. Enemies caught in the saw blade will move more slowly for every 5% of health missing.',
+                abilities: ['shredder_twisted_chakram']
             }
         ]
     },
@@ -6321,6 +6622,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'bristleback_berserk',
                 icon: 'damage',
                 color: 'Yellow',
@@ -6329,22 +6631,24 @@ export const heroAbilities = {
                 description: 'Warpath grants scaling Attack Speed instead of Damage.'
             },
             {
+                id: 1,
                 name: 'bristleback_snot_rocket',
                 icon: 'snot',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Snot Rocket',
                 description:
-                    'Instead of releasing Quill Spray from taking damage, he instead launches Nasal Goo of the current level at all nearby enemies.'
+                    'Bristleback now fires Viscous Nasal Goo instead of Quills when damaged. Viscous Nasal Goo effects are stronger.'
             },
             {
+                id: 2,
                 name: 'bristleback_seeing_red',
                 icon: 'no_vision',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Seeing Red',
                 description:
-                    "Warpath can be activated to grant bonus attack damage and movement speed for a short duration. While Seeing Red, Bristleback's vision is reduced to a narrow cone and he does not share vision with his allies."
+                    "Warpath can be activated to gain extra bonuses. While Seeing Red, Bristleback's vision is limited and he does not share vision with his allies."
             }
         ]
     },
@@ -6394,22 +6698,26 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'tusk_facet_tag_team',
                 icon: 'damage',
                 color: 'Blue',
                 gradient_id: 3,
                 title: 'Tag Team',
                 description:
-                    'Tusk can cast Tag Team causing nearby enemies to receive bonus damage from attacks.'
+                    'Tusk can cast Tag Team causing nearby enemies to receive bonus damage from attacks.',
+                abilities: ['tusk_tag_team']
             },
             {
+                id: 1,
                 name: 'tusk_facet_fist_bump',
                 icon: 'movement',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Drinking Buddies',
                 description:
-                    'Tusk can cast Drinking Buddies , pulling him and a teammate closer and granting both bonus Movement Speed and Attack Damage.'
+                    'Tusk can cast Drinking Buddies , pulling him and a teammate closer and granting both bonus Movement Speed and Attack Damage.',
+                abilities: ['tusk_drinking_buddies']
             }
         ]
     },
@@ -6458,21 +6766,25 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'skywrath_mage_shield',
                 icon: 'armor',
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Shield of the Scion',
-                description: 'Skywrath Mage gains a magic damage barrier when dealing damage to heroes.'
+                description: 'Skywrath Mage gains a magic damage barrier when dealing damage to heroes.',
+                abilities: ['skywrath_mage_shield_of_the_scion']
             },
             {
+                id: 1,
                 name: 'skywrath_mage_staff',
                 icon: 'cooldown',
                 color: 'Yellow',
                 gradient_id: 2,
                 title: 'Staff of the Scion',
                 description:
-                    "Skywrath Mage's Cooldowns are reduced when he deals spell damage to enemy heroes."
+                    "Skywrath Mage's Cooldowns are reduced when he deals spell damage to enemy heroes.",
+                abilities: ['skywrath_mage_staff_of_the_scion']
             }
         ]
     },
@@ -6521,21 +6833,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'abaddon_death_dude',
                 icon: 'cooldown',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'The Quickening',
-                description: 'Units dying nearby Abaddon lower his cooldowns.'
+                description: 'Units dying nearby Abaddon lower his cooldowns.',
+                abilities: ['abaddon_the_quickening']
             },
             {
+                id: 1,
                 name: 'abaddon_mephitic_shroud',
                 icon: 'barrier',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Mephitic Shroud',
                 description:
-                    'Damage barrier amount increased, but no longer bursts upon expiration. 75% of absorbed damage is dealt to nearby enemies.'
+                    'Aphotic Shield absorbs more damage and reflects damage when received instead of exploding at the end.'
             }
         ]
     },
@@ -6586,22 +6901,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'elder_titan_deconstruction',
                 icon: 'armor_broken',
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'Deconstruction',
-                description:
-                    'Every 1s that enemy heroes stay under the effect of Natural Order, their armor is reduced by 1, and magic resistance is reduced by 1%. Stacks up to 20 times.'
+                description: 'Natural Order drains Magic Resistance and Armor over time.'
             },
             {
+                id: 1,
                 name: 'elder_titan_boost_atkspd',
                 icon: 'damage',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Momentum',
                 description:
-                    "Elder Titan's Base Attack Speed is reduced but his Movement Speed also grants Attack Speed."
+                    "Elder Titan's Base Attack Speed is reduced but his Movement Speed also grants Attack Speed.",
+                abilities: ['elder_titan_momentum']
             }
         ]
     },
@@ -6650,6 +6967,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'legion_commander_stonehall_plate',
                 icon: 'armor',
                 color: 'Yellow',
@@ -6659,6 +6977,7 @@ export const heroAbilities = {
                     'Overwhelming Odds grants an all damage barrier based on the damage it deals to enemy heroes.'
             },
             {
+                id: 1,
                 name: 'legion_commander_spoils_of_war',
                 icon: 'damage',
                 color: 'Red',
@@ -6714,22 +7033,22 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'ember_spirit_double_impact',
                 icon: 'fist',
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Double Impact',
-                description:
-                    'When Sleight of Fist connects with 2 or more enemies, the enemy closest to Ember Spirit will be attacked a second time. Damage for the second attack is reduced by 50%.'
+                description: 'Sleight of Fist hits one of its targets an extra time.'
             },
             {
+                id: 1,
                 name: 'ember_spirit_chain_gang',
                 icon: 'debuff',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Chain Gang',
-                description:
-                    'Number of enemies chained increased. When Searing Chains are cast, they are also cast around each Fire Remnant. A target will not be hit by chains from multiple sources at once.'
+                description: 'Searing Chains affect 1 more enemy and also spawn from Fire Remnants.'
             }
         ]
     },
@@ -6778,30 +7097,32 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'earth_spirit_resonance',
                 icon: 'damage',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Resonance',
-                description:
-                    'Magnetizing a Stone Remnant gives Earth Spirit bonus attack damage for 8 seconds. Does not stack.'
+                description: 'Gain bonus Attack Damage when Magnetizing Stone Remnants.'
             },
             {
+                id: 1,
                 name: 'earth_spirit_stepping_stone',
                 icon: 'cooldown',
                 color: 'Gray',
                 gradient_id: 2,
                 title: 'Stepping Stone',
-                description: 'Has a fixed cooldown instead of charges.'
+                description:
+                    "Stone Remnant has a {s:bonus_AbilityCooldown}s cooldown instead of Charges and Remnants don't get destroyed by Rolling Boulder."
             },
             {
+                id: 2,
                 name: 'earth_spirit_ready_to_roll',
                 icon: 'spinning',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Ready to Roll',
-                description:
-                    'Rolling over an allied hero grants the allied hero 15% bonus movespeed for 4s. If he rolls over an allied hero, Earth Spirit will travel further and faster, and stun enemies for longer,'
+                description: 'Rolling Boulder can roll over allied heroes for additional bonuses.'
             }
         ]
     },
@@ -6851,6 +7172,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'terrorblade_condemned',
                 icon: 'twin_hearts',
                 color: 'Gray',
@@ -6859,6 +7181,7 @@ export const heroAbilities = {
                 description: 'There is no minimum health threshold for Sundered enemies.'
             },
             {
+                id: 1,
                 name: 'terrorblade_soul_fragment',
                 icon: 'illusion',
                 color: 'Blue',
@@ -6917,22 +7240,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'phoenix_facet_immolate',
                 icon: 'barrier',
                 color: 'Red',
                 gradient_id: 2,
                 title: 'Dying Light',
                 description:
-                    'Phoenix deals 4.5% of his missing health as magic damage to all enemies in a 400 radius every second.'
+                    'Phoenix deals 4.5% of his missing health as magic damage to all enemies in a 400 radius every second.',
+                abilities: ['phoenix_dying_light']
             },
             {
+                id: 1,
                 name: 'phoenix_hotspot',
                 icon: 'nuke',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Hotspot',
-                description:
-                    'Sun Ray does more damage/heal to targets near the end of the beam. Beam intensity starts increasing at half the beam length, up to 150% of base damage/heal at 1200 range. Increasing Sun Ray length to beyond 1200 range will result in more than 150% damage and healing.'
+                description: 'Sun Ray deals more damage towards the tip of the ray.'
             }
         ]
     },
@@ -6981,20 +7306,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'oracle_facet_dmg',
                 icon: 'nuke',
                 color: 'Red',
                 gradient_id: 2,
                 title: 'Clairvoyant Curse',
-                description: 'Spell amplification increased by 0.75% per hero level.'
+                description: 'Spell amplification increased by 0.75% per hero level.',
+                abilities: ['oracle_clairvoyant_curse']
             },
             {
+                id: 1,
                 name: 'oracle_facet_heal',
                 icon: 'healing',
                 color: 'Green',
                 gradient_id: 1,
                 title: 'Clairvoyant Cure',
-                description: 'Heal amplification increased by 0.75% per hero level.'
+                description: 'Heal amplification increased by 0.75% per hero level.',
+                abilities: ['oracle_clairvoyant_cure']
             }
         ]
     },
@@ -7043,15 +7372,18 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'techies_atk_range',
                 icon: 'range',
                 color: 'Gray',
                 gradient_id: 0,
                 title: "Squee's Scope",
                 description:
-                    'Techies gains 1 attack range and attack projectile speed for each point of attack speed.'
+                    'Techies gains 1 attack range and attack projectile speed for each point of attack speed.',
+                abilities: ['techies_squees_scope']
             },
             {
+                id: 1,
                 name: 'techies_spleens_secret_sauce',
                 icon: 'nuke',
                 color: 'Red',
@@ -7060,12 +7392,14 @@ export const heroAbilities = {
                 description: 'Increased Blast Off! damage and self damage.'
             },
             {
+                id: 2,
                 name: 'techies_backpack',
                 icon: 'item',
                 color: 'Blue',
                 gradient_id: 1,
                 title: "Spoon's Stash",
-                description: 'Techies can use items in their backpack as if they were in their inventory.'
+                description: 'Techies can use items in their backpack as if they were in their inventory.',
+                abilities: ['techies_spoons_stash']
             }
         ]
     },
@@ -7084,7 +7418,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_attack_damage_35',
+                name: 'special_bonus_attack_damage_30',
                 level: 1
             },
             {
@@ -7114,20 +7448,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'winter_wyvern_heal_mana',
                 icon: 'mana',
                 color: 'Blue',
                 gradient_id: 0,
                 title: 'Essence of the Blueheart',
-                description: "Winter Wyvern's heals also restore mana."
+                description: "Winter Wyvern's heals also restore mana.",
+                abilities: ['winter_wyvern_essence_of_the_blueheart']
             },
             {
+                id: 1,
                 name: 'winter_wyvern_atk_range',
                 icon: 'damage',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Dragon Sight',
-                description: 'Winter Wyvern gains bonus damage when her attack range is over 400.'
+                description: 'Winter Wyvern gains bonus damage when her attack range is over 400.',
+                abilities: ['winter_wyvern_dragon_sight']
             }
         ]
     },
@@ -7176,20 +7514,22 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'arc_warden_order',
                 icon: 'arc_warden',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Order',
-                description: 'Activation delay and damage increased.'
+                description: 'Arc Warden and Tempest Double have their respective ability effects.'
             },
             {
+                id: 1,
                 name: 'arc_warden_disorder',
                 icon: 'arc_warden_alt',
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Disorder',
-                description: 'Wraith movement speed and slow duration increased.'
+                description: 'Arc Warden and Tempest Double have their ability effects swapped.'
             }
         ]
     },
@@ -7238,6 +7578,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'abyssal_underlord_demons_reach',
                 icon: 'area_of_effect',
                 color: 'Green',
@@ -7246,13 +7587,14 @@ export const heroAbilities = {
                 description: "Underlord's attacks cleave while he has bonus damage from Atrophy Aura."
             },
             {
+                id: 1,
                 name: 'abyssal_underlord_summons',
                 icon: 'summons',
                 color: 'Yellow',
                 gradient_id: 3,
                 title: 'Abyssal Horde',
-                description:
-                    "Underlord summons uncontrollable demonic Warriors and Archers after travelling through the Fiend's Gate that attack nearby enemies. These units deal 50% damage to buildings."
+                description: "Fiend's Gate periodically summons minions.",
+                abilities: ['abyssal_underlord_abyssal_horde']
             }
         ]
     },
@@ -7303,15 +7645,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'monkey_king_wukongs_faithful',
                 icon: 'summons',
                 color: 'Red',
                 gradient_id: 2,
                 title: "Wukong's Faithful",
                 description:
-                    "Monkey King's soldiers last longer and do not disperse unless he spends more than 3 seconds outside the area."
+                    "Monkey King's soldiers last longer and do not disperse unless he spends more than 3.0 seconds outside the area."
             },
             {
+                id: 1,
                 name: 'monkey_king_simian_stride',
                 icon: 'tree',
                 color: 'Green',
@@ -7368,15 +7712,17 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'pangolier_double_jump',
                 icon: 'double_bounce',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Double Jump',
                 description:
-                    'Pangolier can cast Shield Crash a second time mid-flight, dealing more damage and gaining more barrier.'
+                    'Pangolier can double jump with Shield Crash dealing more damage and gaining more barrier.'
             },
             {
+                id: 1,
                 name: 'pangolier_thunderbolt',
                 icon: 'speed',
                 color: 'Yellow',
@@ -7431,21 +7777,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'dark_willow_throwing_shade',
                 icon: 'damage',
                 color: 'Purple',
                 gradient_id: 1,
                 title: 'Throwing Shade',
                 description:
-                    'While in Shadow Realm, Dark Willow emits a 600 radius aura that increases damage that she deals to enemies in its area of effect by up to 30%. Damage scales based on how long she remains under the effects of Shadow Realm.'
+                    "Dark Willow deals more damage to nearby heroes when she's in the Shadow Realm."
             },
             {
+                id: 1,
                 name: 'dark_willow_thorny_thicket',
                 icon: 'area_of_effect',
                 color: 'Green',
                 gradient_id: 4,
                 title: 'Thorny Thicket',
-                description: 'Creates extra brambles. These brambles last 4s.'
+                description: 'Bramble Maze creates extra brambles.'
             }
         ]
     },
@@ -7495,6 +7843,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'grimstroke_inkstigate',
                 icon: 'area_of_effect',
                 color: 'Gray',
@@ -7503,6 +7852,7 @@ export const heroAbilities = {
                 description: 'Ink Swell can be manually detonated early.'
             },
             {
+                id: 1,
                 name: 'grimstroke_fine_art',
                 icon: 'brush',
                 color: 'Red',
@@ -7528,7 +7878,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_mars_bulwark_redirect_chance',
+                name: 'special_bonus_unique_mars_bulwark_damage_reduction',
                 level: 1
             },
             {
@@ -7540,7 +7890,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_mars_bulwark_damage_reduction',
+                name: 'special_bonus_unique_mars_arena_cooldown',
                 level: 3
             },
             {
@@ -7558,22 +7908,23 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'mars_victory_feast',
                 icon: 'healing',
                 color: 'Red',
                 gradient_id: 2,
                 title: 'Victory Feast',
                 description:
-                    'If Mars is in the Arena when an enemy dies inside of it, he restores 30% of his max health and mana and gets a 20% attack damage buff for 15s.'
+                    'Mars gains health, mana, and attack damage when an enemy inside his Arena of Blood dies.'
             },
             {
+                id: 1,
                 name: 'mars_arena',
                 icon: 'no_vision',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Blood Sport',
-                description:
-                    'Arena of Blood obscures vision and enemies within the arena do not share vision with their allies.'
+                description: "Enemies inside the Arena of Blood don't have vision outside the arena."
             }
         ]
     },
@@ -7622,6 +7973,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'void_spirit_sanctuary',
                 icon: 'armor',
                 color: 'Purple',
@@ -7631,6 +7983,19 @@ export const heroAbilities = {
                     'Resonant Pulse creates a larger all damage barrier instead of a physical barrier.'
             },
             {
+                id: 1,
+                name: 'void_spirit_phys_barrier',
+                deprecated: 'true',
+                icon: 'nuke',
+                color: 'Gray',
+                gradient_id: 3,
+                title: 'Symmetry',
+                description:
+                    'Void Spirit gains a physical damage barrier when dealing magic damage to enemy heroes.',
+                abilities: ['void_spirit_symmetry']
+            },
+            {
+                id: 2,
                 name: 'void_spirit_aether_artifice',
                 icon: 'illusion',
                 color: 'Gray',
@@ -7687,6 +8052,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'snapfire_ricochet_ii',
                 icon: 'ricochet',
                 color: 'Gray',
@@ -7696,6 +8062,7 @@ export const heroAbilities = {
                     'Whenever Snapfire glances or misses an attack, 2 ricochet attacks will bounce towards nearby enemies.'
             },
             {
+                id: 1,
                 name: 'snapfire_full_bore',
                 icon: 'range',
                 color: 'Red',
@@ -7753,6 +8120,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'hoodwink_hunter',
                 icon: 'range',
                 color: 'Yellow',
@@ -7761,13 +8129,13 @@ export const heroAbilities = {
                 description: 'Scurry also provides bonus attack and cast range.'
             },
             {
+                id: 1,
                 name: 'hoodwink_treebounce_trickshot',
                 icon: 'tree',
                 color: 'Green',
                 gradient_id: 0,
                 title: 'Treebounce Trickshot',
-                description:
-                    'If there are no bounce targets within range of Acorn Shot, it can bounce off a nearby tree and set the remaining number of bounces to 1.'
+                description: 'Acorn Shot can bounce once on trees.'
             }
         ]
     },
@@ -7817,6 +8185,7 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'dawnbreaker_solar_charged',
                 icon: 'cooldown',
                 color: 'Gray',
@@ -7826,13 +8195,13 @@ export const heroAbilities = {
                     'Whenever Dawnbreaker hits a target with a powered up Luminosity, she decreases the cooldowns of all of her abilities.'
             },
             {
+                id: 1,
                 name: 'dawnbreaker_gleaming_hammer',
                 icon: 'dawnbreaker_hammer',
                 color: 'Yellow',
                 gradient_id: 1,
                 title: 'Gleaming Hammer',
-                description:
-                    'When Celestial Hammer is on the ground, it emits the healing and damaging effects of Solar Guardian, reduced by 50% in a 200 AoE around it. Increases the duration that the hammer can remain stationary to 2s.'
+                description: 'Celestial Hammer heals allies and damages enemies when on the ground.'
             }
         ]
     },
@@ -7881,22 +8250,26 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'marci_sidekick',
                 icon: 'healing',
                 color: 'Gray',
                 gradient_id: 3,
                 title: 'Sidekick',
                 description:
-                    "Marci can protect an ally, granting them shared lifesteal and damage. Effect is stronger if she's close to the ally."
+                    "Marci can protect an ally, granting them shared lifesteal and damage. Effect is stronger if she's close to the ally.",
+                abilities: ['marci_guardian']
             },
             {
+                id: 1,
                 name: 'marci_bodyguard',
                 icon: 'ricochet',
                 color: 'Blue',
                 gradient_id: 1,
                 title: 'Bodyguard',
                 description:
-                    "Marci can protect an ally, countering attacks directed towards them if she's in range of the enemy."
+                    "Marci can protect an ally, countering attacks directed towards them if she's in range of the enemy.",
+                abilities: ['marci_bodyguard']
             }
         ]
     },
@@ -7946,22 +8319,24 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'primal_beast_romp_n_stomp',
                 icon: 'speed',
                 color: 'Red',
                 gradient_id: 0,
                 title: "Romp n' Stomp",
                 description:
-                    'Trample grants bonus movement speed and when activated grants a small movement speed aura to allies.'
+                    'Trample grants bonus movement speed to Primal Beast and his allies when activated.'
             },
             {
+                id: 1,
                 name: 'primal_beast_ferocity',
                 icon: 'area_of_effect',
                 color: 'Yellow',
                 gradient_id: 3,
                 title: 'Ferocity',
                 description:
-                    'Each hit increases increased the area of effect of all abilities and items by 20% per hit. Buff lasts 10 seconds.'
+                    "Each Pulverize hit increases the AoE bonuses of Primal Beast's abilities and items."
             }
         ]
     },
@@ -8013,22 +8388,97 @@ export const heroAbilities = {
         ],
         facets: [
             {
+                id: 0,
                 name: 'muerta_dance_of_the_dead',
                 icon: 'spirit',
                 color: 'Green',
                 gradient_id: 1,
                 title: 'Dance of the Dead',
-                description:
-                    'Heroes killed inside The Calling refresh its duration, create another Revenant, and expand the radius of The Calling by 100.'
+                description: 'The Calling becomes stronger when heroes die inside it.'
             },
             {
+                id: 1,
                 name: 'muerta_ofrenda',
                 icon: 'teleport',
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Ofrenda',
                 description:
-                    'Muerta can place a beneficial Ofrenda on the map to respawn there instead of the fountain.'
+                    'Muerta can place a beneficial Ofrenda on the map to respawn there instead of the fountain.',
+                abilities: ['muerta_ofrenda']
+            }
+        ]
+    },
+    npc_dota_hero_ringmaster: {
+        abilities: [
+            'ringmaster_tame_the_beasts',
+            'ringmaster_the_box',
+            'ringmaster_impalement',
+            'ringmaster_empty_souvenir',
+            'ringmaster_spotlight',
+            'ringmaster_wheel',
+            'ringmaster_tame_the_beasts_crack'
+        ],
+        talents: [
+            {
+                name: 'special_bonus_unique_ringmaster_whip_radius',
+                level: 1
+            },
+            {
+                name: 'special_bonus_unique_ringmaster_box_cast_range',
+                level: 1
+            },
+            {
+                name: 'special_bonus_unique_ringmaster_dagger_penetrates',
+                level: 2
+            },
+            {
+                name: 'special_bonus_unique_ringmaster_whip_debuff_immunity',
+                level: 2
+            },
+            {
+                name: 'special_bonus_unique_ringmaster_dagger_bleed_and_slow_duration',
+                level: 3
+            },
+            {
+                name: 'special_bonus_unique_ringmaster_whip_damage',
+                level: 3
+            },
+            {
+                name: 'special_bonus_unique_ringmaster_wheel_radius',
+                level: 4
+            },
+            {
+                name: 'special_bonus_unique_ringmaster_the_box_strong_dispel_and_flying',
+                level: 4
+            },
+            {
+                name: 'ringmaster_dark_carnival_souvenirs',
+                level: 5
+            },
+            {
+                name: 'ringmaster_funhouse_mirror',
+                level: 5
+            },
+            {
+                name: 'ringmaster_strongman_tonic',
+                level: 6
+            },
+            {
+                name: 'ringmaster_whoopee_cushion',
+                level: 6
+            }
+        ],
+        facets: [
+            {
+                id: 0,
+                name: 'ringmaster_default',
+                icon: 'item',
+                color: 'Gray',
+                gradient_id: 3,
+                title: 'Center Stage',
+                description:
+                    "Ringmaster is still new to the spotlight. This facet doesn't do anything... yet."
             }
         ]
     }
