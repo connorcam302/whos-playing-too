@@ -22,11 +22,12 @@ type MatchData = {
     | 'item3'
     | 'item4'
     | 'item5'
-    | 'itemzinc'
+    | 'itemNeutral'
     | 'backpack0'
     | 'backpack1'
     | 'backpack2'
     | 'hero'
+    | 'facets'
     ? DotaAsset
     : MatchDataInfer[K];
 };
