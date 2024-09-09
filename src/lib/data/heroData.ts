@@ -4237,7 +4237,7 @@ export const heroData: Hero[] = [
     },
     {
         id: 131,
-        name: 'npc_dota_hero_ringmaster',
+        name: 'ringmaster',
         primary_attr: 'int',
         attack_type: 'Ranged',
         roles: ['Support', 'Nuker', 'Escape', 'Disabler'],
