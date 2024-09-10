@@ -360,13 +360,15 @@
 					{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 				</div>
 			</div>
-			<button class="flex items-center justify-center" on:click={handleExpand}>
-				{dire.length + radiant.length}
-				{#if expanded}
-					<MaterialSymbolsExpandLessRounded />
-				{:else}
-					<MaterialSymbolsExpandMoreRounded />
-				{/if}
+			<button class="flex items-end justify-center" on:click={handleExpand}>
+				<div class="flex items-center justify-center">
+					{dire.length + radiant.length}
+					{#if expanded}
+						<MaterialSymbolsExpandLessRounded />
+					{:else}
+						<MaterialSymbolsExpandMoreRounded />
+					{/if}
+				</div>
 			</button>
 		</div>
 		<div style="display: {expanded ? 'inline' : 'none'}">
