@@ -201,12 +201,26 @@
 			updateMatchesData();
 		}
 	};
+
+	const handleSmurfChange = () => {
+		smurfs = !smurfs;
+	};
 	const updateMatchesData = async () => {
 		if (browser) {
 			matchBlocks = [];
 			const data = await fetchMatches(pageNumber, Number($page.params.id));
 			matchBlocks = data;
 		}
+	};
+
+	const incrementPage = () => {
+		pageNumber++;
+		updateMatchesData();
+	};
+
+	const decrementPage = () => {
+		pageNumber--;
+		updateMatchesData();
 	};
 
 	let chartType = 'days';
@@ -571,6 +585,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					Smurf
 					<div class="flex gap-1">
 						<button
+							on:click={() => handleSmurfChange()}
 							class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 							style="background-color: {smurfs ? '#27272a' : '#18181b'};"
 							use:tippy={{
