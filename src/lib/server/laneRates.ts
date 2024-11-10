@@ -623,5 +623,10 @@ export const laneRates: { id: number; name: string; data: string[] }[] = [
 		id: 138,
 		name: 'Muerta',
 		data: ['46.4%', '17.7%', '4.8%', '20.3%', '10.8%']
+	},
+	{
+		id: 139,
+		name: 'Kez',
+		data: ['20%', '20%', '20%', '20%', '20%']
 	}
 ];

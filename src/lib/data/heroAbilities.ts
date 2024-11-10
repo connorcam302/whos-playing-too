@@ -10,7 +10,7 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_unique_antimage_4',
+                name: 'special_bonus_hp_regen_3',
                 level: 1
             },
             {
@@ -455,7 +455,8 @@ export const heroAbilities = {
                 gradient_id: 1,
                 title: 'Slugger',
                 description:
-                    "Enemies killed with Enchant Totem or Earthshaker's other abilities are sent flying, dealing damage to enemies they hit."
+                    "Enemies killed with Enchant Totem or Earthshaker's other abilities are sent flying, dealing damage to enemies they hit.",
+                abilities: ['earthshaker_slugger']
             }
         ]
     },
@@ -1712,7 +1713,7 @@ export const heroAbilities = {
                 color: 'Purple',
                 gradient_id: 2,
                 title: 'Essence Eater',
-                description: 'Mana Drain mana per second increased and damage equal to 100% of mana stolen.'
+                description: 'Mana Drain deals damage equal to 100% of mana stolen.'
             },
             {
                 id: 1,
@@ -3242,7 +3243,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_attack_speed_80',
+                name: 'special_bonus_attack_speed_90',
                 level: 2
             },
             {
@@ -3703,7 +3704,7 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_unique_omniknight_guardian_angel_duration',
+                name: 'special_bonus_unique_omniknight_5',
                 level: 1
             },
             {
@@ -3719,7 +3720,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_omniknight_5',
+                name: 'special_bonus_unique_omniknight_guardian_angel_duration',
                 level: 3
             },
             {
@@ -4253,7 +4254,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_batrider_1',
+                name: 'special_bonus_unique_batrider_smoldering_resin_ticks',
                 level: 3
             },
             {
@@ -4441,7 +4442,7 @@ export const heroAbilities = {
                 id: 1,
                 name: 'spectre_twist_the_knife',
                 icon: 'nuke',
-                color: 'Purple',
+                color: 'Purple ',
                 gradient_id: 2,
                 title: 'Twist the Knife',
                 description:
@@ -4512,7 +4513,7 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: "Devil's Bargain",
                 description:
-                    'Doom can sell items for 90% of their value, but his buyback costs are increased by 15%.',
+                    'Doom can sell items for 90% of their value, but his buyback costs are increased by 20%.',
                 abilities: ['doom_bringer_devils_bargain']
             },
             {
@@ -4555,7 +4556,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_ancient_apparition_ice_vortex_duration',
+                name: 'special_ bonus_unique_ancient_apparition_ice_vortex_duration',
                 level: 3
             },
             {
@@ -4795,9 +4796,9 @@ export const heroAbilities = {
             'alchemist_unstable_concoction',
             'alchemist_corrosive_weaponry',
             'alchemist_berserk_potion',
-            'alchemist_goblins_greed',
+            'alchemist_ goblins_greed',
             'alchemist_chemical_rage',
-            'alchemist_unstable_concoction_throw'
+            'alchemist_unstable_conco ction_throw'
         ],
         talents: [
             {
@@ -4805,7 +4806,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_alchemist',
+                name: 'special_bonus_unique_alche mist',
                 level: 1
             },
             {
@@ -4813,7 +4814,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_alchemist_7',
+                name: 'special_bonus_unique_alchemi st_7',
                 level: 2
             },
             {
@@ -4821,7 +4822,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_unique_alchemist_2',
+                name: 'special_bonus_unique_alchemi st_2',
                 level: 3
             },
             {
@@ -4829,7 +4830,7 @@ export const heroAbilities = {
                 level: 4
             },
             {
-                name: 'special_bonus_unique_alchemist_4',
+                name: 'special_bonus_unique_alchemi st_4',
                 level: 4
             }
         ],
@@ -5060,13 +5061,13 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: 'Overwhelming Devourer',
                 description:
-                    "Heroes affected by Astral Imprisonment and Sanity's Eclipse heal Outworld Destroyer every time they cast a spell."
+                    "Heroes affected by Astral Imprisonment and  Sanity's Eclipse heal Outworld Destroyer every time they cast a spell."
             }
         ]
     },
     npc_dota_hero_lycan: {
         abilities: [
-            'lycan_summon_wolves',
+            ' lycan_summon_wolves',
             'lycan_howl',
             'lycan_feral_impulse',
             'lycan_wolf_bite',
@@ -5096,7 +5097,7 @@ export const heroAbilities = {
             },
             {
                 name: 'special_bonus_unique_lycan_4',
-                level: 3
+                'leve l': 3
             },
             {
                 name: 'special_bonus_unique_lycan_2',
@@ -5113,7 +5114,7 @@ export const heroAbilities = {
                 name: 'lycan_pack_leader',
                 icon: 'summons',
                 color: 'Gray',
-                gradient_id: 1,
+                'gradient _id': 1,
                 title: 'Pack Leader',
                 description: 'Enemy heroes killed by Lycan or his units extend Shapeshift duration.'
             },
@@ -5123,7 +5124,7 @@ export const heroAbilities = {
                 icon: 'spirit',
                 color: 'Red',
                 gradient_id: 0,
-                title: 'Spirit Wolves',
+                title: 'S pirit Wolves',
                 description:
                     "Summon Wolves creates invulnerable non-attacking wolves that buff Lycan's health and attack damage."
             },
@@ -5134,7 +5135,7 @@ export const heroAbilities = {
                 color: 'Green',
                 gradient_id: 2,
                 title: 'Alpha Wolves',
-                description:
+                'descri ption':
                     'Increases the max level of Summon Wolves while lowering the max level of Howl and Feral Impulse.'
             }
         ]
@@ -5143,7 +5144,7 @@ export const heroAbilities = {
         abilities: [
             'brewmaster_thunder_clap',
             'brewmaster_cinder_brew',
-            'brewmaster_drunken_brawler',
+            'brewmaster_drunken_braw ler',
             'brewmaster_primal_companion',
             'generic_hidden',
             'brewmaster_primal_split',
@@ -5151,11 +5152,11 @@ export const heroAbilities = {
         ],
         talents: [
             {
-                name: 'special_bonus_unique_brewmaster_2',
+                'name ': 'special_bonus_unique_brewmaster_2',
                 level: 1
             },
             {
-                name: 'special_bonus_unique_brewmaster_7',
+                name: 'spe cial_bonus_uniqu e_brewmaster_7',
                 level: 1
             },
             {
@@ -5164,7 +5165,7 @@ export const heroAbilities = {
             },
             {
                 name: 'special_bonus_unique_brewmaster_8',
-                level: 2
+                'leve l': 2
             },
             {
                 name: 'special_bonus_unique_brewmaster',
@@ -5210,14 +5211,14 @@ export const heroAbilities = {
             'shadow_demon_disruption',
             'shadow_demon_disseminate',
             'shadow_demon_shadow_poison',
-            'shadow_demon_shadow_poison_release',
+            'shadow_demon_shadow_poison_rel ease',
             'shadow_demon_demonic_cleanse',
             'shadow_demon_demonic_purge',
             'shadow_demon_menace'
         ],
         talents: [
             {
-                name: 'special_bonus_unique_shadow_demon_4',
+                name: 'special_bonus_uniq ue_shadow_demon_4',
                 level: 1
             },
             {
@@ -5225,7 +5226,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_movement_speed_25',
+                name: 'specia l_bonus_movement_speed_25',
                 level: 2
             },
             {
@@ -5233,7 +5234,7 @@ export const heroAbilities = {
                 level: 2
             },
             {
-                name: 'special_bonus_unique_shadow_demon_disseminate_damage',
+                name: 'spec ial_bonus_unique_shadow_demon_disseminate_damage',
                 level: 3
             },
             {
@@ -5257,34 +5258,35 @@ export const heroAbilities = {
                 color: 'Gray',
                 gradient_id: 0,
                 title: 'Promulgate',
-                description:
+                'des cription':
                     "Disseminate instantly removes a percentage of the opponent's health for its duration."
             },
             {
                 id: 1,
-                name: 'shadow_demon_facet_soul_mastery',
+                'na me': 'shadow_demon_facet_soul_mastery',
                 icon: 'illusion',
                 color: 'Purple',
                 gradient_id: 0,
                 title: 'Shadow Servant',
                 description: 'Shadow Demon creates illusions of heroes that die near him.',
-                abilities: ['shadow_demon_shadow_servant']
+                'abili ties': ['shadow_demon_shadow_servant']
             }
         ]
     },
-    npc_dota_hero_lone_druid: {
+    'npc_dota_hero_l one_druid': {
         abilities: [
             'lone_druid_spirit_bear',
             'lone_druid_spirit_link',
-            'lone_druid_savage_roar',
-            'lone_druid_gift_bearer',
+            'lone_dru id_savage_roar',
             'generic_hidden',
-            'lone_druid_true_form'
+            ' generic_hidden',
+            'lone_druid_true_form',
+            'lone_druid_gift_bearer'
         ],
         talents: [
             {
                 name: 'special_bonus_hp_200',
-                level: 1
+                'l evel': 1
             },
             {
                 name: 'special_bonus_unique_lone_druid_11',
@@ -5311,7 +5313,7 @@ export const heroAbilities = {
                 level: 4
             },
             {
-                name: 'special_bonus_unique_lone_druid_spirit_link_attack_speed',
+                name: 'special_bonus_unique_ lone_druid_spirit_link_attack_speed',
                 level: 4
             }
         ],
@@ -5324,17 +5326,17 @@ export const heroAbilities = {
                 gradient_id: 1,
                 title: 'Bear with Me',
                 description:
-                    "Spirit Link's Shared Armor is increased and Lone Druid's attacks heal the Spirit Bear."
+                    "Spirit Link's Shared Armor is increased and  Lone Druid's attacks heal the Spirit Bear."
             },
             {
                 id: 1,
                 name: 'lone_druid_unbearable',
                 icon: 'overshadow',
-                color: 'Yellow',
+                'co lor': 'Yellow',
                 gradient_id: 1,
                 title: 'Unbearable',
                 description:
-                    'True Form transforms the Spirit Bear instead of Lone Druid. Increases the distance from Lone Druid at which the Spirit Bear can attack.'
+                    'True Form transforms the Spirit Bear instead of  Lone Druid. Increases the distance from Lone Druid at which the Spirit Bear can attack.'
             },
             {
                 id: 2,
@@ -5351,11 +5353,11 @@ export const heroAbilities = {
     npc_dota_hero_chaos_knight: {
         abilities: [
             'chaos_knight_chaos_bolt',
-            'chaos_knight_reality_rift',
+            'chaos_knight_re ality_rift',
             'chaos_knight_chaos_strike',
             'generic_hidden',
             'chaos_knight_reins_of_chaos',
-            'chaos_knight_phantasm'
+            'chaos_knight _phantasm'
         ],
         talents: [
             {
@@ -5367,7 +5369,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_chaos_knight_8',
+                name: 'special_bonus_ unique_chaos_knight_8',
                 level: 2
             },
             {
@@ -5394,14 +5396,14 @@ export const heroAbilities = {
         facets: [
             {
                 id: 0,
-                name: 'chaos_knight_strong_illusions',
+                name: 'c haos_knight_strong_illusions',
                 icon: 'illusion',
                 color: 'Red',
                 gradient_id: 1,
                 title: 'Phantasmagoria',
-                description:
+                'descrip tion':
                     'All Chaos Knight Illusions are Strong Illusions and take less damage when near him.',
-                abilities: ['chaos_knight_phantasmagoria']
+                abilities: ['chaos_knight_pha ntasmagoria']
             },
             {
                 id: 1,
@@ -5411,14 +5413,14 @@ export const heroAbilities = {
                 gradient_id: 0,
                 title: 'Irrationality',
                 description:
-                    'Reality Rift has equal chances of applying Break, Disarm, or Silence for 50% of the base debuff duration in addition to its normal effects.'
+                    'Reality Rift has equal chances of app lying Break, Disarm, or Silence for 50% of the base debuff duration in addition  to its normal effects.'
             }
         ]
     },
-    npc_dota_hero_meepo: {
+    'npc_dota_hero_meep  o': {
         abilities: [
             'meepo_earthbind',
-            'meepo_poof',
+            'meepo_p oof',
             'meepo_ransack',
             'meepo_petrify',
             'meepo_megameepo',
@@ -5452,7 +5454,7 @@ export const heroAbilities = {
                 level: 3
             },
             {
-                name: 'special_bonus_hp_350',
+                name: 'specia l_bonus_hp_350',
                 level: 4
             },
             {
@@ -5468,7 +5470,7 @@ export const heroAbilities = {
                 color: 'Blue',
                 gradient_id: 2,
                 title: 'More Meepo',
-                description: 'Obtain extra Meepos sooner and get 1 extra Meepo.'
+                'descript ion': 'Obtain extra Meepos sooner and get 1 extra Meepo.'
             },
             {
                 id: 1,
@@ -5489,7 +5491,7 @@ export const heroAbilities = {
             'treant_living_armor',
             'treant_eyes_in_the_forest',
             'treant_natures_guise',
-            'treant_overgrowth',
+            'treant_over growth',
             'treant_innate_attack_damage'
         ],
         talents: [
@@ -5502,7 +5504,7 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_treant_3',
+                name: 'special _bonus_unique_treant_3',
                 level: 2
             },
             {
@@ -5533,7 +5535,7 @@ export const heroAbilities = {
                 icon: 'damage',
                 color: 'Yellow',
                 gradient_id: 2,
-                title: 'Primeval Power',
+                title: 'Primeva l Power',
                 description: 'Treant gains +5 base attack damage per hero level.'
             },
             {
@@ -5551,7 +5553,7 @@ export const heroAbilities = {
         abilities: [
             'ogre_magi_fireblast',
             'ogre_magi_ignite',
-            'ogre_magi_bloodlust',
+            'ogre_magi_blood lust',
             'ogre_magi_unrefined_fireblast',
             'ogre_magi_smash',
             'ogre_magi_dumb_luck',
@@ -5563,23 +5565,23 @@ export const heroAbilities = {
                 level: 1
             },
             {
-                name: 'special_bonus_unique_ogre_magi_5',
+                name: 'special _bonus_unique_ogre_magi_5',
                 level: 1
             },
             {
-                name: 'special_bonus_attack_damage_80',
+                name: 'special_bonus_a ttack_damage_80',
                 level: 2
             },
             {
-                name: 'special_bonus_unique_ogre_magi_dumb_luck_mana',
+                name: 'special_bonus_unique_ogre _magi_dumb_luck_mana',
                 level: 2
             },
             {
-                name: 'special_bonus_strength_30',
+                name: 'special_bonus_streng th_30',
                 level: 3
             },
             {
-                name: 'special_bonus_unique_ogre_magi',
+                name: 'spe cial_bonus_unique_ogre_magi',
                 level: 3
             },
             {
@@ -5599,7 +5601,7 @@ export const heroAbilities = {
                 color: 'Red',
                 gradient_id: 0,
                 title: 'Fat Chance',
-                description: "Multicast chance is increased by  0.06% of Ogre Magi's Strength."
+                description: "Multicast chance is increased b y  0.06% of Ogre Magi's Strength."
             },
             {
                 id: 1,
@@ -6158,7 +6160,7 @@ export const heroAbilities = {
                 color: 'Yellow',
                 gradient_id: 0,
                 title: 'Death Toll',
-                description: 'Soul Assumption kills give up to 105 140 175 210 bonus gold.'
+                description: 'Soul Assumption kills give bonus gold. Visage can also recall his familiars.'
             }
         ]
     },
@@ -7652,7 +7654,7 @@ export const heroAbilities = {
                 gradient_id: 2,
                 title: "Wukong's Faithful",
                 description:
-                    "Monkey King's soldiers last longer and do not disperse unless he spends more than 3.0 seconds outside the area."
+                    "Monkey King's soldiers last longer and do not disperse unless he spends more than 4.0 seconds outside the area."
             },
             {
                 id: 1,
@@ -7661,7 +7663,7 @@ export const heroAbilities = {
                 color: 'Green',
                 gradient_id: 4,
                 title: 'Simian Stride',
-                description: 'Tree Dance has no cooldown while Monkey King is above 90% health.'
+                description: 'Tree Dance has no cooldown while Monkey King is above 95% health.'
             }
         ]
     },
@@ -8417,7 +8419,8 @@ export const heroAbilities = {
             'ringmaster_empty_souvenir',
             'ringmaster_spotlight',
             'ringmaster_wheel',
-            'ringmaster_tame_the_beasts_crack'
+            'ringmaster_tame_the_beasts_crack',
+            'generic_hidden'
         ],
         talents: [
             {
@@ -8479,6 +8482,67 @@ export const heroAbilities = {
                 title: 'Center Stage',
                 description:
                     "Ringmaster is still new to the spotlight. This facet doesn't do anything... yet."
+            }
+        ]
+    },
+    npc_dota_hero_kez: {
+        abilities: [
+            'kez_echo_slash',
+            'kez_grappling_claw',
+            'kez_kazurai_katana',
+            'kez_switch_weapons',
+            'generic_hidden',
+            'kez_raptor_dance',
+            'kez_falcon_rush',
+            'kez_talon_toss',
+            'kez_shodo_sai',
+            'kez_ravens_veil',
+            'kez_shodo_sai_parry_cancel'
+        ],
+        talents: [
+            {
+                name: 'special_bonus_magic_resistance_12',
+                level: 1
+            },
+            {
+                name: 'special_bonus_mp_regen_150',
+                level: 1
+            },
+            {
+                name: 'special_bonus_unique_kez_falcon_rush_duration',
+                level: 2
+            },
+            {
+                name: 'special_bonus_unique_kez_raptor_dance_radius',
+                level: 2
+            },
+            {
+                name: 'special_bonus_unique_kez_kazura_katana_bleed_damage',
+                level: 3
+            },
+            {
+                name: 'special_bonus_unique_kez_falcon_rush_evasion',
+                level: 3
+            },
+            {
+                name: 'special_bonus_unique_kez_mark_damage',
+                level: 4
+            },
+            {
+                name: 'special_bonus_unique_kez_echo_slash_strike_count',
+                level: 4
+            }
+        ],
+        facets: [
+            {
+                id: 0,
+                name: 'kez_default',
+                icon: 'kez',
+                color: 'Blue',
+                gradient_id: 3,
+                title: 'Hero of the Flightless',
+                description:
+                    "Kez always has a few fun tricks up his sleeve, but right now he's got a war to win. This facet doesn't do anything... yet."
             }
         ]
     }
