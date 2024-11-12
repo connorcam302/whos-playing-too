@@ -60,5 +60,7 @@ export const load = async ({ url, params }) => {
 		.sort((a, b) => b.lastlogoff - a.lastlogoff)
 		.sort((a, b) => (b.gameextrainfo === 'Dota 2') - (a.gameextrainfo === 'Dota 2'));
 
+	console.log(totw);
+
 	return { heroStats, playerStats, totw, features };
 };

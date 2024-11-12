@@ -15,18 +15,23 @@
 		onePlayer: number;
 		oneHero: number;
 		onePlayerName: string;
+		oneSequence: number;
 		twoPlayer: number;
 		twoHero: number;
 		twoPlayerName: string;
+		twoSequence: number;
 		threePlayer: number;
 		threeHero: number;
 		threePlayerName: string;
+		threeSequence: number;
 		fourPlayer: number;
 		fourHero: number;
 		fourPlayerName: string;
+		fourSequence: number;
 		fivePlayer: number;
 		fiveHero: number;
 		fivePlayerName: string;
+		fiveSequence: number;
 		oneHeroId: string;
 		twoHeroId: string;
 		threeHeroId: string;
@@ -55,7 +60,7 @@
 	<div class="grow" />
 	<div class="flex flex-wrap justify-center gap-2">
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<MatchModal matchId={totw.oneMatch}>
+			<MatchModal matchId={totw.oneMatch} sequenceNum={totw.oneSequence}>
 				<div class="mx-2 lg:max-h-48 lg:max-w-48">
 					<FeaturePlayer data={{ hero: totw.oneHeroId, role: 1 }} />
 				</div>
@@ -67,7 +72,7 @@
 			</MatchModal>
 		</div>
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<MatchModal matchId={totw.twoMatch}>
+			<MatchModal matchId={totw.twoMatch} sequenceNum={totw.twoSequence}>
 				<div class="mx-2 lg:max-h-48 lg:max-w-48">
 					<FeaturePlayer data={{ hero: totw.twoHeroId, role: 2 }} />
 				</div>
@@ -80,7 +85,7 @@
 		</div>
 
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<MatchModal matchId={totw.threeMatch}>
+			<MatchModal matchId={totw.threeMatch} sequenceNum={totw.threeSequence}>
 				<div class="mx-2 lg:max-h-48 lg:max-w-48">
 					<FeaturePlayer data={{ hero: totw.threeHeroId, role: 3 }} />
 				</div>
@@ -92,7 +97,7 @@
 			</MatchModal>
 		</div>
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<MatchModal matchId={totw.fourMatch}>
+			<MatchModal matchId={totw.fourMatch} sequenceNum={totw.fourSequence}>
 				<div class="mx-2 lg:max-h-48 lg:max-w-48">
 					<FeaturePlayer data={{ hero: totw.fourHeroId, role: 4 }} />
 				</div>
@@ -104,7 +109,7 @@
 			</MatchModal>
 		</div>
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
-			<MatchModal matchId={totw.fiveMatch}>
+			<MatchModal matchId={totw.fiveMatch} sequenceNum={totw.fiveSequence}>
 				<div class="mx-2 lg:max-h-48 lg:max-w-48">
 					<FeaturePlayer data={{ hero: totw.fiveHeroId, role: 5 }} />
 				</div>
