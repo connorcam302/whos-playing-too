@@ -146,6 +146,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 
         const block: PlayerMatchData[] = data.map((player) => {
             const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name;
+
             const facets = heroAbilities[`npc_dota_hero_${heroName}`].facets || [];
             return {
                 ...player.players,

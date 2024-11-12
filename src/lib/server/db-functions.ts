@@ -327,8 +327,28 @@ export const getTeamOfTheWeek = async () => {
 
     const playerList = await db.select().from(players);
 
+    const ids = [
+        totw[0].oneMatch,
+        totw[0].twoMatch,
+        totw[0].threeMatch,
+        totw[0].fourMatch,
+        totw[0].fiveMatch
+    ];
+
+    //write a function that takes in an array of match ids and returns an array of the matching sequence id by searching the db for a match with the id
+
+    const sequenceIds = ids.map(async (id) => {
+        const sequenceId = await db.select().from(matches).where(eq(matches.id, id));
+        return sequenceId[0].sequenceNumber;
+    });
+
     const totwWithIds = {
         ...totw[0],
+        oneSequence: await sequenceIds[0],
+        twoSequence: await sequenceIds[1],
+        threeSequence: await sequenceIds[2],
+        fourSequence: await sequenceIds[3],
+        fiveSequence: await sequenceIds[4],
         onePlayerName: playerList.find((player) => player.id === totw[0].onePlayer)?.username,
         twoPlayerName: playerList.find((player) => player.id === totw[0].twoPlayer)?.username,
         threePlayerName: playerList.find((player) => player.id === totw[0].threePlayer)?.username,
