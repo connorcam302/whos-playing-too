@@ -13,7 +13,7 @@
 
 	export let data: PageData;
 
-	$: currentPage = 'reports';
+	$: currentPage = 'home';
 
 	const pages = ['home', 'oty', 'stack', 'matches', 'individual', 'reports'];
 
