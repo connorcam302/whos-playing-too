@@ -983,8 +983,8 @@ export const reportData: PlayerData[] = [
 		player_name: 'Tom',
 		role_combination: 'disabler, initiator, durable',
 		character_and_game: {
-			character: 'The Doom Slayer',
-			game: 'DOOM'
+			character: 'Ulfric Stormcloak',
+			game: 'Skyrim'
 		},
 		most_played_heroes: [
 			{
