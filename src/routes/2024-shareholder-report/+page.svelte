@@ -30,6 +30,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>whos-playing | 2024 Shareholder Report</title>
+</svelte:head>
+
 <div class="flex flex-col items-center justify-center px-4 text-center">
 	<div class="flex flex-wrap items-center justify-center gap-4">
 		<button
