@@ -1998,3 +1998,45 @@ export const getMatchDataFromIdAndPlayer = async (ids: number[], player: number)
 
     return matchList;
 };
+
+export const getMatchData = async (id: number) => {
+    return await db
+        .select({
+            id: players.id,
+            username: players.username,
+            kills: matchData.kills,
+            deaths: matchData.deaths,
+            assists: matchData.assists,
+            impact: matchData.impact,
+            role: matchData.role,
+            gpm: matchData.goldPerMin,
+            xpm: matchData.xpPerMin,
+            lastHits: matchData.lastHits,
+            matchId: matchData.matchId,
+            heroDamage: matchData.heroDamage,
+            sequenceNumber: matches.sequenceNumber,
+            duration: matches.duration,
+            startTime: matches.startTime,
+            item0: matchData.item0,
+            item1: matchData.item1,
+            item2: matchData.item2,
+            item3: matchData.item3,
+            item4: matchData.item4,
+            item5: matchData.item5,
+            itemNeutral: matchData.itemNeutral,
+            backpack0: matchData.backpack0,
+            backpack1: matchData.backpack1,
+            backpack2: matchData.backpack2,
+            hero: {
+                id: heroes.id,
+                name: heroes.name,
+                img: heroes.img
+            }
+        })
+        .from(matchData)
+        .innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(players, eq(accounts.owner, players.id))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .innerJoin(heroes, eq(heroes.id, matchData.heroId))
+        .where(eq(matches.id, id));
+};
