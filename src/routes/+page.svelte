@@ -46,6 +46,17 @@
 </svelte:head>
 
 <div class="flex w-full flex-col items-center gap-4">
+	<button
+		id="gradient-box"
+		class="rounded-xl p-1"
+		on:click={() => goto('/2024-shareholder-report')}
+	>
+		<div class="card flex items-center justify-center gap-4 rounded-lg bg-zinc-800 p-4">
+			<img src="/logo.png" alt="whos-playing logo" class="h-14 w-14 scale-x-[-1]" />
+			<div class="text-4xl">2024 SHAREHOLDER REPORT</div>
+			<img src="/logo.png" alt="whos-playing logo" class="h-14 w-14" />
+		</div>
+	</button>
 	<div class="flex w-full flex-col items-center justify-center">
 		<div class="flex h-fit gap-4">
 			<div>
@@ -167,3 +178,23 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	#gradient-box {
+		background: linear-gradient(45deg, #c47716, #2d6a75, #c14755, #4555a9, #3b9c75);
+		background-size: 400% 400%; /* Make the gradient larger to ensure smooth transition */
+		animation: rotate-gradient 5s linear infinite; /* Animation for rotating gradient */
+	}
+
+	@keyframes rotate-gradient {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}
+</style>

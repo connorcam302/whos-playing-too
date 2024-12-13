@@ -2,9 +2,12 @@
 	export let data: { hero: string; role: number };
 	import { getColour } from '$lib/functions';
 
-	const { hero, role } = data;
+	const { hero, role, backgroundColour } = data;
 
-	const background = getColour(role);
+	let background = backgroundColour;
+	if (!backgroundColour) {
+		background = getColour(role);
+	}
 </script>
 
 <div class="h-full w-full bg-no-repeat">
