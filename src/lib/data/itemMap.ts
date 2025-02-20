@@ -2293,5 +2293,27 @@ itemMap.set(1156, {
     name: 'Ancient Guardian',
     img: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/ancient_guardian.png'
 });
+const items = [
+    { "id": 1598, "name": "Unrelenting Eye", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/unrelenting_eye.png" },
+    { "id": 1599, "name": "Mana Draught", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/mana_draught.png" },
+    { "id": 1600, "name": "Ripper's Lash", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/rippers_lash.png" },
+    { "id": 1601, "name": "Crippling Crossbow", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/crippling_crossbow.png" },
+    { "id": 1602, "name": "Gale Guard", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/gale_guard.png" },
+    { "id": 1603, "name": "Gunpowder Gauntlets", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/gunpowder_gauntlets.png" },
+    { "id": 1604, "name": "Searing Signet", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/searing_signet.png" },
+    { "id": 1605, "name": "Serrated Shiv", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/serrated_shiv.png" },
+    { "id": 1606, "name": "Polliwog Charm", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/polliwog_charm.png" },
+    { "id": 1607, "name": "Magnifying Monocle", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/magnifying_monocle.png" },
+    { "id": 1608, "name": "Pyrrhic Cloak", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/pyrrhic_cloak.png" },
+    { "id": 1609, "name": "Madstone Bundle", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/madstone_bundle.png" },
+    { "id": 1610, "name": "Miniboss Minion Summoner", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/miniboss_minion_summoner.png" },
+    { "id": 1575, "name": "Orb of Frost", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/orb_of_frost.png" },
+    { "id": 1578, "name": "Cursed Circlet", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/cursed_circlet.png" },
+    { "id": 1580, "name": "Neutral Tabi", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/neutral_tabi.png" },
+    { "id": 1579, "name": "Ogre Heart", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/ogre_heart.png" },
+    { "id": 1582, "name": "Hellbear Totem", "img": "https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/items/hellbear_totem.png" }
+];
+
+items.forEach(item => itemMap.set(item.id, item));
 
 export { itemMap };

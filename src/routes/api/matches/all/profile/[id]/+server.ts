@@ -16,19 +16,19 @@ type PlayerInfer = InferSelectModel<typeof players>;
 
 type MatchData = {
 	[K in keyof MatchDataInfer]: K extends
-		| 'item0'
-		| 'item1'
-		| 'item2'
-		| 'item3'
-		| 'item4'
-		| 'item5'
-		| 'itemzinc'
-		| 'backpack0'
-		| 'backpack1'
-		| 'backpack2'
-		| 'hero'
-		? DotaAsset
-		: MatchDataInfer[K];
+	| 'item0'
+	| 'item1'
+	| 'item2'
+	| 'item3'
+	| 'item4'
+	| 'item5'
+	| 'itemzinc'
+	| 'backpack0'
+	| 'backpack1'
+	| 'backpack2'
+	| 'hero'
+	? DotaAsset
+	: MatchDataInfer[K];
 };
 
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
@@ -145,7 +145,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 
 		const block: PlayerMatchData[] = data.map((player) => {
 			const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name;
-			const facets = heroAbilities[`npc_dota_hero_${heroName}`].facets || [];
+			const facets = heroAbilities[`npc_dota_hero_${heroName}`]?.facets || [];
 			return {
 				...player.players,
 				...player.accounts,

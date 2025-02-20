@@ -332,8 +332,6 @@
 			}
 		}
 	};
-
-	console.log(matchDetails);
 </script>
 
 <div class="px-4">
@@ -573,9 +571,10 @@
 														/>
 													{/each}
 													<img
-														src={player.neutralItem.img}
-														alt={player.neutralItem.name}
-														use:tippy={{ content: player.neutralItem.name, theme: 'light' }}
+														src={player.neutralItem?.img ??
+															'https://1000logos.net/wp-content/uploads/2024/04/Question-Mark-Emojis.png'}
+														alt={player.neutralItem?.name}
+														use:tippy={{ content: player.neutralItem?.name, theme: 'light' }}
 														class="mx-2 h-7 max-w-none rounded-full object-cover"
 													/>
 												</div>
@@ -783,9 +782,9 @@
 														/>
 													{/each}
 													<img
-														src={player.neutralItem.img}
-														alt={player.neutralItem.name}
-														use:tippy={{ content: player.neutralItem.name, theme: 'light' }}
+														src={player.neutralItem?.img}
+														alt={player.neutralItem?.name}
+														use:tippy={{ content: player.neutralItem?.name, theme: 'light' }}
 														class="mx-2 h-7 max-w-none rounded-full object-cover"
 													/>
 												</div>
