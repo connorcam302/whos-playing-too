@@ -210,6 +210,7 @@
 			matchBlocks = [];
 			const data = await fetchMatches(pageNumber, Number($page.params.id));
 			matchBlocks = data;
+			console.log(matchBlocks);
 		}
 	};
 

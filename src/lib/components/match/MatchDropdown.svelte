@@ -222,14 +222,16 @@
 					<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
 					{#if player.facet}
 						<div
-							class={`absolute bottom-0 right-0 color_${player.facets[player.facet - 1].color}_${
-								player.facets[player.facet - 1].gradient_id
-							}`}
+							class={`absolute bottom-0 right-0 color_${
+								player.facets[player.facet - 1]?.color ?? 'Blue'
+							}_${player.facets[player.facet - 1]?.gradient_id ?? 3}`}
 						>
 							<img
-								src={`https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/icons/facets/${
-									player.facets[player.facet - 1].icon
-								}.png`}
+								src={player.facets[player.facet - 1]?.icon
+									? `https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/icons/facets/${
+											player.facets[player.facet - 1]?.icon
+										}.png`
+									: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png'}
 								alt={player.facet}
 								class="h-4 px-1 py-0.5 md:h-4 md:px-2 md:py-0.5"
 								use:tippy={{
