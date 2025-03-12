@@ -46,17 +46,6 @@
 </svelte:head>
 
 <div class="flex w-full flex-col items-center gap-4">
-	<button
-		id="gradient-box"
-		class="rounded-xl p-1"
-		on:click={() => goto('/2024-shareholder-report')}
-	>
-		<div class="card flex items-center justify-center gap-4 rounded-lg bg-zinc-800 p-4">
-			<img src="/logo.png" alt="whos-playing logo" class="h-14 w-14 scale-x-[-1]" />
-			<div class="text-4xl">2024 SHAREHOLDER REPORT</div>
-			<img src="/logo.png" alt="whos-playing logo" class="h-14 w-14" />
-		</div>
-	</button>
 	<div class="flex w-full flex-col items-center justify-center">
 		<div class="flex h-fit gap-4">
 			<div>

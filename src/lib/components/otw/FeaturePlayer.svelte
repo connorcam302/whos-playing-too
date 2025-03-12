@@ -10,6 +10,7 @@
 	}
 </script>
 
+<!--
 <div class="h-full w-full bg-no-repeat">
 	<div class={`h-full w-full rounded-xl`} style="background-color: {background}30;">
 		<video autoPlay muted loop playsInline class="h-full w-full object-cover opacity-100">
@@ -24,5 +25,15 @@
 				class="h-full w-full"
 			/>
 		</video>
+	</div>
+</div> -->
+
+<div class="h-full w-full bg-no-repeat">
+	<div class={`h-full w-full rounded-xl`} style="background-color: {background}30;">
+		<img
+			src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.png`}
+			alt="necrolytbg-[url('/hero-backdrop.png')] e"
+			class="h-full w-full"
+		/>
 	</div>
 </div>
