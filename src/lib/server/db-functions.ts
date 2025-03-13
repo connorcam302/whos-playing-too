@@ -365,7 +365,7 @@ export const getTeamOfTheWeek = async () => {
 };
 
 export const getFlopOfTheWeek = async () => {
-    const fotw = await db.select().from(flopOfTheWeek).orderBy(flopOfTheWeek.id).limit(1);
+    const fotw = await db.select().from(flopOfTheWeek).orderBy(desc(flopOfTheWeek.id)).limit(1);
 
     const playerList = await db.select().from(players);
 
