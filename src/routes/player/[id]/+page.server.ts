@@ -3,7 +3,8 @@ import {
 	getHeroStats,
 	getPlayer,
 	getPlayerChart,
-	getPlayerWinLoss
+	getPlayerWinLoss,
+	getPlayerImpactCountsByRole
 } from '$lib/server/db-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
@@ -53,6 +54,7 @@ export const load = async ({ url, params }) => {
 	const heroStats = getHeroStats(dayjs(0).add(1, 'month').valueOf() / 1000, params.id);
 	const allTimeHeroStats = getHeroStats(dayjs(0).add(99, 'years').valueOf() / 1000, params.id);
 	const winGraph = await getPlayerChart(params.id, 31);
+	const impactCounts = await getPlayerImpactCountsByRole(params.id);
 
 	const heroJson = await fetch(
 		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
@@ -69,6 +71,7 @@ export const load = async ({ url, params }) => {
 		weeklyStats,
 		heroStats,
 		allTimeHeroStats,
-		winGraph
+		winGraph,
+		impactCounts
 	};
 };

@@ -365,7 +365,7 @@ export const getTeamOfTheWeek = async () => {
 };
 
 export const getFlopOfTheWeek = async () => {
-    const fotw = await db.select().from(flopOfTheWeek).orderBy(flopOfTheWeek.id).limit(1);
+    const fotw = await db.select().from(flopOfTheWeek).orderBy(desc(flopOfTheWeek.id)).limit(1);
 
     const playerList = await db.select().from(players);
 
@@ -2040,3 +2040,49 @@ export const getMatchData = async (id: number) => {
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
         .where(eq(matches.id, id));
 };
+
+export const getPlayerImpactCountsByRole = async (playerId: number) => {
+    const impacts = await db
+        .select({
+            playerId: players.id,
+            role: matchData.role,
+            rating: sql`
+                CASE
+                    WHEN ${matchData.impact} > 200 THEN 'S++'
+                    WHEN ${matchData.impact} > 140 THEN 'S+'
+                    WHEN ${matchData.impact} > 130 THEN 'S'
+                    WHEN ${matchData.impact} > 123 THEN 'S-'
+                    WHEN ${matchData.impact} > 116 THEN 'A+'
+                    WHEN ${matchData.impact} > 109 THEN 'A'
+                    WHEN ${matchData.impact} > 102 THEN 'A-'
+                    WHEN ${matchData.impact} > 95 THEN 'B+'
+                    WHEN ${matchData.impact} > 88 THEN 'B'
+                    WHEN ${matchData.impact} > 81 THEN 'B-'
+                    WHEN ${matchData.impact} > 74 THEN 'C+'
+                    WHEN ${matchData.impact} > 67 THEN 'C'
+                    WHEN ${matchData.impact} > 60 THEN 'C-'
+                    WHEN ${matchData.impact} > 53 THEN 'D+'
+                    WHEN ${matchData.impact} > 46 THEN 'D'
+                    WHEN ${matchData.impact} > 39 THEN 'D-'
+                    WHEN ${matchData.impact} > 32 THEN 'F+'
+                    WHEN ${matchData.impact} > 25 THEN 'F'
+                    ELSE 'F-'
+                END
+            `.as('rating'),
+            count: sql`COUNT(*)`.as('count')
+        })
+        .from(matchData)
+        .innerJoin(accounts, eq(matchData.playerId, accounts.accountId))
+        .innerJoin(players, eq(accounts.owner, players.id))
+        .where(eq(players.id, playerId))
+        .groupBy(players.id, matchData.role, sql`rating`)
+        .orderBy(matchData.role, sql`count DESC`)
+
+    const groupedByRating = impacts.reduce((acc, item) => {
+        acc[item.rating] = acc[item.rating] || [];
+        acc[item.rating].push(item);
+        return acc;
+    }, {})
+
+    return groupedByRating
+}

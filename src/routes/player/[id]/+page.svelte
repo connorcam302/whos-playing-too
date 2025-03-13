@@ -30,6 +30,7 @@
 		rankedLosses: number;
 	};
 
+	import FxemojiPoo from '~icons/fxemoji/poo';
 	import UilExchange from '~icons/uil/exchange';
 	import BiDashLg from '~icons/bi/dash-lg';
 	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
@@ -48,6 +49,7 @@
 	import tippy from 'sveltejs-tippy';
 	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
 	import { browser } from '$app/environment';
+	import Bar from '$lib/components/stats/Bar.svelte';
 
 	export let data: {
 		player: Player;
@@ -59,6 +61,7 @@
 		allTimeHeroStats: any;
 		winGraph: { resultsArray: number[]; daysArray: number[] };
 		heroList: { id: number; name: string }[];
+		impactCounts: object;
 	};
 
 	$: pageNumber = 1;
@@ -210,7 +213,6 @@
 			matchBlocks = [];
 			const data = await fetchMatches(pageNumber, Number($page.params.id));
 			matchBlocks = data;
-			console.log(matchBlocks);
 		}
 	};
 
@@ -243,6 +245,28 @@
 	};
 
 	$: hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5 && updateMatchesData();
+
+	const mostCommonImpact = Object.keys(data.impactCounts).reduce(
+		(maxRating, ratingName) => {
+			// Sum the counts for the current rating
+			const total = data.impactCounts[ratingName].reduce(
+				(sum, item) => sum + Number(item.count),
+				0
+			);
+
+			// Compare with the current maxRating
+			if (total > maxRating.total) {
+				return { rating: ratingName, total };
+			}
+
+			return maxRating;
+		},
+		{ rating: null, total: 0 }
+	);
+
+	console.log(mostCommonImpact);
+
+	console.log(data);
 </script>
 
 <svelte:head>
@@ -472,6 +496,133 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					</div>
 				{/if}
 			</div>
+			<div
+				class="mx-auto flex w-full flex-col justify-center rounded-xl bg-zinc-800 bg-opacity-95 px-2"
+			>
+				<div class="my-1 flex gap-4 border-b-[1px] border-zinc-500 pb-1 pr-2">
+					<div class="flex w-8 items-center justify-center text-sm lg:w-16"></div>
+					<div class="flex w-8 items-center justify-center lg:w-28">
+						<div>TOTAL</div>
+					</div>
+					<div class="flex w-8 items-center justify-center text-sm lg:w-28">
+						<img src="/roles/pos1.svg" alt="pos1" class="h-8" />
+					</div>
+					<div class="flex w-8 items-center justify-center text-sm lg:w-28">
+						<img src="/roles/pos2.svg" alt="pos2" class="h-8" />
+					</div>
+					<div class="flex w-8 items-center justify-center text-sm lg:w-28">
+						<img src="/roles/pos3.svg" alt="pos3" class="h-8" />
+					</div>
+					<div class="flex w-8 items-center justify-center text-sm lg:w-28">
+						<img src="/roles/pos4.svg" alt="pos4" class="h-8" />
+					</div>
+					<div class="flex w-8 items-center justify-center text-sm lg:w-28">
+						<img src="/roles/pos5.svg" alt="pos5" class="h-8" />
+					</div>
+				</div>
+				<div class="flex max-h-72 flex-col gap-2 overflow-auto" id="scrollbox">
+					{#each ['S++', 'S+', 'S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F+', 'F', 'F-'] as ratingName}
+						<div class="flex gap-4">
+							<div class="flex h-8 w-12 items-center justify-center text-center lg:w-16">
+								{#if ratingName === 'S++'}
+									<div id="splusplusrating" class="font-display lg:text-xl">
+										{ratingName}
+									</div>
+								{:else if ratingName === 'S+'}
+									<div id="srating" class="font-display lg:text-xl">
+										{ratingName}
+									</div>
+								{:else if ratingName !== 'F-'}
+									<div class="font-display lg:text-xl">
+										{ratingName}
+									</div>
+								{:else}
+									<div id="frating" class="flex justify-center font-display lg:text-xl">
+										<FxemojiPoo />
+									</div>
+								{/if}
+							</div>
+							<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+								{data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0)}
+								<Bar
+									percentage={(data.impactCounts[ratingName].reduce(
+										(sum, item) => sum + Number(item.count),
+										0
+									) /
+										mostCommonImpact.total) *
+										100}
+									colour="#9234ea"
+								/>
+							</div>
+							<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+								{data.impactCounts[ratingName].find((item) => item.role === 1)?.count || 0}
+								<Bar
+									percentage={((data.impactCounts[ratingName].find((item) => item.role === 1)
+										?.count || 0) /
+										data.impactCounts[ratingName].reduce(
+											(sum, item) => sum + Number(item.count),
+											0
+										)) *
+										100}
+									colour="#4753a5"
+								/>
+							</div>
+							<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+								{data.impactCounts[ratingName].find((item) => item.role === 2)?.count || 0}
+								<Bar
+									percentage={((data.impactCounts[ratingName].find((item) => item.role === 2)
+										?.count || 0) /
+										data.impactCounts[ratingName].reduce(
+											(sum, item) => sum + Number(item.count),
+											0
+										)) *
+										100}
+									colour="#2f8c94"
+								/>
+							</div>
+							<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+								{data.impactCounts[ratingName].find((item) => item.role === 3)?.count || 0}
+								<Bar
+									percentage={((data.impactCounts[ratingName].find((item) => item.role === 3)
+										?.count || 0) /
+										data.impactCounts[ratingName].reduce(
+											(sum, item) => sum + Number(item.count),
+											0
+										)) *
+										100}
+									colour="#bc7412"
+								/>
+							</div>
+							<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+								{data.impactCounts[ratingName].find((item) => item.role === 4)?.count || 0}
+								<Bar
+									percentage={((data.impactCounts[ratingName].find((item) => item.role === 4)
+										?.count || 0) /
+										data.impactCounts[ratingName].reduce(
+											(sum, item) => sum + Number(item.count),
+											0
+										)) *
+										100}
+									colour="#c24958"
+								/>
+							</div>
+							<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+								{data.impactCounts[ratingName].find((item) => item.role === 5)?.count || 0}
+								<Bar
+									percentage={((data.impactCounts[ratingName].find((item) => item.role === 5)
+										?.count || 0) /
+										data.impactCounts[ratingName].reduce(
+											(sum, item) => sum + Number(item.count),
+											0
+										)) *
+										100}
+									colour="#37a075"
+								/>
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
 			<div class="flex flex-wrap gap-4">
 				<div class="flex grow flex-col gap-2">
 					<div class="px-2 text-xl">All Time</div>
@@ -663,5 +814,112 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 <style>
 	meta[name='description'] {
 		white-space: pre-line;
+	}
+
+	:root {
+		--splus-base: #fef3c7;
+		--splus-accent1: #fcd34d;
+		--splus-accent2: #fbbf24;
+
+		--splusplus-base: #fdba74;
+		--splusplus-accent1: #f97316;
+		--splusplus-accent2: #ea580c;
+
+		--f-base: #b45309;
+		--f-accent1: #9a3412;
+		--f-accent2: #7c2d12;
+	}
+
+	#srating {
+		animation: srating 1s ease-in-out infinite alternate;
+		color: var(--splus-base);
+	}
+
+	@keyframes srating {
+		from {
+			text-shadow:
+				0 0 2px var(--splus-base),
+				0 0 4px var(--splus-base),
+				0 0 6px var(--splus-accent1),
+				0 0 8px var(--splus-accent1),
+				0 0 10px var(--splus-accent1),
+				0 0 12px var(--splus-accent1),
+				0 0 14px var(--splus-accent1);
+		}
+		to {
+			text-shadow:
+				0 0 4px var(--splus-base),
+				0 0 8px var(--splus-accent2),
+				0 0 12px var(--splus-accent2),
+				0 0 12px var(--splus-accent2),
+				0 0 15px var(--splus-accent2),
+				0 0 18px var(--splus-accent2),
+				0 0 21px var(--splus-accent2);
+		}
+	}
+
+	#frating {
+		color: var(--f-base);
+		animation: frating 1s ease-in-out infinite alternate;
+	}
+
+	@keyframes frating {
+		from {
+			filter: drop-shadow(0 0 8px var(--f-accent1));
+		}
+		to {
+			filter: drop-shadow(0 0 4px var(--f-accent2));
+		}
+	}
+
+	#splusplusrating {
+		color: var(--splusplus-base);
+		animation: ssrating 1s ease-in-out infinite alternate;
+	}
+
+	@keyframes ssrating {
+		from {
+			text-shadow:
+				0 0 2px var(--splusplus-base),
+				0 0 4px var(--splusplus-base),
+				0 0 6px var(--splusplus-accent1),
+				0 0 8px var(--splusplus-accent1),
+				0 0 10px var(--splusplus-accent1),
+				0 0 12px var(--splusplus-accent1),
+				0 0 14px var(--splusplus-accent1);
+		}
+
+		to {
+			text-shadow:
+				0 0 4px var(--splusplus-base),
+				0 0 8px var(--splusplus-accent2),
+				0 0 12px var(--splusplus-accent2),
+				0 0 16px var(--splusplus-accent2),
+				0 0 20px var(--splusplus-accent2),
+				0 0 24px var(--splusplus-accent2),
+				0 0 28px var(--splusplus-accent2);
+		}
+	}
+
+	@keyframes shine {
+		0% {
+			background-position: left;
+		}
+		50% {
+			background-position: right;
+		}
+		100% {
+			background-position: left;
+		}
+	}
+
+	#scrollbox::-webkit-scrollbar {
+		width: 4px;
+		background-color: #404040;
+	}
+
+	#scrollbox::-webkit-scrollbar-thumb {
+		background-color: #e7e5e4;
+		border-radius: 64px;
 	}
 </style>

@@ -49,31 +49,26 @@
 	<div class="flex w-full flex-col items-center justify-center">
 		<div class="flex h-fit gap-4">
 			<div>
-				<TeamOfTheWeek {totw} />
-				<!-- 
-                    {#if header == 'totw'}
-						<div in:fade={{ duration: 250 }}>
-							<TeamOfTheWeek {totw} />
-						</div>
-					{:else if header == 'flop'}
-						<div in:fade={{ duration: 250 }}>
-							<FlopOfTheWeek {fotw} />
-						</div>
-					{/if}
-                    -->
+				{#if header == 'totw'}
+					<div in:fade={{ delay: 120, duration: 250 }}>
+						<TeamOfTheWeek {totw} />
+					</div>
+				{:else if header == 'flop'}
+					<div in:fade={{ duration: 250 }}>
+						<FlopOfTheWeek {fotw} />
+					</div>
+				{/if}
 			</div>
 		</div>
-		<!-- 
-			<div class="flex gap-2">
-				{#each headers as h}
-					<button
-						class="h-2 w-2 rounded-full bg-white"
-						style={`background-color: ${header === h ? '#e4e4e7' : '#3f3f46'}`}
-						on:click={() => (header = h)}
-					/>
-				{/each}
-			</div>
-                    -->
+		<div class="flex gap-2">
+			{#each headers as h}
+				<button
+					class="h-2 w-2 rounded-full bg-white"
+					style={`background-color: ${header === h ? '#e4e4e7' : '#3f3f46'}`}
+					on:click={() => (header = h)}
+				/>
+			{/each}
+		</div>
 	</div>
 
 	<div class="flex w-full items-center justify-center">
