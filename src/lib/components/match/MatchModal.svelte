@@ -28,7 +28,6 @@
 		first_blood_time: number;
 		lobby_type: number;
 		human_players: number;
-		leagueid: number;
 		game_mode: number;
 		flags: number;
 		engine: number;

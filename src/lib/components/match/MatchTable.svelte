@@ -775,10 +775,11 @@
 												<div class="flex items-center">
 													{#each player.items as item}
 														<img
-															use:tippy={{ content: item.name, theme: 'light' }}
-															src={item.img}
+															use:tippy={{ content: item?.name, theme: 'light' }}
+															src={item?.img ||
+																'https://sshuvscqhguullfguoct.supabase.co/storage/v1/object/public/images/empty-slot.webp'}
 															class="h-7 max-w-none"
-															alt={item.name}
+															alt={item?.name || 'Unknown Item'}
 														/>
 													{/each}
 													<img
