@@ -2,8 +2,6 @@
 	import PooIcon from '$lib/components/PooIcon.svelte';
 
 	export let stack;
-
-	console.log(stack);
 </script>
 
 <div class="flex flex-wrap items-center justify-center gap-4 pt-24">

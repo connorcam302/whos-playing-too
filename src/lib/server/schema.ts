@@ -37,7 +37,8 @@ export const accounts = pgTable('accounts', {
         .references(() => players.id),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     accountId: bigint('account_id', { mode: 'number' }).primaryKey().notNull(),
-    smurf: boolean('smurf').notNull()
+    smurf: boolean('smurf').notNull(),
+    image: varchar('image').notNull()
 });
 
 export const heroes = pgTable('heroes', {

@@ -154,8 +154,6 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.where(and(eq(matches.sequenceNumber, Number(params.id)), eq(matchData.team, 'dire')));
 
-	console.log(radiantPresetRoles, direPresetRoles);
-
 	const radiant = steamMatchData.players.filter((player) => player.player_slot <= 127);
 	const dire = steamMatchData.players.filter((player) => player.player_slot >= 128);
 
@@ -233,7 +231,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				steamMatchData.bans.push(heroMap.get(entry.hero_id));
 			}
 		});
-	} catch (e) {}
+	} catch (e) { }
 
 	delete steamMatchData.players;
 

@@ -185,9 +185,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 
 	const matchBlocks = matchBlocksCombined.map((match) => {
 		const { radiant, dire } = splitByTeam(match);
-		//console.log(match);
 		const player = match.find((player) => player.owner === Number(params.id))!;
-		console.log(player);
 		const matchData: MatchInfer = matchArray.find(
 			(data) => data.id === radiant[0]?.matchId || data.id === dire[0]?.matchId
 		)!;

@@ -50,6 +50,8 @@
 	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
 	import { browser } from '$app/environment';
 	import Bar from '$lib/components/stats/Bar.svelte';
+	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
+	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
 
 	export let data: {
 		player: Player;
@@ -226,6 +228,11 @@
 		updateMatchesData();
 	};
 
+	$: advancedFilters = false;
+	const toggleAdvancedFilters = () => {
+		advancedFilters = !advancedFilters;
+	};
+
 	let chartType = 'days';
 
 	$: ({
@@ -263,8 +270,6 @@
 		},
 		{ rating: null, total: 0 }
 	);
-
-	console.log(mostCommonImpact);
 
 	console.log(data);
 </script>
@@ -764,6 +769,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						</select>
 					</div>
 				</div>
+				<div class="flex flex-col gap-1 text-sm"></div>
 			</div>
 			<div class="w-auto">
 				{#key matchBlocks}

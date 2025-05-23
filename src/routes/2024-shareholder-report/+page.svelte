@@ -18,13 +18,11 @@
 	const pages = ['home', 'oty', 'stack', 'matches', 'individual', 'reports'];
 
 	const nextPage = () => {
-		console.log(currentPage);
 		window.scroll(0, window.scrollY - 90000000);
 		currentPage = pages[pages.findIndex((page) => page === currentPage) + 1];
 	};
 
 	const previousPage = () => {
-		console.log(currentPage);
 		window.scroll(0, window.scrollY - 90000000);
 		currentPage = pages[pages.findIndex((page) => page === currentPage) - 1];
 	};

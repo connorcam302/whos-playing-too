@@ -62,7 +62,6 @@
 		return array;
 	}
 	let match = moveToMiddle(matchUnsorted, player);
-	console.log(match);
 
 	const getImpactScore = (match: any, role: any, duration: any) => {
 		let impact = 0;

@@ -16,6 +16,8 @@ const getSteamData = async (steamIds: number[]) => {
 			.join(',')
 			.toString()}`
 	);
+
+	console.log(steamData);
 	const steamDataJson = await steamData.json();
 	return steamDataJson.response.players;
 };

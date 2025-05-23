@@ -114,8 +114,6 @@ export const POST: RequestHandler = async ({ url, params, request }) => {
 	console.log(reqBody);
 	const changedRoles = Object.values(reqBody.roleData);
 	const sequenceNum = reqBody.sequenceNum;
-	console.log(changedRoles);
-	console.log(sequenceNum, params.id);
 
 	let steamMatchData = await fetch(
 		`https://api.steampowered.com/IDOTA2Match_570/getMatchDetails/v1?key=${STEAM_KEY}&match_id=${params.id}`
