@@ -1,14 +1,23 @@
 <script lang="ts">
-	export let open = false;
-	export let onClick = (): void => {
-		open = !open;
-	};
 
-	export let ariaLabel = 'toggle menu';
-	export let width: string | number = 80;
+	interface Props {
+		open?: boolean;
+		onClick?: any;
+		ariaLabel?: string;
+		width?: string | number;
+	}
+
+	let {
+		open = $bindable(false),
+		onClick = (): void => {
+		open = !open;
+	},
+		ariaLabel = 'toggle menu',
+		width = 80
+	}: Props = $props();
 </script>
 
-<button on:click={onClick} aria-expanded={open} aria-label={ariaLabel}>
+<button onclick={onClick} aria-expanded={open} aria-label={ariaLabel}>
 	<svg class:open viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" {width}>
 		<path
 			class="top"

@@ -2,9 +2,10 @@
 	import BestStack from './BestStack.svelte';
 	import WorstStack from './WorstStack.svelte';
 
-	export let stacks;
+	let { stacks } = $props();
 
-	$: playerText = 'players';
+	let playerText = $state('players');
+	
 </script>
 
 <div class="flex flex-col items-center gap-24">
@@ -14,8 +15,8 @@
 			<div>
 				Where Team of the Year just takes the 5 best players in order to form a galácticos-esqe
 				lineup, this does not always work. Sometimes <span
-					on:mouseover={() => (playerText = '(Bingham)')}
-					on:mouseout={() => (playerText = 'players')}
+					onmouseover={() => (playerText = '(Bingham)')}
+					onmouseout={() => (playerText = 'players')}
 					class="font-bold">{playerText}</span
 				> simply do not function together.
 			</div>

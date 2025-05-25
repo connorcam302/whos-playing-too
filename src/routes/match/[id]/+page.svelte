@@ -5,13 +5,17 @@
 	import WinRateGraph from './WinRateGraph.svelte';
 	import NetWorthGraph from './NetWorthGraph.svelte';
 	import ExperienceGraph from './ExperienceGraph.svelte';
-	export let data: { matchData: any; matchDetails: MatchDetails };
+	interface Props {
+		data: { matchData: any; matchDetails: MatchDetails };
+	}
+
+	let { data }: Props = $props();
 
 	const { matchData, matchDetails } = data;
 
-	let chartState = 'winRate';
+	let chartState = $state('winRate');
 
-	$: fixRoleScreenShow = false;
+	
 </script>
 
 <svelte:head>
@@ -27,21 +31,21 @@
 			<button
 				class="rounded-xl bg-zinc-800 px-4 py-2 text-white"
 				style={`background-color: ${chartState === 'winRate' ? '#27272a' : '#18181b'}`}
-				on:click={() => (chartState = 'winRate')}
+				onclick={() => (chartState = 'winRate')}
 			>
 				Win Chance
 			</button>
 			<button
 				class="rounded-xl bg-zinc-800 px-4 py-2 text-white"
 				style={`background-color: ${chartState === 'netWorth' ? '#27272a' : '#18181b'}`}
-				on:click={() => (chartState = 'netWorth')}
+				onclick={() => (chartState = 'netWorth')}
 			>
 				Net Worth
 			</button>
 			<button
 				class="rounded-xl bg-zinc-800 px-4 py-2 text-white"
 				style={`background-color: ${chartState === 'experience' ? '#27272a' : '#18181b'}`}
-				on:click={() => (chartState = 'experience')}
+				onclick={() => (chartState = 'experience')}
 			>
 				Experience
 			</button>

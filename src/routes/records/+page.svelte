@@ -51,7 +51,11 @@
 		img: string;
 	}
 
-	export let data: { playerList: any[]; url: string; records: Record[] };
+	interface Props {
+		data: { playerList: any[]; url: string; records: Record[] };
+	}
+
+	let { data }: Props = $props();
 
 	const getColour = (position: number) => {
 		if (position === 1) return '#FFD70020';
@@ -60,8 +64,8 @@
 		return '#FFFFFF00';
 	};
 
-	$: records = [];
-	$: heroList = data.heroList;
+	let records = $derived([]);
+	let heroList = $derived(data.heroList);
 
 	const getImpactDetails = (match: any, role: any, duration: any) => {
 		let impact = 0;
@@ -172,20 +176,29 @@
 		}
 	};
 
-	$: pos1 = true;
-	$: pos2 = true;
-	$: pos3 = true;
-	$: pos4 = true;
-	$: pos5 = true;
+	let pos1 = $state(true);
+	
+	let pos2 = $state(true);
+	
+	let pos3 = $state(true);
+	
+	let pos4 = $state(true);
+	
+	let pos5 = $state(true);
+	
 
-	$: ranked = true;
-	$: unranked = true;
+	let ranked = $state(true);
+	
+	let unranked = $state(true);
+	
 
-	$: smurfs = false;
+	let smurfs = $state(false);
+	
 
-	$: hero = -1;
+	let hero = $derived(-1);
 
-	$: time = 365;
+	let time = $state(365);
+	
 
 	const fetchRecordData: Promise<Record[]> = async () => {
 		const data = await fetch(
@@ -298,7 +311,7 @@
 			Roles
 			<div class="flex gap-1">
 				<button
-					on:click={() => handleRoleChange(1)}
+					onclick={() => handleRoleChange(1)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos1 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -310,7 +323,7 @@
 					<img src="/roles/pos1.svg" alt="pos1" />
 				</button>
 				<button
-					on:click={() => handleRoleChange(2)}
+					onclick={() => handleRoleChange(2)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos2 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -322,7 +335,7 @@
 					<img src="/roles/pos2.svg" alt="pos2" />
 				</button>
 				<button
-					on:click={() => handleRoleChange(3)}
+					onclick={() => handleRoleChange(3)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos3 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -334,7 +347,7 @@
 					<img src="/roles/pos3.svg" alt="pos3" />
 				</button>
 				<button
-					on:click={() => handleRoleChange(4)}
+					onclick={() => handleRoleChange(4)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos4 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -346,7 +359,7 @@
 					<img src="/roles/pos4.svg" alt="pos4" />
 				</button>
 				<button
-					on:click={() => handleRoleChange(5)}
+					onclick={() => handleRoleChange(5)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos5 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -363,7 +376,7 @@
 			Lobby
 			<div class="flex gap-1">
 				<button
-					on:click={() => handleLobbyChange(7)}
+					onclick={() => handleLobbyChange(7)}
 					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 					style="background-color: {ranked ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -375,7 +388,7 @@
 					<UilExchange />
 				</button>
 				<button
-					on:click={() => handleLobbyChange(0)}
+					onclick={() => handleLobbyChange(0)}
 					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 					style="background-color: {unranked ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -392,7 +405,7 @@
 			Smurf
 			<div class="flex gap-1">
 				<button
-					on:click={() => handleSmurfChange()}
+					onclick={() => handleSmurfChange()}
 					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 					style="background-color: {smurfs ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -411,7 +424,7 @@
 				<select
 					bind:value={hero}
 					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-					on:change={() => handleHeroChange()}
+					onchange={() => handleHeroChange()}
 				>
 					<option value={-1}>All Heroes</option>
 					{#each heroList as hero}
@@ -427,7 +440,7 @@
 				<select
 					bind:value={time}
 					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-					on:change={() => handleTimeChange()}
+					onchange={() => handleTimeChange()}
 				>
 					<option value={7}>Last 7 Days</option>
 					<option value={30}>Last 30 Days</option>
@@ -500,7 +513,7 @@
 												>
 													<div class="text-left">
 														<button
-															on:click={() => goto(`/player/${record.data.id}`)}
+															onclick={() => goto(`/player/${record.data.id}`)}
 															class="transition-all duration-300 hover:text-zinc-400"
 														>
 															{record.data.username}
@@ -668,7 +681,7 @@
 									{/each}
 								</tbody>
 							</table>
-							<button on:click={() => (recordSet.length = expandList(recordSet.length))}>
+							<button onclick={() => (recordSet.length = expandList(recordSet.length))}>
 								{#if recordSet.length !== 10}
 									<MaterialSymbolsKeyboardArrowDown class="h-8 w-8" />
 								{:else}

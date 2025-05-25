@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let record;
+	let { record } = $props();
 </script>
 
 <div class="flex w-64 flex-col gap-2">

@@ -11,9 +11,14 @@
 	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
 	import { fade } from 'svelte/transition';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
 
-	$: currentPage = 'home';
+	let { data }: Props = $props();
+
+	let currentPage = $state('home');
+	
 
 	const pages = ['home', 'oty', 'stack', 'matches', 'individual', 'reports'];
 
@@ -35,7 +40,7 @@
 <div class="flex flex-col items-center justify-center px-4 text-center">
 	<div class="flex flex-wrap items-center justify-center gap-4">
 		<button
-			on:click={() => (currentPage = 'home')}
+			onclick={() => (currentPage = 'home')}
 			class={`w-40 rounded-xl ${
 				currentPage !== 'home' ? 'bg-zinc-800' : 'bg-sky-700'
 			} px-2 py-1 duration-300 hover:bg-sky-700 `}>Home</button
@@ -44,31 +49,31 @@
 			class={`w-40 rounded-xl ${
 				currentPage !== 'oty' ? 'bg-zinc-800' : 'bg-sky-700'
 			} px-2 py-1 duration-300 hover:bg-sky-700 `}
-			on:click={() => (currentPage = 'oty')}>Of The Year</button
+			onclick={() => (currentPage = 'oty')}>Of The Year</button
 		>
 		<button
 			class={`w-40 rounded-xl ${
 				currentPage !== 'stack' ? 'bg-zinc-800' : 'bg-sky-700'
 			} px-2 py-1 duration-300 hover:bg-sky-700 `}
-			on:click={() => (currentPage = 'stack')}>Stack Awards</button
+			onclick={() => (currentPage = 'stack')}>Stack Awards</button
 		>
 		<button
 			class={`w-40 rounded-xl ${
 				currentPage !== 'matches' ? 'bg-zinc-800' : 'bg-sky-700'
 			} px-2 py-1 duration-300 hover:bg-sky-700 `}
-			on:click={() => (currentPage = 'matches')}>Match Awards</button
+			onclick={() => (currentPage = 'matches')}>Match Awards</button
 		>
 		<button
 			class={`w-40 rounded-xl ${
 				currentPage !== 'individual' ? 'bg-zinc-800' : 'bg-sky-700'
 			} px-2 py-1 duration-300 hover:bg-sky-700 `}
-			on:click={() => (currentPage = 'individual')}>Individual Awards</button
+			onclick={() => (currentPage = 'individual')}>Individual Awards</button
 		>
 		<button
 			class={`w-40 rounded-xl ${
 				currentPage !== 'reports' ? 'bg-zinc-800' : 'bg-sky-700'
 			} px-2 py-1 duration-300 hover:bg-sky-700 `}
-			on:click={() => (currentPage = 'reports')}>Report</button
+			onclick={() => (currentPage = 'reports')}>Report</button
 		>
 	</div>
 	{#key currentPage}
@@ -97,7 +102,7 @@
 		{#if currentPage !== 'home'}
 			<button
 				class="rounded-xl bg-zinc-800 p-2 text-2xl duration-300 hover:bg-sky-700"
-				on:click={() => previousPage()}><MaterialSymbolsArrowBackRounded /></button
+				onclick={() => previousPage()}><MaterialSymbolsArrowBackRounded /></button
 			>
 		{:else}
 			<button class="rounded-xl bg-zinc-800 p-2 text-2xl text-zinc-700" disabled
@@ -107,7 +112,7 @@
 		{#if currentPage !== 'reports'}
 			<button
 				class="rounded-xl bg-zinc-800 p-2 text-2xl duration-300 hover:bg-sky-700"
-				on:click={() => nextPage()}><MaterialSymbolsArrowForwardRounded /></button
+				onclick={() => nextPage()}><MaterialSymbolsArrowForwardRounded /></button
 			>
 		{:else}
 			<button class="rounded-xl bg-zinc-800 p-2 text-2xl text-zinc-700" disabled

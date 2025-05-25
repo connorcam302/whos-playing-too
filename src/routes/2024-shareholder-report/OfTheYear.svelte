@@ -1,7 +1,7 @@
 <script lang="ts">
 	import TeamOfTheYear from './TeamOfTheYear.svelte';
 
-	export let oty;
+	let { oty } = $props();
 
 	const { toty, foty } = oty;
 </script>

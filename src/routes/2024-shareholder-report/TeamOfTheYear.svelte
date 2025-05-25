@@ -1,6 +1,6 @@
 <script lang="ts">
-	export let toty;
 	import tippy from 'sveltejs-tippy';
+	let { toty } = $props();
 </script>
 
 <div class="flex flex-wrap items-center justify-center gap-4">

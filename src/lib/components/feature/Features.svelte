@@ -27,11 +27,15 @@
 		mostGained: Player[];
 		mostLost: Player[];
 	};
-	export let features: Features;
 	import FeatureBox from './FeatureBox.svelte';
 	import { getContext } from 'svelte';
+	interface Props {
+		features: Features;
+	}
 
-	$: viewport = getContext('viewport');
+	let { features }: Props = $props();
+
+	let viewport = $derived(getContext('viewport'));
 </script>
 
 <div>

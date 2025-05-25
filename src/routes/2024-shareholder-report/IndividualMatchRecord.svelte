@@ -37,7 +37,7 @@
 		heroDamage: number;
 	};
 
-	export let record;
+	let { record } = $props();
 
 	let { player, statName, statValue } = record;
 	let playerId = player;

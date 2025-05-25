@@ -3,7 +3,7 @@
 	import IndividualMatchRecord from './IndividualMatchRecord.svelte';
 	import IndividualRecord from './IndividualRecord.svelte';
 
-	export let records;
+	let { records } = $props();
 
 	console.log(records);
 </script>

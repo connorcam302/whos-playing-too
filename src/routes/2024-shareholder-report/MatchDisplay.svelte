@@ -35,9 +35,13 @@
 		heroDamage: number;
 	};
 
-	export let match: MatchData[];
 	match = match.sort((a, b) => a.role - b.role);
-	export let data;
+	interface Props {
+		match: MatchData[];
+		data: any;
+	}
+
+	let { match = $bindable(), data }: Props = $props();
 
 	const getImpactScore = (match: any, role: any, duration: any) => {
 		let impact = 0;

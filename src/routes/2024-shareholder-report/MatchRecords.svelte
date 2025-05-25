@@ -6,7 +6,11 @@
 
 	dayjs.extend(localizedFormat);
 
-	export let matches: PageData;
+	interface Props {
+		matches: PageData;
+	}
+
+	let { matches }: Props = $props();
 </script>
 
 <div

@@ -104,7 +104,7 @@
 		{ id: 17, username: 'Lillie' }
 	];
 
-	$: selectedReport = reportData[0];
+	let selectedReport = $derived(reportData[0]);
 
 	function handleSelection(event) {
 		selectedReport = reportData.find((obj) => obj.player_name === event.target.value);
@@ -123,7 +123,7 @@
 <div class="flex flex-col gap-4">
 	<select
 		id="user-dropdown"
-		on:change={handleSelection}
+		onchange={handleSelection}
 		class="ml-auto w-48 rounded-xl border-x-8 border-transparent bg-zinc-800 py-[7px]"
 	>
 		<option value="" disabled selected>Select a Player</option>

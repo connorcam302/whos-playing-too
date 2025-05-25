@@ -30,12 +30,6 @@
 		bans: DotaAsset[];
 	};
 
-	export let match: {
-		player: PlayerData;
-		radiant: PlayerData[];
-		dire: PlayerData[];
-		matchData: MatchData;
-	};
 	import { getContext } from 'svelte';
 	import Fa6SolidPoop from '~icons/fa6-solid/poop';
 	import FxemojiPoo from '~icons/fxemoji/poo';
@@ -56,10 +50,20 @@
 	import PlayerData from './PlayerData.svelte';
 	import MatchBlock from './MatchBlock.svelte';
 	import MatchModal from './MatchModal.svelte';
+	interface Props {
+		match: {
+		player: PlayerData;
+		radiant: PlayerData[];
+		dire: PlayerData[];
+		matchData: MatchData;
+	};
+	}
+
+	let { match }: Props = $props();
 
 	const { player, matchData, dire, radiant } = match;
 
-	$: viewport = getContext('viewport');
+	let viewport = $derived(getContext('viewport'));
 
 	const getImpactScore = (match: any, role: any, duration: any) => {
 		let impact = 0;
@@ -208,7 +212,8 @@
 		expanded = !expanded;
 	};
 
-	$: expanded = false;
+	let expanded = $state(false);
+	
 </script>
 
 <div class="w-full">
@@ -362,7 +367,7 @@
 					{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 				</div>
 			</div>
-			<button class="flex items-end justify-center" on:click={handleExpand}>
+			<button class="flex items-end justify-center" onclick={handleExpand}>
 				<div class="flex items-center justify-center">
 					{dire.length + radiant.length}
 					{#if expanded}

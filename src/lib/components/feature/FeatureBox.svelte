@@ -28,13 +28,17 @@
 		};
 	};
 
-	export let data: Player[] = [
+	interface Props {
+		data?: Player[];
+		title?: string;
+		type?: string;
+	}
+
+	let { data = [
 			{ id: -1, username: 'PLAYER 1', kills: 999 },
 			{ id: -1, username: 'PLAYER 1', kills: 999 },
 			{ id: -1, username: 'PLAYER 1', kills: 999 }
-		],
-		title: string = 'RECORD TITLE',
-		type: string = 'kills';
+		], title = 'RECORD TITLE', type = 'kills' }: Props = $props();
 </script>
 
 <div class="w-64" key={title}>
@@ -49,10 +53,10 @@
 						<div class="flex h-28 rounded-xl bg-black bg-opacity-70 px-4 py-2">
 							<div class="flex grow flex-col">
 								<div class="text-center font-display text-2xl">{title}</div>
-								<div class="flex-1 grow" />
+								<div class="flex-1 grow"></div>
 								<div class="flex flex-row justify-between text-2xl">
 									<button
-										on:click={() => goto(`/player/${data[0].id}`)}
+										onclick={() => goto(`/player/${data[0].id}`)}
 										class="duration-300 hover:text-zinc-400"
 									>
 										<div>{data[0].username}</div>
@@ -75,25 +79,25 @@
 			<div class="flex flex-col gap-1 py-1">
 				<div class="flex h-7 w-full flex-row items-center rounded-xl px-3">
 					<button
-						on:click={() => goto(`/player/${data[1].id}`)}
+						onclick={() => goto(`/player/${data[1].id}`)}
 						class="duration-300 hover:text-zinc-400"
 					>
 						<div>{data[1].username}</div>
 					</button>
-					<div class="grow" />
+					<div class="grow"></div>
 					<div>{title === 'Most MMR Lost' ? '' : '+'}{data[1][type]}</div>
 				</div>
 				<div class="flex w-full px-2">
-					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
+					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40"></div>
 				</div>
 				<div class="flex h-7 w-full flex-row items-center px-3">
 					<button
-						on:click={() => goto(`/player/${data[2].id}`)}
+						onclick={() => goto(`/player/${data[2].id}`)}
 						class="duration-300 hover:text-zinc-400"
 					>
 						<div>{data[2].username}</div>
 					</button>
-					<div class="grow" />
+					<div class="grow"></div>
 					<div>{title === 'Most MMR Lost' ? '' : '+'}{data[2][type]}</div>
 				</div>
 			</div>
@@ -109,10 +113,10 @@
 						<div class="flex min-h-28 rounded-xl bg-black bg-opacity-70 px-3 py-2">
 							<div class="flex grow flex-col">
 								<div class="text-center font-display text-xl">{title}</div>
-								<div class="flex-1 grow" />
+								<div class="flex-1 grow"></div>
 								<div class="flex flex-row justify-between text-3xl">
 									<button
-										on:click={() => goto(`/player/${data[0].id}`)}
+										onclick={() => goto(`/player/${data[0].id}`)}
 										class="duration-300 hover:text-zinc-400"
 									>
 										<div>{data[0].username}</div>
@@ -131,28 +135,28 @@
 					<div class="flex w-full flex-row items-center rounded-xl px-3">
 						<div><img src={data[1]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
 						<button
-							on:click={() => goto(`/player/${data[1].id}`)}
+							onclick={() => goto(`/player/${data[1].id}`)}
 							class="duration-300 hover:text-zinc-400"
 						>
 							<div>{data[1].username}</div>
 						</button>
-						<div class="grow" />
+						<div class="grow"></div>
 						<div class="font-bold" style="color: {getStatColour(type)};">{data[1][type]}</div>
 					</div>
 				</MatchModal>
 				<div class="flex w-full px-2">
-					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
+					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40"></div>
 				</div>
 				<MatchModal matchId={data[2].matchId} sequenceNum={data[2].sequenceNumber}>
 					<div class="flex w-full flex-row items-center px-3">
 						<div><img src={data[2]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
 						<button
-							on:click={() => goto(`/player/${data[2].id}`)}
+							onclick={() => goto(`/player/${data[2].id}`)}
 							class="duration-300 hover:text-zinc-400"
 						>
 							<div>{data[2].username}</div>
 						</button>
-						<div class="grow" />
+						<div class="grow"></div>
 						<div class="font-bold" style="color: {getStatColour(type)};">{data[2][type]}</div>
 					</div>
 				</MatchModal>

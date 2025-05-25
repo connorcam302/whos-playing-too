@@ -10,7 +10,8 @@
 	dayjs.extend(weekday);
 	dayjs.extend(advancedFormat);
 
-	export let totw: {
+	interface Props {
+		totw: {
 		id: number;
 		onePlayer: number;
 		oneHero: number;
@@ -43,6 +44,9 @@
 		fourMatch: number;
 		fiveMatch: number;
 	};
+	}
+
+	let { totw }: Props = $props();
 </script>
 
 <div
@@ -57,7 +61,7 @@
 			).format('dddd Do [of] MMMM')}
 		</div>
 	</div>
-	<div class="grow" />
+	<div class="grow"></div>
 	<div class="flex flex-wrap justify-center gap-2">
 		<div class="flex w-28 flex-col justify-center rounded-xl bg-zinc-800 pt-2 md:w-36 lg:w-48">
 			<MatchModal matchId={totw.oneMatch} sequenceNum={totw.oneSequence}>

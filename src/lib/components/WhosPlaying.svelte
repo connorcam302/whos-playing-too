@@ -1,8 +1,12 @@
 <script lang="ts">
-	export let allPlayerSteamData: any;
 
 	import { goto } from '$app/navigation';
 	import dayjs from 'dayjs';
+	interface Props {
+		allPlayerSteamData: any;
+	}
+
+	let { allPlayerSteamData }: Props = $props();
 </script>
 
 <div
@@ -17,13 +21,13 @@
 					<div class="flex w-64 flex-col px-2 py-1">
 						<div class="flex">
 							<button
-								on:click={() => goto(`/player/${profile.id}`)}
+								onclick={() => goto(`/player/${profile.id}`)}
 								class="duration-300 hover:text-zinc-400"
 							>
 								<div class="text-lg">{profile.username}</div>
 							</button>
-							<div class="flex grow justify-end" />
-							<div class="h-3 w-3 rounded-full bg-sky-500" />
+							<div class="flex grow justify-end"></div>
+							<div class="h-3 w-3 rounded-full bg-sky-500"></div>
 						</div>
 						<div class="flex grow text-sm">
 							<div class="text-zinc-400">
@@ -42,13 +46,13 @@
 					<div class="flex w-64 flex-col px-2 py-1">
 						<div class="flex">
 							<button
-								on:click={() => goto(`/player/${profile.id}`)}
+								onclick={() => goto(`/player/${profile.id}`)}
 								class="duration-300 hover:text-zinc-400"
 							>
 								<div class="text-lg">{profile.username}</div>
 							</button>
-							<div class="flex grow justify-end" />
-							<div class="h-3 w-3 rounded-full bg-zinc-400" />
+							<div class="flex grow justify-end"></div>
+							<div class="h-3 w-3 rounded-full bg-zinc-400"></div>
 						</div>
 						<div class="flex grow text-sm">
 							<div class="text-zinc-400">

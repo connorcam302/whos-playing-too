@@ -31,7 +31,11 @@
 		average_impact: string;
 	};
 
-	export let player: PlayerData;
+	interface Props {
+		player: PlayerData;
+	}
+
+	let { player = $bindable() }: Props = $props();
 	player = { ...player, ...players.find((obj) => obj.username === player.player_name) };
 </script>
 

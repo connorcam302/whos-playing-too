@@ -20,10 +20,10 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
 
-	export let data;
+	let { data } = $props();
 
 	const { heroStats, playerStats, totw, features, timings, allPlayerSteamData, fotw } = data;
-	let matchBlocks: any[] = [];
+	let matchBlocks: any[] = $state([]);
 
 	onMount(() => {
 		fetch(`/api/matches/all?smurf=true`)
@@ -33,12 +33,13 @@
 			});
 	});
 
-	$: viewport = getContext('viewport');
+	let viewport = $derived(getContext('viewport'));
 
-	$: stats = 'hero';
+	let stats = $state('hero');
+	
 
 	const headers = ['totw', 'flop'];
-	$: header = headers[0];
+	let header = $derived(headers[0]);
 </script>
 
 <svelte:head>
@@ -65,8 +66,8 @@
 				<button
 					class="h-2 w-2 rounded-full bg-white"
 					style={`background-color: ${header === h ? '#e4e4e7' : '#3f3f46'}`}
-					on:click={() => (header = h)}
-				/>
+					onclick={() => (header = h)}
+				></button>
 			{/each}
 		</div>
 	</div>
@@ -136,12 +137,12 @@
 						<button
 							class="grow rounded-xl bg-zinc-800 px-4 py-2 text-white"
 							style={`background-color: ${stats === 'player' ? '#27272a' : '#18181b'}`}
-							on:click={() => (stats = 'player')}>Player</button
+							onclick={() => (stats = 'player')}>Player</button
 						>
 						<button
 							class="grow rounded-xl bg-zinc-800 px-4 py-2 text-white"
 							style={`background-color: ${stats === 'hero' ? '#27272a' : '#18181b'}`}
-							on:click={() => (stats = 'hero')}>Hero</button
+							onclick={() => (stats = 'hero')}>Hero</button
 						>
 					</div>
 					{#if stats === 'hero'}

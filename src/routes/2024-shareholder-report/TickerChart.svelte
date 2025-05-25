@@ -3,10 +3,9 @@
 	import Chart from 'chart.js/auto';
 
 	let chart;
-	let canvas;
+	let canvas = $state();
 
-	export let stats = [];
-	export let colour;
+	let { stats = [], colour } = $props();
 
 	onMount(() => {
 		if (canvas) {
@@ -92,4 +91,4 @@
 	});
 </script>
 
-<canvas bind:this={canvas} />
+<canvas bind:this={canvas}></canvas>

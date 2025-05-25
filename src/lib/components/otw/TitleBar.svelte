@@ -1,7 +1,19 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	export let name: string, role: number, id: number, team: string;
 	import { getColour, getRoleIcon } from '$lib/functions';
+	interface Props {
+		name: string;
+		role: number;
+		id: number;
+		team: string;
+	}
+
+	let {
+		name,
+		role,
+		id,
+		team
+	}: Props = $props();
 </script>
 
 <div class="flex flex-col items-center justify-center">
@@ -10,7 +22,7 @@
 			<img src={getRoleIcon(role)} alt={`position ${role}`} class="h-7" style="color: 'red'" />
 		</div>
 		<button
-			on:click={() => goto('player/' + id)}
+			onclick={() => goto('player/' + id)}
 			class="text-lg transition-all duration-300 hover:text-zinc-400 lg:text-2xl">{name}</button
 		>
 	</div>

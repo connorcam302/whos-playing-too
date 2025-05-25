@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run, self } from 'svelte/legacy';
+
 	import Loading from '$lib/components/Loading.svelte';
 	import { fade } from 'svelte/transition';
 	import dayjs from 'dayjs';
@@ -106,14 +108,18 @@
 		};
 	};
 
-	export let matchDetails: {
+	interface Props {
+		matchDetails: {
 			matchData: MatchData;
 			radiantData: PlayerData[];
 			direData: PlayerData[];
 			error?: any;
-		},
-		pickOrder: boolean = true,
-		modal: boolean = true;
+		};
+		pickOrder?: boolean;
+		modal?: boolean;
+	}
+
+	let { matchDetails, pickOrder = true, modal = true }: Props = $props();
 
 	const toTime = (time: number) => {
 		return `${(time / 60) | 0}:${time % 60 < 10 ? 0 : ''}${time % 60}`;
@@ -133,36 +139,40 @@
 		arr[index2] = temp;
 	};
 
-	let radiantRoles = [
+	let radiantRoles = $state([
 		{ account_id: -1, hero_id: 0, role: 0, user: null },
 		{ account_id: -2, hero_id: 0, role: 0, user: null },
 		{ account_id: -3, hero_id: 0, role: 0, user: null },
 		{ account_id: -4, hero_id: 0, role: 0, user: null },
 		{ account_id: -5, hero_id: 0, role: 0, user: null }
-	];
-	let direRoles = [
+	]);
+	let direRoles = $state([
 		{ account_id: -6, hero_id: 0, role: 0, user: null },
 		{ account_id: -7, hero_id: 0, role: 0, user: null },
 		{ account_id: -8, hero_id: 0, role: 0, user: null },
 		{ account_id: -9, hero_id: 0, role: 0, user: null },
 		{ account_id: -10, hero_id: 0, role: 0, user: null }
-	];
+	]);
 
-	$: if (matchDetails) {
-		const radiantUserData = matchDetails.radiantData.filter((player) => player.user);
-		const direUserData = matchDetails.direData.filter((player) => player.user);
+	run(() => {
+		if (matchDetails) {
+			const radiantUserData = matchDetails.radiantData.filter((player) => player.user);
+			const direUserData = matchDetails.direData.filter((player) => player.user);
 
-		radiantUserData.forEach((player) => {
-			radiantRoles[player.role - 1] = player;
-		});
+			radiantUserData.forEach((player) => {
+				radiantRoles[player.role - 1] = player;
+			});
 
-		direUserData.forEach((player) => {
-			direRoles[player.role - 1] = player;
-		});
-	}
+			direUserData.forEach((player) => {
+				direRoles[player.role - 1] = player;
+			});
+		}
+	});
 
-	$: radiantSelected = null;
-	$: direSelected = null;
+	let radiantSelected = $state(null);
+	
+	let direSelected = $state(null);
+	
 
 	const radiantHandleClick = (player) => {
 		if (radiantSelected === null) {
@@ -186,7 +196,8 @@
 		}
 	};
 
-	$: buttonState = 'Apply';
+	let buttonState = $state('Apply');
+	
 
 	const applyRoleChange = async () => {
 		const radiantData = radiantRoles.map((player, index) => {
@@ -230,7 +241,8 @@
 		await Promise.all([radiantResponse, direResponse]).then(() => location.reload());
 	};
 
-	$: fixRoleScreenShow = false;
+	let fixRoleScreenShow = $state(false);
+	
 
 	const getImpactDetails = (match: any, role: any, duration: any) => {
 		let impact = 0;
@@ -343,7 +355,7 @@
 		<div class="my-2 flex w-full flex-col gap-4">
 			<div class="flex w-full items-center justify-center gap-4">
 				<div class="basis-1/3">
-					<button class="text-4xl" on:click={() => (fixRoleScreenShow = true)}>
+					<button class="text-4xl" onclick={() => (fixRoleScreenShow = true)}>
 						<MaterialSymbolsLightSettings />
 					</button>
 				</div>
@@ -380,7 +392,7 @@
 				<div class="flex basis-1/3 flex-wrap items-center justify-end gap-2">
 					{#if modal}
 						<button
-							on:click={() => goto(`/match/${matchDetails.matchData.match_id}`)}
+							onclick={() => goto(`/match/${matchDetails.matchData.match_id}`)}
 							class="text-xl"
 						>
 							<IcBaselineLaunch />
@@ -449,7 +461,7 @@
 													<img src={player.hero.img} class="h-8" alt={player.hero.name} />
 													{#if player.user}
 														<button
-															on:click={() => goto(`/player/${player.user?.id}`)}
+															onclick={() => goto(`/player/${player.user?.id}`)}
 															class="transition-all duration-300 hover:text-zinc-300"
 															>{player.user.username}
 														</button>
@@ -662,7 +674,7 @@
 													<img src={player.hero.img} class="h-8" alt={player.hero.name} />
 													{#if player.user}
 														<button
-															on:click={() => goto(`/player/${player.user?.id}`)}
+															onclick={() => goto(`/player/${player.user?.id}`)}
 															class="transition-all duration-300 hover:text-zinc-300"
 															>{player.user.username}
 														</button>
@@ -852,7 +864,7 @@
 								</div>
 							{/each}
 						</div>
-						<div class="basis-2/12" />
+						<div class="basis-2/12"></div>
 						<div class="flex basis-11/12 justify-end gap-1 overflow-x-auto">
 							{#each matchDetails.matchData.bans as ban, i}
 								<div class="flex flex-col text-center text-xs">
@@ -875,8 +887,8 @@
 		transition:fade={{ duration: 200 }}
 		id="backdrop"
 		class="fixed top-0 z-10 flex h-screen w-screen cursor-default items-center justify-center"
-		on:click|self={() => (fixRoleScreenShow = false)}
-		on:keypress={(e) => e.key === 'Escape' && (fixRoleScreenShow = false)}
+		onclick={self(() => (fixRoleScreenShow = false))}
+		onkeypress={(e) => e.key === 'Escape' && (fixRoleScreenShow = false)}
 		tabindex="0"
 		role="button"
 	>
@@ -894,7 +906,7 @@
 										<img src="/roles/pos1.png" alt="pos1" class="h-6" />
 										<button
 											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => radiantHandleClick(radiantRoles[0])}
+											onclick={() => radiantHandleClick(radiantRoles[0])}
 											style={radiantSelected?.account_id === radiantRoles[0].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -910,7 +922,7 @@
 										<img src="/roles/pos2.png" alt="pos2" class="h-6" />
 										<button
 											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => radiantHandleClick(radiantRoles[1])}
+											onclick={() => radiantHandleClick(radiantRoles[1])}
 											style={radiantSelected?.account_id === radiantRoles[1].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -926,7 +938,7 @@
 										<img src="/roles/pos3.png" alt="pos3" class="h-6" />
 										<button
 											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => radiantHandleClick(radiantRoles[2])}
+											onclick={() => radiantHandleClick(radiantRoles[2])}
 											style={radiantSelected?.account_id === radiantRoles[2].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -942,7 +954,7 @@
 										<img src="/roles/pos4.png" alt="pos4" class="h-6" />
 										<button
 											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => radiantHandleClick(radiantRoles[3])}
+											onclick={() => radiantHandleClick(radiantRoles[3])}
 											style={radiantSelected?.account_id === radiantRoles[3].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -958,7 +970,7 @@
 										<img src="/roles/pos5.png" alt="pos5" class="h-6" />
 										<button
 											class="flex grow gap-2 rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => radiantHandleClick(radiantRoles[4])}
+											onclick={() => radiantHandleClick(radiantRoles[4])}
 											style={radiantSelected?.account_id === radiantRoles[4].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -983,7 +995,7 @@
 										<img src="/roles/pos1.png" alt="pos1" class="h-6" />
 										<button
 											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => direHandleClick(direRoles[0])}
+											onclick={() => direHandleClick(direRoles[0])}
 											style={direSelected?.account_id === direRoles[0].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -999,7 +1011,7 @@
 										<img src="/roles/pos2.png" alt="pos2" class="h-6" />
 										<button
 											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => direHandleClick(direRoles[1])}
+											onclick={() => direHandleClick(direRoles[1])}
 											style={direSelected?.account_id === direRoles[1].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -1015,7 +1027,7 @@
 										<img src="/roles/pos3.png" alt="pos3" class="h-6" />
 										<button
 											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => direHandleClick(direRoles[2])}
+											onclick={() => direHandleClick(direRoles[2])}
 											style={direSelected?.account_id === direRoles[2].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -1031,7 +1043,7 @@
 										<img src="/roles/pos4.png" alt="pos4" class="h-6" />
 										<button
 											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => direHandleClick(direRoles[3])}
+											onclick={() => direHandleClick(direRoles[3])}
 											style={direSelected?.account_id === direRoles[3].account_id
 												? ' border-color: #38bdf8'
 												: ''}
@@ -1047,7 +1059,7 @@
 										<img src="/roles/pos5.png" alt="pos5" class="h-6" />
 										<button
 											class="grow rounded-xl border-2 border-zinc-200 border-opacity-25 px-2"
-											on:click={() => direHandleClick(direRoles[4])}
+											onclick={() => direHandleClick(direRoles[4])}
 											style={direSelected?.account_id === direRoles[4].account_id
 												? 'border-color: #38bdf8'
 												: ''}
@@ -1066,7 +1078,7 @@
 				</div>
 				<div class="flex w-full items-center justify-center">
 					{#key buttonState}
-						<button on:click={() => applyRoleChange()} class="rounded-xl bg-sky-500 px-4 py-1"
+						<button onclick={() => applyRoleChange()} class="rounded-xl bg-sky-500 px-4 py-1"
 							>{buttonState}</button
 						>
 					{/key}

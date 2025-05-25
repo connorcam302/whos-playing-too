@@ -2,12 +2,16 @@
 	import chartjs from 'chart.js/auto';
 	import dayjs from 'dayjs';
 	import { onMount } from 'svelte';
-	export let data: number[];
+	interface Props {
+		data: number[];
+	}
+
+	let { data }: Props = $props();
 
 	let chartLabels = Array.from({ length: data.length }, (_, i) => (i + 1).toString());
 
 	let ctx;
-	let chartCanvas: any;
+	let chartCanvas: any = $state();
 
 	onMount(() => {
 		ctx = chartCanvas.getContext('2d');

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	type SteamProfile = {
 		avatar: string;
 		avatarfull: string;
@@ -52,35 +54,46 @@
 	import Bar from '$lib/components/stats/Bar.svelte';
 	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
 	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
+	import * as Select from '$lib/components/ui/select';
 
-	export let data: {
-		player: Player;
-		mainAccount: SteamProfile;
-		smurfAccounts: SteamProfile[];
-		allTimeStats: Stats;
-		weeklyStats: Stats;
-		heroStats: any;
-		allTimeHeroStats: any;
-		winGraph: { resultsArray: number[]; daysArray: number[] };
-		heroList: { id: number; name: string }[];
-		impactCounts: object;
-	};
+	interface Props {
+		data: {
+			player: Player;
+			mainAccount: SteamProfile;
+			smurfAccounts: SteamProfile[];
+			allTimeStats: Stats;
+			weeklyStats: Stats;
+			heroStats: any;
+			allTimeHeroStats: any;
+			winGraph: { resultsArray: number[]; daysArray: number[] };
+			heroList: { id: number; name: string }[];
+			impactCounts: object;
+		};
+	}
 
-	$: pageNumber = 1;
-	$: matchBlocks = [];
+	let { data }: Props = $props();
 
-	$: pos1 = true;
-	$: pos2 = true;
-	$: pos3 = true;
-	$: pos4 = true;
-	$: pos5 = true;
+	let pageNumber = $state(1);
 
-	$: ranked = true;
-	$: unranked = true;
+	let matchBlocks = $derived([]);
 
-	$: smurfs = false;
+	let pos1 = $state(true);
 
-	let hero = -1;
+	let pos2 = $state(true);
+
+	let pos3 = $state(true);
+
+	let pos4 = $state(true);
+
+	let pos5 = $state(true);
+
+	let ranked = $state(true);
+
+	let unranked = $state(true);
+
+	let smurfs = $state(false);
+
+	let hero = $state(-1);
 
 	onMount(() => {
 		if ($page.url.searchParams.get('page')) {
@@ -228,14 +241,15 @@
 		updateMatchesData();
 	};
 
-	$: advancedFilters = false;
+	let advancedFilters = $state(false);
+
 	const toggleAdvancedFilters = () => {
 		advancedFilters = !advancedFilters;
 	};
 
-	let chartType = 'days';
+	let chartType = $state('days');
 
-	$: ({
+	let {
 		player,
 		mainAccount,
 		smurfAccounts,
@@ -245,13 +259,15 @@
 		allTimeHeroStats,
 		winGraph,
 		heroList
-	} = data);
+	} = $derived(data);
 
 	const toSteam32 = (accountId: string) => {
 		return BigInt(accountId) - BigInt('76561197960265728');
 	};
 
-	$: hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5 && updateMatchesData();
+	run(() => {
+		hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5 && updateMatchesData();
+	});
 
 	const mostCommonImpact = Object.keys(data.impactCounts).reduce(
 		(maxRating, ratingName) => {
@@ -298,7 +314,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					<div class="flex h-full flex-col justify-center">
 						<div class="flex h-full flex-col gap-1 px-2 py-4 lg:w-80">
 							<div class="text-4xl">{player.username}</div>
-							<div class="grow" />
+							<div class="grow"></div>
 							<div class="flex items-center gap-2">
 								<div class="flex gap-1 text-xs">
 									<div>
@@ -311,10 +327,10 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 								</div>
 								<div class="h-2 w-2">
 									{#if mainAccount.gameextrainfo === 'Dota 2'}
-										<div class="h-full w-full rounded-full bg-sky-500" />
+										<div class="h-full w-full rounded-full bg-sky-500"></div>
 									{/if}
 								</div>
-								<div class="grow" />
+								<div class="grow"></div>
 								<a
 									href={mainAccount.profileurl}
 									target="_blank"
@@ -361,7 +377,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 											<div class="opacity-45">(main)</div>
 										{/if}
 									</div>
-									<div class="grow" />
+									<div class="grow"></div>
 									<a
 										href={profile.profileurl}
 										target="_blank"
@@ -452,11 +468,11 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 						<div class="flex flex-col">
 							{#if chartType == 'days'}
 								<div class="flex w-full px-4 text-xl">
-									<div class="basis-1/6" />
+									<div class="basis-1/6"></div>
 									<div class="basis-4/6 text-center">Wins by Games</div>
 									<button
 										class="flex basis-1/6 items-center justify-end"
-										on:click={() => (chartType = 'games')}><MaterialSymbolsCalendarMonth /></button
+										onclick={() => (chartType = 'games')}><MaterialSymbolsCalendarMonth /></button
 									>
 								</div>
 								<div>
@@ -476,11 +492,11 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 								</div>
 							{:else}
 								<div class="flex w-full px-4 text-xl">
-									<div class="basis-1/6" />
+									<div class="basis-1/6"></div>
 									<div class="basis-4/6 text-center">Wins by Day</div>
 									<button
 										class="flex basis-1/6 items-center justify-end"
-										on:click={() => (chartType = 'days')}><IonLogoGameControllerB /></button
+										onclick={() => (chartType = 'days')}><IonLogoGameControllerB /></button
 									>
 								</div>
 								<WinChart
@@ -648,7 +664,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					Roles
 					<div class="flex gap-1">
 						<button
-							on:click={() => handleRoleChange(1)}
+							onclick={() => handleRoleChange(1)}
 							class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 							style="background-color: {pos1 ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -660,7 +676,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 							<img src="/roles/pos1.svg" alt="pos1" />
 						</button>
 						<button
-							on:click={() => handleRoleChange(2)}
+							onclick={() => handleRoleChange(2)}
 							class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 							style="background-color: {pos2 ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -672,7 +688,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 							<img src="/roles/pos2.svg" alt="pos2" />
 						</button>
 						<button
-							on:click={() => handleRoleChange(3)}
+							onclick={() => handleRoleChange(3)}
 							class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 							style="background-color: {pos3 ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -684,7 +700,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 							<img src="/roles/pos3.svg" alt="pos3" />
 						</button>
 						<button
-							on:click={() => handleRoleChange(4)}
+							onclick={() => handleRoleChange(4)}
 							class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 							style="background-color: {pos4 ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -696,7 +712,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 							<img src="/roles/pos4.svg" alt="pos4" />
 						</button>
 						<button
-							on:click={() => handleRoleChange(5)}
+							onclick={() => handleRoleChange(5)}
 							class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 							style="background-color: {pos5 ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -713,7 +729,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					Lobby
 					<div class="flex gap-1">
 						<button
-							on:click={() => handleLobbyChange(7)}
+							onclick={() => handleLobbyChange(7)}
 							class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 							style="background-color: {ranked ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -725,7 +741,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 							<UilExchange />
 						</button>
 						<button
-							on:click={() => handleLobbyChange(0)}
+							onclick={() => handleLobbyChange(0)}
 							class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 							style="background-color: {unranked ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -742,7 +758,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 					Smurf
 					<div class="flex gap-1">
 						<button
-							on:click={() => handleSmurfChange()}
+							onclick={() => handleSmurfChange()}
 							class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 							style="background-color: {smurfs ? '#27272a' : '#18181b'};"
 							use:tippy={{
@@ -758,6 +774,16 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 				<div class="flex flex-col gap-1 text-sm">
 					Heroes
 					<div>
+						<Select.Root>
+							<Select.Trigger>
+								<Select.Value placeholder="Theme" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Item value="light">Light</Select.Item>
+								<Select.Item value="dark">Dark</Select.Item>
+								<Select.Item value="system">System</Select.Item>
+							</Select.Content>
+						</Select.Root>
 						<select
 							bind:value={hero}
 							class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
@@ -795,7 +821,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 									<button
 										class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
 										disabled={pageNumber == 1}
-										on:click={() => decrementPage()}
+										onclick={() => decrementPage()}
 									>
 										<MaterialSymbolsArrowBackRounded /></button
 									>
@@ -803,7 +829,7 @@ This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
 									<button
 										class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
 										disabled={matchBlocks.length < 20}
-										on:click={() => incrementPage()}
+										onclick={() => incrementPage()}
 									>
 										<MaterialSymbolsArrowForwardRounded />
 									</button>

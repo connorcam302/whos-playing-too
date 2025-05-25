@@ -1,8 +1,8 @@
 <script lang="ts">
-	export let data: any;
+	import { self } from 'svelte/legacy';
+
 
 	const { graph, playerList, heroList } = data;
-	$: totwCounts = data.totwCounts;
 
 	import { getRoleIcon, toTime, calcImpact } from '$lib/functions';
 	import WinChart from '$lib/components/profile/WinChart.svelte';
@@ -14,6 +14,11 @@
 	import tippy from 'tippy.js';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
+	interface Props {
+		data: any;
+	}
+
+	let { data }: Props = $props();
 	dayjs.extend(relativeTime);
 	const getImpactDetails = (match: any, role: any, duration: any) => {
 		let impact = 0;
@@ -115,8 +120,8 @@
 			}
 		}
 	};
-	let highlightRow = -1;
-	let highlightColumn = -1;
+	let highlightRow = $state(-1);
+	let highlightColumn = $state(-1);
 
 	function highlight(row, column) {
 		highlightRow = row;
@@ -128,7 +133,7 @@
 		highlightColumn = -1;
 	}
 
-	let sortedBy = 'total';
+	let sortedBy = $state('total');
 	const orderBy = (key) => {
 		if (key === 'player') {
 			if (sortedBy === 'player') {
@@ -164,7 +169,6 @@
 		return sorted;
 	};
 
-	$: totwMatches = [];
 	const matchList = async (row, key) => {
 		const matchData = await fetch(`/api/matches/list/`, {
 			method: 'POST',
@@ -178,20 +182,7 @@
 		showTotwMatches = true;
 	};
 
-	$: showTotwMatches = false;
 
-	$: impactHero = -1;
-	$: impactKills = '';
-	$: impactDeaths = '';
-	$: impactAssists = '';
-	$: impactDuration = '';
-	$: impactLastHits = '';
-	$: impactError = '';
-	$: impactRole = 0;
-	$: estimatedImpact = 0;
-	$: csMinRating = 0;
-	$: deathRating = 0;
-	$: kapmRating = 0;
 
 	const calculateImpact = () => {
 		impactError = '';
@@ -244,6 +235,30 @@
 
 		estimatedImpact = impact;
 	};
+	let totwCounts = $derived(data.totwCounts);
+	let totwMatches = $derived([]);
+	let showTotwMatches = $state(false);
+	
+	let impactHero = $derived(-1);
+	let impactKills = $state('');
+	
+	let impactDeaths = $state('');
+	
+	let impactAssists = $state('');
+	
+	let impactDuration = $state('');
+	
+	let impactLastHits = $state('');
+	
+	let impactError = $state('');
+	
+	let impactRole = $state(0);
+	
+	let estimatedImpact = $state(0);
+	
+	
+	
+	
 </script>
 
 <svelte:head>
@@ -276,9 +291,9 @@
 							<th class="w-28">
 								<button
 									class="flex w-full items-center"
-									on:click={() => (totwCounts = orderBy('player'))}
+									onclick={() => (totwCounts = orderBy('player'))}
 								>
-									<div class="basis-1/3" />
+									<div class="basis-1/3"></div>
 									<div class="basis-1/3">PLAYER</div>
 									<div class="flex basis-1/3 justify-end">
 										{#if sortedBy == 'player'}
@@ -292,9 +307,9 @@
 							<th class:highlight-column={highlightColumn === 1} class="w-16">
 								<button
 									class="flex w-full items-center"
-									on:click={() => (totwCounts = orderBy('one'))}
+									onclick={() => (totwCounts = orderBy('one'))}
 								>
-									<div class="basis-1/3" />
+									<div class="basis-1/3"></div>
 									<div class="basis-1/3">1</div>
 									<div class="flex basis-1/3 justify-end">
 										{#if sortedBy == 'one'}
@@ -308,9 +323,9 @@
 							<th class:highlight-column={highlightColumn === 2} class="w-16">
 								<button
 									class="flex w-full items-center"
-									on:click={() => (totwCounts = orderBy('two'))}
+									onclick={() => (totwCounts = orderBy('two'))}
 								>
-									<div class="basis-1/3" />
+									<div class="basis-1/3"></div>
 									<div class="basis-1/3">2</div>
 									<div class="flex basis-1/3 justify-end">
 										{#if sortedBy == 'two'}
@@ -324,9 +339,9 @@
 							<th class:highlight-column={highlightColumn === 3} class="w-16"
 								><button
 									class="flex w-full items-center"
-									on:click={() => (totwCounts = orderBy('three'))}
+									onclick={() => (totwCounts = orderBy('three'))}
 								>
-									<div class="basis-1/3" />
+									<div class="basis-1/3"></div>
 									<div class="basis-1/3">3</div>
 									<div class="flex basis-1/3 justify-end">
 										{#if sortedBy == 'three'}
@@ -340,9 +355,9 @@
 							<th class:highlight-column={highlightColumn === 4} class="w-16"
 								><button
 									class="flex w-full items-center"
-									on:click={() => (totwCounts = orderBy('four'))}
+									onclick={() => (totwCounts = orderBy('four'))}
 								>
-									<div class="basis-1/3" />
+									<div class="basis-1/3"></div>
 									<div class="basis-1/3">4</div>
 									<div class="flex basis-1/3 justify-end">
 										{#if sortedBy == 'four'}
@@ -355,9 +370,9 @@
 							</th><th class:highlight-column={highlightColumn === 5} class="w-16"
 								><button
 									class="flex w-full items-center"
-									on:click={() => (totwCounts = orderBy('five'))}
+									onclick={() => (totwCounts = orderBy('five'))}
 								>
-									<div class="basis-1/3" />
+									<div class="basis-1/3"></div>
 									<div class="basis-1/3">5</div>
 									<div class="flex basis-1/3 justify-end">
 										{#if sortedBy == 'five'}
@@ -370,9 +385,9 @@
 							</th><th class:highlight-column={highlightColumn === 6} class="w-24"
 								><button
 									class="flex w-full items-center"
-									on:click={() => (totwCounts = orderBy('total'))}
+									onclick={() => (totwCounts = orderBy('total'))}
 								>
-									<div class="basis-1/3" />
+									<div class="basis-1/3"></div>
 									<div class="basis-1/3">SUM</div>
 									<div class="flex basis-1/3 justify-end">
 										{#if sortedBy == 'total'}
@@ -393,69 +408,69 @@
 										class="px-2 text-center"
 										class:highlight-row={highlightRow === i}
 										class:highlight-column={highlightColumn === 0}
-										on:mouseenter={() => highlight(i, -1)}
-										on:mouseleave={clearHighlight}
+										onmouseenter={() => highlight(i, -1)}
+										onmouseleave={clearHighlight}
 										>{row.player.username}
 									</td>
 									<td
 										class="px-2"
-										on:mouseenter={() => highlight(i, 1)}
-										on:mouseleave={clearHighlight}
+										onmouseenter={() => highlight(i, 1)}
+										onmouseleave={clearHighlight}
 										class:highlight-row={highlightRow === i}
 										class:highlight-column={highlightColumn === 1}
 										class:highlight-cell={highlightRow === i && highlightColumn === 1}
-										><button on:click={() => matchList(row, 'one')}>{row.one.length}</button></td
+										><button onclick={() => matchList(row, 'one')}>{row.one.length}</button></td
 									>
 									<td
 										class="px-2"
-										on:mouseenter={() => highlight(i, 2)}
-										on:mouseleave={clearHighlight}
+										onmouseenter={() => highlight(i, 2)}
+										onmouseleave={clearHighlight}
 										class:highlight-row={highlightRow === i}
 										class:highlight-column={highlightColumn === 2}
 										class:highlight-cell={highlightRow === i && highlightColumn === 2}
-										on:click={() => matchList(row, 'two')}
-										><button on:click={() => matchList(row, 'two')}>{row.two.length}</button></td
+										onclick={() => matchList(row, 'two')}
+										><button onclick={() => matchList(row, 'two')}>{row.two.length}</button></td
 									>
 									<td
 										class="px-2"
-										on:mouseenter={() => highlight(i, 3)}
-										on:mouseleave={clearHighlight}
+										onmouseenter={() => highlight(i, 3)}
+										onmouseleave={clearHighlight}
 										class:highlight-row={highlightRow === i}
 										class:highlight-column={highlightColumn === 3}
 										class:highlight-cell={highlightRow === i && highlightColumn === 3}
-										on:click={() => matchList(row, 'three')}
-										><button on:click={() => matchList(row, 'three')}>{row.three.length}</button
+										onclick={() => matchList(row, 'three')}
+										><button onclick={() => matchList(row, 'three')}>{row.three.length}</button
 										></td
 									>
 									<td
 										class="px-2"
-										on:mouseenter={() => highlight(i, 4)}
-										on:mouseleave={clearHighlight}
+										onmouseenter={() => highlight(i, 4)}
+										onmouseleave={clearHighlight}
 										class:highlight-row={highlightRow === i}
 										class:highlight-column={highlightColumn === 4}
 										class:highlight-cell={highlightRow === i && highlightColumn === 4}
-										on:click={() => matchList(row, 'four')}
-										><button on:click={() => matchList(row, 'four')}>{row.four.length}</button></td
+										onclick={() => matchList(row, 'four')}
+										><button onclick={() => matchList(row, 'four')}>{row.four.length}</button></td
 									>
 									<td
 										class="px-2"
-										on:mouseenter={() => highlight(i, 5)}
-										on:mouseleave={clearHighlight}
+										onmouseenter={() => highlight(i, 5)}
+										onmouseleave={clearHighlight}
 										class:highlight-row={highlightRow === i}
 										class:highlight-column={highlightColumn === 5}
 										class:highlight-cell={highlightRow === i && highlightColumn === 5}
-										on:click={() => matchList(row, 'five')}
-										><button on:click={() => matchList(row, 'five')}>{row.five.length}</button></td
+										onclick={() => matchList(row, 'five')}
+										><button onclick={() => matchList(row, 'five')}>{row.five.length}</button></td
 									>
 									<td
 										class="px-2"
-										on:mouseenter={() => highlight(i, 6)}
-										on:mouseleave={clearHighlight}
+										onmouseenter={() => highlight(i, 6)}
+										onmouseleave={clearHighlight}
 										class:highlight-row={highlightRow === i}
 										class:highlight-column={highlightColumn === 6}
 										class:highlight-cell={highlightRow === i && highlightColumn === 6}
-										on:click={() => matchList(row, 'total')}
-										><button on:click={() => matchList(row, 'total')}>{row.total.length}</button
+										onclick={() => matchList(row, 'total')}
+										><button onclick={() => matchList(row, 'total')}>{row.total.length}</button
 										></td
 									>
 								</tr>
@@ -474,9 +489,9 @@
 					<div>
 						<div class="text-sm">Hero</div>
 						<select
-							on:input={() => calculateImpact()}
+							oninput={() => calculateImpact()}
 							bind:value={impactHero}
-							on:change={() => calculateImpact()}
+							onchange={() => calculateImpact()}
 							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
 						>
 							<option value={-1}>Select Hero</option>
@@ -488,8 +503,8 @@
 					<div>
 						<div class="text-sm">Kills</div>
 						<input
-							on:input={() => calculateImpact()}
-							on:change={() => calculateImpact()}
+							oninput={() => calculateImpact()}
+							onchange={() => calculateImpact()}
 							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
 							bind:value={impactKills}
 						/>
@@ -497,8 +512,8 @@
 					<div>
 						<div class="text-sm">Deaths</div>
 						<input
-							on:input={() => calculateImpact()}
-							on:change={() => calculateImpact()}
+							oninput={() => calculateImpact()}
+							onchange={() => calculateImpact()}
 							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
 							bind:value={impactDeaths}
 						/>
@@ -508,8 +523,8 @@
 					<div>
 						<div class="text-sm">Assists</div>
 						<input
-							on:input={() => calculateImpact()}
-							on:change={() => calculateImpact()}
+							oninput={() => calculateImpact()}
+							onchange={() => calculateImpact()}
 							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
 							bind:value={impactAssists}
 						/>
@@ -517,8 +532,8 @@
 					<div>
 						<div class="text-sm">Duration</div>
 						<input
-							on:input={() => calculateImpact()}
-							on:change={() => calculateImpact()}
+							oninput={() => calculateImpact()}
+							onchange={() => calculateImpact()}
 							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
 							bind:value={impactDuration}
 						/>
@@ -526,8 +541,8 @@
 					<div>
 						<div class="text-sm">Last Hits</div>
 						<input
-							on:input={() => calculateImpact()}
-							on:change={() => calculateImpact()}
+							oninput={() => calculateImpact()}
+							onchange={() => calculateImpact()}
 							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
 							bind:value={impactLastHits}
 						/>
@@ -537,9 +552,9 @@
 			<div>
 				<div class="text-sm">Role</div>
 				<select
-					on:input={() => calculateImpact()}
+					oninput={() => calculateImpact()}
 					bind:value={impactRole}
-					on:change={() => calculateImpact()}
+					onchange={() => calculateImpact()}
 					class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
 				>
 					<option value={0}>Select Role</option>
@@ -607,8 +622,8 @@
 		transition:fade={{ duration: 200 }}
 		id="backdrop"
 		class="fixed top-0 z-10 flex h-screen w-screen cursor-default items-center justify-center"
-		on:click|self={() => (showTotwMatches = false)}
-		on:keypress={(e) => e.key === 'Escape' && (showTotwMatches = false)}
+		onclick={self(() => (showTotwMatches = false))}
+		onkeypress={(e) => e.key === 'Escape' && (showTotwMatches = false)}
 		tabindex="0"
 		role="button"
 		class:scroll-lock={showTotwMatches}

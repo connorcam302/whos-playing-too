@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import '../app.css';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -17,7 +19,7 @@
 
 	inject({ mode: dev ? 'development' : 'production' });
 
-	export let data;
+	let { data, children } = $props();
 	const { playerList } = data;
 
 	const links: { link: string; title: string }[] = [
@@ -28,9 +30,12 @@
 		{ link: '/about', title: 'About' }
 	];
 
-	$: innerWidth = 0;
-	$: innerHeight = 0;
-	$: viewport = 'desktop';
+	let innerWidth = $state(0);
+
+	let innerHeight = $state(0);
+
+	let viewport = $state('desktop');
+
 	let mounted = false;
 
 	const handleViewport = (innerWidth: number) => {
@@ -58,8 +63,12 @@
 	});
 
 	const viewportStore = writable();
-	$: handleViewport(innerWidth);
-	$: viewportStore.set(viewport);
+	run(() => {
+		handleViewport(innerWidth);
+	});
+	run(() => {
+		viewportStore.set(viewport);
+	});
 
 	setContext('viewport', viewportStore);
 </script>
@@ -82,7 +91,7 @@
 			</div>
 		{/if}
 		{#key data.url}
-			<div in:fade={{ delay: 120, duration: 250 }} class="grow">
+			<div in:fade={{ delay: 120, duration: 250 }} class="mt-4 grow">
 				{#if $navigating}
 					<div class="flex h-64 w-full items-center justify-center">
 						<Loading />
@@ -92,7 +101,7 @@
 						class="mx-auto flex grow items-center justify-center bg-zinc-900 text-white"
 						in:fade={{ delay: 120, duration: 250 }}
 					>
-						<slot viewport />
+						{@render children?.({ viewport: true })}
 					</div>
 				{/if}
 			</div>

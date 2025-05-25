@@ -2,11 +2,15 @@
 	import chartjs from 'chart.js/auto';
 	import dayjs from 'dayjs';
 	import { onMount } from 'svelte';
-	export let data: {
+	interface Props {
+		data: {
 			data: number[];
 			player: { username: string; accounts: number[]; id: number };
-		}[],
+		}[];
 		type: string;
+	}
+
+	let { data, type }: Props = $props();
 
 	const makeDataSets = (
 		data: {
@@ -42,7 +46,7 @@
 	}
 
 	let ctx;
-	let chartCanvas: any;
+	let chartCanvas: any = $state();
 
 	const findHighestValue = (arrayOfArrays: number[][]) => {
 		let highestValue = Number.MIN_SAFE_INTEGER;

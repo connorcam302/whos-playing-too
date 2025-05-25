@@ -1,6 +1,10 @@
 <script lang="ts">
-	export let colour: string = '',
+	interface Props {
+		colour?: string;
 		percentage: number;
+	}
+
+	let { colour = $bindable(''), percentage }: Props = $props();
 
 	const getColour = (value: number) => {
 		if (value > 52) {
@@ -24,6 +28,6 @@
 </script>
 
 <div class="flex w-full">
-	<div class=" h-1 text-xs leading-none" style="width: {percentage}%; background-color: {colour}" />
-	<div class=" h-1 bg-zinc-700 text-xs leading-none" style="width: {100 - percentage}%;" />
+	<div class=" h-1 text-xs leading-none" style="width: {percentage}%; background-color: {colour}"></div>
+	<div class=" h-1 bg-zinc-700 text-xs leading-none" style="width: {100 - percentage}%;"></div>
 </div>

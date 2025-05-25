@@ -1,6 +1,10 @@
 <script lang="ts">
-	export let data: { hero: string; role: number };
 	import { getColour } from '$lib/functions';
+	interface Props {
+		data: { hero: string; role: number };
+	}
+
+	let { data }: Props = $props();
 
 	const { hero, role } = data;
 

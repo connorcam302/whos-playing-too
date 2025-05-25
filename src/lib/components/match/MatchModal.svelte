@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { nonpassive, self } from 'svelte/legacy';
+
 	import Loading from '$lib/components/Loading.svelte';
 	import { fade } from 'svelte/transition';
 	import dayjs from 'dayjs';
@@ -105,8 +107,13 @@
 		};
 	};
 
-	export let matchId: number | undefined;
-	export let sequenceNum: number | undefined;
+	interface Props {
+		matchId: number | undefined;
+		sequenceNum: number | undefined;
+		children?: import('svelte').Snippet;
+	}
+
+	let { matchId, sequenceNum, children }: Props = $props();
 
 	const fetchMatchData = async () => {
 		let res = await fetch(`/api/matches/${matchId}`);
@@ -120,13 +127,14 @@
 		return await res.json();
 	};
 
-	$: showMatchData = false;
+	let showMatchData = $state(false);
+
 	let matchDetails: {
 		matchData: MatchData;
 		radiantData: PlayerData[];
 		direData: PlayerData[];
 		error?: any;
-	};
+	} = $state();
 	const openMatchData = async () => {
 		showMatchData = true;
 		if (!matchDetails) {
@@ -136,9 +144,12 @@
 </script>
 
 <svelte:window
-	on:wheel|nonpassive={(e) => {
-		if (showMatchData) e.preventDefault();
-	}}
+	use:nonpassive={[
+		'wheel',
+		() => (e) => {
+			if (showMatchData) e.preventDefault();
+		}
+	]}
 />
 
 <svelte:head>
@@ -157,8 +168,8 @@
 	{/if}
 </svelte:head>
 
-<button on:click={openMatchData} class="h-full w-full transition-all duration-300">
-	<slot />
+<button onclick={openMatchData} class="h-full w-full transition-all duration-300">
+	{@render children?.()}
 </button>
 
 {#if showMatchData}
@@ -166,8 +177,8 @@
 		transition:fade={{ duration: 200 }}
 		id="backdrop"
 		class="fixed top-0 z-10 flex h-screen w-screen cursor-default items-center justify-center"
-		on:click|self={() => (showMatchData = false)}
-		on:keypress={(e) => e.key === 'Escape' && (showMatchData = false)}
+		onclick={self(() => (showMatchData = false))}
+		onkeypress={(e) => e.key === 'Escape' && (showMatchData = false)}
 		tabindex="0"
 		role="button"
 		class:scroll-lock={showMatchData}

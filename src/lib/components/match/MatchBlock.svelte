@@ -8,7 +8,11 @@
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
-	export let match: any;
+	interface Props {
+		match: any;
+	}
+
+	let { match }: Props = $props();
 	const { matchData, radiant, dire } = match;
 </script>
 
@@ -43,7 +47,7 @@
 						</div>
 					</div>
 
-					<div class="grow" />
+					<div class="grow"></div>
 					<div>
 						{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 					</div>
@@ -98,7 +102,7 @@
 					{/if}
 				</div>
 				<div class="flex">
-					<div class="h-full w-full bg-zinc-400" />
+					<div class="h-full w-full bg-zinc-400"></div>
 				</div>
 				<div class="flex"></div>
 			</div>

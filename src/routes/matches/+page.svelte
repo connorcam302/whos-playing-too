@@ -15,16 +15,16 @@
 	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
 
 	import { onMount } from 'svelte';
-	export let data;
+	let { data } = $props();
 
 	const { playerList, heroList } = data;
-	let filterPlayerList = playerList;
-	let filterHeroList = heroList;
-	let matchBlocks: any[] = [];
-	let playerCheckboxes: any[] = playerList;
-	let heroCheckboxes: any[] = heroList;
+	let filterPlayerList = $state(playerList);
+	let filterHeroList = $state(heroList);
+	let matchBlocks: any[] = $state([]);
+	let playerCheckboxes: any[] = $state(playerList);
+	let heroCheckboxes: any[] = $state(heroList);
 
-	let searchPlayers = '';
+	let searchPlayers = $state('');
 	const searchPlayersByName = (
 		allPlayers: { id: number; username: string; accounts: { accountId: number }[] }[],
 		searchString: string
@@ -34,7 +34,7 @@
 		return allPlayers.filter((player) => player.username.toLowerCase().includes(lowerSearchString));
 	};
 
-	let searchHeroes = '';
+	let searchHeroes = $state('');
 	const searchHeroesByName = (allHeroes: DotaAsset[], searchString: string) => {
 		const lowerSearchString = searchString.toLowerCase();
 
@@ -42,13 +42,16 @@
 	};
 
 	let gameModes: string[] = ['ranked-all-pick', 'unranked-all-pick', 'other'];
-	let gameModeCheckboxes: string[] = ['ranked-all-pick', 'unranked-all-pick', 'other'];
+	let gameModeCheckboxes: string[] = $state(['ranked-all-pick', 'unranked-all-pick', 'other']);
 
-	let playerFilter = 0;
-	let heroFilter = 0;
-	$: pageNumber = 1;
-	$: incrementDisabled = false;
-	$: decrementDisabled = false;
+	let playerFilter = $state(0);
+	let heroFilter = $state(0);
+	let pageNumber = $state(1);
+	
+	let incrementDisabled = $state(false);
+	
+	let decrementDisabled = $state(false);
+	
 
 	const fetchMatches = (
 		players: number[],
@@ -166,7 +169,7 @@
 		}
 	};
 
-	let advancedFilters = false;
+	let advancedFilters = $state(false);
 </script>
 
 <svelte:head>
@@ -182,7 +185,7 @@
 					name="players"
 					class="w-full rounded-lg bg-zinc-700 py-1 text-sm"
 					bind:value={playerFilter}
-					on:change={() =>
+					onchange={() =>
 						playerFilter === 0
 							? (playerCheckboxes = playerList)
 							: (playerCheckboxes = playerList.filter((obj) => obj.id == playerFilter))}
@@ -199,7 +202,7 @@
 					name="heroes"
 					class="w-full rounded-lg bg-zinc-700 py-1 text-sm"
 					bind:value={heroFilter}
-					on:change={() =>
+					onchange={() =>
 						heroFilter === 0
 							? (heroCheckboxes = heroList)
 							: (heroCheckboxes = heroList.filter((obj) => obj.id == heroFilter))}
@@ -246,11 +249,11 @@
 				</div>
 			</div>
 			<button
-				on:click={() => (advancedFilters = !advancedFilters)}
+				onclick={() => (advancedFilters = !advancedFilters)}
 				class="flex items-center justify-center text-lg"
 			>
 				<div>Advanced Filters</div>
-				<div class="grow" />
+				<div class="grow"></div>
 				<div>
 					{#if advancedFilters}
 						<MaterialSymbolsCloseRounded />
@@ -268,11 +271,11 @@
 							<input
 								type="text"
 								bind:value={searchPlayers}
-								on:input={() => (filterPlayerList = searchPlayersByName(playerList, searchPlayers))}
+								oninput={() => (filterPlayerList = searchPlayersByName(playerList, searchPlayers))}
 								placeholder="Search Players"
 								class="w-full bg-zinc-800 px-1 py-0.5 text-zinc-100"
 							/>
-							<button on:click={() => clearPlayerSearch()}>
+							<button onclick={() => clearPlayerSearch()}>
 								<MaterialSymbolsCloseRounded />
 							</button>
 						</div>
@@ -311,12 +314,12 @@
 						<div class="mt-4 flex text-sm">
 							<button
 								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
-								on:click={() => clearPlayerFilter()}>Clear</button
+								onclick={() => clearPlayerFilter()}>Clear</button
 							>
-							<div class="grow" />
+							<div class="grow"></div>
 							<button
 								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
-								on:click={() => selectAllPlayersFilter()}>Select All</button
+								onclick={() => selectAllPlayersFilter()}>Select All</button
 							>
 						</div>
 					</div>
@@ -330,11 +333,11 @@
 							<input
 								type="text"
 								bind:value={searchHeroes}
-								on:input={() => (filterHeroList = searchHeroesByName(heroList, searchHeroes))}
+								oninput={() => (filterHeroList = searchHeroesByName(heroList, searchHeroes))}
 								placeholder="Search Heroes"
 								class="w-full bg-zinc-800 px-1 py-0.5 text-zinc-100"
 							/>
-							<button on:click={() => clearHeskyarch()}>
+							<button onclick={() => clearHeskyarch()}>
 								<MaterialSymbolsCloseRounded />
 							</button>
 						</div>
@@ -373,12 +376,12 @@
 						<div class="mt-4 flex text-sm">
 							<button
 								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
-								on:click={() => clearHeroFilter()}>Clear</button
+								onclick={() => clearHeroFilter()}>Clear</button
 							>
-							<div class="grow" />
+							<div class="grow"></div>
 							<button
 								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
-								on:click={() => selectAllHeroFilter()}>Select All</button
+								onclick={() => selectAllHeroFilter()}>Select All</button
 							>
 						</div>
 					</div>
@@ -387,7 +390,7 @@
 			<div class="mb-2 flex justify-center">
 				<button
 					class="w-fit rounded-lg bg-sky-500 px-4 py-1 transition-all duration-300 hover:bg-sky-700"
-					on:click={() => applyFilters()}
+					onclick={() => applyFilters()}
 				>
 					<div class="flex items-center gap-2">
 						<IcOutlineCheck />
@@ -415,7 +418,7 @@
 							<button
 								class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
 								disabled={pageNumber == 1}
-								on:click={() => decrementPage()}
+								onclick={() => decrementPage()}
 							>
 								<MaterialSymbolsArrowBackRounded /></button
 							>
@@ -423,7 +426,7 @@
 							<button
 								class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
 								disabled={matchBlocks.length < 10}
-								on:click={() => incrementPage()}
+								onclick={() => incrementPage()}
 							>
 								<MaterialSymbolsArrowForwardRounded />
 							</button>

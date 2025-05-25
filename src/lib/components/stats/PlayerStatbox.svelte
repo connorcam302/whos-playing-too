@@ -1,12 +1,4 @@
 <script lang="ts">
-	export let playerStats: {
-		id: number;
-		username: string;
-		matches: number;
-		radiantWins: number;
-		direWins: number;
-		avgImpact: number;
-	}[];
 
 	import BiSortDown from '~icons/bi/sort-down';
 	import BiSortDownAlt from '~icons/bi/sort-down-alt';
@@ -14,9 +6,21 @@
 	import { calcImpact } from '../../functions';
 	import Bar from './Bar.svelte';
 	import { goto } from '$app/navigation';
-	let order = { col: 'matches', direction: 'desc' };
+	interface Props {
+		playerStats: {
+		id: number;
+		username: string;
+		matches: number;
+		radiantWins: number;
+		direWins: number;
+		avgImpact: number;
+	}[];
+	}
 
-	let playerSortState = 0;
+	let { playerStats }: Props = $props();
+	let order = $state({ col: 'matches', direction: 'desc' });
+
+	let playerSortState = $state(0);
 	const handlePlayerSort = () => {
 		matchesSortState = 0;
 		winRateSortState = 0;
@@ -32,7 +36,7 @@
 			order = { col: 'matches', direction: 'desc' };
 		}
 	};
-	let matchesSortState = 0;
+	let matchesSortState = $state(0);
 	const handleMachesSort = () => {
 		playerSortState = 0;
 		winRateSortState = 0;
@@ -50,7 +54,7 @@
 		}
 	};
 
-	let winRateSortState = 0;
+	let winRateSortState = $state(0);
 	const handleWinRateSort = () => {
 		playerSortState = 0;
 		matchesSortState = 0;
@@ -67,7 +71,7 @@
 		}
 	};
 
-	let impactSortState = 0;
+	let impactSortState = $state(0);
 	const handleImpactSort = () => {
 		playerSortState = 0;
 		matchesSortState = 0;
@@ -179,14 +183,14 @@
 	};
 
 	order = { col: 'matches', direction: 'desc' };
-	$: sortedStats = sortStats(order);
+	let sortedStats = $derived(sortStats(order));
 </script>
 
 <div class="max-w-[100vw] rounded-xl bg-zinc-800 px-2 py-2 md:px-4">
 	<div class="my-1 flex gap-2 border-b-[1px] border-zinc-500 pb-1 pr-2">
 		<div class="flex w-20 items-center justify-center">
-			<button on:click={() => handlePlayerSort()}>PLAYER</button>
-			<div class="grow" />
+			<button onclick={() => handlePlayerSort()}>PLAYER</button>
+			<div class="grow"></div>
 			<div class="w-6">
 				{#if playerSortState == 1}
 					<BiSortDown />
@@ -197,8 +201,8 @@
 		</div>
 		<div class="flex grow gap-2">
 			<div class="flex basis-1/3 items-center justify-center">
-				<button on:click={() => handleMachesSort()}>MATCHES</button>
-				<div class="grow" />
+				<button onclick={() => handleMachesSort()}>MATCHES</button>
+				<div class="grow"></div>
 				<div class="w-6">
 					{#if matchesSortState == 1}
 						<BiSortDown />
@@ -208,8 +212,8 @@
 				</div>
 			</div>
 			<div class="flex basis-1/3 items-center justify-center">
-				<button on:click={() => handleWinRateSort()}>WINRATE</button>
-				<div class="grow" />
+				<button onclick={() => handleWinRateSort()}>WINRATE</button>
+				<div class="grow"></div>
 				<div class="w-6">
 					{#if winRateSortState == 1}
 						<BiSortDown />
@@ -219,8 +223,8 @@
 				</div>
 			</div>
 			<div class="flex basis-1/3 items-center justify-center">
-				<button on:click={() => handleImpactSort()}>IMPACT</button>
-				<div class="grow" />
+				<button onclick={() => handleImpactSort()}>IMPACT</button>
+				<div class="grow"></div>
 				<div class="w-6">
 					{#if impactSortState == 1}
 						<BiSortDown />
@@ -236,7 +240,7 @@
 			<div class="flex gap-2 py-1 pr-2 transition-all hover:bg-zinc-700 hover:bg-opacity-20">
 				<div class="w-20">
 					<button
-						on:click={() => goto(`/player/${player.id}`)}
+						onclick={() => goto(`/player/${player.id}`)}
 						class="duration-300 hover:text-zinc-400">{player.username}</button
 					>
 				</div>

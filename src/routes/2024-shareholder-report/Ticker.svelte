@@ -1,10 +1,14 @@
 <script lang="ts">
-	export let stat,
-		name,
-		reverse = false;
 	import MaterialSymbolsArrowUpward from '~icons/material-symbols/arrow-upward-rounded';
 	import MaterialSymbolsArrowDownward from '~icons/material-symbols/arrow-downward-rounded';
 	import TickerChart from './TickerChart.svelte';
+	interface Props {
+		stat: any;
+		name: any;
+		reverse?: boolean;
+	}
+
+	let { stat, name, reverse = false }: Props = $props();
 </script>
 
 <div

@@ -2,9 +2,13 @@
 	import chartjs from 'chart.js/auto';
 	import dayjs from 'dayjs';
 	import { onMount } from 'svelte';
-	export let data: { role: number; count: number }[],
-		cutout: number = 50;
-	let blank = false;
+	interface Props {
+		data: { role: number; count: number }[];
+		cutout?: number;
+	}
+
+	let { data = $bindable(), cutout = 50 }: Props = $props();
+	let blank = $state(false);
 	if (data.length === 0) {
 		blank = true;
 		data = [{ role: -1, count: 1 }];
@@ -57,7 +61,7 @@
 	const images = roles.map((role) => roleImage(role));
 
 	let ctx;
-	let chartCanvas: any;
+	let chartCanvas: any = $state();
 
 	onMount(() => {
 		ctx = chartCanvas.getContext('2d');

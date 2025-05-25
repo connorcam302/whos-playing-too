@@ -3,21 +3,21 @@
 	import DesktopNavbar from '$lib/components/navbar/DesktopNavbar.svelte';
 	import { page } from '$app/stores';
 
-	export let playerList = [],
-		links = [];
+	let { playerList = [], links = [] } = $props();
 
-	$: navigateTo = 0;
+	let navigateTo = $state(0);
+
 	const navigate = (playerId: string) => {
 		goto('/player/' + playerId);
 	};
 </script>
 
-<div class="mx-auto mb-8">
+<div class="mx-auto">
 	<div>
 		<div class="flex w-full items-center justify-center gap-8 bg-zinc-800">
 			<a
 				href="/"
-				class="gap-1w-48 flex items-center justify-center gap-2 rounded-full text-center font-display text-lg"
+				class="gap-1w-48 font-display flex items-center justify-center gap-2 rounded-full text-center text-lg"
 			>
 				<img src="/logo.png" alt="whos-playing logo" class="h-7 w-7" />
 				<div>whos-playing</div>
@@ -56,11 +56,11 @@
 					name="players"
 					class="w-48 rounded-xl border-x-8 border-transparent bg-zinc-900 py-[7px]"
 					bind:value={navigateTo}
-					on:change={() => navigate(navigateTo)}
+					onchange={() => navigate(navigateTo)}
 				>
 					<option value={0} selected disabled>Search Players</option>
 					{#each playerList as player}
-						<option on:click={() => goto(`/player/${player.id}`)} value={player.id}
+						<option onclick={() => goto(`/player/${player.id}`)} value={player.id}
 							>{player.username}</option
 						>
 					{/each}

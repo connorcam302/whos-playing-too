@@ -30,7 +30,6 @@
 		bans: DotaAsset[];
 	};
 
-	export let player: PlayerData, matchData: MatchData;
 	import { getContext } from 'svelte';
 	import Fa6SolidPoop from '~icons/fa6-solid/poop';
 	import FxemojiPoo from '~icons/fxemoji/poo';
@@ -38,8 +37,14 @@
 
 	import { calcImpact, getRoleIcon } from '$lib/functions';
 	import { goto } from '$app/navigation';
+	interface Props {
+		player: PlayerData;
+		matchData: MatchData;
+	}
 
-	$: viewport = getContext('viewport');
+	let { player, matchData }: Props = $props();
+
+	let viewport = $derived(getContext('viewport'));
 
 	const getImpactScore = (match: any, role: any, duration: any) => {
 		let impact = 0;
@@ -214,7 +219,7 @@
 			<div class="min-w-20 text-left lg:min-w-28 lg:text-xl">
 				<button
 					class="duration-300 hover:text-zinc-400"
-					on:click={() => goto(`/player/${player.owner}`)}
+					onclick={() => goto(`/player/${player.owner}`)}
 				>
 					{player.username}</button
 				>
