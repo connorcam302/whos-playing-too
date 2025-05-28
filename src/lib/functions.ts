@@ -378,7 +378,7 @@ export const toTime = (seconds: number) => {
 
 export const getImpactDetails = (match: any, role: any, duration: any) => {
 	let impact = 0;
-	const csMin = match.last_hits / (duration / 60);
+	const csMin = match.lastHits / (duration / 60);
 	const deathsPerMin = match.deaths / (duration / 60);
 
 	let csMinRating: number = 0;
@@ -479,4 +479,19 @@ export const roleDistribution = (role: number, heroId: number) => {
 
 export const getHeroIdSting = (heroId: number) => {
 	const hero = heroData.find((hero) => hero.id === heroId);
+};
+
+export const getRoleName = (role: number) => {
+	if (role === 1) {
+		return 'Carry';
+	}
+	if (role === 2) {
+		return 'Mid';
+	}
+	if (role === 3) {
+		return 'Offlane';
+	}
+	if (role === 4 || role === 5) {
+		return 'Support';
+	}
 };

@@ -34,17 +34,47 @@
 	import Fa6SolidPoop from '~icons/fa6-solid/poop';
 	import FxemojiPoo from '~icons/fxemoji/poo';
 	import tippy from 'sveltejs-tippy';
+	import UilExchange from 'virtual:icons/uil/exchange';
+	import MaterialSymbolsExpandLessRounded from 'virtual:icons/material-symbols/expand-less-rounded';
+	import MaterialSymbolsExpandMoreRounded from 'virtual:icons/material-symbols/expand-more-rounded';
+	import BiDashLg from '~icons/bi/dash-lg';
+	import UilQuestion from '~icons/uil/question';
+	import LucideUsers from '~icons/lucide/users';
+	import LucideUser from '~icons/lucide/user';
+	import LucideChevronRight from '~icons/lucide/chevron-right';
+	import LucideChevronDown from '~icons/lucide/chevron-down';
+	import { slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
+	import dayjs from 'dayjs';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+	dayjs.extend(relativeTime);
+
+	import { getGameMode } from '$lib/functions';
 
 	import { calcImpact, getRoleIcon } from '$lib/functions';
 	import { goto } from '$app/navigation';
+	import PlayerData from './PlayerData.svelte';
+	import MatchBlock from './MatchBlock.svelte';
+	import MatchModal from './MatchModal.svelte';
+	import RatingChip from '../RatingChip.svelte';
+	import { Item } from '../ui/select';
+	import DotaItem from '../DotaItem.svelte';
+	import ChevronDown from 'lucide-svelte/icons/chevron-down';
+	import Facet from '../Facet.svelte';
+	import { twMerge } from 'tailwind-merge';
 	interface Props {
-		player: PlayerData;
-		matchData: MatchData;
+		match: {
+			player: PlayerData;
+			radiant: PlayerData[];
+			dire: PlayerData[];
+			matchData: MatchData;
+		};
 	}
 
-	let { player, matchData }: Props = $props();
+	let { match }: Props = $props();
 
-	let viewport = $derived(getContext('viewport'));
+	console.log(match);
+	const { player, matchData } = match;
 
 	const getImpactScore = (match: any, role: any, duration: any) => {
 		let impact = 0;
@@ -184,146 +214,86 @@
 		facetBox += '</div>';
 		return facetBox;
 	};
-
-	const facetBox = makeFacetBox(player.facets, player.facet - 1);
 </script>
 
-<div>
-	<div class="my-0.5 flex items-center gap-1 text-sm md:gap-4 lg:text-base">
-		<div class="flex items-center gap-2">
-			<div class="relative">
-				<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
-				{#if player.facet}
-					<div
-						class={`absolute bottom-0 right-0 color_${
-							player.facets[player.facet - 1]?.color ?? 'Blue'
-						}_${player.facets[player.facet - 1]?.gradient_id ?? 3}`}
-					>
-						<img
-							src={player.facets[player.facet - 1]?.icon
-								? `https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/icons/facets/${
-										player.facets[player.facet - 1]?.icon
-									}.png`
-								: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png'}
-							alt={player.facet}
-							class="h-4 px-1 py-0.5 md:h-4 md:px-2 md:py-0.5"
-							use:tippy={{
-								content: `${facetBox}`,
-								placement: 'bottom',
-								allowHTML: true
-							}}
-						/>
+<div class={'flex items-center duration-200'}>
+	<MatchModal matchId={matchData.id} sequenceNum={matchData.sequenceNumber}>
+		<div class={'flex items-center gap-2 px-2 py-1 md:gap-4'}>
+			<div class="w-12 md:w-16">
+				<div class="relative">
+					<img src={player.hero.img} alt={player.hero.name} class="w-12 md:w-16" />
+					{#if player.facet}
+						<div
+							class={`absolute bottom-0 right-0 color_${
+								player.facets[player.facet - 1]?.color ?? 'Blue'
+							}_${player.facets[player.facet - 1]?.gradient_id ?? 3}`}
+						>
+							<Facet facet={player.facets[player.facet - 1]} />
+						</div>
+					{/if}
+				</div>
+			</div>
+			<div class="flex w-28 flex-col gap-0 text-left">
+				<div class="font-sans leading-none duration-200 hover:text-zinc-400">
+					<a href="/player/{player.owner}">{player.username}</a>
+				</div>
+				<div class="font-sans text-xs leading-none text-zinc-400">{player.hero.name}</div>
+			</div>
+			<div class="my-auto">
+				<RatingChip data={match} />
+			</div>
+			<div class="flex w-6 items-center justify-center lg:w-8">
+				<img src={getRoleIcon(player.role)} alt={`${player.role} role`} class="h-7" />
+			</div>
+			<div class="flex w-16 items-center justify-center gap-1 text-xs md:w-20 lg:text-base">
+				<div class="text-green-300">{player.kills}</div>
+				<div>/</div>
+				<div class="text-red-400">{player.deaths}</div>
+				<div>/</div>
+				<div class="text-cyan-300">{player.assists}</div>
+			</div>
+			<div class="hidden md:flex">
+				{#each [0, 1, 2, 3, 4, 5] as slot}
+					<div class="h-8">
+						<DotaItem item={match.player[`item${slot}`]} />
 					</div>
-				{/if}
+				{/each}
 			</div>
-			<div class="min-w-20 text-left lg:min-w-28 lg:text-xl">
-				<button
-					class="duration-300 hover:text-zinc-400"
-					onclick={() => goto(`/player/${player.owner}`)}
-				>
-					{player.username}</button
-				>
-				<span class="italic text-indigo-400">{player.smurf ? 'S' : ''}</span>
+			<div class="flex flex-col md:hidden">
+				<div class="flex">
+					{#each [0, 1, 2] as slot}
+						<div class="h-5">
+							<DotaItem item={match.player[`item${slot}`]} />
+						</div>
+					{/each}
+				</div>
+				<div class="flex">
+					{#each [3, 4, 5] as slot}
+						<div class="h-5">
+							<DotaItem item={match.player[`item${slot}`]} />
+						</div>
+					{/each}
+				</div>
 			</div>
-		</div>
-		<div
-			class="w-10 cursor-default items-center text-center"
-			use:tippy={{
-				content: `
-                <div class='text-center'>Impact Rating: <span class='font-bold'>${
-									player.impact
-								}</span></div>
-                <table>
-<thead>
-    <tr class='border-b-2 border-black'>
-        <th class='text-left'>Stat</th>
-        <th class='px-4 text-center'>Dist</th>
-        <th class='text-right'>Rating</th>
-    </tr>
-  <tbody>
-    <tr>
-      <td class='text-left'>K/A</td>
-      <td class='px-4 text-center'>${distributionDetails?.kapm}%</td>
-      <td class='text-right'>${impactDetails.kapmRating}</td>
-    </tr>
-    <tr>
-      <td class='text-left'>Death</td>
-      <td class='px-4 text-center'>${distributionDetails?.death}%</td>
-      <td class='text-right'>${impactDetails.deathRating}</td>
-    </tr>
-    ${
-			player.role === 1 || player.role === 2 || player.role === 3
-				? `<tr>
-      <td class='text-left'>CS</td>
-      <td class='px-4 text-center'>${distributionDetails?.csMin}%</td>
-      <td class='text-right'>${impactDetails.csMinRating}</td>
-    </tr>`
-				: ``
-		}
-
-  </tbody>
-</table>`,
-				placement: 'bottom',
-				theme: 'light',
-				allowHTML: true
-			}}
-		>
-			{#if player.impact > 200}
-				<div id="splusplusrating" class="font-display lg:text-xl">
-					{calcImpact(player.impact)}
+			<div class="hidden h-4 w-4 rounded-full md:block md:h-8 md:w-8">
+				<DotaItem item={match.player[`itemNeutral`]} styles="rounded-full object-cover" />
+			</div>
+			<div class="hidden lg:block">
+				<div class="flex flex-col">
+					<img
+						class="w-6 object-contain"
+						src={`/scepter_${player.aghanimsScepter}.png`}
+						alt={`/scepter_${player.aghanimsScepter}`}
+					/>
+					<img
+						class="w-6 object-contain"
+						src={`/shard_${player.aghanimsShard}.png`}
+						alt={`/shard_${player.aghanimsShard}`}
+					/>
 				</div>
-			{:else if player.impact >= 140}
-				<div id="srating" class="font-display lg:text-xl">
-					{calcImpact(player.impact)}
-				</div>
-			{:else if player.impact < 140 && player.impact > 25}
-				<div class="font-display lg:text-xl">
-					{calcImpact(player.impact)}
-				</div>
-			{:else if player.impact <= 25}
-				<div id="frating" class="flex justify-center font-display lg:text-xl">
-					<FxemojiPoo />
-				</div>
-			{/if}
-		</div>
-		<div class="flex w-6 items-center justify-center lg:w-8">
-			<img src={getRoleIcon(player.role)} alt={`${player.role} role`} class="h-7" />
-		</div>
-		<div class="flex w-16 items-center justify-center gap-1 text-xs lg:text-base">
-			<div class="text-green-300">{player.kills}</div>
-			<div>/</div>
-			<div class="text-red-400">{player.deaths}</div>
-			<div>/</div>
-			<div class="text-cyan-300">{player.assists}</div>
-		</div>
-		<div class="flex max-w-[86px] flex-wrap lg:max-w-96 lg:flex-row">
-			<img src={player.item0.img} alt={player.item0.name} class="h-5 lg:h-8 lg:w-[44px]" />
-			<img src={player.item1.img} alt={player.item1.name} class="h-5 lg:h-8 lg:w-[44px]" />
-			<img src={player.item2.img} alt={player.item2.name} class="h-5 lg:h-8 lg:w-[44px]" />
-			<img src={player.item3.img} alt={player.item3.name} class="h-5 lg:h-8 lg:w-[44px]" />
-			<img src={player.item4.img} alt={player.item4.name} class="h-5 lg:h-8 lg:w-[44px]" />
-			<img src={player.item5.img} alt={player.item5.name} class="h-5 lg:h-8 lg:w-[44px]" />
-		</div>
-		<img
-			src={player.itemNeutral.img}
-			alt={player.itemNeutral.name}
-			class="mr-1 h-6 w-6 rounded-full object-cover lg:mr-0 lg:h-8 lg:w-8"
-		/>
-		<div class="hidden lg:block">
-			<div class="flex flex-col">
-				<img
-					class="mr-2 w-6 object-contain"
-					src={`/scepter_${player.aghanimsScepter}.png`}
-					alt={`/scepter_${player.aghanimsScepter}`}
-				/>
-				<img
-					class="mr-2 w-6 object-contain"
-					src={`/shard_${player.aghanimsShard}.png`}
-					alt={`/shard_${player.aghanimsShard}`}
-				/>
 			</div>
 		</div>
-	</div>
+	</MatchModal>
 </div>
 
 <style>

@@ -182,4 +182,4 @@
 	});
 </script>
 
-<canvas bind:this={chartCanvas} id="myChart"></canvas>
+<canvas bind:this={chartCanvas} id="myChart" class=""></canvas>

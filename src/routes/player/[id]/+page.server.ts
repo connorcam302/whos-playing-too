@@ -4,7 +4,8 @@ import {
 	getPlayer,
 	getPlayerChart,
 	getPlayerWinLoss,
-	getPlayerImpactCountsByRole
+	getPlayerImpactCountsByRole,
+	getSmurfAccounts
 } from '$lib/server/db-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
@@ -17,7 +18,10 @@ const getSteamData = async (steamIds: number[]) => {
 			.toString()}`
 	);
 
-	console.log(steamData);
+	if (steamData.ok === false) {
+		return [];
+	}
+
 	const steamDataJson = await steamData.json();
 	return steamDataJson.response.players;
 };
@@ -42,14 +46,18 @@ export const load = async ({ url, params }) => {
 	const accountIds = await getAccounts(params.id);
 	const allSteamData = await getSteamData(accountIds.map((account) => account?.accountId));
 	const mainAccountId = accountIds.find((account) => account.smurf === false)?.accountId;
-	const mainAccount = allSteamData.find(
+	const mainAccount = await allSteamData.find(
 		(account: any) =>
 			account.steamid === (BigInt(mainAccountId) + BigInt('76561197960265728')).toString()
-	);
-	const smurfAccounts = allSteamData.filter(
+	) || null;
+	let smurfAccounts = await allSteamData.filter(
 		(account: any) =>
 			account.steamid !== (BigInt(mainAccountId) + BigInt('76561197960265728')).toString()
 	);
+
+	if (smurfAccounts.length < 1) {
+		smurfAccounts = await getSmurfAccounts(params.id);
+	}
 	const weeklyStats = await getPlayerWinLoss(params.id);
 	const allTimeStats = await getPlayerWinLoss(params.id, 9999);
 

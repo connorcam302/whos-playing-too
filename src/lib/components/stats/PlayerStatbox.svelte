@@ -1,5 +1,4 @@
 <script lang="ts">
-
 	import BiSortDown from '~icons/bi/sort-down';
 	import BiSortDownAlt from '~icons/bi/sort-down-alt';
 	import tippy from 'sveltejs-tippy';
@@ -8,13 +7,13 @@
 	import { goto } from '$app/navigation';
 	interface Props {
 		playerStats: {
-		id: number;
-		username: string;
-		matches: number;
-		radiantWins: number;
-		direWins: number;
-		avgImpact: number;
-	}[];
+			id: number;
+			username: string;
+			matches: number;
+			radiantWins: number;
+			direWins: number;
+			avgImpact: number;
+		}[];
 	}
 
 	let { playerStats }: Props = $props();

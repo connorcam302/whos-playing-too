@@ -98,7 +98,7 @@
 					</div>
 				{:else}
 					<div
-						class="mx-auto flex grow items-center justify-center bg-zinc-900 text-white"
+						class="mx-auto flex grow items-center justify-center text-white"
 						in:fade={{ delay: 120, duration: 250 }}
 					>
 						{@render children?.({ viewport: true })}

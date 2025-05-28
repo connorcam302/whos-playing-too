@@ -700,7 +700,7 @@ export const getFeatures = async () => {
 
 export const getPlayer = async (id: number) => {
     const player = await db
-        .select({ id: players.id, username: players.username, accountId: accounts.accountId })
+        .select({ id: players.id, username: players.username, accountId: accounts.accountId, image: accounts.image })
         .from(players)
         .where(and(eq(players.id, id), eq(accounts.smurf, false)))
         .innerJoin(accounts, eq(accounts.owner, players.id));
@@ -711,6 +711,14 @@ export const getAccounts = async (id: number) => {
     const accountsList = await db.select().from(accounts).where(eq(accounts.owner, id));
     return accountsList;
 };
+
+export const getSmurfAccounts = async (id: number) => {
+    const accountsList = await db
+        .select()
+        .from(accounts)
+        .where(and(eq(accounts.owner, id), eq(accounts.smurf, true)));
+    return accountsList;
+}
 
 export const getPlayerWinLoss = async (id: number, offset: number = 7) => {
     const rankedWins = await db

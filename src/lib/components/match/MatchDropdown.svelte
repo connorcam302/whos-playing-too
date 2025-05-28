@@ -39,6 +39,12 @@
 	import MaterialSymbolsExpandMoreRounded from 'virtual:icons/material-symbols/expand-more-rounded';
 	import BiDashLg from '~icons/bi/dash-lg';
 	import UilQuestion from '~icons/uil/question';
+	import LucideUsers from '~icons/lucide/users';
+	import LucideUser from '~icons/lucide/user';
+	import LucideChevronRight from '~icons/lucide/chevron-right';
+	import LucideChevronDown from '~icons/lucide/chevron-down';
+	import { slide } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
@@ -50,13 +56,19 @@
 	import PlayerData from './PlayerData.svelte';
 	import MatchBlock from './MatchBlock.svelte';
 	import MatchModal from './MatchModal.svelte';
+	import RatingChip from '../RatingChip.svelte';
+	import { Item } from '../ui/select';
+	import DotaItem from '../DotaItem.svelte';
+	import ChevronDown from 'lucide-svelte/icons/chevron-down';
+	import Facet from '../Facet.svelte';
+	import { twMerge } from 'tailwind-merge';
 	interface Props {
 		match: {
-		player: PlayerData;
-		radiant: PlayerData[];
-		dire: PlayerData[];
-		matchData: MatchData;
-	};
+			player: PlayerData;
+			radiant: PlayerData[];
+			dire: PlayerData[];
+			matchData: MatchData;
+		};
 	}
 
 	let { match }: Props = $props();
@@ -203,150 +215,104 @@
 		facetBox += '</div>';
 		return facetBox;
 	};
+	let expanded = $state(false);
 
 	const facetBox = makeFacetBox(player.facets, player.facet - 1);
-	const winner = player.team === matchData.winner;
+	const isWinner = player.team === matchData.winner;
+	let matchStyling = $derived(
+		`${expanded ? 'rounded-t-lg' : 'rounded-lg'} ${isWinner ? 'bg-gradient-to-r from-green-950/80 hover:bg-green-950/50' : 'bg-gradient-to-r from-red-950/80 hover:bg-red-950/50'}`
+	);
+
+	const radiantStyling =
+		matchData.winner === 'radiant'
+			? 'bg-gradient-to-r from-green-950/80 hover:bg-green-950/50'
+			: 'bg-gradient-to-r from-red-950/80 hover:bg-red-950/50';
+	const direStyling =
+		matchData.winner === 'dire'
+			? 'bg-gradient-to-r from-green-950/80 hover:bg-green-950/50'
+			: 'bg-gradient-to-r from-red-950/80 hover:bg-red-950/50';
+
+	const radiantHeaderStyling =
+		matchData.winner === 'radiant' ? 'bg-green-950/80 ' : 'bg-red-950/50 ';
+	const direHeaderStyling = matchData.winner === 'dire' ? 'bg-green-950/80 ' : 'bg-red-950/50 ';
 
 	const handleExpand = (event) => {
 		event.stopPropagation();
 		expanded = !expanded;
 	};
-
-	let expanded = $state(false);
-	
 </script>
 
-<div class="w-full">
+<div class="flex items-center">
 	<MatchModal matchId={matchData.id} sequenceNum={matchData.sequenceNumber}>
-		<div
-			class="flex items-center gap-1 bg-opacity-15 text-sm md:gap-4 lg:text-base"
-			style="background-color: {winner ? '#10b98125' : '#ef444425'} "
-		>
-			<div class="flex items-center gap-2">
+		<div class={twMerge(matchStyling, 'flex items-center gap-2 px-2 py-1 md:gap-4')}>
+			<div class="w-12 md:w-16">
 				<div class="relative">
-					<img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
+					<img src={player.hero.img} alt={player.hero.name} class="w-12 md:w-16" />
 					{#if player.facet}
 						<div
 							class={`absolute bottom-0 right-0 color_${
 								player.facets[player.facet - 1]?.color ?? 'Blue'
 							}_${player.facets[player.facet - 1]?.gradient_id ?? 3}`}
 						>
-							<img
-								src={player.facets[player.facet - 1]?.icon
-									? `https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/icons/facets/${
-											player.facets[player.facet - 1]?.icon
-										}.png`
-									: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png'}
-								alt={player.facet}
-								class="h-4 px-1 py-0.5 md:h-4 md:px-2 md:py-0.5"
-								use:tippy={{
-									content: `${facetBox}`,
-									placement: 'bottom',
-									allowHTML: true
-								}}
-							/>
+							<Facet facet={player.facets[player.facet - 1]} />
 						</div>
 					{/if}
 				</div>
 			</div>
-			<div
-				class="w-8 cursor-default items-center text-center md:w-10"
-				use:tippy={{
-					content: `
-                <div class='text-center'>Impact Rating: <span class='font-bold'>${
-									player.impact
-								}</span></div>
-                <table>
-<thead>
-    <tr class='border-b-2 border-black'>
-        <th class='text-left'>Stat</th>
-        <th class='px-4 text-center'>Dist</th>
-        <th class='text-right'>Rating</th>
-    </tr>
-  <tbody>
-    <tr>
-      <td class='text-left'>K/A</td>
-      <td class='px-4 text-center'>${distributionDetails?.kapm}%</td>
-      <td class='text-right'>${impactDetails.kapmRating}</td>
-    </tr>
-    <tr>
-      <td class='text-left'>Death</td>
-      <td class='px-4 text-center'>${distributionDetails?.death}%</td>
-      <td class='text-right'>${impactDetails.deathRating}</td>
-    </tr>
-    ${
-			player.role === 1 || player.role === 2 || player.role === 3
-				? `<tr>
-      <td class='text-left'>CS</td>
-      <td class='px-4 text-center'>${distributionDetails?.csMin}%</td>
-      <td class='text-right'>${impactDetails.csMinRating}</td>
-    </tr>`
-				: ``
-		}
-
-  </tbody>
-</table>`,
-					placement: 'bottom',
-					theme: 'light',
-					allowHTML: true
-				}}
-			>
-				{#if player.impact > 200}
-					<div id="splusplusrating" class="font-display lg:text-xl">
-						{calcImpact(player.impact)}
-					</div>
-				{:else if player.impact >= 140}
-					<div id="srating" class="font-display lg:text-xl">
-						{calcImpact(player.impact)}
-					</div>
-				{:else if player.impact < 140 && player.impact > 25}
-					<div class="font-display lg:text-xl">
-						{calcImpact(player.impact)}
-					</div>
-				{:else if player.impact <= 25}
-					<div id="frating" class="flex justify-center font-display lg:text-xl">
-						<FxemojiPoo />
-					</div>
-				{/if}
+			<div class="my-auto">
+				<RatingChip data={match} />
 			</div>
 			<div class="flex w-6 items-center justify-center lg:w-8">
 				<img src={getRoleIcon(player.role)} alt={`${player.role} role`} class="h-7" />
 			</div>
-			<div class="flex w-16 items-center justify-center gap-1 text-xs lg:text-base">
+			<div class="flex w-16 items-center justify-center gap-1 text-xs md:w-20 lg:text-base">
 				<div class="text-green-300">{player.kills}</div>
 				<div>/</div>
 				<div class="text-red-400">{player.deaths}</div>
 				<div>/</div>
 				<div class="text-cyan-300">{player.assists}</div>
 			</div>
-			<div class="flex max-w-[86px] flex-wrap lg:max-w-96 lg:flex-row">
-				<img src={player.item0.img} alt={player.item0.name} class="h-5 lg:h-8 lg:w-[44px]" />
-				<img src={player.item1.img} alt={player.item1.name} class="h-5 lg:h-8 lg:w-[44px]" />
-				<img src={player.item2.img} alt={player.item2.name} class="h-5 lg:h-8 lg:w-[44px]" />
-				<img src={player.item3.img} alt={player.item3.name} class="h-5 lg:h-8 lg:w-[44px]" />
-				<img src={player.item4.img} alt={player.item4.name} class="h-5 lg:h-8 lg:w-[44px]" />
-				<img src={player.item5.img} alt={player.item5.name} class="h-5 lg:h-8 lg:w-[44px]" />
+			<div class="hidden md:flex">
+				{#each [0, 1, 2, 3, 4, 5] as slot}
+					<div class="h-8">
+						<DotaItem item={match.player[`item${slot}`]} />
+					</div>
+				{/each}
 			</div>
-			<img
-				src={player.itemNeutral.img}
-				alt={player.itemNeutral.name}
-				class="mr-1 h-6 w-6 rounded-full object-cover lg:mr-0 lg:h-8 lg:w-8"
-			/>
+			<div class="flex flex-col md:hidden">
+				<div class="flex">
+					{#each [0, 1, 2] as slot}
+						<div class="h-5">
+							<DotaItem item={match.player[`item${slot}`]} />
+						</div>
+					{/each}
+				</div>
+				<div class="flex">
+					{#each [3, 4, 5] as slot}
+						<div class="h-5">
+							<DotaItem item={match.player[`item${slot}`]} />
+						</div>
+					{/each}
+				</div>
+			</div>
+			<div class="hidden h-4 w-4 rounded-full md:block md:h-8 md:w-8">
+				<DotaItem item={match.player[`itemNeutral`]} styles="rounded-full object-cover" />
+			</div>
 			<div class="hidden lg:block">
 				<div class="flex flex-col">
 					<img
-						class="mr-2 w-6 object-contain"
+						class="w-6 object-contain"
 						src={`/scepter_${player.aghanimsScepter}.png`}
 						alt={`/scepter_${player.aghanimsScepter}`}
 					/>
 					<img
-						class="mr-2 w-6 object-contain"
+						class="w-6 object-contain"
 						src={`/shard_${player.aghanimsShard}.png`}
 						alt={`/shard_${player.aghanimsShard}`}
 					/>
 				</div>
 			</div>
-			<div class="flex flex-col items-center justify-center text-[12px] md:text-sm">
+			<div class="flex flex-col items-center justify-center text-[12px] text-xs md:text-sm">
 				<div class="flex items-center gap-1">
 					<div>
 						{#if matchData.lobby === 7}
@@ -363,72 +329,82 @@
 							: ''}{matchData.duration % 60}
 					</div>
 				</div>
-				<div class="">
+				<div class="w-16 truncate text-xs text-zinc-400">
 					{dayjs(matchData.startTime * 1000 + matchData.duration * 1000).from(dayjs())}
 				</div>
 			</div>
 			<button class="flex items-end justify-center" onclick={handleExpand}>
-				<div class="flex items-center justify-center">
+				<div
+					class="flex items-center justify-end gap-0.5 text-sm text-zinc-400 duration-200 hover:text-white"
+				>
+					{#if dire.length + radiant.length > 1}
+						<LucideUsers />
+					{:else}
+						<LucideUser />
+					{/if}
 					{dire.length + radiant.length}
 					{#if expanded}
-						<MaterialSymbolsExpandLessRounded />
+						<LucideChevronDown />
 					{:else}
-						<MaterialSymbolsExpandMoreRounded />
+						<LucideChevronRight />
 					{/if}
 				</div>
 			</button>
 		</div>
-		<div style="display: {expanded ? 'inline' : 'none'}">
-			<div class="flex flex-col items-center justify-center gap-1">
+		{#if expanded}
+			<div transition:slide={{ duration: 300, easing: quintOut }}>
 				{#if radiant.length > 0}
-					{#if matchData.winner == 'radiant'}
-						<div class="w-full bg-emerald-700 bg-opacity-15 py-1 transition-all" id="winner">
-							{#each radiant as player}
-								<div class="pl-1 hover:bg-black hover:bg-opacity-10">
-									<PlayerData {player} {matchData} />
-								</div>
-							{/each}
-						</div>
-					{:else}
-						<div class="w-full bg-red-700 bg-opacity-15 py-1 transition-all" id="loser">
-							{#each radiant as player}
-								<div class="pl-1 hover:bg-black hover:bg-opacity-10">
-									<PlayerData {player} {matchData} />
-								</div>
-							{/each}
-						</div>
-					{/if}
-				{/if}
-				{#if radiant.length > 0 && dire.length > 0}
-					<div class="flex items-center justify-center rounded-full">
+					<div class={twMerge('border-t-2 border-zinc-800')}>
 						<div
-							class="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm text-zinc-900"
+							class={twMerge(radiantHeaderStyling, 'flex items-center justify-center gap-4 py-1')}
 						>
-							vs
+							{#if matchData.winner === 'radiant'}
+								<div class="flex gap-4 text-green-300">
+									<div class="w-16 text-right text-green-300">Radiant</div>
+									<div class="my-auto h-2 w-2 rounded-full bg-green-300"></div>
+									<div class="w-16 text-left text-green-300">Victory</div>
+								</div>
+							{:else if matchData.winner === 'dire'}
+								<div class="w-16 text-right text-red-300">Dire</div>
+								<div class="my-auto h-2 w-2 rounded-full bg-red-300"></div>
+								<div class="w-16 text-left text-red-300">Defeat</div>
+							{/if}
+						</div>
+						<div class="border-t-2 border-zinc-800">
+							{#each radiant as player}
+								<div class={radiantStyling}>
+									<PlayerData match={{ player, matchData }} />
+								</div>
+							{/each}
 						</div>
 					</div>
 				{/if}
 				{#if dire.length > 0}
-					{#if matchData.winner == 'dire'}
-						<div class="w-full bg-emerald-700 bg-opacity-15 py-1 transition-all" id="winner">
+					<div class={twMerge('border-t-2 border-zinc-800')}>
+						<div class={twMerge(direHeaderStyling, 'flex items-center justify-center gap-4 py-1')}>
+							{#if matchData.winner === 'dire'}
+								<div class="flex gap-4 text-green-300">
+									<div class="w-16 text-right text-green-300">Dire</div>
+									<div class="my-auto h-2 w-2 rounded-full bg-green-300"></div>
+									<div class="w-16 text-left text-green-300">Victory</div>
+								</div>
+							{:else if matchData.winner === 'radiant'}
+								<div class="w-16 text-right text-red-300">Radiant</div>
+								<div class="my-auto h-2 w-2 rounded-full bg-red-300"></div>
+								<div class="w-16 text-left text-red-300">Defeat</div>
+							{/if}
+						</div>
+						<div class="border-t-2 border-zinc-800">
 							{#each dire as player}
-								<div class="pl-1 hover:bg-black hover:bg-opacity-10">
-									<PlayerData {player} {matchData} />
+								<div class={direStyling}>
+									<PlayerData match={{ player, matchData }} />
 								</div>
 							{/each}
 						</div>
-					{:else}
-						<div class="w-full bg-red-700 bg-opacity-15 py-1 transition-all" id="loser">
-							{#each dire as player}
-								<div class="pl-1 hover:bg-black hover:bg-opacity-10">
-									<PlayerData {player} {matchData} />
-								</div>
-							{/each}
-						</div>
-					{/if}
+					</div>
 				{/if}
 			</div>
-		</div>
+		{/if}
 	</MatchModal>
 </div>
 

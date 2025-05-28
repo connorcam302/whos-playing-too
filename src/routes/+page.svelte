@@ -16,6 +16,7 @@
 	import MaterialSymbolsKeyboardBackspaceRounded from '~icons/material-symbols/keyboard-backspace-rounded';
 	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
 	import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded';
+	import * as Card from '$lib/components/ui/card/index.js';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
@@ -36,7 +37,6 @@
 	let viewport = $derived(getContext('viewport'));
 
 	let stats = $state('hero');
-	
 
 	const headers = ['totw', 'flop'];
 	let header = $derived(headers[0]);
@@ -93,7 +93,7 @@
 			<div class="text-sm text-zinc-400">Recent matches, and stats from the past 14 days</div>
 		</div>
 		<div class="flex max-w-screen-2xl flex-col gap-4 md:flex-row">
-			<div class="flex w-full grow flex-row items-center justify-center gap-4 bg-zinc-900">
+			<div class="flex w-full grow flex-row items-center justify-center gap-4">
 				<div class="mt-2 flex flex-col gap-2">
 					<div class="flex flex-wrap justify-center gap-4">
 						{#key matchBlocks}
@@ -105,11 +105,13 @@
 										</div>
 									</div>
 								{:else}
-									<div class="flex flex-col gap-2">
+									<div class="flex flex-col gap-4">
 										{#each matchBlocks.slice(0, 10) as match}
-											<div class="mx-1 md:mx-0">
-												<MatchBlock {match} />
-											</div>
+											<Card.Root>
+												<Card.Content class="p-0 ">
+													<MatchBlock {match} />
+												</Card.Content>
+											</Card.Root>
 										{/each}
 									</div>
 								{/if}
