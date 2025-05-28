@@ -73,7 +73,6 @@
 
 	let { match }: Props = $props();
 
-	console.log(match);
 	const { player, matchData } = match;
 
 	const getImpactScore = (match: any, role: any, duration: any) => {

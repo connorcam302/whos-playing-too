@@ -47,7 +47,7 @@
 				{#if isSPlusPlus}
 					<div class="absolute inset-0 animate-ping rounded-md bg-yellow-400/30"></div>
 				{/if}
-				<span class="relative z-10 text-xs md:text-base">{impactRating}</span>
+				<span class="relative z--10 text-xs md:text-base">{impactRating}</span>
 			</div>
 		{/if}
 	</HoverCard.Trigger>

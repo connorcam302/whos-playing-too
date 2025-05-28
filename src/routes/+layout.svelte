@@ -2,7 +2,7 @@
 	import { run } from 'svelte/legacy';
 
 	import '../app.css';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
 	import { navigating } from '$app/stores';

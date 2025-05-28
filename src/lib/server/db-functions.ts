@@ -28,6 +28,11 @@ import {
 import { getHeroString } from './private-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export const getHeroStats = async (
     offset: number = dayjs(0).add(2, 'week').valueOf() / 1000,
@@ -859,7 +864,7 @@ export const getPlayerChart = async (id: number, offset: number = 7) => {
             )
         );
 
-    let daysArray = new Array(offset).fill(0);
+    const daysArray = new Array(offset).fill(0);
 
     daysArray.forEach((day, index) => {
         const dayWins = wins.filter(
@@ -910,6 +915,68 @@ export const getPlayerChart = async (id: number, offset: number = 7) => {
 
     return { daysArray, resultsArray, matchCount };
 };
+
+export const getMatchesByDay = async (id: number, offset: number = 12) => {
+    // Get all matches for the player in the specified time range
+    const wins = await db
+        .select({
+            startTime: matches.startTime,
+            match: matches.id
+        })
+        .from(players)
+        .innerJoin(accounts, eq(accounts.owner, players.id))
+        .innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .where(
+            and(
+                or(
+                    and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
+                    and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
+                ),
+                gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+                eq(players.id, id)
+            )
+        );
+
+    const losses = await db
+        .select({
+            startTime: matches.startTime,
+            match: matches.id
+        })
+        .from(players)
+        .innerJoin(accounts, eq(accounts.owner, players.id))
+        .innerJoin(matchData, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .where(
+            and(
+                or(
+                    and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
+                    and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
+                ),
+                gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+                eq(players.id, id)
+            )
+        );
+
+    const daysArray = new Array(offset).fill(0);
+
+    const days = Array.from({ length: offset }, (_, i) => {
+        const date = dayjs().subtract(i, 'day');
+        return {
+            minDate: date.startOf('day').unix(),
+            maxDate: date.endOf('day').unix(),
+        };
+    });
+
+    days.forEach((day, index) => {
+        const dayWins = wins.filter((match) => match.startTime > day.minDate && match.startTime < day.maxDate).length;
+        const dayLosses = losses.filter((match) => match.startTime > day.minDate && match.startTime < day.maxDate).length;
+
+        daysArray[index] = { wins: dayWins, losses: dayLosses, date: day.minDate };
+    });
+
+    return daysArray;
+}
 
 export const getMostKills = async (
     games: number = 10,
@@ -2048,6 +2115,46 @@ export const getMatchData = async (id: number) => {
         .innerJoin(heroes, eq(heroes.id, matchData.heroId))
         .where(eq(matches.id, id));
 };
+
+export const getPlayerAverageStats = async (id: number, offset: number) => {
+    const stats = await db
+        .select({
+            avgImpact: sql<number>`cast(avg(${matchData.impact}) as int)`,
+            avgKills: sql<number>`cast(avg(${matchData.kills}) as int)`,
+            avgDeaths: sql<number>`cast(avg(${matchData.deaths}) as int)`,
+            avgAssists: sql<number>`cast(avg(${matchData.assists}) as int)`,
+            avgGpm: sql<number>`cast(avg(${matchData.goldPerMin}) as int)`,
+            avgXpm: sql<number>`cast(avg(${matchData.xpPerMin}) as int)`,
+            avgLastHits: sql<number>`cast(avg(${matchData.lastHits}) as int)`
+        })
+        .from(matchData)
+        .innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(players, eq(accounts.owner, players.id))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .where(and(eq(players.id, id), gte(matches.startTime, dayjs().subtract(offset, 'day').unix())))
+        .groupBy(players.id)
+        .orderBy(players.id);
+
+    return stats[0];
+}
+
+export const getRoleCounts = async (id: number, offset: number) => {
+    const roleCounts = await db
+        .select({
+            role: matchData.role,
+            count: sql<number>`cast(count(${matchData.matchId}) as int)`,
+            avgImpact: sql<number>`cast(avg(${matchData.impact}) as int)`,
+        })
+        .from(matchData)
+        .innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(players, eq(accounts.owner, players.id))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .where(and(eq(players.id, id), gte(matches.startTime, dayjs().subtract(offset, 'day').unix())))
+        .groupBy(matchData.role)
+        .orderBy(matchData.role);
+
+    return roleCounts;
+}
 
 export const getPlayerImpactCountsByRole = async (playerId: number) => {
     const impacts = await db

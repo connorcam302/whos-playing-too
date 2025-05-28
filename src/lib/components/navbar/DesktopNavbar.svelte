@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import DesktopNavbar from '$lib/components/navbar/DesktopNavbar.svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	let { playerList = [], links = [] } = $props();
 
@@ -26,7 +26,7 @@
 				<div class="flex h-full w-fit items-center justify-center rounded-full bg-zinc-800">
 					<div class="flex h-full items-center justify-center gap-4">
 						{#each links as link}
-							{#if link.link == $page.url.pathname}
+							{#if link.link == page.url.pathname}
 								<div
 									class="w-32 flex-col items-center justify-center border-b-2 border-b-sky-500 bg-gradient-to-t from-sky-950 py-2 pt-2 transition-all"
 								>

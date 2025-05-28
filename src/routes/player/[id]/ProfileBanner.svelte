@@ -14,7 +14,7 @@
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
 	import WinChart from '$lib/components/profile/WinChart.svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import tippy from 'sveltejs-tippy';
@@ -38,8 +38,8 @@
 	} = $derived(data);
 </script>
 
-<div class="flex flex-wrap items-center justify-center">
-	<div class="flex items-center gap-2 px-2 py-2">
+<div class="flex w-full flex-wrap items-center justify-center">
+	<div class="flex w-full max-w-screen-md items-center gap-2 px-2 py-2">
 		<img src={player.image} alt="profilepicture" class="h-28 lg:h-36" />
 		<div class="flex h-full flex-col justify-center">
 			<div class="flex h-full flex-col gap-1 px-2 py-4 lg:w-80">
@@ -150,49 +150,6 @@
 						</a>
 					</div>
 				{/each}
-			</div>
-		</div>
-	</div>
-
-	<div class="flex flex-col justify-end">
-		<div class="flex h-fit w-48 flex-col rounded-xl bg-zinc-800 bg-opacity-95 px-2 py-2">
-			<div class="flex">
-				<div class="flex flex-col">
-					<div class="flex h-7 items-center text-xl"><UilExchange /></div>
-					<div class="flex h-7 items-center text-xl"><BiDashLg /></div>
-				</div>
-				<div class="flex grow flex-col items-center">
-					<div class="flex w-full items-center justify-center gap-1">
-						<div class="text-xl text-green-400">{allTimeStats.rankedWins}</div>
-						<div class="text-xl">-</div>
-						<div class="text-xl text-red-500">{allTimeStats.rankedLosses}</div>
-					</div>
-					<div class="flex w-full items-center justify-center gap-1">
-						<div class="text-xl text-green-400">{allTimeStats.wins}</div>
-						<div class="text-xl">-</div>
-						<div class="text-xl text-red-500">{allTimeStats.losses}</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="mt-2 text-center text-sm">Last 7 Days</div>
-			<div class="flex w-full">
-				<div class="flex flex-col">
-					<div class="flex h-7 items-center text-xl"><UilExchange /></div>
-					<div class="flex h-7 items-center text-xl"><BiDashLg /></div>
-				</div>
-				<div class="flex grow flex-col items-center">
-					<div class="flex w-full items-center justify-center gap-1">
-						<div class="text-xl text-green-400">{weeklyStats.rankedWins}</div>
-						<div class="text-xl">-</div>
-						<div class="text-xl text-red-500">{weeklyStats.rankedLosses}</div>
-					</div>
-					<div class="flex w-full items-center justify-center gap-1">
-						<div class="text-xl text-green-400">{weeklyStats.wins}</div>
-						<div class="text-xl">-</div>
-						<div class="text-xl text-red-500">{weeklyStats.losses}</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	</div>

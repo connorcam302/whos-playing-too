@@ -42,7 +42,7 @@
 			mainAccount: SteamProfile;
 			smurfAccounts: SteamProfile[];
 			allTimeStats: Stats;
-			weeklyStats: Stats;
+			recentStats: Stats;
 			heroStats: any;
 			allTimeHeroStats: any;
 			winGraph: { resultsArray: number[]; daysArray: number[] };
@@ -58,7 +58,7 @@
 		mainAccount,
 		smurfAccounts,
 		allTimeStats,
-		weeklyStats,
+		recentStats,
 		heroStats,
 		allTimeHeroStats,
 		winGraph,
@@ -76,16 +76,16 @@
 <meta
 	property="og:description"
 	content={`All Time Ranked: ${allTimeStats.rankedWins} - ${allTimeStats.rankedLosses}
-This Week Ranked: ${weeklyStats.rankedWins} - ${weeklyStats.rankedLosses}
+This Month Ranked: ${recentStats.rankedWins} - ${recentStats.rankedLosses}
 All Time: ${allTimeStats.wins} - ${allTimeStats.losses}
-This Week: ${weeklyStats.wins} - ${weeklyStats.losses}`}
+This Month: ${recentStats.wins} - ${recentStats.losses}`}
 />
 <meta property="og:image" content={player.image} />
 <meta property="og:url" content={`https://whos-playing.com/player/${player.id}`} />
 <div class="flex w-full flex-col content-center items-center justify-center gap-4">
 	<ProfileBanner {data} />
-	<Tabs.Root value="home" class="w-full md:max-w-screen-lg">
-		<Tabs.List class="w-96 md:w-auto">
+	<Tabs.Root value="home" class="w-full md:max-w-screen-md">
+		<Tabs.List class="">
 			<Tabs.Trigger value="home">Home</Tabs.Trigger>
 			<Tabs.Trigger value="stats">Stats</Tabs.Trigger>
 			<Tabs.Trigger value="matches">Matches</Tabs.Trigger>

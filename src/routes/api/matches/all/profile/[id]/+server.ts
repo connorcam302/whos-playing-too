@@ -73,8 +73,8 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		gameModeFilter = [];
 		lobbyFilter = [];
 
-		let gameModeSet = new Set<number>();
-		let lobbySet = new Set<number>();
+		const gameModeSet = new Set<number>();
+		const lobbySet = new Set<number>();
 		const modes = JSON.parse(url.searchParams.get('gameMode')!);
 		if (modes.includes('ranked-all-pick')) {
 			gameModeSet.add(22);
@@ -102,7 +102,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		roleFilter = [1, 2, 3, 4, 5];
 	}
 
-	let smurfFilter: boolean[] = [false];
+	const smurfFilter: boolean[] = [false];
 	if (url.searchParams.has('smurf')) {
 		smurfFilter.push(Boolean(JSON.parse(url.searchParams.get('smurf')!)));
 	}

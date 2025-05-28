@@ -1,6 +1,8 @@
 <!-- @migration-task Error while migrating Svelte code: `<tr>` cannot be a child of `<table>`. `<table>` only allows these children: `<caption>`, `<colgroup>`, `<tbody>`, `<thead>`, `<tfoot>`, `<style>`, `<script>`, `<template>`. The browser will 'repair' the HTML (by moving, removing, or inserting elements) which breaks Svelte's assumptions about the structure of your components.
 https://svelte.dev/e/node_invalid_placement -->
 <script lang="ts">
+	import { self } from 'svelte/legacy';
+
 	interface Stats {
 		rankedWins: number;
 		rankedLosses: number;
@@ -48,7 +50,7 @@ https://svelte.dev/e/node_invalid_placement -->
 	import { page } from '$app/stores';
 	import { tick } from 'svelte';
 
-	export let data;
+	let { data } = $props();
 
 	const { playerList, heroList } = data;
 
@@ -56,22 +58,28 @@ https://svelte.dev/e/node_invalid_placement -->
 		return Math.floor((wins / (wins + losses)) * 100);
 	};
 
-	$: pos1 = true;
-	$: pos2 = true;
-	$: pos3 = true;
-	$: pos4 = true;
-	$: pos5 = true;
+	let pos1 = $state(true);
 
-	$: ranked = true;
-	$: unranked = true;
+	let pos2 = $state(true);
 
-	$: smurfs = false;
+	let pos3 = $state(true);
 
-	$: hero = -1;
+	let pos4 = $state(true);
 
-	$: time = 9999;
+	let pos5 = $state(true);
 
-	$: searchPlayer = '';
+	let ranked = $state(true);
+
+	let unranked = $state(true);
+
+	let smurfs = $state(false);
+
+	let hero = $derived(-1);
+
+	let time = $state(9999);
+
+	let searchPlayer = $state('');
+
 	const searchPlayersByName = (allPlayers, searchString) => {
 		const lowerSearchString = searchString.toLowerCase();
 
@@ -113,12 +121,13 @@ https://svelte.dev/e/node_invalid_placement -->
 		return index + 1;
 	};
 
-	$: playerMenu = false;
+	let playerMenu = $state(false);
+
 	const togglePlayerMenu = () => {
 		playerMenu = !playerMenu;
 	};
 
-	$: playerStats = [];
+	let playerStats = $derived([]);
 
 	const addToPlayerStats = (player) => {
 		const index = playerStats.findIndex((obj) => obj.id === player.id);
@@ -224,12 +233,15 @@ https://svelte.dev/e/node_invalid_placement -->
 		playerStats = await Promise.all(playerData);
 	};
 
-	let searchInput: HTMLInputElement;
+	let searchInput: HTMLInputElement = $state();
 	const openPlayerMenu = async () => {
 		togglePlayerMenu();
 		await tick();
 		searchInput?.focus();
 	};
+	$effect(() => {
+		console.log(playerStats);
+	});
 </script>
 
 <svelte:head>
@@ -242,7 +254,7 @@ https://svelte.dev/e/node_invalid_placement -->
 			Roles
 			<div class="flex gap-1">
 				<button
-					on:click={() => handleRoleChange(1)}
+					onclick={() => handleRoleChange(1)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos1 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -254,7 +266,7 @@ https://svelte.dev/e/node_invalid_placement -->
 					<img src="/roles/pos1.svg" alt="pos1" />
 				</button>
 				<button
-					on:click={() => handleRoleChange(2)}
+					onclick={() => handleRoleChange(2)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos2 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -266,7 +278,7 @@ https://svelte.dev/e/node_invalid_placement -->
 					<img src="/roles/pos2.svg" alt="pos2" />
 				</button>
 				<button
-					on:click={() => handleRoleChange(3)}
+					onclick={() => handleRoleChange(3)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos3 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -278,7 +290,7 @@ https://svelte.dev/e/node_invalid_placement -->
 					<img src="/roles/pos3.svg" alt="pos3" />
 				</button>
 				<button
-					on:click={() => handleRoleChange(4)}
+					onclick={() => handleRoleChange(4)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos4 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -290,7 +302,7 @@ https://svelte.dev/e/node_invalid_placement -->
 					<img src="/roles/pos4.svg" alt="pos4" />
 				</button>
 				<button
-					on:click={() => handleRoleChange(5)}
+					onclick={() => handleRoleChange(5)}
 					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
 					style="background-color: {pos5 ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -307,7 +319,7 @@ https://svelte.dev/e/node_invalid_placement -->
 			Lobby
 			<div class="flex gap-1">
 				<button
-					on:click={() => handleLobbyChange(7)}
+					onclick={() => handleLobbyChange(7)}
 					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 					style="background-color: {ranked ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -319,7 +331,7 @@ https://svelte.dev/e/node_invalid_placement -->
 					<UilExchange />
 				</button>
 				<button
-					on:click={() => handleLobbyChange(0)}
+					onclick={() => handleLobbyChange(0)}
 					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 					style="background-color: {unranked ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -336,7 +348,7 @@ https://svelte.dev/e/node_invalid_placement -->
 			Smurf
 			<div class="flex gap-1">
 				<button
-					on:click={() => handleSmurfChange()}
+					onclick={() => handleSmurfChange()}
 					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
 					style="background-color: {smurfs ? '#27272a' : '#18181b'};"
 					use:tippy={{
@@ -355,7 +367,7 @@ https://svelte.dev/e/node_invalid_placement -->
 				<select
 					bind:value={hero}
 					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-					on:change={() => handleHeroChange()}
+					onchange={() => handleHeroChange()}
 				>
 					<option value={-1}>All Heroes</option>
 					{#each heroList as hero}
@@ -371,7 +383,7 @@ https://svelte.dev/e/node_invalid_placement -->
 				<select
 					bind:value={time}
 					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-					on:change={() => handleTimeChange()}
+					onchange={() => handleTimeChange()}
 				>
 					<option value={7}>Last 7 Days</option>
 					<option value={30}>Last 30 Days</option>
@@ -392,13 +404,13 @@ https://svelte.dev/e/node_invalid_placement -->
 			<div class="relative flex w-48 flex-col gap-2 rounded-xl bg-zinc-800 p-2">
 				<button
 					class="absolute right-2 top-2 flex"
-					on:click={() => removeFromPlayerStats(player.id)}
+					onclick={() => removeFromPlayerStats(player.id)}
 				>
 					<HeroiconsXMark />
 				</button>
 				<button
 					class="text-center text-2xl transition-all duration-300 hover:text-zinc-400"
-					on:click={() => goto(`/player/${player.id}`)}>{player.username}</button
+					onclick={() => goto(`/player/${player.id}`)}>{player.username}</button
 				>
 				<div class="mx-auto h-24 w-24">
 					{#key player}
@@ -409,7 +421,7 @@ https://svelte.dev/e/node_invalid_placement -->
 				<div>
 					<div class="flex w-full">
 						<div>Win Rate</div>
-						<div class="grow" />
+						<div class="grow"></div>
 						<div>
 							{Math.round(calculateWinRate(player.wins, player.losses)) || 0}%
 						</div>
@@ -424,7 +436,7 @@ https://svelte.dev/e/node_invalid_placement -->
 									placement: 'bottom',
 									theme: 'light'
 								}}
-							/>
+							></div>
 							<div
 								class="h-1 grow bg-red-500 duration-200 hover:h-1.5 hover:bg-red-600"
 								style="background-color: {player.wins === 0 && player.losses === 0
@@ -439,14 +451,14 @@ https://svelte.dev/e/node_invalid_placement -->
 									placement: 'bottom',
 									theme: 'light'
 								}}
-							/>
+							></div>
 						{/key}
 					</div>
 				</div>
 				<div>
 					<div class="flex w-full">
 						<div>Ranked WR</div>
-						<div class="grow" />
+						<div class="grow"></div>
 						<div>
 							{Math.round(calculateWinRate(player.rankedWins, player.rankedLosses)) || 0}%
 						</div>
@@ -465,7 +477,7 @@ https://svelte.dev/e/node_invalid_placement -->
 									placement: 'bottom',
 									theme: 'light'
 								}}
-							/>
+							></div>
 							<div
 								class="h-1 grow bg-red-500 duration-200 hover:h-1.5 hover:bg-red-600"
 								style="background-color: {player.rankedWins === 0 && player.rankedLosses === 0
@@ -480,7 +492,7 @@ https://svelte.dev/e/node_invalid_placement -->
 									placement: 'bottom',
 									theme: 'light'
 								}}
-							/>
+							></div>
 						{/key}
 					</div>
 				</div>
@@ -598,7 +610,7 @@ https://svelte.dev/e/node_invalid_placement -->
 			</div>
 		{/each}
 		<div class="flex min-h-64 items-center">
-			<button class="rounded-xl bg-zinc-800 px-4 py-1 text-lg" on:click={() => openPlayerMenu()}
+			<button class="rounded-xl bg-zinc-800 px-4 py-1 text-lg" onclick={() => openPlayerMenu()}
 				>Add Player</button
 			>
 		</div>
@@ -610,8 +622,8 @@ https://svelte.dev/e/node_invalid_placement -->
 		transition:fade={{ duration: 200 }}
 		id="backdrop"
 		class="fixed top-0 flex h-screen w-screen cursor-default items-center justify-center"
-		on:click|self={() => togglePlayerMenu()}
-		on:keypress={(e) => e.key === 'Escape' && togglePlayerMenu()}
+		onclick={self(() => togglePlayerMenu())}
+		onkeypress={(e) => e.key === 'Escape' && togglePlayerMenu()}
 		tabindex="0"
 		role="button"
 	>
@@ -632,7 +644,7 @@ https://svelte.dev/e/node_invalid_placement -->
 						{#each searchPlayersByName(getUpdatedPlayerList(), searchPlayer) as player}
 							<button
 								class="mx-2 rounded-xl bg-zinc-800 px-2 py-1"
-								on:click={async () => addToPlayerStats(await fetchPlayerData(player.id))}
+								onclick={async () => addToPlayerStats(await fetchPlayerData(player.id))}
 							>
 								{player.username}
 							</button>

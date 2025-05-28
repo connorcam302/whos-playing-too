@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { fade } from 'svelte/transition';
 	import { onMount, getContext } from 'svelte';
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';

@@ -3,7 +3,7 @@
 
 	import { goto } from '$app/navigation';
 	import DesktopNavbar from '$lib/components/navbar/DesktopNavbar.svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import HamburgerIcon from '$lib/components/HamburgerIcon.svelte';
 	import { slide, fade, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
@@ -81,7 +81,7 @@
 					</div>
 					{#each links as link}
 						<div class="flex items-center justify-center gap-4 py-2">
-							{#if link.link == $page.url.pathname}
+							{#if link.link == page.url.pathname}
 								<div class="w-32 flex-col items-center justify-center">
 									<div class="mx-auto w-full grow rounded-full bg-sky-500 py-1 text-center">
 										<button onclick={() => navigate(link.link)} class="text-center text-sky-950">

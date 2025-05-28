@@ -48,8 +48,8 @@
 	import WinChart from '$lib/components/profile/WinChart.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
 	import tippy from 'sveltejs-tippy';
+	import { blur, crossfade, draw, fade, fly, scale, slide } from 'svelte/transition';
 	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
 	import { browser } from '$app/environment';
 	import Bar from '$lib/components/stats/Bar.svelte';
@@ -57,19 +57,38 @@
 	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
 	import * as Select from '$lib/components/ui/select';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import * as HoverCard from '$lib/components/ui/hover-card';
+	import * as Table from '$lib/components/ui/table';
+	import dayjs from 'dayjs';
+	import advancedFormat from 'dayjs/plugin/advancedFormat';
+	import RoleDoughnut from '$lib/components/stats/RoleDoughnut.svelte';
+	import { getRoleIcon, getRoleName } from '$lib/functions';
+
+	dayjs.extend(advancedFormat);
 
 	interface Props {
 		data: {
+			roleCounts: { role: number; count: number }[];
 			player: Player;
 			mainAccount: SteamProfile;
 			smurfAccounts: SteamProfile[];
 			allTimeStats: Stats;
-			weeklyStats: Stats;
+			recentStats: Stats;
 			heroStats: any;
 			allTimeHeroStats: any;
 			winGraph: { resultsArray: number[]; daysArray: number[] };
 			heroList: { id: number; name: string }[];
 			impactCounts: object;
+			matchesByDay: { wins: number; losses: number; date: number }[];
+			averageStats: {
+				avgImpact: number;
+				avgKills: number;
+				avgDeaths: number;
+				avgAssists: number;
+				avgGpm: number;
+				avgXpm: number;
+				avgLastHits: number;
+			};
 		};
 	}
 
@@ -77,7 +96,7 @@
 
 	let pageNumber = $state(1);
 
-	let matchBlocks = $derived([]);
+	let matchBlocks = $state([]);
 
 	let pos1 = $state(true);
 
@@ -252,15 +271,19 @@
 	let chartType = $state('days');
 
 	let {
+		roleCounts,
+		playerId,
+		averageStats,
 		player,
 		mainAccount,
 		smurfAccounts,
 		allTimeStats,
-		weeklyStats,
+		recentStats,
 		heroStats,
 		allTimeHeroStats,
 		winGraph,
-		heroList
+		heroList,
+		matchesByDay
 	} = $derived(data);
 
 	const toSteam32 = (accountId: string) => {
@@ -288,6 +311,8 @@
 		},
 		{ rating: null, total: 0 }
 	);
+
+	console.log(data);
 </script>
 
 <svelte:head>
@@ -297,11 +322,208 @@
 <div class="w-full">
 	{#key player}
 		<div class="flex flex-wrap gap-4">
-			<div>
-				{#await allTimeHeroStats then allTimeHeroStats}
-					<HeroStatbox heroStats={allTimeHeroStats} />
-				{/await}
+			<div class="flex w-full flex-col items-center justify-center gap-4 md:flex-row">
+				<Card.Root class="w-96 flex-1 grow md:h-full md:w-full">
+					<Card.Header>
+						<Card.Title>Overall Performance</Card.Title>
+						<Card.Description>All time win loss ratio.</Card.Description>
+					</Card.Header>
+					<Card.Content>
+						<div class="flex w-full items-center gap-1">
+							<div class=" text-green-400">{allTimeStats.wins}</div>
+							<div class="">-</div>
+							<div class="text-red-500">{allTimeStats.losses}</div>
+						</div>
+					</Card.Content>
+					<Card.Footer>
+						<div class="flex h-3 items-center justify-center gap-1">
+							{#each matchBlocks.slice(0, 12) as match}
+								{#if match.matchData.winner === match.player.team}
+									<HoverCard.Root>
+										<HoverCard.Trigger>
+											<div class="h-3 w-3 rounded-sm bg-green-400 hover:bg-green-600"></div>
+										</HoverCard.Trigger>
+										<HoverCard.Content class="w-fit"
+											><div class="w-full"><MatchBlock {match} /></div></HoverCard.Content
+										>
+									</HoverCard.Root>
+								{:else}
+									<HoverCard.Root>
+										<HoverCard.Trigger>
+											<div class="h-3 w-3 rounded-sm bg-red-500 hover:bg-red-600"></div>
+										</HoverCard.Trigger>
+										<HoverCard.Content class="w-fit p-0"
+											><div class="object-fit w-full">
+												<MatchBlock {match} />
+											</div></HoverCard.Content
+										>
+									</HoverCard.Root>
+								{/if}
+							{/each}
+						</div>
+					</Card.Footer>
+				</Card.Root>
+				<Card.Root class="w-96 flex-1 grow md:h-full md:w-full">
+					<Card.Header>
+						<Card.Title>Recent Form</Card.Title>
+						<Card.Description>Last 31 days.</Card.Description>
+					</Card.Header>
+					<Card.Content>
+						<div class="flex w-full items-center gap-1">
+							<div class=" text-green-400">{recentStats.wins}</div>
+							<div class="">-</div>
+							<div class="text-red-500">{recentStats.losses}</div>
+						</div>
+					</Card.Content>
+					<Card.Footer>
+						<div class="flex h-3 items-center justify-center gap-1">
+							{#each matchesByDay as day}
+								<HoverCard.Root>
+									<HoverCard.Trigger>
+										{#if day.wins === 0 && day.losses === 0}
+											<div class="h-3 w-3 rounded-sm bg-zinc-400 hover:bg-zinc-600"></div>
+										{:else if day.wins === day.losses}
+											<div class="h-3 w-3 rounded-sm bg-amber-400 hover:bg-amber-600"></div>
+										{:else if day.wins > day.losses}
+											{#if day.wins > day.losses + 3}
+												<div
+													class="h-3 w-3 animate-pulse rounded-sm bg-green-300 hover:bg-green-300/70"
+												></div>
+											{:else}
+												<div class="h-3 w-3 rounded-sm bg-green-600 hover:bg-green-600/70"></div>
+											{/if}
+										{:else if day.wins < day.losses}
+											{#if day.wins + 3 > day.losses}
+												<div class="h-3 w-3 rounded-sm bg-red-500 hover:bg-red-500/70"></div>
+											{:else}
+												<div
+													class=" h-3 w-3 animate-pulse rounded-sm bg-red-600 hover:bg-red-600/70"
+												></div>
+											{/if}
+										{/if}
+									</HoverCard.Trigger>
+									<HoverCard.Content class="p-0">
+										<Card.Root class="flex-1 border-0">
+											<Card.Header>
+												<Card.Title class="text-sm"
+													>{dayjs.unix(day.date).format('dddd Do [of] MMMM')}</Card.Title
+												>
+											</Card.Header>
+											<Card.Content>
+												<div class="flex w-full items-center gap-1">
+													<div class=" text-green-400">{day.wins}</div>
+													<div class="">-</div>
+													<div class="text-red-500">{day.losses}</div>
+												</div>
+											</Card.Content>
+										</Card.Root>
+									</HoverCard.Content>
+								</HoverCard.Root>
+							{/each}
+						</div>
+					</Card.Footer>
+				</Card.Root>
+				<Card.Root class="w-96 flex-1 grow md:h-full md:w-full">
+					<Card.Header>
+						<Card.Title>Stats</Card.Title>
+						<Card.Description>Average of last 31 days.</Card.Description>
+					</Card.Header>
+					<Card.Content>
+						<div class="flex flex-col gap-2">
+							<div class="flex justify-between">
+								<div class="flex w-12 flex-col gap-0">
+									<div class="text-xl text-green-300">{averageStats.avgKills}</div>
+									<div class="text-xs text-zinc-400">Kills</div>
+								</div>
+								<div class="flex w-12 flex-col gap-0">
+									<div class="text-xl text-red-400">{averageStats.avgDeaths}</div>
+									<div class="text-xs text-zinc-400">Deaths</div>
+								</div>
+							</div>
+							<div class="flex justify-between">
+								<div class="flex w-12 flex-col gap-0">
+									<div class="text-xl text-cyan-300">{averageStats.avgAssists}</div>
+									<div class="text-xs text-zinc-400">Assists</div>
+								</div>
+								<div class="flex w-12 flex-col gap-0">
+									<div class="text-xl text-impact">{averageStats.avgImpact}</div>
+									<div class="text-xs text-zinc-400">Impact</div>
+								</div>
+							</div>
+						</div>
+					</Card.Content>
+				</Card.Root>
 			</div>
+
+			<Card.Root class="flex-1 grow">
+				<Card.Header>
+					<Card.Title>Roles</Card.Title>
+					<Card.Description>All time role stats.</Card.Description>
+				</Card.Header>
+				<Card.Content>
+					<div class="mx-auto h-32 w-32">
+						<RoleDoughnut data={roleCounts} cutout={50} />
+					</div>
+					<div class="flex flex-col gap-2">
+						<Table.Root>
+							<Table.Header>
+								<Table.Row>
+									<Table.Head class="">Role</Table.Head>
+									<Table.Head class="w-28 text-center">Matches</Table.Head>
+									<Table.Head class="w-28 text-center">Impact</Table.Head>
+								</Table.Row>
+							</Table.Header>
+							<Table.Body>
+								{#each roleCounts.slice().sort((a, b) => a.role - b.role) as role}
+									<Table.Row>
+										<Table.Cell class="p-0 py-2 text-lg">
+											<div class="flex flex-col gap-0">
+												<img
+													class="h-8 w-8"
+													src={getRoleIcon(role.role)}
+													alt={getRoleName(role.role)}
+												/>
+												<div class="text-xs text-zinc-400">{getRoleName(role.role)}</div>
+											</div></Table.Cell
+										>
+										<Table.Cell class="h-full p-2">
+											<div class="my-auto flex flex-col gap-1">
+												<div class="text-left">{role.count}</div>
+												<Bar
+													colour="#38bdf8"
+													percentage={(role.count /
+														roleCounts.slice().sort((a, b) => b.count - a.count)[0].count) *
+														100}
+												/>
+											</div>
+										</Table.Cell>
+										<Table.Cell class="h-full p-2">
+											<div class="my-auto flex flex-col gap-1">
+												<div class="text-left">{role.avgImpact}</div>
+												<Bar colour="#9333EA" percentage={(role.avgImpact / 200) * 100} />
+											</div>
+										</Table.Cell>
+									</Table.Row>
+								{/each}
+							</Table.Body>
+						</Table.Root>
+					</div>
+				</Card.Content>
+			</Card.Root>
+			<Card.Root class="flex-1 grow">
+				<Card.Header>
+					<Card.Title>Stats</Card.Title>
+					<Card.Description>Average of last 31 days.</Card.Description>
+				</Card.Header>
+				<Card.Content>
+					<div>
+						{#await allTimeHeroStats then allTimeHeroStats}
+							<HeroStatbox heroStats={allTimeHeroStats} height="h-[464px]" />
+						{/await}
+					</div>
+				</Card.Content>
+			</Card.Root>
+
 			<div class="w-auto">
 				{#key matchBlocks}
 					<div class="min-h-64" in:fade={{ duration: 400 }}>

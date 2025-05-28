@@ -8,6 +8,7 @@
 	import { calcImpact } from '../../functions';
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js';
 	import Bar from './Bar.svelte';
+	import ScrollAreaScrollbar from '../ui/scroll-area/scroll-area-scrollbar.svelte';
 	interface Props {
 		heroStats: {
 			hero: DotaAsset;
@@ -18,7 +19,9 @@
 		}[];
 	}
 
-	let { heroStats }: Props = $props();
+	let { heroStats, height }: Props = $props();
+
+	height = height || 'h-96';
 
 	let order = $state({ col: 'matches', direction: 'desc' });
 
@@ -239,7 +242,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="scrollbox" class="max-h-96 overflow-y-auto">
+	<ScrollArea class={height}>
 		<div class="flex flex-col px-2 py-1">
 			{#each sortedStats as hero}
 				<div class="flex gap-2 py-1 pr-2 transition-all hover:bg-zinc-700 hover:bg-opacity-20">
@@ -284,7 +287,7 @@
 				</div>
 			{/each}
 		</div>
-	</div>
+	</ScrollArea>
 </div>
 
 <style>

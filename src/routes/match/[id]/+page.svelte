@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type MatchDetails } from './matchDetails.type';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import MatchTable from '$lib/components/match/MatchTable.svelte';
 	import WinRateGraph from './WinRateGraph.svelte';
 	import NetWorthGraph from './NetWorthGraph.svelte';
@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>whos-playing | Match {$page.params.id}</title>
+	<title>whos-playing | Match {page.params.id}</title>
 </svelte:head>
 
 <div class="flex flex-col items-center">

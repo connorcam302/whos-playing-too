@@ -491,7 +491,10 @@ export const getRoleName = (role: number) => {
 	if (role === 3) {
 		return 'Offlane';
 	}
-	if (role === 4 || role === 5) {
-		return 'Support';
+	if (role === 4) {
+		return 'Soft Support';
+	}
+	if (role === 5) {
+		return 'Hard Support';
 	}
 };

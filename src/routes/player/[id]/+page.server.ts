@@ -5,7 +5,10 @@ import {
 	getPlayerChart,
 	getPlayerWinLoss,
 	getPlayerImpactCountsByRole,
-	getSmurfAccounts
+	getSmurfAccounts,
+	getMatchesByDay,
+	getPlayerAverageStats,
+	getRoleCounts
 } from '$lib/server/db-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
@@ -27,9 +30,9 @@ const getSteamData = async (steamIds: number[]) => {
 };
 
 function measurePromise(fn: () => Promise<any>): Promise<number> {
-	let onPromiseDone = () => performance.now() - start;
+	const onPromiseDone = () => performance.now() - start;
 
-	let start = performance.now();
+	const start = performance.now();
 	return fn().then(onPromiseDone, onPromiseDone);
 }
 
@@ -58,13 +61,17 @@ export const load = async ({ url, params }) => {
 	if (smurfAccounts.length < 1) {
 		smurfAccounts = await getSmurfAccounts(params.id);
 	}
-	const weeklyStats = await getPlayerWinLoss(params.id);
+	const recentStats = await getPlayerWinLoss(params.id, 31);
 	const allTimeStats = await getPlayerWinLoss(params.id, 9999);
 
 	const heroStats = getHeroStats(dayjs(0).add(1, 'month').valueOf() / 1000, params.id);
 	const allTimeHeroStats = getHeroStats(dayjs(0).add(99, 'years').valueOf() / 1000, params.id);
 	const winGraph = await getPlayerChart(params.id, 31);
 	const impactCounts = await getPlayerImpactCountsByRole(params.id);
+	const averageStats = await getPlayerAverageStats(params.id, 31);
+	const roleCounts = await getRoleCounts(params.id, 9999);
+
+	const matchesByDay = await getMatchesByDay(params.id, 12)
 
 	const heroJson = await fetch(
 		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
@@ -73,15 +80,18 @@ export const load = async ({ url, params }) => {
 	heroList.sort((a, b) => a.name.localeCompare(b.name));
 
 	return {
+		roleCounts,
+		averageStats,
 		heroList,
 		player,
 		mainAccount,
 		smurfAccounts,
 		allTimeStats,
-		weeklyStats,
+		recentStats,
 		heroStats,
 		allTimeHeroStats,
 		winGraph,
-		impactCounts
+		impactCounts,
+		matchesByDay
 	};
 };
