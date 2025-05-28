@@ -518,80 +518,82 @@ https://svelte.dev/e/node_invalid_placement -->
 					{/each}
 				</div>
 				<table>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'kills', playerStats))};"
-					>
-						<td class="pl-1">Kills</td>
-						<td class="pr-1 text-right">{Math.round(player.kills * 100) / 100}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'deaths', playerStats))}"
-					>
-						<td class="pl-1">Deaths</td>
-						<td class="pr-1 text-right">{Math.round(player.deaths * 100) / 100}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'assists', playerStats))}"
-					>
-						<td class="pl-1">Assists</td>
-						<td class="pr-1 text-right">{Math.round(player.assists * 100) / 100}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'impact', playerStats))}"
-					>
-						<td class="pl-1">Impact</td>
-						<td class="pr-1 text-right">{Math.round(player.impact)}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'versatility', playerStats))};"
-					>
-						<td class="pl-1">Versatility</td>
-						<td class="pr-1 text-right">{player.versatility}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'heroDamage', playerStats))}"
-					>
-						<td class="pl-1">Hero DMG</td>
-						<td class="pr-1 text-right">{Math.round(player.heroDamage)}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'towerDamage', playerStats))}"
-					>
-						<td class="pl-1">Tower DMG</td>
-						<td class="pr-1 text-right">{Math.round(player.towerDamage)}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'gpm', playerStats))}"
-					>
-						<td class="pl-1">GPM</td>
-						<td class="pr-1 text-right">{Math.round(player.gpm)}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'xpm', playerStats))}"
-					>
-						<td class="pl-1">XPM</td>
-						<td class="pr-1 text-right">{Math.round(player.xpm)}</td>
-					</tr>
-					<tr
-						class="border-y-[1px] border-white border-opacity-10"
-						style="background-color: {getColour(getRank(player.id, 'duration', playerStats))}"
-					>
-						<td class="pl-1">Duration</td>
-						<td class="pr-1 text-right"
-							>{player.duration === '99999999999999'
-								? 'N/A'
-								: toTime(Math.round(player.duration))}</td
+					<tbody>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'kills', playerStats))};"
 						>
-					</tr>
+							<td class="pl-1">Kills</td>
+							<td class="pr-1 text-right">{Math.round(player.kills * 100) / 100}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'deaths', playerStats))}"
+						>
+							<td class="pl-1">Deaths</td>
+							<td class="pr-1 text-right">{Math.round(player.deaths * 100) / 100}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'assists', playerStats))}"
+						>
+							<td class="pl-1">Assists</td>
+							<td class="pr-1 text-right">{Math.round(player.assists * 100) / 100}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'impact', playerStats))}"
+						>
+							<td class="pl-1">Impact</td>
+							<td class="pr-1 text-right">{Math.round(player.impact)}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'versatility', playerStats))};"
+						>
+							<td class="pl-1">Versatility</td>
+							<td class="pr-1 text-right">{player.versatility}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'heroDamage', playerStats))}"
+						>
+							<td class="pl-1">Hero DMG</td>
+							<td class="pr-1 text-right">{Math.round(player.heroDamage)}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'towerDamage', playerStats))}"
+						>
+							<td class="pl-1">Tower DMG</td>
+							<td class="pr-1 text-right">{Math.round(player.towerDamage)}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'gpm', playerStats))}"
+						>
+							<td class="pl-1">GPM</td>
+							<td class="pr-1 text-right">{Math.round(player.gpm)}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'xpm', playerStats))}"
+						>
+							<td class="pl-1">XPM</td>
+							<td class="pr-1 text-right">{Math.round(player.xpm)}</td>
+						</tr>
+						<tr
+							class="border-y-[1px] border-white border-opacity-10"
+							style="background-color: {getColour(getRank(player.id, 'duration', playerStats))}"
+						>
+							<td class="pl-1">Duration</td>
+							<td class="pr-1 text-right"
+								>{player.duration === '99999999999999'
+									? 'N/A'
+									: toTime(Math.round(player.duration))}</td
+							>
+						</tr>
+					</tbody>
 				</table>
 			</div>
 		{/each}
