@@ -47,7 +47,7 @@ https://svelte.dev/e/node_invalid_placement -->
 	import { fade } from 'svelte/transition';
 	import WinChart from '$lib/components/profile/WinChart.svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { tick } from 'svelte';
 
 	let { data } = $props();

@@ -6,6 +6,7 @@
 
 	dayjs.extend(relativeTime);
 	import { getStatColour } from '$lib/functions';
+	import { twMerge } from 'tailwind-merge';
 
 	type Player = {
 		id: number;
@@ -34,23 +35,29 @@
 		type?: string;
 	}
 
-	let { data = [
+	let {
+		data = [
 			{ id: -1, username: 'PLAYER 1', kills: 999 },
 			{ id: -1, username: 'PLAYER 1', kills: 999 },
 			{ id: -1, username: 'PLAYER 1', kills: 999 }
-		], title = 'RECORD TITLE', type = 'kills' }: Props = $props();
+		],
+		title = 'RECORD TITLE',
+		type = 'kills'
+	}: Props = $props();
+
+	let hoverColour = getStatColour(type) + 40;
 </script>
 
 <div class="w-64" key={title}>
 	{#if type == 'winLoss'}
-		<div class="w-64 rounded-xl bg-zinc-800 bg-opacity-100">
-			<div class="max-h-28 rounded-xl">
-				<div class="rounded-xl">
+		<div class="w-64 rounded-lg border">
+			<div class="max-h-28 rounded-t-lg">
+				<div class="rounded-t-lg">
 					<div
-						class={`max-w-auto max-h-28 rounded-xl bg-cover bg-center`}
+						class={`max-w-auto max-h-28 rounded-t-lg bg-cover bg-center`}
 						id={title === 'Most MMR Lost' ? `down-arrows` : `up-arrows`}
 					>
-						<div class="flex h-28 rounded-xl bg-black bg-opacity-70 px-4 py-2">
+						<div class="flex h-28 rounded-t-lg bg-black bg-opacity-70 px-4 py-2">
 							<div class="flex grow flex-col">
 								<div class="text-center font-display text-2xl">{title}</div>
 								<div class="flex-1 grow"></div>
@@ -76,8 +83,8 @@
 					</div>
 				</div>
 			</div>
-			<div class="flex flex-col gap-1 py-1">
-				<div class="flex h-7 w-full flex-row items-center rounded-xl px-3">
+			<div class="flex flex-col gap-1 border-t py-1">
+				<div class="flex h-7 w-full flex-row items-center rounded-lg px-3">
 					<button
 						onclick={() => goto(`/player/${data[1].id}`)}
 						class="duration-300 hover:text-zinc-400"
@@ -87,8 +94,8 @@
 					<div class="grow"></div>
 					<div>{title === 'Most MMR Lost' ? '' : '+'}{data[1][type]}</div>
 				</div>
-				<div class="flex w-full px-2">
-					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40"></div>
+				<div class="flex w-full">
+					<div class="grow border-t"></div>
 				</div>
 				<div class="flex h-7 w-full flex-row items-center px-3">
 					<button
@@ -103,14 +110,14 @@
 			</div>
 		</div>
 	{:else}
-		<div class="w-64 rounded-xl bg-zinc-800 bg-opacity-100">
-			<div class="rounded-xl border-opacity-15">
+		<div class="w-64 rounded-lg border">
+			<div class="rounded-t-lg border-opacity-15">
 				<MatchModal matchId={data[0].matchId} sequenceNum={data[0].sequenceNumber}>
 					<div
-						class={`min-h-28 w-full rounded-xl bg-cover bg-center bg-no-repeat`}
+						class={`min-h-28 w-full rounded-t-lg bg-cover bg-center bg-no-repeat`}
 						style={`background-image: url('${data[0]?.hero?.img}')`}
 					>
-						<div class="flex min-h-28 rounded-xl bg-black bg-opacity-70 px-3 py-2">
+						<div class="flex min-h-28 rounded-t-lg bg-black bg-opacity-70 px-3 py-2">
 							<div class="flex grow flex-col">
 								<div class="text-center font-display text-xl">{title}</div>
 								<div class="flex-1 grow"></div>
@@ -130,9 +137,12 @@
 					</div>
 				</MatchModal>
 			</div>
-			<div class="flex flex-col gap-1 py-1">
+			<div class="flex flex-col border-t">
 				<MatchModal matchId={data[1].matchId} sequenceNum={data[1].sequenceNumber}>
-					<div class="flex w-full flex-row items-center rounded-xl px-3">
+					<div
+						class="dynamic-bg flex w-full flex-row items-center px-3 py-1"
+						style="--hover-color: {hoverColour};"
+					>
 						<div><img src={data[1]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
 						<button
 							onclick={() => goto(`/player/${data[1].id}`)}
@@ -144,11 +154,14 @@
 						<div class="font-bold" style="color: {getStatColour(type)};">{data[1][type]}</div>
 					</div>
 				</MatchModal>
-				<div class="flex w-full px-2">
-					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40"></div>
+				<div class="flex w-full">
+					<div class="grow border-t"></div>
 				</div>
 				<MatchModal matchId={data[2].matchId} sequenceNum={data[2].sequenceNumber}>
-					<div class="flex w-full flex-row items-center px-3">
+					<div
+						class="dynamic-bg flex w-full flex-row items-center rounded-b-lg px-3 py-1"
+						style="--hover-color: {hoverColour};"
+					>
 						<div><img src={data[2]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
 						<button
 							onclick={() => goto(`/player/${data[2].id}`)}
@@ -166,6 +179,11 @@
 </div>
 
 <style>
+	.dynamic-bg:hover {
+		background-color: var(--hover-color);
+		transition-duration: 0.3s;
+	}
+
 	#feature {
 		text-shadow: 3px 3px 8px #000000;
 	}

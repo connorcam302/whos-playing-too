@@ -1,3 +1,4 @@
+<!-- @migration task: review uses of `navigating` -->
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
@@ -26,8 +27,7 @@
 		{ link: '/matches', title: 'Matches' },
 		{ link: '/records', title: 'Records' },
 		{ link: '/stats', title: 'Stats' },
-		{ link: '/comparison', title: 'Comparison' },
-		{ link: '/about', title: 'About' }
+		{ link: '/comparison', title: 'Comparison' }
 	];
 
 	let innerWidth = $state(0);
@@ -71,6 +71,10 @@
 	});
 
 	setContext('viewport', viewportStore);
+
+	$effect(() => {
+		console.log(navigating);
+	});
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />

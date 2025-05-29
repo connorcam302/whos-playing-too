@@ -373,9 +373,26 @@ export const getFlopOfTheWeek = async () => {
     const fotw = await db.select().from(flopOfTheWeek).orderBy(desc(flopOfTheWeek.id)).limit(1);
 
     const playerList = await db.select().from(players);
+    const ids = [
+        fotw[0].oneMatch,
+        fotw[0].twoMatch,
+        fotw[0].threeMatch,
+        fotw[0].fourMatch,
+        fotw[0].fiveMatch
+    ];
+
+    const sequenceIds = ids.map(async (id) => {
+        const sequenceId = await db.select().from(matches).where(eq(matches.id, id));
+        return sequenceId[0].sequenceNumber;
+    });
 
     const fotwWithIds = {
         ...fotw[0],
+        oneSequence: await sequenceIds[0],
+        twoSequence: await sequenceIds[1],
+        threeSequence: await sequenceIds[2],
+        fourSequence: await sequenceIds[3],
+        fiveSequence: await sequenceIds[4],
         onePlayerName: playerList.find((player) => player.id === fotw[0].onePlayer)?.username,
         twoPlayerName: playerList.find((player) => player.id === fotw[0].twoPlayer)?.username,
         threePlayerName: playerList.find((player) => player.id === fotw[0].threePlayer)?.username,

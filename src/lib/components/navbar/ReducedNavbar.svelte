@@ -7,13 +7,14 @@
 	import HamburgerIcon from '$lib/components/HamburgerIcon.svelte';
 	import { slide, fade, fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
+	import SearchBox from '../SearchBox.svelte';
 
 	let { playerList = [], links = [] } = $props();
 
 	let open = $state(false);
-	
+
 	let navigateTo = $state(0);
-	
+
 	const navigate = (url: string) => {
 		open = false;
 		goto(url);
@@ -26,18 +27,33 @@
 			document.body.style.overflow = 'auto';
 		}
 	});
+
+	const searchGroups = [
+		{
+			header: 'Players',
+			options: playerList.map((player) => ({
+				label: player.username,
+				action: () => {
+					goto(`/player/${player.id}`);
+				}
+			}))
+		}
+	];
 </script>
 
 <svelte:window
-	use:nonpassive={['wheel', () => (e) => {
-		if (open) e.preventDefault();
-	}]}
+	use:nonpassive={[
+		'wheel',
+		() => (e) => {
+			if (open) e.preventDefault();
+		}
+	]}
 />
 
 <div class="mx-auto mb-4 h-[50px] overflow-auto">
 	<div class:scroll-lock={open} class="z-50">
 		<div>
-			<div class="z-10 flex w-full items-center justify-center gap-8 bg-zinc-800 px-4">
+			<div class="z-10 flex w-full items-center justify-center gap-8 bg-[#09090b] px-4">
 				<button
 					onclick={() => navigate('/')}
 					class="flex w-48 items-center gap-2 rounded-full text-center font-display text-lg"
@@ -61,23 +77,11 @@
 				tabindex="0"
 			>
 				<div
-					class="z-10 w-full bg-zinc-800"
+					class="z-10 w-full rounded-b-lg border bg-[#09090b]"
 					transition:fly={{ y: -1000, duration: 500, easing: quintOut }}
 				>
 					<div class="flex items-center justify-center">
-						<select
-							name="players"
-							class="w-48 rounded-xl border-x-8 border-transparent bg-zinc-900 py-[7px]"
-							bind:value={navigateTo}
-							onchange={() => navigate('/player/' + navigateTo)}
-						>
-							<option value={0} selected disabled>Search Players</option>
-							{#each playerList as player}
-								<option onclick={() => navigate(`/player/${player.id}`)} value={player.id}>
-									{player.username}
-								</option>
-							{/each}
-						</select>
+						<SearchBox groups={searchGroups} />
 					</div>
 					{#each links as link}
 						<div class="flex items-center justify-center gap-4 py-2">

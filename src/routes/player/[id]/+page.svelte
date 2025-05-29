@@ -33,6 +33,7 @@
 
 	import ProfileHome from './ProfileHome.svelte';
 	import ProfileBanner from './ProfileBanner.svelte';
+	import ProfileMatches from './ProfileMatches.svelte';
 	import ProfileStats from './ProfileStats.svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 
@@ -82,7 +83,7 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 <meta property="og:url" content={`https://whos-playing.com/player/${player.id}`} />
 <div class="flex w-full flex-col content-center items-center justify-center gap-4">
 	<ProfileBanner {data} />
-	<Tabs.Root value="home" class="w-full md:max-w-screen-md">
+	<Tabs.Root value="matches" class="w-full md:max-w-screen-md">
 		<Tabs.List class="">
 			<Tabs.Trigger value="home">Home</Tabs.Trigger>
 			<Tabs.Trigger value="stats">Stats</Tabs.Trigger>
@@ -92,7 +93,7 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 		</Tabs.List>
 		<Tabs.Content value="home"><ProfileHome {data} /></Tabs.Content>
 		<Tabs.Content value="stats"><ProfileStats {data} /></Tabs.Content>
-		<Tabs.Content value="matches"><ProfileHome {data} /></Tabs.Content>
+		<Tabs.Content value="matches"><ProfileMatches {data} /></Tabs.Content>
 		<Tabs.Content value="records"><ProfileHome {data} /></Tabs.Content>
 		<Tabs.Content value="teammates"><ProfileHome {data} /></Tabs.Content>
 	</Tabs.Root>

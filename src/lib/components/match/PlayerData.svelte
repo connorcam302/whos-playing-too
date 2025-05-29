@@ -233,8 +233,9 @@
 				</div>
 			</div>
 			<div class="flex w-28 flex-col gap-0 text-left">
-				<div class="font-sans leading-none duration-200 hover:text-zinc-400">
+				<div class="flex gap-1 font-sans leading-none duration-200 hover:text-zinc-400">
 					<a href="/player/{player.owner}">{player.username}</a>
+					<div class="italic text-purple-500">{player.smurf ? 'S' : ''}</div>
 				</div>
 				<div class="font-sans text-xs leading-none text-zinc-400">{player.hero.name}</div>
 			</div>
