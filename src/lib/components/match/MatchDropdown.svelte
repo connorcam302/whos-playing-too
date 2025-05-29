@@ -247,7 +247,7 @@
 		<div class={twMerge(matchStyling, 'flex items-center gap-2 px-2 py-1 md:gap-4')}>
 			<div class="w-12 md:w-16">
 				<div class="relative">
-					<img src={player.hero.img} alt={player.hero.name} class="w-12 md:w-16" />
+					<img src={player.hero.img} alt={player.hero.name} class="object-fit w-12 md:w-16" />
 					{#if player.facet}
 						<div
 							class={`absolute bottom-0 right-0 color_${
@@ -263,7 +263,7 @@
 				<RatingChip data={match} />
 			</div>
 			<div class="flex w-6 items-center justify-center lg:w-8">
-				<img src={getRoleIcon(player.role)} alt={`${player.role} role`} class="h-7" />
+				<img src={getRoleIcon(player.role)} alt={`${player.role} role`} class="object-fit h-7" />
 			</div>
 			<div class="flex w-16 items-center justify-center gap-1 text-xs md:w-20 lg:text-base">
 				<div class="text-green-300">{player.kills}</div>

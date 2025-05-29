@@ -62,7 +62,7 @@
 	import dayjs from 'dayjs';
 	import advancedFormat from 'dayjs/plugin/advancedFormat';
 	import RoleDoughnut from '$lib/components/stats/RoleDoughnut.svelte';
-	import { getRoleIcon, getRoleName } from '$lib/functions';
+	import { getRoleIcon, getRoleName, calcImpact } from '$lib/functions';
 
 	dayjs.extend(advancedFormat);
 
@@ -311,8 +311,6 @@
 		},
 		{ rating: null, total: 0 }
 	);
-
-	console.log(data);
 </script>
 
 <svelte:head>
@@ -455,40 +453,39 @@
 				</Card.Root>
 			</div>
 
-			<Card.Root class="flex-1 grow">
+			<Card.Root class="flex-1">
 				<Card.Header>
 					<Card.Title>Roles</Card.Title>
 					<Card.Description>All time role stats.</Card.Description>
 				</Card.Header>
 				<Card.Content>
-					<div class="mx-auto h-32 w-32">
-						<RoleDoughnut data={roleCounts} cutout={50} />
-					</div>
-					<div class="flex flex-col gap-2">
-						<Table.Root>
-							<Table.Header>
-								<Table.Row>
-									<Table.Head class="">Role</Table.Head>
-									<Table.Head class="w-28 text-center">Matches</Table.Head>
-									<Table.Head class="w-28 text-center">Impact</Table.Head>
-								</Table.Row>
-							</Table.Header>
-							<Table.Body>
+					<div class="flex flex-col items-center gap-4">
+						<div class="mx-auto h-32 w-32">
+							<RoleDoughnut data={roleCounts} cutout={50} />
+						</div>
+						<div class="flex w-full flex-col">
+							<div class="flex gap-4 border-b-2 border-zinc-800 pb-1 pt-2">
+								<div class="w-8 text-zinc-400">Role</div>
+
+								<div class="flex grow gap-4">
+									<div class="basis-1/3 text-zinc-400">Matches</div>
+									<div class="basis-1/3 text-zinc-400">Winrate</div>
+									<div class="basis-1/3 text-zinc-400">Impact</div>
+								</div>
+							</div>
+							<div class="flex flex-col gap-2">
 								{#each roleCounts.slice().sort((a, b) => a.role - b.role) as role}
-									<Table.Row>
-										<Table.Cell class="p-0 py-2 text-lg">
-											<div class="flex flex-col gap-0">
-												<img
-													class="h-8 w-8"
-													src={getRoleIcon(role.role)}
-													alt={getRoleName(role.role)}
-												/>
-												<div class="text-xs text-zinc-400">{getRoleName(role.role)}</div>
-											</div></Table.Cell
-										>
-										<Table.Cell class="h-full p-2">
-											<div class="my-auto flex flex-col gap-1">
-												<div class="text-left">{role.count}</div>
+									<div class="flex gap-4">
+										<div class="flex w-8 flex-col gap-0">
+											<img
+												class="h-8 w-8"
+												src={getRoleIcon(role.role)}
+												alt={getRoleName(role.role)}
+											/>
+										</div>
+										<div class="flex grow gap-4">
+											<div class="my-auto flex basis-1/3 flex-col gap-0">
+												<div class="pb-1 text-sm opacity-85">{role.count}</div>
 												<Bar
 													colour="#38bdf8"
 													percentage={(role.count /
@@ -496,17 +493,28 @@
 														100}
 												/>
 											</div>
-										</Table.Cell>
-										<Table.Cell class="h-full p-2">
-											<div class="my-auto flex flex-col gap-1">
-												<div class="text-left">{role.avgImpact}</div>
-												<Bar colour="#9333EA" percentage={(role.avgImpact / 200) * 100} />
+											<div class="my-auto flex basis-1/3 flex-col gap-0">
+												<div class="pb-1 text-sm opacity-85">
+													{Math.round((role.wins / (role.wins + role.losses)) * 1000) / 10} %
+												</div>
+												<Bar percentage={(role.wins / (role.wins + role.losses)) * 100} />
 											</div>
-										</Table.Cell>
-									</Table.Row>
+											<div class="my-auto flex basis-1/3 flex-col gap-0">
+												<div class="pb-1 text-sm opacity-85">{calcImpact(role.avgImpact)}</div>
+												<HoverCard.Root>
+													<HoverCard.Trigger>
+														<Bar colour="#9333EA" percentage={(role.avgImpact / 200) * 100} />
+													</HoverCard.Trigger>
+													<HoverCard.Content>
+														Impact: {role.avgImpact}
+													</HoverCard.Content>
+												</HoverCard.Root>
+											</div>
+										</div>
+									</div>
 								{/each}
-							</Table.Body>
-						</Table.Root>
+							</div>
+						</div>
 					</div>
 				</Card.Content>
 			</Card.Root>
@@ -518,7 +526,7 @@
 				<Card.Content>
 					<div>
 						{#await allTimeHeroStats then allTimeHeroStats}
-							<HeroStatbox heroStats={allTimeHeroStats} height="h-[464px]" />
+							<HeroStatbox heroStats={allTimeHeroStats} height="h-[336px]" />
 						{/await}
 					</div>
 				</Card.Content>

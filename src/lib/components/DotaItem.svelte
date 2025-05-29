@@ -8,7 +8,7 @@
 <HoverCard.Root>
 	<HoverCard.Trigger
 		><img
-			class={twMerge(styles, 'h-full w-full')}
+			class={twMerge(styles, 'object-fit h-full w-full')}
 			src={item.img}
 			alt={item.name}
 		/></HoverCard.Trigger

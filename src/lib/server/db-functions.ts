@@ -2153,6 +2153,49 @@ export const getRoleCounts = async (id: number, offset: number) => {
         .groupBy(matchData.role)
         .orderBy(matchData.role);
 
+    const wins = await db
+        .select({
+            role: matchData.role,
+            count: sql<number>`cast(count(${matchData.matchId}) as int)`,
+        })
+        .from(matchData)
+        .innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(players, eq(accounts.owner, players.id))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .where(and(
+            eq(players.id, id),
+            or(
+                and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
+                and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
+            ),
+            gte(matches.startTime, dayjs().subtract(offset, 'day').unix())))
+        .groupBy(matchData.role)
+        .orderBy(matchData.role);
+
+    const losses = await db
+        .select({
+            role: matchData.role,
+            count: sql<number>`cast(count(${matchData.matchId}) as int)`,
+        })
+        .from(matchData)
+        .innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+        .innerJoin(players, eq(accounts.owner, players.id))
+        .innerJoin(matches, eq(matches.id, matchData.matchId))
+        .where(and(
+            eq(players.id, id),
+            or(
+                and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
+                and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
+            ),
+            gte(matches.startTime, dayjs().subtract(offset, 'day').unix())))
+        .groupBy(matchData.role)
+        .orderBy(matchData.role);
+
+    for (const roleCount of roleCounts) {
+        roleCount.wins = wins.find((win) => win.role === roleCount.role)?.count;
+        roleCount.losses = losses.find((loss) => loss.role === roleCount.role)?.count;
+    }
+
     return roleCounts;
 }
 

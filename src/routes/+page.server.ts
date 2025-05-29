@@ -9,7 +9,7 @@ import {
     getFlopOfTheWeek
 } from '$lib/server/db-functions';
 
-const toSteam32 = (steam64: string) => {
+/*const toSteam32 = (steam64: string) => {
     return (BigInt(steam64.toString()) - BigInt('76561197960265728')).toString();
 };
 
@@ -26,7 +26,7 @@ const getSteamData = async (steamIds: number[]) => {
     );
     const steamDataJson = await steamData.json();
     return steamDataJson.response.players;
-};
+};*/
 
 export const load = async ({ url, params }) => {
     const heroStats = getHeroStats();
@@ -34,19 +34,8 @@ export const load = async ({ url, params }) => {
     const totw = await getTeamOfTheWeek();
     const fotw = await getFlopOfTheWeek();
     const features = getFeatures();
-    const players = await getPlayers();
-    const allAccounts: { id: number; accountId: number; username: string }[] = [];
-    players.forEach((user) => {
-        user.accounts.forEach((account) => {
-            allAccounts.push({
-                id: user.id,
-                accountId: Number(account),
-                username: user.username
-            });
-        });
-    });
 
-    const allSteamData = await getSteamData(allAccounts.map((account) => account.accountId));
+    /*const allSteamData = await getSteamData(allAccounts.map((account) => account.accountId));
     const allPlayerSteamData = allAccounts
         .map((player) => {
             const accountData = allSteamData.find(
@@ -58,7 +47,7 @@ export const load = async ({ url, params }) => {
             };
         })
         .sort((a, b) => b.lastlogoff - a.lastlogoff)
-        .sort((a, b) => (b.gameextrainfo === 'Dota 2') - (a.gameextrainfo === 'Dota 2'));
+        .sort((a, b) => (b.gameextrainfo === 'Dota 2') - (a.gameextrainfo === 'Dota 2'));*/
 
     return { heroStats, playerStats, totw, features, fotw };
 };

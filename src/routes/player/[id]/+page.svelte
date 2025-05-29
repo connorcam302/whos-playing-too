@@ -64,8 +64,6 @@
 		winGraph,
 		heroList
 	} = $derived(data);
-
-	console.log(data);
 </script>
 
 <svelte:head>
@@ -89,11 +87,13 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 			<Tabs.Trigger value="home">Home</Tabs.Trigger>
 			<Tabs.Trigger value="stats">Stats</Tabs.Trigger>
 			<Tabs.Trigger value="matches">Matches</Tabs.Trigger>
+			<Tabs.Trigger value="records">Records</Tabs.Trigger>
 			<Tabs.Trigger value="teammates">Teammates</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="home"><ProfileHome {data} /></Tabs.Content>
 		<Tabs.Content value="stats"><ProfileStats {data} /></Tabs.Content>
 		<Tabs.Content value="matches"><ProfileHome {data} /></Tabs.Content>
+		<Tabs.Content value="records"><ProfileHome {data} /></Tabs.Content>
 		<Tabs.Content value="teammates"><ProfileHome {data} /></Tabs.Content>
 	</Tabs.Root>
 </div>
