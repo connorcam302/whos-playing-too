@@ -12,6 +12,7 @@ import {
 } from '$lib/server/db-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
+import { heroData } from '$lib/data/heroData';
 
 const getSteamData = async (steamIds: number[]) => {
 	const steamData = await fetch(
@@ -76,8 +77,9 @@ export const load = async ({ url, params }) => {
 	const heroJson = await fetch(
 		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
 	);
-	const heroList: DotaAsset[] = await heroJson.json();
-	heroList.sort((a, b) => a.name.localeCompare(b.name));
+
+
+	const heroList = heroData.sort((a, b) => a.name.localeCompare(b.name));
 
 	return {
 		roleCounts,

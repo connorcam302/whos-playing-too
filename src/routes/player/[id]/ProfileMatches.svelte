@@ -97,6 +97,22 @@
 
 	let { data }: Props = $props();
 
+	let {
+		roleCounts,
+		playerId,
+		averageStats,
+		player,
+		mainAccount,
+		smurfAccounts,
+		allTimeStats,
+		recentStats,
+		heroStats,
+		allTimeHeroStats,
+		winGraph,
+		heroList,
+		matchesByDay
+	} = $derived(data);
+
 	let pageNumber = $state(1);
 
 	let matchBlocks = $state([]);
@@ -110,6 +126,9 @@
 	let unranked = $state(true);
 	let smurfs = $state(false);
 	let hero = $state(-1);
+	let heroSelectedMulti = $state(heroList.map((h) => true));
+
+	const heroSelectVariant = $state('single');
 
 	onMount(() => {
 		if ($page.url.searchParams.get('page')) {
@@ -266,29 +285,9 @@
 
 	let chartType = $state('days');
 
-	let {
-		roleCounts,
-		playerId,
-		averageStats,
-		player,
-		mainAccount,
-		smurfAccounts,
-		allTimeStats,
-		recentStats,
-		heroStats,
-		allTimeHeroStats,
-		winGraph,
-		heroList,
-		matchesByDay
-	} = $derived(data);
-
 	const toSteam32 = (accountId: string) => {
 		return BigInt(accountId) - BigInt('76561197960265728');
 	};
-
-	$effect(() => {
-		hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5 && updateMatchesData();
-	});
 
 	const mostCommonImpact = Object.keys(data.impactCounts).reduce(
 		(maxRating, ratingName) => {
@@ -308,9 +307,72 @@
 		{ rating: null, total: 0 }
 	);
 
+	let roleOptions = $derived([
+		{
+			label: 'Carry',
+			value: 1,
+			image: '/roles/pos1.svg',
+			selected: pos1
+		},
+		{
+			label: 'Mid',
+			value: 2,
+			image: '/roles/pos2.svg',
+			selected: pos2
+		},
+		{
+			label: 'Offlane',
+			value: 3,
+			image: '/roles/pos3.svg',
+			selected: pos3
+		},
+		{
+			label: 'Support',
+			value: 4,
+			image: '/roles/pos4.svg',
+			selected: pos4
+		},
+		{
+			label: 'Hard Support',
+			value: 5,
+			image: '/roles/pos5.svg',
+			selected: pos5
+		}
+	]);
+
+	let heroOptions = $derived(
+		heroList.map((hero, i) => ({
+			label: hero.localized_name,
+			value: hero.id,
+			image: hero.icon,
+			selected: heroSelectedMulti[i]
+		}))
+	);
+
 	$effect(() => {
-		console.log(pos1, pos2, pos3, pos4, pos5, ranked, unranked, smurfs);
+		pos1 = roleOptions[0].selected;
+		pos2 = roleOptions[1].selected;
+		pos3 = roleOptions[2].selected;
+		pos4 = roleOptions[3].selected;
+		pos5 = roleOptions[4].selected;
 	});
+
+	$effect(() => {
+		hero;
+		ranked;
+		unranked;
+		smurfs;
+		pos1;
+		pos2;
+		pos3;
+		pos4;
+		pos5;
+
+		// Call the update function
+		updateMatchesData();
+	});
+
+	console.log(data);
 </script>
 
 <svelte:head>
@@ -322,36 +384,34 @@
 		<div class="flex flex-col gap-2">
 			<div class="flex flex-wrap gap-2">
 				<div class="flex flex-col gap-1">
-					<div class="text-sm text-zinc-400">Roles</div>
-					<MultiSelect
-						options={[
-							{
-								label: 'Support',
-								value: 1,
-								selected: pos1
-							},
-							{
-								label: 'Carry',
-								value: 2,
-								selected: pos2
-							},
-							{
-								label: 'Mid',
-								value: 3,
-								selected: pos3
-							},
-							{
-								label: 'Offlane',
-								value: 4,
-								selected: pos4
-							},
-							{
-								label: 'Hard Support',
-								value: 5,
-								selected: false
-							}
-						]}
-					/>
+					<div class="text-xs text-zinc-400">Roles</div>
+					<MultiSelect bind:options={roleOptions} />
+				</div>
+				<div class="flex flex-col gap-1">
+					<div class="text-xs text-zinc-400">Heroes</div>
+					<MultiSelect bind:options={heroOptions} />
+				</div>
+				<div class="flex flex-col gap-1">
+					<div class="text-xs text-zinc-400">Heroes</div>
+					<Select.Root portal={null}>
+						<Select.Trigger class="w-[180px]">
+							<Select.Value placeholder="Select a fruit" />
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								<Select.Label>Fruits</Select.Label>
+								{#each heroList as hero}
+									<Select.Item value={hero.id} label={hero.localized_name}>
+										<div class="flex gap-1">
+											<img class="h-6 w-6" src={hero.icon} alt={hero.localized_name} />
+											<span>{hero.localized_name}</span>
+										</div>
+									</Select.Item>
+								{/each}
+							</Select.Group>
+						</Select.Content>
+						<Select.Input name="favoriteFruit" />
+					</Select.Root>
 				</div>
 			</div>
 			{#key matchBlocks}

@@ -33,9 +33,9 @@
 
 	import ProfileHome from './ProfileHome.svelte';
 	import ProfileBanner from './ProfileBanner.svelte';
-	import ProfileMatches from './ProfileMatches.svelte';
 	import ProfileStats from './ProfileStats.svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
+	import ProfileMatches from './ProfileMatches.svelte';
 
 	interface Props {
 		data: {
