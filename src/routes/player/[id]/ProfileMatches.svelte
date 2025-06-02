@@ -55,7 +55,7 @@
 	import Bar from '$lib/components/stats/Bar.svelte';
 	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
 	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
-	import * as Select from '$lib/components/ui/select';
+	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as HoverCard from '$lib/components/ui/hover-card';
 	import * as Table from '$lib/components/ui/table';
@@ -128,7 +128,7 @@
 	let hero = $state(-1);
 	let heroSelectedMulti = $state(heroList.map((h) => true));
 
-	const heroSelectVariant = $state('single');
+	let heroSelectVariant = $state('single');
 
 	onMount(() => {
 		if ($page.url.searchParams.get('page')) {
@@ -371,7 +371,36 @@
 		// Call the update function
 		updateMatchesData();
 	});
+	let selectedHeroSingle = $state('-1');
+	let selectedHeroMulti = $state(['-1']);
+	let selectedHero = $derived(
+		heroSelectVariant === 'single' ? [selectedHeroSingle] : selectedHeroMulti
+	);
 
+	const makeSelectedHeroTrigger = () => {
+		console.log(heroSelectVariant);
+		console.log(selectedHeroSingle);
+		console.log(selectedHeroMulti);
+		if (heroSelectVariant === 'single pah') {
+			console.log('single');
+			return heroList.find((hero) => hero.id.toString() === selectedHeroSingle).localized_name;
+		}
+		if (selectedHeroMulti.length === 0 || selectedHeroMulti[0] === '-1') {
+			return 'All Heroes';
+		}
+		if (selectedHeroMulti.length <= 1) {
+			console.log('multi path');
+			console.log(heroList.find((hero) => hero.id.toString() === selectedHeroMulti[0]));
+			return heroList.find((hero) => hero.id.toString() === selectedHeroMulti[0]).localized_name;
+		} else {
+			return `${selectedHeroMulti.length} Heroes Selected`;
+		}
+	};
+
+	let selectedRoles = $state(['1', '2', '3', '4', '5']);
+	$effect(() => {
+		console.log(selectedHero);
+	});
 	console.log(data);
 </script>
 
@@ -385,33 +414,87 @@
 			<div class="flex flex-wrap gap-2">
 				<div class="flex flex-col gap-1">
 					<div class="text-xs text-zinc-400">Roles</div>
-					<MultiSelect bind:options={roleOptions} />
-				</div>
-				<div class="flex flex-col gap-1">
-					<div class="text-xs text-zinc-400">Heroes</div>
-					<MultiSelect bind:options={heroOptions} />
-				</div>
-				<div class="flex flex-col gap-1">
-					<div class="text-xs text-zinc-400">Heroes</div>
-					<Select.Root portal={null}>
-						<Select.Trigger class="w-[180px]">
-							<Select.Value placeholder="Select a fruit" />
-						</Select.Trigger>
+					<Select.Root type="multiple" bind:value={selectedRoles} class="">
+						<Select.Trigger class="w-[180px]"></Select.Trigger>
 						<Select.Content>
-							<Select.Group>
-								<Select.Label>Fruits</Select.Label>
-								{#each heroList as hero}
-									<Select.Item value={hero.id} label={hero.localized_name}>
-										<div class="flex gap-1">
-											<img class="h-6 w-6" src={hero.icon} alt={hero.localized_name} />
-											<span>{hero.localized_name}</span>
-										</div>
-									</Select.Item>
-								{/each}
-							</Select.Group>
+							<Select.Item value={'1'} label={getRoleName(1)}>
+								<div class="flex items-center gap-2">
+									<img class="h-6 w-6" src="/roles/pos1.svg" alt="" />
+									<span>{getRoleName(1)}</span>
+								</div>
+							</Select.Item>
+							<Select.Item value={'2'} label={getRoleName(2)}>
+								<div class="flex items-center gap-2">
+									<img class="h-6 w-6" src="/roles/pos2.svg" alt="" />
+									<span>{getRoleName(2)}</span>
+								</div>
+							</Select.Item>
+							<Select.Item value={'3'} label={getRoleName(3)}>
+								<div class="flex items-center gap-2">
+									<img class="h-6 w-6" src="/roles/pos3.svg" alt="" />
+									<span>{getRoleName(3)}</span>
+								</div>
+							</Select.Item>
+							<Select.Item value={'4'} label={getRoleName(4)}>
+								<div class="flex items-center gap-2">
+									<img class="h-6 w-6" src="/roles/pos4.svg" alt="" />
+									<span>{getRoleName(4)}</span>
+								</div>
+							</Select.Item>
+							<Select.Item value={'5'} label={getRoleName(5)}>
+								<div class="flex items-center gap-2">
+									<img class="h-6 w-6" src="/roles/pos5.svg" alt="" />
+									<span>{getRoleName(5)}</span>
+								</div>
+							</Select.Item>
 						</Select.Content>
-						<Select.Input name="favoriteFruit" />
 					</Select.Root>
+				</div>
+				<div class="flex flex-col gap-1">
+					<div class="flex justify-between text-xs text-zinc-400">
+						<div>Heroes</div>
+						<button
+							onclick={() =>
+								(heroSelectVariant = heroSelectVariant == 'single' ? 'multi' : 'single')}
+							>{heroSelectVariant == 'single' ? 'Single' : 'Multi'}</button
+						>
+					</div>
+					{#key heroSelectVariant}
+						{#if heroSelectVariant == 'multi'}
+							<Select.Root type="multiple" bind:value={selectedHero} class="">
+								<Select.Trigger class="w-[180px]">{makeSelectedHeroTrigger()}</Select.Trigger>
+								<Select.Content>
+									{#each heroList
+										.slice()
+										.sort((a, b) => a.localized_name.localeCompare(b.localized_name)) as hero}
+										<Select.Item value={hero.id.toString()} label={hero.localized_name}>
+											<div class="flex items-center gap-2">
+												<img class="h-6 w-6" src={hero.icon} alt="" />
+												<span>{hero.localized_name}</span>
+											</div>
+										</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						{:else}
+							<Select.Root type="single" bind:value={selectedHero} class="">
+								<Select.Trigger class="w-[180px]">{makeSelectedHeroTrigger()}</Select.Trigger>
+								<Select.Content>
+									<Select.Item value={'-1'} label={'All Heroes'}>
+										<span>All Heroes</span>
+									</Select.Item>
+									{#each heroList as hero}
+										<Select.Item value={hero.id.toString()} label={hero.localized_name}>
+											<div class="flex items-center gap-2">
+												<img class="h-6 w-6" src={hero.icon} alt="" />
+												<span>{hero.localized_name}</span>
+											</div>
+										</Select.Item>
+									{/each}
+								</Select.Content>
+							</Select.Root>
+						{/if}
+					{/key}
 				</div>
 			</div>
 			{#key matchBlocks}

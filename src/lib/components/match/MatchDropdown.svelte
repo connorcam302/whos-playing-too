@@ -250,7 +250,7 @@
 					<img src={player.hero.img} alt={player.hero.name} class="object-fit w-12 md:w-16" />
 					{#if player.facet}
 						<div
-							class={`absolute bottom-0 right-0 color_${
+							class={`absolute right-0 bottom-0 color_${
 								player.facets[player.facet - 1]?.color ?? 'Blue'
 							}_${player.facets[player.facet - 1]?.gradient_id ?? 3}`}
 						>
@@ -274,7 +274,7 @@
 			</div>
 			<div class="hidden md:flex">
 				{#each [0, 1, 2, 3, 4, 5] as slot}
-					<div class="h-8">
+					<div class="h-8 w-[44px]">
 						<DotaItem item={match.player[`item${slot}`]} />
 					</div>
 				{/each}
@@ -312,7 +312,7 @@
 					/>
 				</div>
 			</div>
-			<div class="flex flex-col items-center justify-center text-[12px] text-xs md:text-sm">
+			<div class="flex flex-col items-center justify-center text-xs text-[12px] md:text-sm">
 				<div class="flex items-center gap-1">
 					<div>
 						{#if matchData.lobby === 7}
