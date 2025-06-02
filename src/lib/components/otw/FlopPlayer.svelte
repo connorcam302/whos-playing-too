@@ -11,7 +11,10 @@
 	<div class={`h-48 w-full rounded-xl`} style="background-color: {background}30;" id="container">
 		<div id="content" class="flex h-full items-center">
 			<img
-				src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.png`}
+				src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero.replace(
+					'npc_dota_hero_',
+					''
+				)}.png`}
 				alt="necrolytbg-[url('/hero-backdrop.png')] e"
 				class="h-full w-auto object-cover"
 			/>

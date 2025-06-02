@@ -181,6 +181,8 @@
 	};
 
 	const facetBox = makeFacetBox(player.facets, player.facet - 1);
+
+	console.log(player.username, player);
 </script>
 
 <div>
@@ -300,8 +302,9 @@
 			<img src={player.item5.img} alt={player.item5.name} class="h-5 lg:h-8 lg:w-[44px]" />
 		</div>
 		<img
-			src={player.itemNeutral.img}
-			alt={player.itemNeutral.name}
+			src={player.itemNeutral?.img ??
+				'https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png'}
+			alt={player.itemNeutral?.name ?? 'Neutral Item'}
 			class="mr-1 h-6 w-6 rounded-full object-cover lg:mr-0 lg:h-8 lg:w-8"
 		/>
 		<div class="hidden lg:block">
