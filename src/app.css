@@ -131,6 +131,10 @@ html {
 	width: 20px;
 }
 
+button {
+	cursor: pointer;
+}
+
 .color_Red_0 {
 	background: linear-gradient(to right, #9f3c3c, #4a2040);
 }

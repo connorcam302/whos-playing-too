@@ -86,7 +86,7 @@
 {:else}
 	<div class="flex min-h-screen flex-col text-zinc-100">
 		{#if viewport === 'desktop'}
-			<div class="min-w-screen">
+			<div>
 				<DesktopNavbar {playerList} {links} />
 			</div>
 		{:else}

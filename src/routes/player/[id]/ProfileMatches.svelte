@@ -66,6 +66,8 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import MultiSelect from '$lib/components/MultiSelect.svelte';
+	import { Toggle } from '$lib/components/ui/toggle/index.js';
+	import { VenetianMask } from 'lucide-svelte';
 
 	dayjs.extend(advancedFormat);
 
@@ -110,7 +112,8 @@
 		allTimeHeroStats,
 		winGraph,
 		heroList,
-		matchesByDay
+		matchesByDay,
+		playerList
 	} = $derived(data);
 
 	let pageNumber = $state(1);
@@ -124,68 +127,87 @@
 	let pos5 = $state(true);
 	let ranked = $state(true);
 	let unranked = $state(true);
-	let smurfs = $state(false);
+	let smurfs = $state(true);
 	let hero = $state(-1);
 	let heroSelectedMulti = $state(heroList.map((h) => true));
+	let selectedHeroSingle = $state('-1');
+	let selectedHeroMulti = $state(['-1']);
+	let selectedPlayers = $state(['-1']);
 
 	let heroSelectVariant = $state('single');
-
-	onMount(() => {
-		if ($page.url.searchParams.get('page')) {
-			pageNumber = Number($page.url.searchParams.get('page'));
+	const getSelectedHero = (
+		selectedHeroSingle: any,
+		selectedHeroMulti: any[],
+		heroSelectVariant: string
+	) => {
+		if (heroSelectVariant === 'single') {
+			return [selectedHeroSingle];
 		}
-		fetchMatches(pageNumber, Number($page.params.id));
-	});
+		if (heroSelectVariant === 'multi' && selectedHeroMulti.length > 0) {
+			return selectedHeroMulti;
+		} else {
+			return ['-1'];
+		}
+	};
+	let selectedHero = $derived(
+		getSelectedHero(selectedHeroSingle, selectedHeroMulti, heroSelectVariant)
+	);
+	let selectedRoles = $state(['1', '2', '3', '4', '5']);
 
 	const fetchMatches = async (pageNumber: number, playerId: number) => {
 		matchBlocks = [];
-		let pageNumberFilter = '';
-		if (pageNumber > -1) {
-			pageNumberFilter = `page=${pageNumber - 1}`;
+
+		// Build parameters more carefully
+		const params = new URLSearchParams();
+
+		// Always include players
+		params.append('players', `[${playerId}]`);
+
+		// Page number (adjust for 0-based indexing)
+		if (pageNumber > 0) {
+			params.append('page', (pageNumber - 1).toString());
 		}
-		let heroFilter = '';
-		if (hero > 0) {
-			heroFilter = `heroes=[${hero}]`;
+
+		if (selectedHero.length > 0 && selectedHero[0] !== '-1') {
+			params.append('heroes', `[${selectedHero.join(',')}]`);
 		}
-		let gameModes: string[] = ['ranked-all-pick', 'unranked-all-pick', 'other'];
-		let gameModeFilter = '';
-		if (ranked && unranked) {
-			gameModeFilter = `gameMode=["${gameModes.join('","')}"]`;
-		} else if (ranked) {
-			gameModeFilter = `gameMode=["${gameModes[0]}"]`;
-		} else if (unranked) {
-			gameModeFilter = `gameMode=["${gameModes[1]}","${gameModes[2]}"]`;
+
+		// Game mode filter
+		let gameModes: string[] = [];
+		if (ranked) gameModes.push('ranked-all-pick');
+		if (unranked) gameModes.push('unranked-all-pick', 'other');
+
+		if (gameModes.length > 0) {
+			params.append('gameMode', JSON.stringify(gameModes));
 		}
-		let smurfFilter = 'false';
+
+		// Role filter - use selectedRoles
+		if (selectedRoles.length > 0) {
+			params.append('roles', `[${selectedRoles.join(',')}]`);
+		}
+
+		// Smurf filter
 		if (smurfs) {
-			smurfFilter = `smurf=true`;
+			params.append('smurf', 'true');
 		}
 
-		pageNumber = pageNumber - 1;
-		let roleFilter = 'roles=[';
-		if (pos1) {
-			roleFilter += '1,';
-		}
-		if (pos2) {
-			roleFilter += '2,';
-		}
+		const url = `/api/matches/all/profile/${playerId}?${params.toString()}`;
 
-		if (pos3) {
-			roleFilter += '3,';
-		}
-		if (pos4) {
-			roleFilter += '4,';
-		}
-		if (pos5) {
-			roleFilter += '5,';
-		}
-		roleFilter = roleFilter.slice(0, -1) + ']';
-		return await fetch(
-			`/api/matches/all/profile/${playerId}?players=[${playerId}]&${heroFilter}&${gameModeFilter}&${pageNumberFilter}&${roleFilter}&${smurfFilter}`
-		).then((res) => res.json());
+		const controller = new AbortController();
+
+		const response = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Accept: 'application/json'
+			},
+			signal: controller.signal
+		});
+
+		const data = await response.json();
+
+		return data;
 	};
-
-	onMount(() => updateMatchesData());
 
 	const handleRoleChange = (role: number) => {
 		let currentRole;
@@ -260,11 +282,9 @@
 		smurfs = !smurfs;
 	};
 	const updateMatchesData = async () => {
-		if (browser) {
-			matchBlocks = [];
-			const data = await fetchMatches(pageNumber, Number($page.params.id));
-			matchBlocks = data;
-		}
+		matchBlocks = [];
+		const data = await fetchMatches(pageNumber, Number($page.params.id));
+		matchBlocks = data;
 	};
 
 	const incrementPage = () => {
@@ -349,59 +369,57 @@
 		}))
 	);
 
-	$effect(() => {
-		pos1 = roleOptions[0].selected;
-		pos2 = roleOptions[1].selected;
-		pos3 = roleOptions[2].selected;
-		pos4 = roleOptions[3].selected;
-		pos5 = roleOptions[4].selected;
-	});
-
-	$effect(() => {
-		hero;
-		ranked;
-		unranked;
-		smurfs;
-		pos1;
-		pos2;
-		pos3;
-		pos4;
-		pos5;
-
-		// Call the update function
-		updateMatchesData();
-	});
-	let selectedHeroSingle = $state('-1');
-	let selectedHeroMulti = $state(['-1']);
-	let selectedHero = $derived(
-		heroSelectVariant === 'single' ? [selectedHeroSingle] : selectedHeroMulti
-	);
-
 	const makeSelectedHeroTrigger = () => {
-		console.log(heroSelectVariant);
-		console.log(selectedHeroSingle);
-		console.log(selectedHeroMulti);
-		if (heroSelectVariant === 'single pah') {
-			console.log('single');
-			return heroList.find((hero) => hero.id.toString() === selectedHeroSingle).localized_name;
-		}
-		if (selectedHeroMulti.length === 0 || selectedHeroMulti[0] === '-1') {
+		if (selectedHero.length === 0 || selectedHero[0] === '-1') {
 			return 'All Heroes';
 		}
-		if (selectedHeroMulti.length <= 1) {
-			console.log('multi path');
-			console.log(heroList.find((hero) => hero.id.toString() === selectedHeroMulti[0]));
-			return heroList.find((hero) => hero.id.toString() === selectedHeroMulti[0]).localized_name;
+		if (selectedHero.length <= 1) {
+			return heroList.find((hero) => hero.id.toString() === selectedHero[0]).localized_name;
 		} else {
 			return `${selectedHeroMulti.length} Heroes Selected`;
 		}
 	};
 
-	let selectedRoles = $state(['1', '2', '3', '4', '5']);
-	$effect(() => {
-		console.log(selectedHero);
+	const makeSelectedRolesTrigger = () => {
+		if (selectedRoles.length === 0 || selectedRoles.length === 5) {
+			return 'All Roles';
+		}
+		if (selectedRoles.length <= 1) {
+			return getRoleName(selectedRoles[0]);
+		} else {
+			return `${selectedRoles.length} Roles Selected`;
+		}
+	};
+
+	const makePlayersTrigger = () => {
+		if (selectedPlayers.length === 0 || selectedPlayers[0] === '-1') {
+			return 'All Players';
+		}
+		if (selectedPlayers.length <= 1) {
+			return playerList.find((player) => player.id.toString() === selectedPlayers[0]).name;
+		} else {
+			return `${selectedPlayers.length} Players Selected`;
+		}
+	};
+
+	onMount(() => {
+		if ($page.params.id && data && matchBlocks.length === 0) {
+			updateMatchesData();
+		}
 	});
+
+	$effect(() => {
+		selectedRoles;
+		selectedHero;
+
+		updateMatchesData();
+	});
+
 	console.log(data);
+
+	$effect(() => {
+		console.log(selectedRoles, selectedHero, selectedPlayers);
+	});
 </script>
 
 <svelte:head>
@@ -415,7 +433,7 @@
 				<div class="flex flex-col gap-1">
 					<div class="text-xs text-zinc-400">Roles</div>
 					<Select.Root type="multiple" bind:value={selectedRoles} class="">
-						<Select.Trigger class="w-[180px]"></Select.Trigger>
+						<Select.Trigger class="w-[180px]">{makeSelectedRolesTrigger()}</Select.Trigger>
 						<Select.Content>
 							<Select.Item value={'1'} label={getRoleName(1)}>
 								<div class="flex items-center gap-2">
@@ -461,9 +479,14 @@
 					</div>
 					{#key heroSelectVariant}
 						{#if heroSelectVariant == 'multi'}
-							<Select.Root type="multiple" bind:value={selectedHero} class="">
-								<Select.Trigger class="w-[180px]">{makeSelectedHeroTrigger()}</Select.Trigger>
+							<Select.Root type="multiple" bind:value={selectedHeroMulti} class="">
+								{#key selectedHero}
+									<Select.Trigger class="w-[180px]">{makeSelectedHeroTrigger()}</Select.Trigger>
+								{/key}
 								<Select.Content>
+									<Select.Item value={'-1'} label={'All Heroes'}>
+										<span>All Heroes</span>
+									</Select.Item>
 									{#each heroList
 										.slice()
 										.sort((a, b) => a.localized_name.localeCompare(b.localized_name)) as hero}
@@ -477,13 +500,17 @@
 								</Select.Content>
 							</Select.Root>
 						{:else}
-							<Select.Root type="single" bind:value={selectedHero} class="">
-								<Select.Trigger class="w-[180px]">{makeSelectedHeroTrigger()}</Select.Trigger>
+							<Select.Root type="multiple" bind:value={selectedHeroMulti} class="">
+								{#key selectedHero}
+									<Select.Trigger class="w-[180px]">{makeSelectedHeroTrigger()}</Select.Trigger>
+								{/key}
 								<Select.Content>
 									<Select.Item value={'-1'} label={'All Heroes'}>
-										<span>All Heroes</span>
+										<span>All Players</span>
 									</Select.Item>
-									{#each heroList as hero}
+									{#each heroList
+										.slice()
+										.sort((a, b) => a.localized_name.localeCompare(b.localized_name)) as hero}
 										<Select.Item value={hero.id.toString()} label={hero.localized_name}>
 											<div class="flex items-center gap-2">
 												<img class="h-6 w-6" src={hero.icon} alt="" />
@@ -496,6 +523,28 @@
 						{/if}
 					{/key}
 				</div>
+				<div class="flex flex-col gap-1">
+					<div class="text-xs text-zinc-400">Roles</div>
+					<Select.Root type="multiple" bind:value={selectedPlayers} class="">
+						<Select.Trigger class="w-[180px]">{makePlayersTrigger()}</Select.Trigger>
+						<Select.Content>
+							<Select.Item value={'-1'} label={'all players'}>All Players</Select.Item>
+							{#each playerList.filter((p) => p.id != playerId) as player}
+								<Select.Item value={player.id.toString()} label={player.name}>
+									{player.username}
+								</Select.Item>
+							{/each}
+						</Select.Content>
+					</Select.Root>
+				</div>
+				<div class="flex flex-col gap-1">
+					<div class="text-xs text-zinc-400">Smurf</div>
+					<Toggle class="w-32 w-full gap-0 p-0">
+						<div class="text-xl">
+							<VenetianMask class="w-8 text-xl" />
+						</div>
+					</Toggle>
+				</div>
 			</div>
 			{#key matchBlocks}
 				<div class="min-h-64" in:fade={{ duration: 400 }}>
@@ -507,9 +556,7 @@
 						</div>
 					{:else}
 						<div class="flex flex-col gap-2">
-							<div
-								class="justify-centerpy-3 mx-auto flex w-fit flex-col items-center gap-2 md:px-2"
-							>
+							<div class="justify-centerpy-3 mx-auto flex w-fit flex-col items-center gap-2">
 								{#each matchBlocks.slice(0, 20) as match}
 									<Card.Root>
 										<Card.Content class="p-0 ">

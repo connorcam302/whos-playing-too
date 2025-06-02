@@ -481,7 +481,8 @@ export const getHeroIdSting = (heroId: number) => {
 	const hero = heroData.find((hero) => hero.id === heroId);
 };
 
-export const getRoleName = (role: number) => {
+export const getRoleName = (role: number | string) => {
+	role = Number(role);
 	if (role === 1) {
 		return 'Carry';
 	}

@@ -48,7 +48,7 @@
 	let hoverColour = getStatColour(type) + 40;
 </script>
 
-<div class="w-64" key={title}>
+<div class="w-64">
 	{#if type == 'winLoss'}
 		<div class="w-64 rounded-lg border">
 			<div class="max-h-28 rounded-t-lg">
@@ -57,9 +57,9 @@
 						class={`max-w-auto max-h-28 rounded-t-lg bg-cover bg-center`}
 						id={title === 'Most MMR Lost' ? `down-arrows` : `up-arrows`}
 					>
-						<div class="flex h-28 rounded-t-lg bg-black bg-opacity-70 px-4 py-2">
+						<div class="flex h-28 rounded-t-lg bg-[#00000080] px-4 py-2">
 							<div class="flex grow flex-col">
-								<div class="text-center font-display text-2xl">{title}</div>
+								<div class="font-display text-center text-2xl">{title}</div>
 								<div class="flex-1 grow"></div>
 								<div class="flex flex-row justify-between text-2xl">
 									<button
@@ -111,15 +111,15 @@
 		</div>
 	{:else}
 		<div class="w-64 rounded-lg border">
-			<div class="rounded-t-lg border-opacity-15">
+			<div class="border-opacity-15 rounded-t-lg">
 				<MatchModal matchId={data[0].matchId} sequenceNum={data[0].sequenceNumber}>
 					<div
 						class={`min-h-28 w-full rounded-t-lg bg-cover bg-center bg-no-repeat`}
 						style={`background-image: url('${data[0]?.hero?.img}')`}
 					>
-						<div class="flex min-h-28 rounded-t-lg bg-black bg-opacity-70 px-3 py-2">
+						<div class="bg-opacity-70 flex min-h-28 rounded-t-lg bg-[#00000099] px-3 py-2">
 							<div class="flex grow flex-col">
-								<div class="text-center font-display text-xl">{title}</div>
+								<div class="font-display text-center text-xl">{title}</div>
 								<div class="flex-1 grow"></div>
 								<div class="flex flex-row justify-between text-3xl">
 									<button
@@ -198,8 +198,8 @@
 	}
 
 	#down-arrows {
-		background-image: url('/down-arrows.png');
-		animation: downScroll 600s linear infinite;
+		background-image: url('/down-arrows.png') !important;
+		animation: downScroll 600s linear infinite !important;
 	}
 
 	@keyframes upScroll {
@@ -212,8 +212,8 @@
 	}
 
 	#up-arrows {
-		background-image: url('/up-arrows.png');
-		animation: upScroll 600s linear infinite;
+		background-image: url('/up-arrows.png') !important;
+		animation: upScroll 600s linear infinite !important;
 	}
 
 	#backdrop {

@@ -62,6 +62,7 @@
 	import ChevronDown from 'lucide-svelte/icons/chevron-down';
 	import Facet from '../Facet.svelte';
 	import { twMerge } from 'tailwind-merge';
+	import { VenetianMask } from 'lucide-svelte';
 	interface Props {
 		match: {
 			player: PlayerData;
@@ -223,7 +224,7 @@
 					<img src={player.hero.img} alt={player.hero.name} class="w-12 md:w-16" />
 					{#if player.facet}
 						<div
-							class={`absolute bottom-0 right-0 color_${
+							class={`absolute right-0 bottom-0 color_${
 								player.facets[player.facet - 1]?.color ?? 'Blue'
 							}_${player.facets[player.facet - 1]?.gradient_id ?? 3}`}
 						>
@@ -232,12 +233,20 @@
 					{/if}
 				</div>
 			</div>
-			<div class="flex w-28 flex-col gap-0 text-left">
-				<div class="flex gap-1 font-sans leading-none duration-200 hover:text-zinc-400">
-					<a href="/player/{player.owner}">{player.username}</a>
-					<div class="italic text-purple-500">{player.smurf ? 'S' : ''}</div>
+			<div class="flex w-28 justify-between gap-0 text-left">
+				<div class="flex flex-col justify-center gap-0">
+					<div class="font-sans leading-none duration-200 hover:text-zinc-400">
+						<a href="/player/{player.owner}">{player.username}</a>
+					</div>
+					<div class="font-sans text-xs leading-none text-ellipsis text-zinc-400">
+						{player.hero.name}
+					</div>
 				</div>
-				<div class="font-sans text-xs leading-none text-zinc-400">{player.hero.name}</div>
+				<div class="flex items-center">
+					{#if player.smurf}
+						<VenetianMask class="w-6 text-zinc-200" />
+					{/if}
+				</div>
 			</div>
 			<div class="my-auto">
 				<RatingChip data={match} />

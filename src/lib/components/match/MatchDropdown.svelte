@@ -62,6 +62,7 @@
 	import ChevronDown from 'lucide-svelte/icons/chevron-down';
 	import Facet from '../Facet.svelte';
 	import { twMerge } from 'tailwind-merge';
+	import { VenetianMask } from 'lucide-svelte';
 	interface Props {
 		match: {
 			player: PlayerData;
@@ -244,7 +245,7 @@
 
 <div class="flex items-center">
 	<MatchModal matchId={matchData.id} sequenceNum={matchData.sequenceNumber}>
-		<div class={twMerge(matchStyling, 'flex items-center gap-2 px-2 py-1 md:gap-4')}>
+		<div class={twMerge(matchStyling, 'flex items-center gap-1 px-2 py-1 md:gap-2')}>
 			<div class="w-12 md:w-16">
 				<div class="relative">
 					<img src={player.hero.img} alt={player.hero.name} class="object-fit w-12 md:w-16" />
@@ -258,6 +259,11 @@
 						</div>
 					{/if}
 				</div>
+			</div>
+			<div class="flex w-6 items-center justify-center">
+				{#if player.smurf}
+					<VenetianMask class="w-6 text-zinc-200" />
+				{/if}
 			</div>
 			<div class="my-auto">
 				<RatingChip data={match} />

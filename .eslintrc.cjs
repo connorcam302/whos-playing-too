@@ -35,7 +35,8 @@ module.exports = {
 	rules: {
 		// Add your rules here
 		'no-unused-vars': 'warn', // or 'off' if you want to ignore
-		'@typescript-eslint/no-explicit-any': 'off'
+		'@typescript-eslint/no-explicit-any': 'off',
+		"linebreak-style": ["error", "unix"]
 		// Add other rules based on your preferences
 	}
 };
