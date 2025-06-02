@@ -46,19 +46,5 @@ export const load = async ({ url, params }) => {
         });
     });
 
-    const allSteamData = await getSteamData(allAccounts.map((account) => account.accountId));
-    const allPlayerSteamData = allAccounts
-        .map((player) => {
-            const accountData = allSteamData.find(
-                (account) => account.steamid === toSteam64(player.accountId.toString())
-            );
-            return {
-                ...player,
-                ...accountData
-            };
-        })
-        .sort((a, b) => b.lastlogoff - a.lastlogoff)
-        .sort((a, b) => (b.gameextrainfo === 'Dota 2') - (a.gameextrainfo === 'Dota 2'));
-
     return { heroStats, playerStats, totw, features, fotw };
 };

@@ -6,6 +6,8 @@ import { getPlayers } from '$lib/server/db-functions';
 import { json } from '@sveltejs/kit';
 import { heroData } from '$lib/data/heroData';
 import { heroAbilities } from '$lib/data/heroAbilities';
+import { itemMap } from '$lib/data/itemMap';
+import { heroMap } from '$lib/data/heroMap';
 
 type DotaAsset = { id: number; name: string; img: string };
 
@@ -35,24 +37,14 @@ type MatchData = {
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
 
 export const GET: RequestHandler = async ({ url, params }) => {
-    const itemJson = await fetch(
-        `https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/ITEMS.json`
-    );
-    const items: DotaAsset[] = await itemJson.json();
-    const heroJson = await fetch(
-        `https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
-    );
-    const heroes: DotaAsset[] = await heroJson.json();
-
     const allPlayers = await getPlayers();
     const allPlayerIds = allPlayers.map((player) => player.id);
-
     let playerFilter: number[] = allPlayerIds;
     if (url.searchParams.has('players')) {
         playerFilter = JSON.parse(url.searchParams.get('players')!);
     }
 
-    const allHeroIds = heroes.map((hero) => hero.id);
+    const allHeroIds = heroData.map((hero) => hero.id);
 
     let heroFilter: number[] = allHeroIds;
     if (url.searchParams.has('heroes')) {
@@ -74,8 +66,8 @@ export const GET: RequestHandler = async ({ url, params }) => {
         gameModeFilter = [];
         lobbyFilter = [];
 
-        let gameModeSet = new Set<number>();
-        let lobbySet = new Set<number>();
+        const gameModeSet = new Set<number>();
+        const lobbySet = new Set<number>();
         const modes = JSON.parse(url.searchParams.get('gameMode')!);
         if (modes.includes('ranked-all-pick')) {
             gameModeSet.add(22);
@@ -103,7 +95,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
         roleFilter = [1, 2, 3, 4, 5];
     }
 
-    let smurfFilter: boolean[] = [false];
+    const smurfFilter: boolean[] = [false];
     if (url.searchParams.has('smurf')) {
         smurfFilter.push(Boolean(JSON.parse(url.searchParams.get('smurf')!)));
     }
@@ -147,22 +139,23 @@ export const GET: RequestHandler = async ({ url, params }) => {
         const block: PlayerMatchData[] = data.map((player) => {
             const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name;
 
-            const facets = heroAbilities[`npc_dota_hero_${heroName}`].facets || [];
+            const facets = heroAbilities[`${heroName}`].facets || [];
+
             return {
                 ...player.players,
                 ...player.accounts,
                 ...player.match_data,
-                item0: items.find((item) => item.id === player.match_data.item0)!,
-                item1: items.find((item) => item.id === player.match_data.item1)!,
-                item2: items.find((item) => item.id === player.match_data.item2)!,
-                item3: items.find((item) => item.id === player.match_data.item3)!,
-                item4: items.find((item) => item.id === player.match_data.item4)!,
-                item5: items.find((item) => item.id === player.match_data.item5)!,
-                backpack0: items.find((item) => item.id === player.match_data.backpack0)!,
-                backpack1: items.find((item) => item.id === player.match_data.backpack1)!,
-                backpack2: items.find((item) => item.id === player.match_data.backpack2)!,
-                itemNeutral: items.find((item) => item.id === player.match_data.itemNeutral)!,
-                hero: heroes.find((hero) => hero.id === player.match_data.heroId)!,
+                item0: itemMap.get(player.match_data.item0),
+                item1: itemMap.get(player.match_data.item1),
+                item2: itemMap.get(player.match_data.item2),
+                item3: itemMap.get(player.match_data.item3),
+                item4: itemMap.get(player.match_data.item4),
+                item5: itemMap.get(player.match_data.item5),
+                backpack0: itemMap.get(player.match_data.backpack0),
+                backpack1: itemMap.get(player.match_data.backpack1),
+                backpack2: itemMap.get(player.match_data.backpack2),
+                itemNeutral: itemMap.get(player.match_data.itemNeutral),
+                hero: heroMap.get(player.match_data.heroId),
                 facets
             };
         });
