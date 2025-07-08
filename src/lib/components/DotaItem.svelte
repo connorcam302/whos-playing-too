@@ -3,6 +3,8 @@
 	import { twMerge } from 'tailwind-merge';
 
 	let { item, styles } = $props();
+
+	console.log(item);
 </script>
 
 <HoverCard.Root>

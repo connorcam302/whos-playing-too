@@ -161,7 +161,7 @@
 		const params = new URLSearchParams();
 
 		// Always include players
-		params.append('players', `[${playerId}]`);
+		params.append('players', `[${selectedPlayers.join(',')}]`);
 
 		// Page number (adjust for 0-based indexing)
 		if (pageNumber > 0) {
