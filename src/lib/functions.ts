@@ -481,6 +481,11 @@ export const getHeroIdSting = (heroId: number) => {
 	const hero = heroData.find((hero) => hero.id === heroId);
 };
 
+export const getHeroLocalisedName = (heroName: string) => {
+	const hero = heroData.find((hero) => hero.name === heroName);
+	return hero?.localized_name;
+};
+
 export const getRoleName = (role: number | string) => {
 	role = Number(role);
 	if (role === 1) {

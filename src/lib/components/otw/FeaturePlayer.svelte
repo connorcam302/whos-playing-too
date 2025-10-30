@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getColour } from '$lib/functions';
+	import { cn } from '$lib/utils';
 	interface Props {
 		data: { hero: string; role: number };
 	}
@@ -32,17 +33,18 @@
 	</div>
 </div> -->
 
-<div class="h-full w-full bg-no-repeat">
-	<div class={`h-48 w-full rounded-xl`} style="background-color: {background}30;" id="container">
-		<div id="content" class="flex h-full items-center">
-			<img
-				src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero.replace(
-					'npc_dota_hero_',
-					''
-				)}.png`}
-				alt={`${hero}`}
-				class="h-full w-auto object-cover"
-			/>
-		</div>
+<div
+	class={cn('max-h-24 max-w-32 overflow-hidden rounded-t-xl md:max-h-32 md:max-w-48')}
+	style="background: linear-gradient(to bottom, {background}80, {background}10);"
+>
+	<div class="flex w-full items-center">
+		<img
+			src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero.replace(
+				'npc_dota_hero_',
+				''
+			)}.png`}
+			alt={hero}
+			class="h-full w-full object-cover"
+		/>
 	</div>
 </div>

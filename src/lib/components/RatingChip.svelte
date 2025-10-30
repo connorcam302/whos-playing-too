@@ -19,12 +19,12 @@
 
 	const borderColorClass =
 		{
-			S: 'bg-yellow-400/20 text-yellow-400', // Gold
-			A: 'bg-green-500/20 text-green-500',
-			B: 'bg-blue-500/20 text-blue-500',
-			C: 'bg-purple-500/20 text-purple-500',
-			D: 'bg-orange-500/20 text-orange-500',
-			F: 'bg-red-500/20 text-red-500'
+			S: 'bg-yellow-400/30 text-yellow-400', // Gold
+			A: 'bg-green-500/30 text-green-500',
+			B: 'bg-blue-500/30 text-blue-500',
+			C: 'bg-purple-500/30 text-purple-500',
+			D: 'bg-orange-500/30 text-orange-500',
+			F: 'bg-red-500/30 text-red-500'
 		}[baseGrade] ?? 'bg-gray-300/20 text-gray-300';
 	const triggerClasses = twMerge(
 		'bg-2 rounded-md px-1 md:px-2 w-8 md:w-12 text-bold font-display relative',
@@ -47,7 +47,7 @@
 				{#if isSPlusPlus}
 					<div class="absolute inset-0 animate-ping rounded-md bg-yellow-400/30"></div>
 				{/if}
-				<span class="relative z--10 text-xs md:text-base">{impactRating}</span>
+				<span class="z--10 relative text-xs md:text-base">{impactRating}</span>
 			</div>
 		{/if}
 	</HoverCard.Trigger>

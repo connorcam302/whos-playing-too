@@ -12,7 +12,11 @@
 </script>
 
 <div class="h-full w-full bg-no-repeat">
-	<div class={`h-48 w-full rounded-xl`} style="background-color: {background}30;" id="container">
+	<div
+		class="max-h-24 max-w-32 overflow-hidden rounded-t-xl md:max-h-32 md:max-w-48"
+		style="background: linear-gradient(to bottom, {background}80, {background}10);"
+		id="container"
+	>
 		<div id="content" class="flex h-full items-center">
 			<img
 				src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero.replace(
@@ -43,7 +47,7 @@
 		background-size: 90% 90%;
 		background-repeat: no-repeat;
 		background-position: center;
-		opacity: 0.5;
+		opacity: 0.8;
 	}
 
 	#content {

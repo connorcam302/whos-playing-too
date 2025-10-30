@@ -474,12 +474,13 @@
 						<button
 							onclick={() =>
 								(heroSelectVariant = heroSelectVariant == 'single' ? 'multi' : 'single')}
+							class="w-16 rounded-md border"
 							>{heroSelectVariant == 'single' ? 'Single' : 'Multi'}</button
 						>
 					</div>
 					{#key heroSelectVariant}
 						{#if heroSelectVariant == 'multi'}
-							<Select.Root type="multiple" bind:value={selectedHeroMulti} class="">
+							<Select.Root type="multiple" bind:value={selectedHeroMulti}>
 								{#key selectedHero}
 									<Select.Trigger class="w-[180px]">{makeSelectedHeroTrigger()}</Select.Trigger>
 								{/key}
@@ -500,13 +501,13 @@
 								</Select.Content>
 							</Select.Root>
 						{:else}
-							<Select.Root type="multiple" bind:value={selectedHeroMulti} class="">
+							<Select.Root type="single" bind:value={selectedHeroSingle}>
 								{#key selectedHero}
 									<Select.Trigger class="w-[180px]">{makeSelectedHeroTrigger()}</Select.Trigger>
 								{/key}
 								<Select.Content>
 									<Select.Item value={'-1'} label={'All Heroes'}>
-										<span>All Players</span>
+										<span>All Heroes</span>
 									</Select.Item>
 									{#each heroList
 										.slice()
@@ -539,7 +540,7 @@
 				</div>
 				<div class="flex flex-col gap-1">
 					<div class="text-xs text-zinc-400">Smurf</div>
-					<Toggle class="w-32 w-full gap-0 p-0">
+					<Toggle class="w-full gap-0 border p-0">
 						<div class="text-xl">
 							<VenetianMask class="w-8 text-xl" />
 						</div>
