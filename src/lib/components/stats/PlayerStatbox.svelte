@@ -11,7 +11,7 @@
 	import { ArrowUpDown } from 'lucide-svelte';
 	import PlayerCell from './cells/PlayerCell.svelte';
 	import MatchesCell from './cells/MatchesCell.svelte';
-	import WinrateCell from './cells/WinrateCell.svelte';
+	import WinRateCell from './cells/WinRateCell.svelte';
 	import ImpactCell from './cells/ImpactCell.svelte';
 
 	interface Props {
@@ -115,7 +115,7 @@
 								{:else if cell.column.id === 'matches'}
 									<MatchesCell matches={cell.getValue()} {maxMatches} />
 								{:else if cell.column.id === 'winrate'}
-									<WinrateCell winrate={cell.getValue()} />
+									<WinRateCell winrate={cell.getValue()} />
 								{:else if cell.column.id === 'avgImpact'}
 									<ImpactCell impact={cell.getValue()} />
 								{/if}
