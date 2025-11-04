@@ -1,30 +1,6 @@
 <script lang="ts">
 	let { data }: Props = $props();
 
-	import FxemojiPoo from '~icons/fxemoji/poo';
-	import UilExchange from '~icons/uil/exchange';
-	import BiDashLg from '~icons/bi/dash-lg';
-	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
-	import MaterialSymbolsArrowForwardRounded from '~icons/material-symbols/arrow-forward-rounded';
-	import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded';
-	import IonLogoGameControllerB from '~icons/ion/logo-game-controller-b';
-	import MaterialSymbolsCalendarMonth from '~icons/material-symbols/calendar-month';
-	import SimpleIconsRedhat from '~icons/simple-icons/redhat';
-	import Loading from '$lib/components/Loading.svelte';
-	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
-	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
-	import WinChart from '$lib/components/profile/WinChart.svelte';
-	import { page } from '$app/state';
-	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
-	import tippy from 'sveltejs-tippy';
-	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
-	import { browser } from '$app/environment';
-	import Bar from '$lib/components/stats/Bar.svelte';
-	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
-	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
-	import * as Select from '$lib/components/ui/select';
-
 	let {
 		player,
 		mainAccount,

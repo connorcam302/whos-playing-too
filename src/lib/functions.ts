@@ -479,6 +479,7 @@ export const roleDistribution = (role: number, heroId: number) => {
 
 export const getHeroIdSting = (heroId: number) => {
 	const hero = heroData.find((hero) => hero.id === heroId);
+	return hero?.name;
 };
 
 export const getHeroLocalisedName = (heroName: string) => {

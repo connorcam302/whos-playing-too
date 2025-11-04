@@ -34,28 +34,15 @@
 	};
 	import * as Card from '$lib/components/ui/card';
 	import FxemojiPoo from '~icons/fxemoji/poo';
-	import UilExchange from '~icons/uil/exchange';
-	import BiDashLg from '~icons/bi/dash-lg';
-	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
-	import MaterialSymbolsArrowForwardRounded from '~icons/material-symbols/arrow-forward-rounded';
-	import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded';
-	import IonLogoGameControllerB from '~icons/ion/logo-game-controller-b';
 	import MaterialSymbolsCalendarMonth from '~icons/material-symbols/calendar-month';
-	import SimpleIconsRedhat from '~icons/simple-icons/redhat';
-	import Loading from '$lib/components/Loading.svelte';
-	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
 	import WinChart from '$lib/components/profile/WinChart.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
-	import tippy from 'sveltejs-tippy';
-	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
 	import { browser } from '$app/environment';
 	import Bar from '$lib/components/stats/Bar.svelte';
-	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
-	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
-	import * as Select from '$lib/components/ui/select';
+	import type { getPlayerWinLossByMinutes } from '$lib/server/db-functions';
+	import WinLossByMinuteBarChart from '$lib/components/stats/WinLossByMinuteBarChart.svelte';
 
 	interface Props {
 		data: {
@@ -69,6 +56,7 @@
 			winGraph: { resultsArray: number[]; daysArray: number[] };
 			heroList: { id: number; name: string }[];
 			impactCounts: object;
+			winLossByMinute: ReturnType<typeof getPlayerWinLossByMinutes>;
 		};
 	}
 
@@ -150,104 +138,6 @@
 		).then((res) => res.json());
 	};
 
-	onMount(() => updateMatchesData());
-
-	const handleRoleChange = (role: number) => {
-		let currentRole;
-		switch (role) {
-			case 1:
-				currentRole = pos1;
-				break;
-			case 2:
-				currentRole = pos2;
-				break;
-			case 3:
-				currentRole = pos3;
-				break;
-			case 4:
-				currentRole = pos4;
-				break;
-			case 5:
-				currentRole = pos5;
-				break;
-		}
-		if (
-			Number(pos1) + Number(pos2) + Number(pos3) + Number(pos4) + Number(pos5) > 1 ||
-			currentRole === false
-		) {
-			switch (role) {
-				case 1:
-					pos1 = !pos1;
-					break;
-				case 2:
-					pos2 = !pos2;
-					break;
-				case 3:
-					pos3 = !pos3;
-					break;
-				case 4:
-					pos4 = !pos4;
-					break;
-				case 5:
-					pos5 = !pos5;
-					break;
-			}
-
-			updateMatchesData();
-		}
-	};
-
-	const handleLobbyChange = (lobby: number) => {
-		let currentLobby;
-		switch (lobby) {
-			case 0:
-				currentLobby = unranked;
-				break;
-			case 7:
-				currentLobby = ranked;
-				break;
-		}
-		if (Number(ranked) + Number(unranked) > 1 || currentLobby === false) {
-			switch (lobby) {
-				case 0:
-					unranked = !unranked;
-					break;
-				case 7:
-					ranked = !ranked;
-					break;
-			}
-
-			updateMatchesData();
-		}
-	};
-
-	const handleSmurfChange = () => {
-		smurfs = !smurfs;
-	};
-	const updateMatchesData = async () => {
-		if (browser) {
-			matchBlocks = [];
-			const data = await fetchMatches(pageNumber, Number($page.params.id));
-			matchBlocks = data;
-		}
-	};
-
-	const incrementPage = () => {
-		pageNumber++;
-		updateMatchesData();
-	};
-
-	const decrementPage = () => {
-		pageNumber--;
-		updateMatchesData();
-	};
-
-	let advancedFilters = $state(false);
-
-	const toggleAdvancedFilters = () => {
-		advancedFilters = !advancedFilters;
-	};
-
 	let chartType = $state('days');
 
 	let {
@@ -259,16 +149,13 @@
 		heroStats,
 		allTimeHeroStats,
 		winGraph,
-		heroList
+		heroList,
+		winLossByMinute
 	} = $derived(data);
 
 	const toSteam32 = (accountId: string) => {
 		return BigInt(accountId) - BigInt('76561197960265728');
 	};
-
-	$effect(() => {
-		hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5 && updateMatchesData();
-	});
 
 	const mostCommonImpact = Object.keys(data.impactCounts).reduce(
 		(maxRating, ratingName) => {
@@ -287,6 +174,8 @@
 		},
 		{ rating: null, total: 0 }
 	);
+
+	$inspect(winLossByMinute);
 </script>
 
 <div class="flex flex-col gap-4">
@@ -373,9 +262,9 @@
 		{/if}
 	</div>
 	<div
-		class="mx-auto flex w-full flex-col justify-center rounded-xl bg-zinc-800 bg-opacity-95 px-2"
+		class="bg-opacity-95 mx-auto flex w-full flex-col justify-center rounded-xl bg-zinc-800 px-2"
 	>
-		<div class="my-1 flex gap-4 border-b-[1px] border-zinc-500 pb-1 pr-2">
+		<div class="my-1 flex gap-4 border-b-[1px] border-zinc-500 pr-2 pb-1">
 			<div class="flex w-8 items-center justify-center text-sm lg:w-16"></div>
 			<div class="flex w-8 items-center justify-center lg:w-28">
 				<div>TOTAL</div>
@@ -413,12 +302,12 @@
 								{ratingName}
 							</div>
 						{:else}
-							<div id="frating" class="flex justify-center font-display lg:text-xl">
+							<div id="frating" class="font-display flex justify-center lg:text-xl">
 								<FxemojiPoo />
 							</div>
 						{/if}
 					</div>
-					<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
 						{data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0)}
 						<Bar
 							percentage={(data.impactCounts[ratingName].reduce(
@@ -430,7 +319,7 @@
 							colour="#9234ea"
 						/>
 					</div>
-					<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
 						{data.impactCounts[ratingName].find((item) => item.role === 1)?.count || 0}
 						<Bar
 							percentage={((data.impactCounts[ratingName].find((item) => item.role === 1)?.count ||
@@ -440,7 +329,7 @@
 							colour="#4753a5"
 						/>
 					</div>
-					<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
 						{data.impactCounts[ratingName].find((item) => item.role === 2)?.count || 0}
 						<Bar
 							percentage={((data.impactCounts[ratingName].find((item) => item.role === 2)?.count ||
@@ -450,7 +339,7 @@
 							colour="#2f8c94"
 						/>
 					</div>
-					<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
 						{data.impactCounts[ratingName].find((item) => item.role === 3)?.count || 0}
 						<Bar
 							percentage={((data.impactCounts[ratingName].find((item) => item.role === 3)?.count ||
@@ -460,7 +349,7 @@
 							colour="#bc7412"
 						/>
 					</div>
-					<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
 						{data.impactCounts[ratingName].find((item) => item.role === 4)?.count || 0}
 						<Bar
 							percentage={((data.impactCounts[ratingName].find((item) => item.role === 4)?.count ||
@@ -470,7 +359,7 @@
 							colour="#c24958"
 						/>
 					</div>
-					<div class="flex w-8 flex-col justify-center pb-1 font-display lg:w-28 lg:text-sm">
+					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
 						{data.impactCounts[ratingName].find((item) => item.role === 5)?.count || 0}
 						<Bar
 							percentage={((data.impactCounts[ratingName].find((item) => item.role === 5)?.count ||
@@ -484,4 +373,5 @@
 			{/each}
 		</div>
 	</div>
+	<WinLossByMinuteBarChart data={data.winLossByMinute} />
 </div>

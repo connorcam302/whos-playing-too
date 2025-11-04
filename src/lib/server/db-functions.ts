@@ -1,7 +1,6 @@
 import { db } from '$lib/server/database';
 import {
 	accounts,
-	accountsi,
 	flopOfTheWeek,
 	heroes,
 	matchData,
@@ -47,6 +46,9 @@ export const getHeroStats = async (
 	let heroWinsRadiant: any;
 	let heroWinsDire: any;
 	let heroAvgImpact: any;
+	let heroAvgKills: any;
+	let heroAvgDeaths: any;
+	let heroAvgAssists: any;
 
 	if (player === 0) {
 		heroMatches = await db
@@ -98,6 +100,39 @@ export const getHeroStats = async (
 			.select({
 				hero: matchData.heroId,
 				avgImpact: sql<number>`cast(avg(${matchData.impact}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+
+		heroAvgKills = await db
+			.select({
+				hero: matchData.heroId,
+				avgKills: sql<number>`cast(avg(${matchData.kills}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+
+		heroAvgDeaths = await db
+			.select({
+				hero: matchData.heroId,
+				avgDeaths: sql<number>`cast(avg(${matchData.deaths}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+
+		heroAvgAssists = await db
+			.select({
+				hero: matchData.heroId,
+				avgAssists: sql<number>`cast(avg(${matchData.assists}) as int)`
 			})
 			.from(matchData)
 			.innerJoin(matches, eq(matches.id, matchData.matchId))
@@ -176,6 +211,57 @@ export const getHeroStats = async (
 			)
 			.groupBy(matchData.heroId)
 			.orderBy(matchData.heroId);
+
+		heroAvgKills = await db
+			.select({
+				hero: matchData.heroId,
+				avgKills: sql<number>`cast(avg(${matchData.kills}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					eq(accounts.owner, player)
+				)
+			)
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+
+		heroAvgDeaths = await db
+			.select({
+				hero: matchData.heroId,
+				avgDeaths: sql<number>`cast(avg(${matchData.deaths}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					eq(accounts.owner, player)
+				)
+			)
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
+
+		heroAvgAssists = await db
+			.select({
+				hero: matchData.heroId,
+				avgAssists: sql<number>`cast(avg(${matchData.assists}) as int)`
+			})
+			.from(matchData)
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					eq(accounts.owner, player)
+				)
+			)
+			.groupBy(matchData.heroId)
+			.orderBy(matchData.heroId);
 	}
 	const heroData: {
 		hero: DotaAsset;
@@ -183,6 +269,9 @@ export const getHeroStats = async (
 		radiantWins: number;
 		direWins: number;
 		avgImpact: number;
+		avgKills: number;
+		avgDeaths: number;
+		avgAssists: number;
 	}[] = [];
 	heroMatches.forEach((hero: { hero: number; matches: number }) => {
 		const radiantWin = heroWinsRadiant.find(
@@ -194,13 +283,25 @@ export const getHeroStats = async (
 		const avgImpact = heroAvgImpact.find(
 			(heroWin: { hero: number; matches: number }) => heroWin.hero === hero.hero
 		);
+		const avgKills = heroAvgKills.find(
+			(heroWin: { hero: number; matches: number }) => heroWin.hero === hero.hero
+		);
+		const avgDeaths = heroAvgDeaths.find(
+			(heroWin: { hero: number; matches: number }) => heroWin.hero === hero.hero
+		);
+		const avgAssists = heroAvgAssists.find(
+			(heroWin: { hero: number; matches: number }) => heroWin.hero === hero.hero
+		);
 
 		heroData.push({
 			hero: heroes.find((heroObj) => heroObj.id === hero.hero)!,
 			matches: hero.matches,
 			radiantWins: radiantWin?.radiantWins || 0,
 			direWins: direWin?.direWins || 0,
-			avgImpact: avgImpact?.avgImpact || 0
+			avgImpact: avgImpact?.avgImpact || 0,
+			avgKills: avgKills?.avgKills || 0,
+			avgDeaths: avgDeaths?.avgDeaths || 0,
+			avgAssists: avgAssists?.avgAssists || 0
 		});
 	});
 	const sortedHeroData = heroData.sort((a, b) => b.matches - a.matches);
@@ -366,7 +467,7 @@ export const getTeamOfTheWeek = async () => {
 				playerData: {
 					...data[0].match_data,
 					hero: {
-						id: data[0].match_data?.heroId,
+						id: data[0].match_data?.heroId
 					}
 				},
 				matchData: data[0].matches
@@ -474,7 +575,7 @@ export const getFlopOfTheWeek = async () => {
 				playerData: {
 					...data[0].match_data,
 					hero: {
-						id: data[0].match_data?.heroId,
+						id: data[0].match_data?.heroId
 					}
 				},
 				matchData: data[0].matches
@@ -541,7 +642,7 @@ export const getFlopOfTheWeek = async () => {
 	];
 
 	return fotwWithIds;
-}
+};
 
 export const getFeatures = async () => {
 	const mostKills = await db
@@ -2203,8 +2304,21 @@ export const getTOTWCounts = async () => {
 	return totwCounts;
 };
 
-export const getMatchDataFromIdAndPlayer = async (ids: number[], player: number) => {
-	const matchList = await db
+export const getMatchDataFromIdAndPlayer = async (
+	ids: number[],
+	player: number,
+	options?: {
+		heroId?: number;
+		limit?: number;
+	}
+) => {
+	const conditions = [inArray(matchData.matchId, ids), eq(players.id, player)];
+
+	if (options?.heroId) {
+		conditions.push(eq(matchData.heroId, options.heroId));
+	}
+
+	const query = db
 		.select({
 			id: players.id,
 			username: players.username,
@@ -2230,8 +2344,11 @@ export const getMatchDataFromIdAndPlayer = async (ids: number[], player: number)
 		.innerJoin(players, eq(accounts.owner, players.id))
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
-		.where(and(inArray(matchData.matchId, ids), eq(players.id, player)));
+		.where(and(...conditions))
+		.orderBy(desc(matchData.matchId))
+		.$dynamic();
 
+	const matchList = await (options?.limit ? query.limit(options.limit) : query);
 	return matchList;
 };
 
@@ -2336,6 +2453,7 @@ export const getRoleCounts = async (id: number, offset: number) => {
 		.groupBy(matchData.role)
 		.orderBy(matchData.role);
 
+
 	const losses = await db
 		.select({
 			role: matchData.role,
@@ -2364,6 +2482,65 @@ export const getRoleCounts = async (id: number, offset: number) => {
 	}
 
 	return roleCounts;
+};
+
+export const getPlayerWinLossByMinutes = async (id: number, offset: number) => {
+	const wins = await db
+		.select({
+			minutes: sql<number>`floor(${matches.duration} / 300)`,
+			count: sql<number>`cast(count(${matchData.matchId}) as int)`
+		})
+		.from(matchData)
+		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(players, eq(accounts.owner, players.id))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				eq(players.id, id),
+				or(
+					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
+					and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
+				),
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix())
+			)
+		)
+		.groupBy(sql`floor(${matches.duration} / 300)`)
+		.orderBy(sql`floor(${matches.duration} / 300)`);
+
+	const losses = await db
+		.select({
+			minutes: sql<number>`floor(${matches.duration} / 300)`,
+			count: sql<number>`cast(count(${matchData.matchId}) as int)`
+		})
+		.from(matchData)
+		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(players, eq(accounts.owner, players.id))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				eq(players.id, id),
+				or(
+					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
+					and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
+				),
+				gte(matches.startTime, dayjs().subtract(offset, 'day').unix())
+			)
+		)
+		.groupBy(sql`floor(${matches.duration} / 300)`)
+		.orderBy(sql`floor(${matches.duration} / 300)`);
+
+	const summary = {};
+
+	for (const w of wins) {
+		summary[w.minutes] = { minutes: w.minutes * 5, wins: w.count, losses: 0 };
+	}
+
+	for (const l of losses) {
+		if (!summary[l.minutes]) summary[l.minutes] = { minutes: l.minutes * 5, wins: 0, losses: 0 };
+		summary[l.minutes].losses = l.count;
+	}
+
+	return Object.values(summary).sort((a, b) => a.minutes - b.minutes);
 };
 
 export const getPlayerImpactCountsByRole = async (playerId: number) => {

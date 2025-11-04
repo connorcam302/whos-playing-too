@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	type SteamProfile = {
 		avatar: string;
 		avatarfull: string;
@@ -33,36 +31,24 @@
 		rankedLosses: number;
 	};
 
-	import FxemojiPoo from '~icons/fxemoji/poo';
-	import UilExchange from '~icons/uil/exchange';
-	import BiDashLg from '~icons/bi/dash-lg';
 	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
 	import MaterialSymbolsArrowForwardRounded from '~icons/material-symbols/arrow-forward-rounded';
-	import MaterialSymbolsArrowForwardIosRounded from '~icons/material-symbols/arrow-forward-ios-rounded';
-	import IonLogoGameControllerB from '~icons/ion/logo-game-controller-b';
-	import MaterialSymbolsCalendarMonth from '~icons/material-symbols/calendar-month';
-	import SimpleIconsRedhat from '~icons/simple-icons/redhat';
 	import Loading from '$lib/components/Loading.svelte';
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
-	import WinChart from '$lib/components/profile/WinChart.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import tippy from 'sveltejs-tippy';
 	import { blur, crossfade, draw, fade, fly, scale, slide } from 'svelte/transition';
 	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
 	import { browser } from '$app/environment';
 	import Bar from '$lib/components/stats/Bar.svelte';
-	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
-	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
-	import * as Select from '$lib/components/ui/select';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as HoverCard from '$lib/components/ui/hover-card';
-	import * as Table from '$lib/components/ui/table';
 	import dayjs from 'dayjs';
 	import advancedFormat from 'dayjs/plugin/advancedFormat';
 	import RoleDoughnut from '$lib/components/stats/RoleDoughnut.svelte';
-	import { getRoleIcon, getRoleName, calcImpact } from '$lib/functions';
+	import { getRoleIcon, getRoleName, calcImpact, getHeroIdSting } from '$lib/functions';
+	import RoleStats from '$lib/components/stats/RoleStats.svelte';
 
 	dayjs.extend(advancedFormat);
 
@@ -75,6 +61,7 @@
 			allTimeStats: Stats;
 			recentStats: Stats;
 			heroStats: any;
+			featuredHero: any;
 			allTimeHeroStats: any;
 			winGraph: { resultsArray: number[]; daysArray: number[] };
 			heroList: { id: number; name: string }[];
@@ -98,24 +85,6 @@
 
 	let matchBlocks = $state([]);
 
-	let pos1 = $state(true);
-
-	let pos2 = $state(true);
-
-	let pos3 = $state(true);
-
-	let pos4 = $state(true);
-
-	let pos5 = $state(true);
-
-	let ranked = $state(true);
-
-	let unranked = $state(true);
-
-	let smurfs = $state(false);
-
-	let hero = $state(-1);
-
 	onMount(() => {
 		if ($page.url.searchParams.get('page')) {
 			pageNumber = Number($page.url.searchParams.get('page'));
@@ -129,121 +98,14 @@
 		if (pageNumber > -1) {
 			pageNumberFilter = `page=${pageNumber - 1}`;
 		}
-		let heroFilter = '';
-		if (hero > 0) {
-			heroFilter = `heroes=[${hero}]`;
-		}
-		let gameModes: string[] = ['ranked-all-pick', 'unranked-all-pick', 'other'];
-		let gameModeFilter = '';
-		if (ranked && unranked) {
-			gameModeFilter = `gameMode=["${gameModes.join('","')}"]`;
-		} else if (ranked) {
-			gameModeFilter = `gameMode=["${gameModes[0]}"]`;
-		} else if (unranked) {
-			gameModeFilter = `gameMode=["${gameModes[1]}","${gameModes[2]}"]`;
-		}
-		let smurfFilter = 'false';
-		if (smurfs) {
-			smurfFilter = `smurf=true`;
-		}
-
 		pageNumber = pageNumber - 1;
-		let roleFilter = 'roles=[';
-		if (pos1) {
-			roleFilter += '1,';
-		}
-		if (pos2) {
-			roleFilter += '2,';
-		}
-		if (pos3) {
-			roleFilter += '3,';
-		}
-		if (pos4) {
-			roleFilter += '4,';
-		}
-		if (pos5) {
-			roleFilter += '5,';
-		}
-		roleFilter = roleFilter.slice(0, -1) + ']';
 		return await fetch(
-			`/api/matches/all/profile/${playerId}?players=[${playerId}]&${heroFilter}&${gameModeFilter}&${pageNumberFilter}&${roleFilter}&${smurfFilter}`
+			`/api/matches/all/profile/${playerId}?players=[${playerId}]&${pageNumberFilter}`
 		).then((res) => res.json());
 	};
 
 	onMount(() => updateMatchesData());
 
-	const handleRoleChange = (role: number) => {
-		let currentRole;
-		switch (role) {
-			case 1:
-				currentRole = pos1;
-				break;
-			case 2:
-				currentRole = pos2;
-				break;
-			case 3:
-				currentRole = pos3;
-				break;
-			case 4:
-				currentRole = pos4;
-				break;
-			case 5:
-				currentRole = pos5;
-				break;
-		}
-		if (
-			Number(pos1) + Number(pos2) + Number(pos3) + Number(pos4) + Number(pos5) > 1 ||
-			currentRole === false
-		) {
-			switch (role) {
-				case 1:
-					pos1 = !pos1;
-					break;
-				case 2:
-					pos2 = !pos2;
-					break;
-				case 3:
-					pos3 = !pos3;
-					break;
-				case 4:
-					pos4 = !pos4;
-					break;
-				case 5:
-					pos5 = !pos5;
-					break;
-			}
-
-			updateMatchesData();
-		}
-	};
-
-	const handleLobbyChange = (lobby: number) => {
-		let currentLobby;
-		switch (lobby) {
-			case 0:
-				currentLobby = unranked;
-				break;
-			case 7:
-				currentLobby = ranked;
-				break;
-		}
-		if (Number(ranked) + Number(unranked) > 1 || currentLobby === false) {
-			switch (lobby) {
-				case 0:
-					unranked = !unranked;
-					break;
-				case 7:
-					ranked = !ranked;
-					break;
-			}
-
-			updateMatchesData();
-		}
-	};
-
-	const handleSmurfChange = () => {
-		smurfs = !smurfs;
-	};
 	const updateMatchesData = async () => {
 		if (browser) {
 			matchBlocks = [];
@@ -262,14 +124,6 @@
 		updateMatchesData();
 	};
 
-	let advancedFilters = $state(false);
-
-	const toggleAdvancedFilters = () => {
-		advancedFilters = !advancedFilters;
-	};
-
-	let chartType = $state('days');
-
 	let {
 		roleCounts,
 		playerId,
@@ -283,34 +137,17 @@
 		allTimeHeroStats,
 		winGraph,
 		heroList,
-		matchesByDay
+		matchesByDay,
+		featuredHero
 	} = $derived(data);
 
-	const toSteam32 = (accountId: string) => {
-		return BigInt(accountId) - BigInt('76561197960265728');
-	};
+	let hero = $state('');
 
 	$effect(() => {
-		hero, ranked, unranked, smurfs, pos1, pos2, pos3, pos4, pos5 && updateMatchesData();
+		heroStats.then((stats) => {
+			hero = getHeroIdSting(stats[0].hero.id).replace('npc_dota_hero_', '');
+		});
 	});
-
-	const mostCommonImpact = Object.keys(data.impactCounts).reduce(
-		(maxRating, ratingName) => {
-			// Sum the counts for the current rating
-			const total = data.impactCounts[ratingName].reduce(
-				(sum, item) => sum + Number(item.count),
-				0
-			);
-
-			// Compare with the current maxRating
-			if (total > maxRating.total) {
-				return { rating: ratingName, total };
-			}
-
-			return maxRating;
-		},
-		{ rating: null, total: 0 }
-	);
 </script>
 
 <svelte:head>
@@ -319,7 +156,7 @@
 
 <div class="w-full">
 	{#key player}
-		<div class="flex flex-wrap gap-4">
+		<div class="flex w-96 flex-wrap gap-4 md:w-full">
 			<div class="flex w-full flex-col items-center justify-center gap-4 md:flex-row">
 				<Card.Root class="w-96 flex-1 grow md:h-full md:w-full">
 					<Card.Header>
@@ -444,7 +281,7 @@
 									<div class="text-xs text-zinc-400">Assists</div>
 								</div>
 								<div class="flex w-12 flex-col gap-0">
-									<div class="text-xl text-impact">{averageStats.avgImpact}</div>
+									<div class="text-impact text-xl">{averageStats.avgImpact}</div>
 									<div class="text-xs text-zinc-400">Impact</div>
 								</div>
 							</div>
@@ -453,7 +290,92 @@
 				</Card.Root>
 			</div>
 
-			<Card.Root class="flex-1">
+			{#if featuredHero}
+				<Card.Root class="w-96 md:w-full md:grow">
+					<Card.Header>
+						<Card.Title>Featured Hero</Card.Title>
+						<Card.Description>Biggest standout hero of the last 31 days.</Card.Description>
+					</Card.Header>
+					<Card.Content>
+						<div class="flex items-center justify-between">
+							<div class="flex w-full flex-col items-start gap-4">
+								{#await featuredHero then featuredHero}
+									<div class="text-5xl">{featuredHero.hero.name}</div>
+									<div>
+										<div class="text-xl">KDA</div>
+										<div class="flex gap-1 text-lg">
+											<div class=" text-green-300">{featuredHero.avgKills}</div>
+											<div class="">/</div>
+											<div class=" text-red-400">{featuredHero.avgDeaths}</div>
+											<div class="">/</div>
+											<div class=" text-cyan-300">{featuredHero.avgAssists}</div>
+										</div>
+									</div>
+									<div class="flex flex-col gap-2">
+										<div class="text-xl">Matches</div>
+										<div class="text-lg">{featuredHero.matches}</div>
+									</div>
+									<div class="flex w-full max-w-64 grow flex-col gap-2">
+										<div class="flex justify-between">
+											<div>
+												<div class="text-xl">Impact</div>
+												<div class="text-sm text-zinc-400">
+													{featuredHero.avgImpact}
+												</div>
+											</div>
+											<div class="text-3xl">{calcImpact(featuredHero.avgImpact)}</div>
+										</div>
+										<Bar colour="#9333EA" percentage={(featuredHero.avgImpact / 140) * 100} />
+									</div>
+									<div class="flex w-full max-w-64 grow flex-col gap-2">
+										<div class="flex justify-between">
+											<div>
+												<div class="text-xl">Winrate</div>
+												<div class="flex gap-1 text-sm text-zinc-400">
+													<div class="text-green-400">
+														{featuredHero.radiantWins + featuredHero.direWins}
+													</div>
+													<div>-</div>
+													<div class="text-red-400">
+														{featuredHero.matches -
+															featuredHero.radiantWins -
+															featuredHero.direWins}
+													</div>
+												</div>
+											</div>
+											<div class="text-3xl">{featuredHero.winRate.toFixed(2)}%</div>
+										</div>
+										<Bar percentage={featuredHero.winRate} />
+									</div>
+								{/await}
+							</div>
+							<div class="max-w-96 overflow-hidden bg-no-repeat">
+								<!---
+								<video
+									autoplay
+									muted
+									loop
+									playsinline
+									class="h-full w-full object-cover object-center opacity-100"
+								>
+									<source
+										type="video/webm"
+										src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.webm`}
+										class="h-full w-full"
+									/>
+								</video>
+								--->
+								<img
+									src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.png`}
+									alt="hero background"
+									class="h-full w-full object-cover object-center"
+								/>
+							</div>
+						</div>
+					</Card.Content>
+				</Card.Root>
+			{/if}
+			<Card.Root class="w-96 md:w-full md:flex-1">
 				<Card.Header>
 					<Card.Title>Roles</Card.Title>
 					<Card.Description>All time role stats.</Card.Description>
@@ -463,70 +385,20 @@
 						<div class="mx-auto h-32 w-32">
 							<RoleDoughnut data={roleCounts} cutout={50} />
 						</div>
-						<div class="flex w-full flex-col">
-							<div class="flex gap-4 border-b-2 border-zinc-800 pb-1 pt-2">
-								<div class="w-8 text-zinc-400">Role</div>
 
-								<div class="flex grow gap-4">
-									<div class="basis-1/3 text-zinc-400">Matches</div>
-									<div class="basis-1/3 text-zinc-400">Winrate</div>
-									<div class="basis-1/3 text-zinc-400">Impact</div>
-								</div>
-							</div>
-							<div class="flex flex-col gap-2">
-								{#each roleCounts.slice().sort((a, b) => a.role - b.role) as role}
-									<div class="flex gap-4">
-										<div class="flex w-8 flex-col gap-0">
-											<img
-												class="h-8 w-8"
-												src={getRoleIcon(role.role)}
-												alt={getRoleName(role.role)}
-											/>
-										</div>
-										<div class="flex grow gap-4">
-											<div class="my-auto flex basis-1/3 flex-col gap-0">
-												<div class="pb-1 text-sm opacity-85">{role.count}</div>
-												<Bar
-													colour="#38bdf8"
-													percentage={(role.count /
-														roleCounts.slice().sort((a, b) => b.count - a.count)[0].count) *
-														100}
-												/>
-											</div>
-											<div class="my-auto flex basis-1/3 flex-col gap-0">
-												<div class="pb-1 text-sm opacity-85">
-													{Math.round((role.wins / (role.wins + role.losses)) * 1000) / 10} %
-												</div>
-												<Bar percentage={(role.wins / (role.wins + role.losses)) * 100} />
-											</div>
-											<div class="my-auto flex basis-1/3 flex-col gap-0">
-												<div class="pb-1 text-sm opacity-85">{calcImpact(role.avgImpact)}</div>
-												<HoverCard.Root>
-													<HoverCard.Trigger>
-														<Bar colour="#9333EA" percentage={(role.avgImpact / 200) * 100} />
-													</HoverCard.Trigger>
-													<HoverCard.Content>
-														Impact: {role.avgImpact}
-													</HoverCard.Content>
-												</HoverCard.Root>
-											</div>
-										</div>
-									</div>
-								{/each}
-							</div>
-						</div>
+						<RoleStats {roleCounts} />
 					</div>
 				</Card.Content>
 			</Card.Root>
-			<Card.Root class="flex-1 grow">
+			<Card.Root class="w-96 md:w-full md:flex-1">
 				<Card.Header>
 					<Card.Title>Stats</Card.Title>
-					<Card.Description>Average of last 31 days.</Card.Description>
+					<Card.Description>Average of all time stats.</Card.Description>
 				</Card.Header>
 				<Card.Content>
 					<div>
 						{#await allTimeHeroStats then allTimeHeroStats}
-							<HeroStatbox heroStats={allTimeHeroStats} height="h-[336px]" />
+							<HeroStatbox heroStats={allTimeHeroStats} height="h-[380px]" />
 						{/await}
 					</div>
 				</Card.Content>

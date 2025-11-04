@@ -8,7 +8,9 @@ import {
 	getSmurfAccounts,
 	getMatchesByDay,
 	getPlayerAverageStats,
-	getRoleCounts
+	getRoleCounts,
+	getMatchDataFromIdAndPlayer,
+	getPlayerWinLossByMinutes
 } from '$lib/server/db-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
@@ -50,10 +52,11 @@ export const load = async ({ url, params }) => {
 	const accountIds = await getAccounts(params.id);
 	const allSteamData = await getSteamData(accountIds.map((account) => account?.accountId));
 	const mainAccountId = accountIds.find((account) => account.smurf === false)?.accountId;
-	const mainAccount = await allSteamData.find(
-		(account: any) =>
-			account.steamid === (BigInt(mainAccountId) + BigInt('76561197960265728')).toString()
-	) || null;
+	const mainAccount =
+		(await allSteamData.find(
+			(account: any) =>
+				account.steamid === (BigInt(mainAccountId) + BigInt('76561197960265728')).toString()
+		)) || null;
 	let smurfAccounts = await allSteamData.filter(
 		(account: any) =>
 			account.steamid !== (BigInt(mainAccountId) + BigInt('76561197960265728')).toString()
@@ -71,15 +74,19 @@ export const load = async ({ url, params }) => {
 	const impactCounts = await getPlayerImpactCountsByRole(params.id);
 	const averageStats = await getPlayerAverageStats(params.id, 31);
 	const roleCounts = await getRoleCounts(params.id, 9999);
+	const winLossByMinute = await getPlayerWinLossByMinutes(params.id, 9999);
 
-	const matchesByDay = await getMatchesByDay(params.id, 12)
-
-	const heroJson = await fetch(
-		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
-	);
-
+	const matchesByDay = await getMatchesByDay(params.id, 12);
 
 	const heroList = heroData.sort((a, b) => a.name.localeCompare(b.name));
+
+	const featuredHero = heroStats.then((stats) => {
+		const hero = stats.sort((a, b) => b.avgImpact * b.matches - a.avgImpact * a.matches)[0];
+		return {
+			...hero,
+			winRate: ((hero.direWins + hero.radiantWins) / hero.matches) * 100
+		};
+	});
 
 	return {
 		roleCounts,
@@ -94,6 +101,8 @@ export const load = async ({ url, params }) => {
 		allTimeHeroStats,
 		winGraph,
 		impactCounts,
-		matchesByDay
+		matchesByDay,
+		featuredHero,
+		winLossByMinute
 	};
 };

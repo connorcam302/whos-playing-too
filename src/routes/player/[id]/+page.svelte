@@ -49,6 +49,7 @@
 			winGraph: { resultsArray: number[]; daysArray: number[] };
 			heroList: { id: number; name: string }[];
 			impactCounts: object;
+			winLossByMinute: any;
 		};
 	}
 
@@ -63,7 +64,8 @@
 		heroStats,
 		allTimeHeroStats,
 		winGraph,
-		heroList
+		heroList,
+		winLossByMinute
 	} = $derived(data);
 </script>
 
@@ -81,9 +83,12 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 />
 <meta property="og:image" content={player.image} />
 <meta property="og:url" content={`https://whos-playing.com/player/${player.id}`} />
-<div class="flex w-full flex-col content-center items-center justify-center gap-4">
+<div class="flex w-full flex-col content-center items-center justify-center gap-4 px-1">
 	<ProfileBanner {data} />
-	<Tabs.Root value="matches" class="w-full md:max-w-screen-md">
+	<Tabs.Root
+		value="stats"
+		class="flex w-full flex-col items-center gap-2 md:max-w-screen-md md:items-start"
+	>
 		<Tabs.List class="">
 			<Tabs.Trigger value="home">Home</Tabs.Trigger>
 			<Tabs.Trigger value="stats">Stats</Tabs.Trigger>

@@ -27,8 +27,8 @@
 </script>
 
 <div
-	class="rounded-xl border transition-colors duration-300"
-	style="background-color: {isHovered ? backgroundColour + '20' : 'transparent'}"
+	class="bg-card/80 rounded-xl border transition-colors duration-300"
+	style="background-color: {isHovered ? backgroundColour + '50' : ''}"
 	onmouseenter={() => (isHovered = true)}
 	onmouseleave={() => (isHovered = false)}
 	role="button"
@@ -70,11 +70,13 @@
 				</div>
 			</div>
 			<div
-				class="flex flex-row items-center justify-center gap-2 rounded-lg px-2 py-1"
+				class="flex flex-row items-center justify-center gap-2 rounded-lg px-2 py-1 text-lg"
 				style="background-color: {backgroundColour}50"
 			>
 				<FlameIcon />
-				{match.gameData.playerData.impact}
+				<div class="text-2xl">
+					{match.gameData.playerData.impact}
+				</div>
 			</div>
 		</div>
 	</MatchModal>

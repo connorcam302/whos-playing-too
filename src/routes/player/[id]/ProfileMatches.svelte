@@ -414,12 +414,6 @@
 
 		updateMatchesData();
 	});
-
-	console.log(data);
-
-	$effect(() => {
-		console.log(selectedRoles, selectedHero, selectedPlayers);
-	});
 </script>
 
 <svelte:head>
