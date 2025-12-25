@@ -17,21 +17,21 @@ type AccountInfer = InferSelectModel<typeof accounts>;
 type PlayerInfer = InferSelectModel<typeof players>;
 
 type MatchData = {
-    [K in keyof MatchDataInfer]: K extends
-    | 'item0'
-    | 'item1'
-    | 'item2'
-    | 'item3'
-    | 'item4'
-    | 'item5'
-    | 'itemNeutral'
-    | 'backpack0'
-    | 'backpack1'
-    | 'backpack2'
-    | 'hero'
-    | 'facets'
-    ? DotaAsset
-    : MatchDataInfer[K];
+	[K in keyof MatchDataInfer]: K extends
+		| 'item0'
+		| 'item1'
+		| 'item2'
+		| 'item3'
+		| 'item4'
+		| 'item5'
+		| 'itemNeutral'
+		| 'backpack0'
+		| 'backpack1'
+		| 'backpack2'
+		| 'hero'
+		| 'facets'
+		? DotaAsset
+		: MatchDataInfer[K];
 };
 
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;

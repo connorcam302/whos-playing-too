@@ -478,7 +478,6 @@
 												<div class="flex h-6 w-full items-center justify-center text-center">
 													<img
 														src={getRoleIcon(player.role)}
-														alt={player.role.toString()}
 														class="h-6"
 													/>
 												</div>

@@ -13,6 +13,7 @@
 	if (!backgroundColour) {
 		background = getColour(role);
 	}
+    
 </script>
 
 <!--

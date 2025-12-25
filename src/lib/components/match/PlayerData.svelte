@@ -306,191 +306,191 @@
 </div>
 
 <style>
-	:root {
-		--splus-base: #fef3c7;
-		--splus-accent1: #fcd34d;
-		--splus-accent2: #fbbf24;
+:root {
+    --splus-base: #fef3c7;
+    --splus-accent1: #fcd34d;
+    --splus-accent2: #fbbf24;
 
-		--splusplus-base: #fdba74;
-		--splusplus-accent1: #f97316;
-		--splusplus-accent2: #ea580c;
+    --splusplus-base: #fdba74;
+    --splusplus-accent1: #f97316;
+    --splusplus-accent2: #ea580c;
 
-		--f-base: #b45309;
-		--f-accent1: #9a3412;
-		--f-accent2: #7c2d12;
-	}
+    --f-base: #b45309;
+    --f-accent1: #9a3412;
+    --f-accent2: #7c2d12;
+}
 
-	#srating {
-		animation: srating 1s ease-in-out infinite alternate;
-		color: var(--splus-base);
-	}
+#srating {
+    animation: srating 1s ease-in-out infinite alternate;
+    color: var(--splus-base);
+}
 
-	@keyframes srating {
-		from {
-			text-shadow:
-				0 0 2px var(--splus-base),
-				0 0 4px var(--splus-base),
-				0 0 6px var(--splus-accent1),
-				0 0 8px var(--splus-accent1),
-				0 0 10px var(--splus-accent1),
-				0 0 12px var(--splus-accent1),
-				0 0 14px var(--splus-accent1);
-		}
-		to {
-			text-shadow:
-				0 0 4px var(--splus-base),
-				0 0 8px var(--splus-accent2),
-				0 0 12px var(--splus-accent2),
-				0 0 12px var(--splus-accent2),
-				0 0 15px var(--splus-accent2),
-				0 0 18px var(--splus-accent2),
-				0 0 21px var(--splus-accent2);
-		}
-	}
+@keyframes srating {
+from {
+    text-shadow:
+        0 0 2px var(--splus-base),
+        0 0 4px var(--splus-base),
+        0 0 6px var(--splus-accent1),
+        0 0 8px var(--splus-accent1),
+        0 0 10px var(--splus-accent1),
+        0 0 12px var(--splus-accent1),
+        0 0 14px var(--splus-accent1);
+}
+to {
+    text-shadow:
+        0 0 4px var(--splus-base),
+        0 0 8px var(--splus-accent2),
+        0 0 12px var(--splus-accent2),
+        0 0 12px var(--splus-accent2),
+        0 0 15px var(--splus-accent2),
+        0 0 18px var(--splus-accent2),
+        0 0 21px var(--splus-accent2);
+}
+}
 
-	#frating {
-		color: var(--f-base);
-		animation: frating 1s ease-in-out infinite alternate;
-	}
+#frating {
+    color: var(--f-base);
+    animation: frating 1s ease-in-out infinite alternate;
+}
 
-	@keyframes frating {
-		from {
-			filter: drop-shadow(0 0 8px var(--f-accent1));
-		}
-		to {
-			filter: drop-shadow(0 0 4px var(--f-accent2));
-		}
-	}
+@keyframes frating {
+from {
+    filter: drop-shadow(0 0 8px var(--f-accent1));
+}
+to {
+    filter: drop-shadow(0 0 4px var(--f-accent2));
+}
+}
 
-	#splusplusrating {
-		color: var(--splusplus-base);
-		animation: ssrating 1s ease-in-out infinite alternate;
-	}
+#splusplusrating {
+    color: var(--splusplus-base);
+    animation: ssrating 1s ease-in-out infinite alternate;
+}
 
-	@keyframes ssrating {
-		from {
-			text-shadow:
-				0 0 2px var(--splusplus-base),
-				0 0 4px var(--splusplus-base),
-				0 0 6px var(--splusplus-accent1),
-				0 0 8px var(--splusplus-accent1),
-				0 0 10px var(--splusplus-accent1),
-				0 0 12px var(--splusplus-accent1),
-				0 0 14px var(--splusplus-accent1);
-		}
+@keyframes ssrating {
+from {
+    text-shadow:
+        0 0 2px var(--splusplus-base),
+        0 0 4px var(--splusplus-base),
+        0 0 6px var(--splusplus-accent1),
+        0 0 8px var(--splusplus-accent1),
+        0 0 10px var(--splusplus-accent1),
+        0 0 12px var(--splusplus-accent1),
+        0 0 14px var(--splusplus-accent1);
+}
 
-		to {
-			text-shadow:
-				0 0 4px var(--splusplus-base),
-				0 0 8px var(--splusplus-accent2),
-				0 0 12px var(--splusplus-accent2),
-				0 0 16px var(--splusplus-accent2),
-				0 0 20px var(--splusplus-accent2),
-				0 0 24px var(--splusplus-accent2),
-				0 0 28px var(--splusplus-accent2);
-		}
-	}
+to {
+    text-shadow:
+        0 0 4px var(--splusplus-base),
+        0 0 8px var(--splusplus-accent2),
+        0 0 12px var(--splusplus-accent2),
+        0 0 16px var(--splusplus-accent2),
+        0 0 20px var(--splusplus-accent2),
+        0 0 24px var(--splusplus-accent2),
+        0 0 28px var(--splusplus-accent2);
+}
+}
 
-	@keyframes shine {
-		0% {
-			background-position: left;
-		}
-		50% {
-			background-position: right;
-		}
-		100% {
-			background-position: left;
-		}
-	}
-	.color_Red_0 {
-		background: linear-gradient(to right, #9f3c3c, #4a2040);
-	}
+@keyframes shine {
+0% {
+    background-position: left;
+}
+50% {
+    background-position: right;
+}
+100% {
+    background-position: left;
+}
+}
+.color_Red_0 {
+    background: linear-gradient(to right, #9f3c3c, #4a2040);
+}
 
-	.color_Red_1 {
-		background: linear-gradient(to right, #954533, #452732);
-	}
+.color_Red_1 {
+    background: linear-gradient(to right, #954533, #452732);
+}
 
-	.color_Red_2 {
-		background: linear-gradient(to right, #a3735e, #4f2a25);
-	}
+.color_Red_2 {
+    background: linear-gradient(to right, #a3735e, #4f2a25);
+}
 
-	.color_Yellow_0 {
-		background: linear-gradient(to right, #c8a45c, #6f3d21);
-	}
+.color_Yellow_0 {
+    background: linear-gradient(to right, #c8a45c, #6f3d21);
+}
 
-	.color_Yellow_1 {
-		background: linear-gradient(to right, #c6a158, #604928);
-	}
+.color_Yellow_1 {
+    background: linear-gradient(to right, #c6a158, #604928);
+}
 
-	.color_Yellow_2 {
-		background: linear-gradient(to right, #cac194, #433828);
-	}
+.color_Yellow_2 {
+    background: linear-gradient(to right, #cac194, #433828);
+}
 
-	.color_Yellow_3 {
-		background: linear-gradient(to right, #c3a99a, #4d352b);
-	}
+.color_Yellow_3 {
+    background: linear-gradient(to right, #c3a99a, #4d352b);
+}
 
-	.color_Purple_0 {
-		background: linear-gradient(to right, #b57789, #412755);
-	}
+.color_Purple_0 {
+    background: linear-gradient(to right, #b57789, #412755);
+}
 
-	.color_Purple_1 {
-		background: linear-gradient(to right, #9c70a4, #282752);
-	}
+.color_Purple_1 {
+    background: linear-gradient(to right, #9c70a4, #282752);
+}
 
-	.color_Purple_2 {
-		background: linear-gradient(to right, #675cae, #261c44);
-	}
+.color_Purple_2 {
+    background: linear-gradient(to right, #675cae, #261c44);
+}
 
-	.color_Blue_0 {
-		background: linear-gradient(to right, #727cb2, #342d5b);
-	}
+.color_Blue_0 {
+    background: linear-gradient(to right, #727cb2, #342d5b);
+}
 
-	.color_Blue_1 {
-		background: linear-gradient(to right, #547ea6, #2a385e);
-	}
+.color_Blue_1 {
+    background: linear-gradient(to right, #547ea6, #2a385e);
+}
 
-	.color_Blue_2 {
-		background: linear-gradient(to right, #6baebc, #135459);
-	}
+.color_Blue_2 {
+    background: linear-gradient(to right, #6baebc, #135459);
+}
 
-	.color_Blue_3 {
-		background: linear-gradient(to right, #94b5ba, #385b59);
-	}
+.color_Blue_3 {
+    background: linear-gradient(to right, #94b5ba, #385b59);
+}
 
-	.color_Green_0 {
-		background: linear-gradient(to right, #a2b23e, #2d5a18);
-	}
+.color_Green_0 {
+    background: linear-gradient(to right, #a2b23e, #2d5a18);
+}
 
-	.color_Green_1 {
-		background: linear-gradient(to right, #7ec2b2, #29493a);
-	}
+.color_Green_1 {
+    background: linear-gradient(to right, #7ec2b2, #29493a);
+}
 
-	.color_Green_2 {
-		background: linear-gradient(to right, #a2b23e, #2d5a18);
-	}
+.color_Green_2 {
+    background: linear-gradient(to right, #a2b23e, #2d5a18);
+}
 
-	.color_Green_3 {
-		background: linear-gradient(to right, #9a9f6a, #223824);
-	}
+.color_Green_3 {
+    background: linear-gradient(to right, #9a9f6a, #223824);
+}
 
-	.color_Green_4 {
-		background: linear-gradient(to right, #9fad8e, #3f4129);
-	}
+.color_Green_4 {
+    background: linear-gradient(to right, #9fad8e, #3f4129);
+}
 
-	.color_Gray_0 {
-		background: linear-gradient(to right, #565c61, #1b1b21);
-	}
+.color_Gray_0 {
+    background: linear-gradient(to right, #565c61, #1b1b21);
+}
 
-	.color_Gray_1 {
-		background: linear-gradient(to right, #6a6d73, #29272c);
-	}
+.color_Gray_1 {
+    background: linear-gradient(to right, #6a6d73, #29272c);
+}
 
-	.color_Gray_2 {
-		background: linear-gradient(to right, #95a9b1, #3e464f);
-	}
+.color_Gray_2 {
+    background: linear-gradient(to right, #95a9b1, #3e464f);
+}
 
-	.color_Gray_3 {
-		background: linear-gradient(to right, #adb6be, #4e5557);
-	}
+.color_Gray_3 {
+    background: linear-gradient(to right, #adb6be, #4e5557);
+}
 </style>

@@ -18,19 +18,19 @@ type PlayerInfer = InferSelectModel<typeof players>;
 
 type MatchData = {
 	[K in keyof MatchDataInfer]: K extends
-	| 'item0'
-	| 'item1'
-	| 'item2'
-	| 'item3'
-	| 'item4'
-	| 'item5'
-	| 'itemzinc'
-	| 'backpack0'
-	| 'backpack1'
-	| 'backpack2'
-	| 'hero'
-	? DotaAsset
-	: MatchDataInfer[K];
+		| 'item0'
+		| 'item1'
+		| 'item2'
+		| 'item3'
+		| 'item4'
+		| 'item5'
+		| 'itemzinc'
+		| 'backpack0'
+		| 'backpack1'
+		| 'backpack2'
+		| 'hero'
+		? DotaAsset
+		: MatchDataInfer[K];
 };
 
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
@@ -57,7 +57,9 @@ export const GET: RequestHandler = async ({ url, params }) => {
 			pageNumber = parseInt(url.searchParams.get('page')!);
 		}
 
-		const allGameModes = [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22];
+		const allGameModes = [
+			0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22
+		];
 		const allLobbies = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
 
 		let gameModeFilter: number[] = allGameModes;
@@ -139,7 +141,12 @@ export const GET: RequestHandler = async ({ url, params }) => {
 			.from(matchData)
 			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 			.innerJoin(players, eq(accounts.owner, players.id))
-			.where(inArray(matchData.matchId, matchIds.map(m => m.id)));
+			.where(
+				inArray(
+					matchData.matchId,
+					matchIds.map((m) => m.id)
+				)
+			);
 
 		const processingStartTime = Date.now();
 
@@ -203,11 +210,12 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		// Sort by match completion time
 		const matchBlocksSorted = matchBlocks.sort(
 			(a, b) =>
-				b.matchData.startTime + b.matchData.duration - (a.matchData.startTime + a.matchData.duration)
+				b.matchData.startTime +
+				b.matchData.duration -
+				(a.matchData.startTime + a.matchData.duration)
 		);
 
 		return json(matchBlocksSorted);
-
 	} catch (error) {
 		console.error(`❌ API Request failed for /api/matches/all/profile/${params.id}`, error);
 		throw error;
