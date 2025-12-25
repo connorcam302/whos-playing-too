@@ -18,19 +18,19 @@ type PlayerInfer = InferSelectModel<typeof players>;
 
 type MatchData = {
 	[K in keyof MatchDataInfer]: K extends
-	| 'item0'
-	| 'item1'
-	| 'item2'
-	| 'item3'
-	| 'item4'
-	| 'item5'
-	| 'itemzinc'
-	| 'backpack0'
-	| 'backpack1'
-	| 'backpack2'
-	| 'hero'
-	? DotaAsset
-	: MatchDataInfer[K];
+		| 'item0'
+		| 'item1'
+		| 'item2'
+		| 'item3'
+		| 'item4'
+		| 'item5'
+		| 'itemzinc'
+		| 'backpack0'
+		| 'backpack1'
+		| 'backpack2'
+		| 'hero'
+		? DotaAsset
+		: MatchDataInfer[K];
 };
 
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
@@ -180,7 +180,6 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		const { radiant, dire } = splitByTeam(match);
 		//console.log(match);
 		const player = match.find((player) => player.owner === Number(params.id))!;
-		console.log(player);
 		const matchData: MatchInfer = matchArray.find(
 			(data) => data.id === radiant[0]?.matchId || data.id === dire[0]?.matchId
 		)!;

@@ -264,9 +264,6 @@
 		{ rating: null, total: 0 }
 	);
 
-	console.log(mostCommonImpact);
-
-	console.log(data);
 </script>
 
 <svelte:head>

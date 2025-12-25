@@ -107,7 +107,6 @@
 	$: selectedReport = reportData[0];
 
 	function handleSelection(event) {
-		console.log(reportData);
 		selectedReport = reportData.find((obj) => obj.player_name === event.target.value);
 	}
 </script>

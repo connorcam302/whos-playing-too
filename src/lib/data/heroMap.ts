@@ -1,4 +1,4 @@
-var heroMap = new Map();
+const heroMap = new Map<number, HeroMapData>();
 
 heroMap.set(1, {
 	id: 1,
@@ -372,7 +372,7 @@ heroMap.set(75, {
 });
 heroMap.set(76, {
 	id: 76,
-	name: 'Outworld Destroyer',
+	name: 'Outworld Devourer',
 	img: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/obsidian_destroyer.png'
 });
 heroMap.set(77, {
@@ -602,7 +602,7 @@ heroMap.set(129, {
 });
 heroMap.set(131, {
 	id: 131,
-	name: 'Ringmaster',
+	name: 'Ring Master',
 	img: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/ringmaster.png'
 });
 heroMap.set(135, {
@@ -629,6 +629,11 @@ heroMap.set(145, {
 	id: 145,
 	name: 'Kez',
 	img: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/kez.png'
+});
+heroMap.set(155, {
+	id: 155,
+	name: 'Largo',
+	img: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/largo.png'
 });
 
 export { heroMap };

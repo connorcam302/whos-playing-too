@@ -114,8 +114,6 @@ export const POST: RequestHandler = async ({ url, params, request }) => {
 	console.log(reqBody);
 	const changedRoles = Object.values(reqBody.roleData);
 	const sequenceNum = reqBody.sequenceNum;
-	console.log(changedRoles);
-	console.log(sequenceNum, params.id);
 
 	let steamMatchData = await fetch(
 		`https://api.steampowered.com/IDOTA2Match_570/getMatchDetails/v1?key=${STEAM_KEY}&match_id=${params.id}`
@@ -123,14 +121,12 @@ export const POST: RequestHandler = async ({ url, params, request }) => {
 		.then((res) => res.json())
 		.then((data) => data.result);
 	if (!steamMatchData) {
-		console.log('checking sequence num', sequenceNum);
 		steamMatchData = await fetch(
 			`https://api.steampowered.com/IDOTA2Match_570/GetMatchHistoryBySequenceNum/v1?key=${STEAM_KEY}&start_at_match_seq_num=${sequenceNum}&matches_requested=1`
 		)
 			.then((res) => res.json())
 			.then((data) => data.result.matches[0]);
 		if (steamMatchData.match_id !== Number(params.id)) {
-			console.log('sequence num does not match');
 			return error(500, { message: 'Steam API Down.' });
 		}
 	}
