@@ -160,7 +160,11 @@ const buildHeroAbilities = (dotaAbilities, dotaHeroes) => {
 
 	const abilities = Object.entries(dotaAbilities)
 		.map(([heroId, data]) => {
-			const abilities = data.abilities.map((a) => `'${a.replace(/(?<!\\)'/g, "\\'")}'`).join(',\n\t\t\t');
+			console.log(data.abilities);
+			const abilities = data.abilities
+				.flat()
+				.map((a) => `'${a.replace(/(?<!\\)'/g, "\\'")}'`)
+				.join(',\n\t\t\t');
 			const talents = data.talents
 				.map((t) => {
 					const escaped = escapeSingleQuotes(t);

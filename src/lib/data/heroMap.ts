@@ -257,7 +257,7 @@ heroMap.set(52, {
 });
 heroMap.set(53, {
 	id: 53,
-	name: "Nature's Prophet",
+	name: 'Nature\'s Prophet',
 	img: 'https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/furion.png'
 });
 heroMap.set(54, {

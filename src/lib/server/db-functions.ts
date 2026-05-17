@@ -29,6 +29,7 @@ import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { heroMap } from '$lib/data/heroMap';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -294,7 +295,7 @@ export const getHeroStats = async (
 		);
 
 		heroData.push({
-			hero: heroes.find((heroObj) => heroObj.id === hero.hero)!,
+			hero: heroMap.get(hero.hero),
 			matches: hero.matches,
 			radiantWins: radiantWin?.radiantWins || 0,
 			direWins: direWin?.direWins || 0,
@@ -2452,7 +2453,6 @@ export const getRoleCounts = async (id: number, offset: number) => {
 		)
 		.groupBy(matchData.role)
 		.orderBy(matchData.role);
-
 
 	const losses = await db
 		.select({
