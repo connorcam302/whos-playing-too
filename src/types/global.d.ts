@@ -41,9 +41,19 @@ declare interface PlayerData {
 	goldPerMin: number;
 	lastHits: number;
 	xpPerMin: number;
+	itemNeutral: DotaAsset;
 	itemzinc: DotaAsset;
 	role: number;
 	impact: number;
 	hero: DotaAsset;
 	facet: number;
+	facets: Array<{
+		id: number;
+		name: string;
+		icon: string;
+		color: string;
+		gradient_id: number;
+		title: string;
+		description: string;
+	}>;
 }

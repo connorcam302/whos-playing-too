@@ -10,6 +10,14 @@ import { itemMap } from '$lib/data/itemMap';
 import { heroMap } from '$lib/data/heroMap';
 
 type DotaAsset = { id: number; name: string; img: string };
+const unknownAsset: DotaAsset = {
+	id: -1,
+	name: 'Unknown',
+	img: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png'
+};
+const emptyItem = itemMap.get(0) ?? unknownAsset;
+const getItem = (id: number | null) => itemMap.get(id ?? 0) ?? emptyItem;
+const getHero = (id: number) => heroMap.get(id) ?? unknownAsset;
 
 type MatchDataInfer = InferSelectModel<typeof matchData>;
 type MatchInfer = InferSelectModel<typeof matches>;
@@ -138,24 +146,27 @@ export const GET: RequestHandler = async ({ url, params }) => {
 
 		const block: PlayerMatchData[] = data.map((player) => {
 			const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name;
+			const abilityData = heroName
+				? heroAbilities[heroName as keyof typeof heroAbilities]
+				: undefined;
 
-			const facets = heroAbilities[`${heroName}`].facets || [];
+			const facets = abilityData?.facets ?? [];
 
 			return {
 				...player.players,
 				...player.accounts,
 				...player.match_data,
-				item0: itemMap.get(player.match_data.item0),
-				item1: itemMap.get(player.match_data.item1),
-				item2: itemMap.get(player.match_data.item2),
-				item3: itemMap.get(player.match_data.item3),
-				item4: itemMap.get(player.match_data.item4),
-				item5: itemMap.get(player.match_data.item5),
-				backpack0: itemMap.get(player.match_data.backpack0),
-				backpack1: itemMap.get(player.match_data.backpack1),
-				backpack2: itemMap.get(player.match_data.backpack2),
-				itemNeutral: itemMap.get(player.match_data.itemNeutral),
-				hero: heroMap.get(player.match_data.heroId),
+				item0: getItem(player.match_data.item0),
+				item1: getItem(player.match_data.item1),
+				item2: getItem(player.match_data.item2),
+				item3: getItem(player.match_data.item3),
+				item4: getItem(player.match_data.item4),
+				item5: getItem(player.match_data.item5),
+				backpack0: getItem(player.match_data.backpack0),
+				backpack1: getItem(player.match_data.backpack1),
+				backpack2: getItem(player.match_data.backpack2),
+				itemNeutral: getItem(player.match_data.itemNeutral),
+				hero: getHero(player.match_data.heroId),
 				facets
 			};
 		});

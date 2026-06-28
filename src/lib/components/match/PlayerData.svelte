@@ -40,6 +40,12 @@ import { calcImpact, getRoleIcon } from '$lib/functions';
 import { goto } from '$app/navigation';
 
 $: viewport = getContext('viewport');
+const unknownAsset: DotaAsset = {
+    id: -1,
+    name: 'Unknown',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png'
+};
+const getAsset = (asset: DotaAsset | undefined | null) => asset ?? unknownAsset;
 
 const getImpactScore = (match: any, role: any, duration: any) => {
     let impact = 0;
@@ -180,7 +186,7 @@ facet.description
     return facetBox;
 };
 
-const facetBox = makeFacetBox(player.facets, player.facet - 1);
+const facetBox = makeFacetBox(player.facets ?? [], player.facet - 1);
 
 
 </script>
@@ -189,17 +195,17 @@ const facetBox = makeFacetBox(player.facets, player.facet - 1);
     <div class="my-0.5 flex items-center gap-1 text-sm md:gap-4 lg:text-base">
         <div class="flex items-center gap-2">
             <div class="relative">
-                <img src={player.hero.img} alt={player.hero.name} class="h-8 md:h-10" />
+                <img src={getAsset(player.hero).img} alt={getAsset(player.hero).name} class="h-8 md:h-10" />
                 {#if player.facet}
                     <div
                         class={`absolute bottom-0 right-0 color_${
-player.facets[player.facet - 1]?.color ?? 'Blue'
-}_${player.facets[player.facet - 1]?.gradient_id ?? 3}`}
+player.facets?.[player.facet - 1]?.color ?? 'Blue'
+}_${player.facets?.[player.facet - 1]?.gradient_id ?? 3}`}
                     >
                         <img
-                            src={player.facets[player.facet - 1]?.icon
+                            src={player.facets?.[player.facet - 1]?.icon
                                 ? `https://cdn.akamai.steamstatic.com/apps/dota2/images/dota_react/icons/facets/${
-player.facets[player.facet - 1]?.icon
+player.facets?.[player.facet - 1]?.icon
 }.png`
                                 : 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png'}
                             alt={player.facet}
@@ -294,17 +300,16 @@ player.role === 1 || player.role === 2 || player.role === 3
             <div class="text-cyan-300">{player.assists}</div>
         </div>
         <div class="flex max-w-[86px] flex-wrap lg:max-w-96 lg:flex-row">
-            <img src={player.item0.img} alt={player.item0.name} class="h-5 lg:h-8 lg:w-[44px]" />
-            <img src={player.item1.img} alt={player.item1.name} class="h-5 lg:h-8 lg:w-[44px]" />
-            <img src={player.item2.img} alt={player.item2.name} class="h-5 lg:h-8 lg:w-[44px]" />
-            <img src={player.item3.img} alt={player.item3.name} class="h-5 lg:h-8 lg:w-[44px]" />
-            <img src={player.item4.img} alt={player.item4.name} class="h-5 lg:h-8 lg:w-[44px]" />
-            <img src={player.item5.img} alt={player.item5.name} class="h-5 lg:h-8 lg:w-[44px]" />
+            <img src={getAsset(player.item0).img} alt={getAsset(player.item0).name} class="h-5 lg:h-8 lg:w-[44px]" />
+            <img src={getAsset(player.item1).img} alt={getAsset(player.item1).name} class="h-5 lg:h-8 lg:w-[44px]" />
+            <img src={getAsset(player.item2).img} alt={getAsset(player.item2).name} class="h-5 lg:h-8 lg:w-[44px]" />
+            <img src={getAsset(player.item3).img} alt={getAsset(player.item3).name} class="h-5 lg:h-8 lg:w-[44px]" />
+            <img src={getAsset(player.item4).img} alt={getAsset(player.item4).name} class="h-5 lg:h-8 lg:w-[44px]" />
+            <img src={getAsset(player.item5).img} alt={getAsset(player.item5).name} class="h-5 lg:h-8 lg:w-[44px]" />
         </div>
         <img
-            src={player.itemNeutral?.img ??
-                'https://upload.wikimedia.org/wikipedia/commons/5/5a/Black_question_mark.png'}
-            alt={player.itemNeutral?.name ?? 'Neutral Item'}
+            src={getAsset(player.itemNeutral).img}
+            alt={getAsset(player.itemNeutral).name}
             class="mr-1 h-6 w-6 rounded-full object-cover lg:mr-0 lg:h-8 lg:w-8"
         />
         <div class="hidden lg:block">

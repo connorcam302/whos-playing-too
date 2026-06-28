@@ -1,10 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import dayjs from 'dayjs';
-	import relativeTime from 'dayjs/plugin/relativeTime';
 	import MatchModal from '$lib/components/match/MatchModal.svelte';
-
-	dayjs.extend(relativeTime);
 	import { getStatColour } from '$lib/functions';
 
 	type Player = {
@@ -28,22 +24,30 @@
 		};
 	};
 
-	export let data: Player[] = [
-			{ id: -1, username: 'PLAYER 1', kills: 999 },
-			{ id: -1, username: 'PLAYER 1', kills: 999 },
-			{ id: -1, username: 'PLAYER 1', kills: 999 }
-		],
-		title: string = 'RECORD TITLE',
-		type: string = 'kills';
+	export let data: Player[] = [];
+	export let title: string = 'RECORD TITLE';
+	export let type: string = 'kills';
+
+	const emptyPlayer: Player = { id: -1, username: 'No data' };
+	const getRow = (index: number) => data[index] ?? emptyPlayer;
+	const hasRow = (index: number) => Boolean(data[index]);
+	const getStat = (player: Player) => player[type as keyof Player] ?? '-';
+	const getPrefix = (index: number) => (hasRow(index) && title !== 'Most MMR Lost' ? '+' : '');
+	const goToPlayer = (player: Player) => {
+		if (player.id !== -1) {
+			goto(`/player/${player.id}`);
+		}
+	};
 </script>
 
-<div class="w-64" key={title}>
+{#key title}
+<div class="w-64">
 	{#if type == 'winLoss'}
 		<div class="w-64 rounded-xl bg-zinc-800 bg-opacity-100">
 			<div class="max-h-28 rounded-xl">
 				<div class="rounded-xl">
 					<div
-						class={`max-w-auto max-h-28 rounded-xl bg-cover bg-center`}
+						class="max-w-auto max-h-28 rounded-xl bg-cover bg-center"
 						id={title === 'Most MMR Lost' ? `down-arrows` : `up-arrows`}
 					>
 						<div class="flex h-28 rounded-xl bg-black bg-opacity-70 px-4 py-2">
@@ -52,10 +56,11 @@
 								<div class="flex-1 grow" />
 								<div class="flex flex-row justify-between text-2xl">
 									<button
-										on:click={() => goto(`/player/${data[0].id}`)}
-										class="duration-300 hover:text-zinc-400"
+										on:click={() => goToPlayer(getRow(0))}
+										class="duration-300 hover:text-zinc-400 disabled:cursor-default disabled:hover:text-white"
+										disabled={!hasRow(0)}
 									>
-										<div>{data[0].username}</div>
+										<div>{getRow(0).username}</div>
 									</button>
 									<div
 										id="feature"
@@ -64,7 +69,7 @@
 											title == 'Most MMR Gained' ? 'wins' : 'losses'
 										)};`}
 									>
-										{title === 'Most MMR Lost' ? '' : '+'}{data[0][type]}
+										{getPrefix(0)}{getStat(getRow(0))}
 									</div>
 								</div>
 							</div>
@@ -73,38 +78,33 @@
 				</div>
 			</div>
 			<div class="flex flex-col gap-1 py-1">
-				<div class="flex h-7 w-full flex-row items-center rounded-xl px-3">
-					<button
-						on:click={() => goto(`/player/${data[1].id}`)}
-						class="duration-300 hover:text-zinc-400"
-					>
-						<div>{data[1].username}</div>
-					</button>
-					<div class="grow" />
-					<div>{title === 'Most MMR Lost' ? '' : '+'}{data[1][type]}</div>
-				</div>
-				<div class="flex w-full px-2">
-					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
-				</div>
-				<div class="flex h-7 w-full flex-row items-center px-3">
-					<button
-						on:click={() => goto(`/player/${data[2].id}`)}
-						class="duration-300 hover:text-zinc-400"
-					>
-						<div>{data[2].username}</div>
-					</button>
-					<div class="grow" />
-					<div>{title === 'Most MMR Lost' ? '' : '+'}{data[2][type]}</div>
-				</div>
+				{#each [1, 2] as rowIndex}
+					<div class="flex h-7 w-full flex-row items-center rounded-xl px-3">
+						<button
+							on:click={() => goToPlayer(getRow(rowIndex))}
+							class="duration-300 hover:text-zinc-400 disabled:cursor-default disabled:hover:text-white"
+							disabled={!hasRow(rowIndex)}
+						>
+							<div>{getRow(rowIndex).username}</div>
+						</button>
+						<div class="grow" />
+						<div>{getPrefix(rowIndex)}{getStat(getRow(rowIndex))}</div>
+					</div>
+					{#if rowIndex === 1}
+						<div class="flex w-full px-2">
+							<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
+						</div>
+					{/if}
+				{/each}
 			</div>
 		</div>
 	{:else}
 		<div class="w-64 rounded-xl bg-zinc-800 bg-opacity-100">
 			<div class="rounded-xl border-opacity-15">
-				<MatchModal matchId={data[0].matchId} sequenceNum={data[0].sequenceNumber}>
+				<MatchModal matchId={getRow(0).matchId} sequenceNum={getRow(0).sequenceNumber}>
 					<div
-						class={`min-h-28 w-full rounded-xl bg-cover bg-center bg-no-repeat`}
-						style={`background-image: url('${data[0]?.hero?.img}')`}
+						class="min-h-28 w-full rounded-xl bg-cover bg-center bg-no-repeat"
+						style={`background-image: url('${getRow(0).hero?.img ?? ''}')`}
 					>
 						<div class="flex min-h-28 rounded-xl bg-black bg-opacity-70 px-3 py-2">
 							<div class="flex grow flex-col">
@@ -112,13 +112,14 @@
 								<div class="flex-1 grow" />
 								<div class="flex flex-row justify-between text-3xl">
 									<button
-										on:click={() => goto(`/player/${data[0].id}`)}
-										class="duration-300 hover:text-zinc-400"
+										on:click={() => goToPlayer(getRow(0))}
+										class="duration-300 hover:text-zinc-400 disabled:cursor-default disabled:hover:text-white"
+										disabled={!hasRow(0)}
 									>
-										<div>{data[0].username}</div>
+										<div>{getRow(0).username}</div>
 									</button>
 									<div class="font-bold" id="feature" style="color: {getStatColour(type)};">
-										{data[0][type]}
+										{getStat(getRow(0))}
 									</div>
 								</div>
 							</div>
@@ -127,39 +128,42 @@
 				</MatchModal>
 			</div>
 			<div class="flex flex-col gap-1 py-1">
-				<MatchModal matchId={data[1].matchId} sequenceNum={data[1].sequenceNumber}>
-					<div class="flex w-full flex-row items-center rounded-xl px-3">
-						<div><img src={data[1]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
-						<button
-							on:click={() => goto(`/player/${data[1].id}`)}
-							class="duration-300 hover:text-zinc-400"
-						>
-							<div>{data[1].username}</div>
-						</button>
-						<div class="grow" />
-						<div class="font-bold" style="color: {getStatColour(type)};">{data[1][type]}</div>
-					</div>
-				</MatchModal>
-				<div class="flex w-full px-2">
-					<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
-				</div>
-				<MatchModal matchId={data[2].matchId} sequenceNum={data[2].sequenceNumber}>
-					<div class="flex w-full flex-row items-center px-3">
-						<div><img src={data[2]?.hero?.img} class="mr-2 h-7" alt={data[2]?.hero?.name} /></div>
-						<button
-							on:click={() => goto(`/player/${data[2].id}`)}
-							class="duration-300 hover:text-zinc-400"
-						>
-							<div>{data[2].username}</div>
-						</button>
-						<div class="grow" />
-						<div class="font-bold" style="color: {getStatColour(type)};">{data[2][type]}</div>
-					</div>
-				</MatchModal>
+				{#each [1, 2] as rowIndex}
+					<MatchModal matchId={getRow(rowIndex).matchId} sequenceNum={getRow(rowIndex).sequenceNumber}>
+						<div class="flex w-full flex-row items-center rounded-xl px-3">
+							{#if getRow(rowIndex).hero}
+								<div>
+									<img
+										src={getRow(rowIndex).hero?.img}
+										class="mr-2 h-7"
+										alt={getRow(rowIndex).hero?.name}
+									/>
+								</div>
+							{/if}
+							<button
+								on:click={() => goToPlayer(getRow(rowIndex))}
+								class="duration-300 hover:text-zinc-400 disabled:cursor-default disabled:hover:text-white"
+								disabled={!hasRow(rowIndex)}
+							>
+								<div>{getRow(rowIndex).username}</div>
+							</button>
+							<div class="grow" />
+							<div class="font-bold" style="color: {getStatColour(type)};">
+								{getStat(getRow(rowIndex))}
+							</div>
+						</div>
+					</MatchModal>
+					{#if rowIndex === 1}
+						<div class="flex w-full px-2">
+							<div class="h-[1px] grow bg-zinc-200 bg-opacity-40" />
+						</div>
+					{/if}
+				{/each}
 			</div>
 		</div>
 	{/if}
 </div>
+{/key}
 
 <style>
 	#feature {
