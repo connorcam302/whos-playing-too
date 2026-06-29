@@ -1,13 +1,19 @@
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players } from '$lib/server/schema';
-import { desc, eq, sql, type InferSelectModel, and, inArray } from 'drizzle-orm';
+import { desc, eq, sql, type InferSelectModel, and, inArray, gte, lte } from 'drizzle-orm';
 import { getPlayers } from '$lib/server/db-functions';
 import { json } from '@sveltejs/kit';
 import { heroData } from '$lib/data/heroData';
 import { heroAbilities } from '$lib/data/heroAbilities';
 import { itemMap } from '$lib/data/itemMap';
 import { heroMap } from '$lib/data/heroMap';
+import {
+	DATE_RANGE_PRESETS,
+	getDotaPatchRangeBounds,
+	type DateRangeBounds
+} from '$lib/data/dotaPatchRanges';
+import dayjs from 'dayjs';
 
 type DotaAsset = { id: number; name: string; img: string };
 
@@ -34,6 +40,148 @@ type MatchData = {
 };
 
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
+
+const getDateRangeBounds = (dateRange: string | null): DateRangeBounds => {
+	if (!dateRange || dateRange === 'all') {
+		return { start: null, end: null };
+	}
+
+	if (dateRange.startsWith('patch-')) {
+		return getDotaPatchRangeBounds(dateRange.replace('patch-', ''));
+	}
+
+	const preset = DATE_RANGE_PRESETS.find((range) => range.value === dateRange);
+	if (!preset?.amount || !preset.unit) {
+		return { start: null, end: null };
+	}
+
+	return {
+		start: dayjs().subtract(preset.amount, preset.unit).startOf('day').unix(),
+		end: null
+	};
+};
+
+const getDateFilters = (bounds: DateRangeBounds) => {
+	const filters = [];
+	if (bounds.start !== null) {
+		filters.push(gte(matches.startTime, bounds.start));
+	}
+	if (bounds.end !== null) {
+		filters.push(lte(matches.startTime, bounds.end));
+	}
+	return filters;
+};
+
+const calculateProfileStats = (rows: any[], profilePlayerId: number) => {
+	const profileRows = rows
+		.filter((row) => row.players.id === profilePlayerId)
+		.map((row) => ({
+			...row.match_data,
+			match: row.matches,
+			hero: heroMap.get(row.match_data.heroId)
+		}));
+
+	const matchCount = profileRows.length;
+	const wins = profileRows.filter((row) => row.team === row.match.winner).length;
+	const losses = matchCount - wins;
+	const totals = profileRows.reduce(
+		(acc, row) => {
+			acc.kills += row.kills ?? 0;
+			acc.deaths += row.deaths ?? 0;
+			acc.assists += row.assists ?? 0;
+			acc.impact += row.impact ?? 0;
+			acc.gpm += row.goldPerMin ?? 0;
+			acc.xpm += row.xpPerMin ?? 0;
+			acc.lastHits += row.lastHits ?? 0;
+			acc.heroDamage += row.heroDamage ?? 0;
+			acc.towerDamage += row.towerDamage ?? 0;
+			acc.duration += row.match.duration ?? 0;
+			return acc;
+		},
+		{
+			kills: 0,
+			deaths: 0,
+			assists: 0,
+			impact: 0,
+			gpm: 0,
+			xpm: 0,
+			lastHits: 0,
+			heroDamage: 0,
+			towerDamage: 0,
+			duration: 0
+		}
+	);
+	const divide = (value: number) => (matchCount > 0 ? value / matchCount : 0);
+	const roleCounts = [1, 2, 3, 4, 5].map((role) => {
+		const roleRows = profileRows.filter((row) => row.role === role);
+		const roleWins = roleRows.filter((row) => row.team === row.match.winner).length;
+		const roleImpact =
+			roleRows.length > 0
+				? roleRows.reduce((sum, row) => sum + (row.impact ?? 0), 0) / roleRows.length
+				: 0;
+		return {
+			role,
+			count: roleRows.length,
+			wins: roleWins,
+			losses: roleRows.length - roleWins,
+			winRate: roleRows.length > 0 ? (roleWins / roleRows.length) * 100 : 0,
+			impact: roleImpact
+		};
+	});
+	const heroCountMap = profileRows.reduce(
+		(map: Map<number, { count: number; wins: number; hero: DotaAsset | undefined }>, row) => {
+			const current = map.get(row.heroId) ?? {
+				count: 0,
+				wins: 0,
+				hero: row.hero
+			};
+			current.count += 1;
+			if (row.team === row.match.winner) current.wins += 1;
+			map.set(row.heroId, current);
+			return map;
+		},
+		new Map<number, { count: number; wins: number; hero: DotaAsset | undefined }>()
+	);
+	const heroCounts = Array.from(heroCountMap.values())
+		.sort((a, b) => b.count - a.count)
+		.slice(0, 5);
+	const timeline = Array.from(
+		profileRows
+			.slice()
+			.sort((a, b) => a.match.startTime - b.match.startTime)
+			.reduce((map, row) => {
+				const key = dayjs.unix(row.match.startTime).format('YYYY-MM-DD');
+				const current = map.get(key) ?? { date: key, wins: 0, losses: 0 };
+				if (row.team === row.match.winner) current.wins += 1;
+				else current.losses += 1;
+				map.set(key, current);
+				return map;
+			}, new Map<string, { date: string; wins: number; losses: number }>())
+			.values()
+	).slice(-14);
+
+	return {
+		matchCount,
+		wins,
+		losses,
+		winRate: matchCount > 0 ? (wins / matchCount) * 100 : 0,
+		averages: {
+			kills: divide(totals.kills),
+			deaths: divide(totals.deaths),
+			assists: divide(totals.assists),
+			impact: divide(totals.impact),
+			gpm: divide(totals.gpm),
+			xpm: divide(totals.xpm),
+			lastHits: divide(totals.lastHits),
+			heroDamage: divide(totals.heroDamage),
+			towerDamage: divide(totals.towerDamage),
+			duration: divide(totals.duration)
+		},
+		roleCounts,
+		heroCounts,
+		timeline
+	};
+};
 
 export const GET: RequestHandler = async ({ url, params }) => {
 	try {
@@ -97,13 +245,18 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		} else {
 			roleFilter = [1, 2, 3, 4, 5];
 		}
+		const dateBounds = getDateRangeBounds(url.searchParams.get('dateRange'));
+		const dateFilters = getDateFilters(dateBounds);
 
 		const smurfFilter: boolean[] = [false];
 		if (url.searchParams.has('smurf')) {
 			smurfFilter.push(Boolean(JSON.parse(url.searchParams.get('smurf')!)));
 		}
+		const resultFilter: string[] = url.searchParams.has('results')
+			? JSON.parse(url.searchParams.get('results')!)
+			: ['wins', 'losses'];
 
-		const matchIds = await db
+		const allMatchedIds = await db
 			.select({
 				id: matches.id,
 				winner: matches.winner,
@@ -124,16 +277,50 @@ export const GET: RequestHandler = async ({ url, params }) => {
 					inArray(matches.gameMode, gameModeFilter),
 					inArray(matches.lobby, lobbyFilter),
 					inArray(matchData.role, roleFilter),
-					inArray(accounts.smurf, smurfFilter)
+					inArray(accounts.smurf, smurfFilter),
+					...dateFilters
 				)
 			)
 			.groupBy(matches.id)
-			.orderBy(desc(matches.id))
-			.limit(20) // Only get exactly what we need
-			.offset(pageNumber * 20); // Use proper offset for pagination
+			.having(sql`count(distinct ${players.id}) = ${playerFilter.length}`)
+			.orderBy(desc(matches.id));
+
+		const profileOutcomes =
+			allMatchedIds.length > 0
+				? await db
+						.select({
+							matchId: matchData.matchId,
+							team: matchData.team,
+							winner: matches.winner
+						})
+						.from(matchData)
+						.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+						.innerJoin(players, eq(accounts.owner, players.id))
+						.innerJoin(matches, eq(matches.id, matchData.matchId))
+						.where(
+							and(
+								eq(players.id, Number(params.id)),
+								inArray(
+									matchData.matchId,
+									allMatchedIds.map((match) => match.id)
+								)
+							)
+						)
+				: [];
+		const outcomeByMatchId = new Map(profileOutcomes.map((outcome) => [outcome.matchId, outcome]));
+		const filteredMatchIds = allMatchedIds.filter((match) => {
+			const outcome = outcomeByMatchId.get(match.id);
+			const isWin = outcome?.team === outcome?.winner;
+			return (isWin && resultFilter.includes('wins')) || (!isWin && resultFilter.includes('losses'));
+		});
+		const matchIds = filteredMatchIds.slice(pageNumber * 20, pageNumber * 20 + 20);
 
 		if (matchIds.length === 0) {
-			return json([]);
+			return json({
+				matches: [],
+				stats: calculateProfileStats([], Number(params.id)),
+				totalMatches: filteredMatchIds.length
+			});
 		}
 
 		const allMatchData = await db
@@ -145,6 +332,18 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				inArray(
 					matchData.matchId,
 					matchIds.map((m) => m.id)
+				)
+			);
+		const allFilteredMatchData = await db
+			.select()
+			.from(matchData)
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.innerJoin(players, eq(accounts.owner, players.id))
+			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.where(
+				inArray(
+					matchData.matchId,
+					filteredMatchIds.map((m) => m.id)
 				)
 			);
 
@@ -165,8 +364,10 @@ export const GET: RequestHandler = async ({ url, params }) => {
 			const matchPlayerData = matchDataByMatchId.get(match.id) || [];
 
 			const processedPlayers: PlayerMatchData[] = matchPlayerData.map((player) => {
-				const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name;
-				const facets = heroAbilities[`${heroName}`]?.facets || [];
+				const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name as
+					| keyof typeof heroAbilities
+					| undefined;
+				const facets = heroName ? heroAbilities[heroName]?.facets || [] : [];
 				return {
 					...player.players,
 					...player.accounts,
@@ -215,7 +416,11 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				(a.matchData.startTime + a.matchData.duration)
 		);
 
-		return json(matchBlocksSorted);
+		return json({
+			matches: matchBlocksSorted,
+			stats: calculateProfileStats(allFilteredMatchData, Number(params.id)),
+			totalMatches: filteredMatchIds.length
+		});
 	} catch (error) {
 		console.error(`❌ API Request failed for /api/matches/all/profile/${params.id}`, error);
 		throw error;

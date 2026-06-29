@@ -1,45 +1,61 @@
-import {
-	getAccounts,
-	getHeroStats,
-	getPlayer,
-	getPlayerChart,
-	getPlayerWinLoss,
-	getPlayers,
-	getTOTWCounts
-} from '$lib/server/db-functions';
+import { db } from '$lib/server/database';
+import { accounts, heroes, matchData, matches, players } from '$lib/server/schema';
+import { eq, gt } from 'drizzle-orm';
 
-export const load = async ({ url, params }) => {
-	const players = await getPlayers();
-
-	const promises = players.map(async (player) => {
-		return {
-			data: await getPlayerChart(player.id, 31),
-			player: player
-		};
-	});
-
-	const chartData = await Promise.all(promises).then((data) => {
-		return data;
-	});
-	const graph = chartData
-		.map((data) => {
-			if (data.data.matchCount > 5) {
-				return {
-					player: data.player,
-					data: data.data.daysArray
-				};
-			}
+export const load = async () => {
+	const rows = await db
+		.select({
+			playerId: players.id,
+			username: players.username,
+			smurf: accounts.smurf,
+			matchId: matches.id,
+			sequenceNumber: matches.sequenceNumber,
+			startTime: matches.startTime,
+			duration: matches.duration,
+			lobby: matches.lobby,
+			gameMode: matches.gameMode,
+			winner: matches.winner,
+			team: matchData.team,
+			role: matchData.role,
+			heroId: heroes.id,
+			heroName: heroes.name,
+			heroImg: heroes.img,
+			kills: matchData.kills,
+			deaths: matchData.deaths,
+			assists: matchData.assists,
+			impact: matchData.impact,
+			gpm: matchData.goldPerMin,
+			xpm: matchData.xpPerMin,
+			lastHits: matchData.lastHits,
+			heroDamage: matchData.heroDamage,
+			towerDamage: matchData.towerDamage
 		})
-		.filter((data) => data !== undefined);
+		.from(matchData)
+		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(players, eq(players.id, accounts.owner))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
+		.where(gt(matches.duration, 900));
 
-	const totwCounts = await getTOTWCounts();
-	totwCounts.sort((a, b) => b.total.length - a.total.length);
+	const playerList = Array.from(
+		new Map(rows.map((row) => [row.playerId, { id: row.playerId, username: row.username }])).values()
+	).sort((a, b) => a.username.localeCompare(b.username));
+	const heroList = Array.from(
+		new Map(
+			rows.map((row) => [
+				row.heroId,
+				{
+					id: row.heroId,
+					name: row.heroName,
+					img: row.heroImg
+				}
+			])
+		).values()
+	).sort((a, b) => a.name.localeCompare(b.name));
 
-	const heroJson = await fetch(
-		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
-	);
-	const heroList: DotaAsset[] = await heroJson.json();
-	heroList.sort((a, b) => a.name.localeCompare(b.name));
-
-	return { graph, totwCounts, heroList };
+	return {
+		rows,
+		playerList,
+		heroList
+	};
 };

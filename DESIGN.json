@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-29T00:00:00Z",
+  "title": "Design System: Whos Playing",
+  "extensions": {
+    "colorMeta": {
+      "background-dark": { "role": "neutral", "displayName": "Dark Background", "canonical": "oklch(18% 0.01 260)", "tonalRamp": ["#0d0f13", "#12141a", "#1a1d23", "#22252d", "#2a2e38", "#343843", "#3f444f", "#4b515d"] },
+      "foreground-dark": { "role": "neutral", "displayName": "Dark Foreground", "canonical": "oklch(92% 0.005 260)", "tonalRamp": ["#a3a3a3", "#b0b0b0", "#bdbdbd", "#cacaca", "#d7d7d7", "#e5e5e5", "#efefef", "#f7f7f7"] },
+      "card-dark": { "role": "neutral", "displayName": "Dark Card", "canonical": "oklch(22% 0.01 250)", "tonalRamp": ["#141720", "#1a1d25", "#242830", "#2c3039", "#343943", "#3d424d", "#474c58", "#525763"] },
+      "popover-dark": { "role": "neutral", "displayName": "Dark Popover", "canonical": "oklch(25% 0.01 180)", "tonalRamp": ["#1a2020", "#222a2b", "#2f3436", "#3a4042", "#45504e", "#525c5a", "#5f6967", "#6d7774"] },
+      "primary-green": { "role": "primary", "displayName": "Match Green", "canonical": "oklch(64% 0.16 150)", "tonalRamp": ["#0d3018", "#165025", "#1f7035", "#2a8a45", "#34a85a", "#4dba6e", "#6dcc85", "#92dea0"] },
+      "secondary-steel": { "role": "secondary", "displayName": "Steel Blue", "canonical": "oklch(55% 0.08 240)", "tonalRamp": ["#1a2e40", "#24405a", "#305474", "#3c688e", "#4682b4", "#5e94c0", "#78a7cc", "#94bbd8"] },
+      "accent-cornflower": { "role": "secondary", "displayName": "Cornflower", "canonical": "oklch(60% 0.15 260)", "tonalRamp": ["#1e2858", "#2c3c78", "#3c5298", "#4e6ab8", "#6495ed", "#78a2f0", "#8eb0f3", "#a6c0f6"] },
+      "accent-cyan": { "role": "tertiary", "displayName": "Cyan Accent", "canonical": "oklch(80% 0.1 200)", "tonalRamp": ["#1a4855", "#2a6070", "#3c7a8c", "#5094a8", "#66d9ef", "#7ce0f2", "#94e7f5", "#b0eef8"] },
+      "impact-purple": { "role": "tertiary", "displayName": "Impact Purple", "canonical": "oklch(48% 0.28 310)", "tonalRamp": ["#2e0a60", "#44107a", "#5c1a98", "#7526b4", "#9333ea", "#a44def", "#b56af3", "#c78af7"] },
+      "destructive-red": { "role": "semantic", "displayName": "Loss Red", "canonical": "oklch(58% 0.22 28)", "tonalRamp": ["#5c0a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5"] },
+      "backdrop-deep": { "role": "neutral", "displayName": "Backdrop Deep", "canonical": "oklch(8% 0.02 220)", "tonalRamp": ["#010508", "#020a10", "#031018", "#051822", "#08202c", "#0c2938", "#103344", "#153e51"] }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Page titles and major dashboard headings." },
+      "title": { "displayName": "Title", "purpose": "Card titles, table group titles, and modal headings." },
+      "body": { "displayName": "Body", "purpose": "Main UI copy, table cell values, descriptions." },
+      "label": { "displayName": "Label", "purpose": "Filter labels, stat labels, compact metadata." },
+      "display": { "displayName": "Display", "purpose": "Navigation links, RatingChip labels, logo text. Poppins only." }
+    },
+    "shadows": [
+      { "name": "shadow-2xs", "value": "0 1px 3px 0px hsl(0 0% 0% / 0.05)", "purpose": "Barely visible lift. Unused in dark mode." },
+      { "name": "shadow-sm", "value": "0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1)", "purpose": "Default card shadow from shadcn. Invisible in dark mode." },
+      { "name": "shadow-md", "value": "0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1)", "purpose": "Select dropdown and hover card separation." },
+      { "name": "shadow-xl", "value": "0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1)", "purpose": "MultiSelect and SearchBox dropdown surfaces." },
+      { "name": "shadow-2xl", "value": "0 1px 3px 0px hsl(0 0% 0% / 0.25)", "purpose": "MatchModal panel. Paired with shadow-black/60 tint." },
+      { "name": "glow", "value": "drop-shadow(0 0px 20px rgba(255,255,255,0.35)) drop-shadow(0 0px 65px rgba(255,255,255,0.2))", "purpose": "White glow effect for special emphasis." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "ease-out", "purpose": "Default easing for accordion and state transitions." },
+      { "name": "transition-colors", "value": "transition-property: color, background-color, border-color; transition-timing-function: ease; transition-duration: 150ms", "purpose": "Button and link hover transitions." },
+      { "name": "fade-modal", "value": "opacity 200ms ease", "purpose": "MatchModal entrance and exit." },
+      { "name": "fly-nav", "value": "transform 300ms ease (y: -1000 to 0)", "purpose": "Mobile navigation flyout." },
+      { "name": "accordion", "value": "height 200ms ease-out", "purpose": "Accordion expand/collapse." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1400px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main CTA button. Green background, white text.",
+      "html": "<button class=\"ds-btn-primary\">View Match</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; border-radius: 6px; font-size: 0.875rem; font-weight: 500; font-family: 'Nunito Sans', sans-serif; padding: 8px 16px; height: 40px; background: #34a85a; color: #ffffff; border: none; transition: background-color 150ms ease, color 150ms ease; } .ds-btn-primary:hover { background: rgba(52, 168, 90, 0.9); } .ds-btn-primary:focus-visible { outline: 2px solid #34a85a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Transparent button for table headers, icon actions, and local controls.",
+      "html": "<button class=\"ds-btn-ghost\">Sort <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 5v14M5 12l7 7 7-7\"/></svg></button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; border-radius: 6px; font-size: 0.875rem; font-weight: 500; font-family: 'Nunito Sans', sans-serif; padding: 8px 16px; height: 40px; background: transparent; color: #e5e5e5; border: none; transition: background-color 150ms ease, color 150ms ease; } .ds-btn-ghost:hover { background: #6495ed; color: #e5e5e5; } .ds-btn-ghost:focus-visible { outline: 2px solid #34a85a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Rating Chip - S Grade",
+      "kind": "chip",
+      "refersTo": "rating-chip-s",
+      "description": "Impact rating chip for S-tier performance. Yellow tint background with yellow text.",
+      "html": "<span class=\"ds-rating-chip ds-rating-s\">S</span>",
+      "css": ".ds-rating-chip { display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.875rem; width: 48px; text-align: center; padding: 4px 8px; } .ds-rating-s { background: rgba(234, 179, 8, 0.3); color: #eab308; } .ds-rating-s:hover { background: rgba(234, 179, 8, 0.4); }"
+    },
+    {
+      "name": "Rating Chip - A Grade",
+      "kind": "chip",
+      "refersTo": "rating-chip-a",
+      "description": "Impact rating chip for A-tier performance. Green tint background with green text.",
+      "html": "<span class=\"ds-rating-chip ds-rating-a\">A</span>",
+      "css": ".ds-rating-chip { display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.875rem; width: 48px; text-align: center; padding: 4px 8px; } .ds-rating-a { background: rgba(34, 197, 94, 0.3); color: #22c55e; }"
+    },
+    {
+      "name": "Rating Chip - F Grade",
+      "kind": "chip",
+      "refersTo": "rating-chip-f",
+      "description": "Impact rating chip for F-tier performance. Red tint background with red text.",
+      "html": "<span class=\"ds-rating-chip ds-rating-f\">F</span>",
+      "css": ".ds-rating-chip { display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 0.875rem; width: 48px; text-align: center; padding: 4px 8px; } .ds-rating-f { background: rgba(239, 68, 68, 0.3); color: #ef4444; }"
+    },
+    {
+      "name": "Data Chip",
+      "kind": "chip",
+      "refersTo": "data-chip",
+      "description": "Neutral stat chip for filter values, hero counts, and compact metadata.",
+      "html": "<span class=\"ds-data-chip\">12 Matches</span>",
+      "css": ".ds-data-chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 6px; font-family: 'Nunito Sans', sans-serif; font-size: 0.875rem; font-weight: 400; font-variant-numeric: tabular-nums; padding: 6px 10px; background: #27272a; color: #e5e5e5; }"
+    },
+    {
+      "name": "Panel Card",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Standard content panel. Dark card surface with border separation.",
+      "html": "<div class=\"ds-panel\"><h3 class=\"ds-panel-title\">Recent Matches</h3><p class=\"ds-panel-body\">Last 20 matches across all heroes.</p></div>",
+      "css": ".ds-panel { background: #242830; color: #e5e5e5; border-radius: 0.5rem; border: 1px solid #444444; padding: 16px; } .ds-panel-title { font-family: 'Nunito Sans', sans-serif; font-size: 1rem; font-weight: 600; line-height: 1.35; margin: 0 0 8px 0; } .ds-panel-body { font-family: 'Nunito Sans', sans-serif; font-size: 0.875rem; font-weight: 400; line-height: 1.5; color: #a3a3a3; margin: 0; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": null,
+      "description": "Custom search input with icon. Used in SearchBox and MultiSelect dropdowns.",
+      "html": "<div class=\"ds-search-wrap\"><svg class=\"ds-search-icon\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input class=\"ds-search-input\" placeholder=\"Search heroes...\" /></div>",
+      "css": ".ds-search-wrap { position: relative; } .ds-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #a3a3a3; pointer-events: none; } .ds-search-input { width: 100%; border-radius: 8px; border: 1px solid #444444; background: #09090b; padding: 10px 12px 10px 40px; font-size: 0.875rem; font-family: 'Nunito Sans', sans-serif; color: #e5e5e5; outline: none; transition: border-color 150ms ease; } .ds-search-input::placeholder { color: #71717a; } .ds-search-input:focus { border-color: #52525b; }"
+    },
+    {
+      "name": "Desktop Nav Link (Active)",
+      "kind": "nav",
+      "refersTo": "nav-active",
+      "description": "Active navigation link with sky-blue underline and gradient glow.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link ds-nav-active\" href=\"#\">Matches</a><a class=\"ds-nav-link\" href=\"#\">Records</a><a class=\"ds-nav-link\" href=\"#\">Stats</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: center; gap: 32px; } .ds-nav-link { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 500; color: #e5e5e5; text-decoration: none; padding: 8px 0; border-bottom: 2px solid transparent; transition: color 300ms ease, border-color 300ms ease; } .ds-nav-link:hover { color: #a1a1aa; } .ds-nav-active { border-bottom-color: #0ea5e9; background: linear-gradient(to top, rgba(8, 47, 73, 0.6), transparent); } .ds-nav-active:hover { color: #e5e5e5; }"
+    },
+    {
+      "name": "Match Outcome Chip",
+      "kind": "chip",
+      "refersTo": null,
+      "description": "Victory/Defeat/Versus indicator chip on match rows.",
+      "html": "<div class=\"ds-outcome-chips\"><span class=\"ds-outcome ds-outcome-win\">Victory</span><span class=\"ds-outcome ds-outcome-loss\">Defeat</span><span class=\"ds-outcome ds-outcome-vs\">Versus</span></div>",
+      "css": ".ds-outcome-chips { display: flex; gap: 8px; } .ds-outcome { display: inline-flex; align-items: center; justify-content: center; gap: 4px; border-radius: 8px; padding: 4px 8px; font-size: 0.875rem; font-family: 'Nunito Sans', sans-serif; font-weight: 500; border-width: 2px; border-style: solid; } .ds-outcome-win { background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); } .ds-outcome-loss { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.3); } .ds-outcome-vs { background: rgba(147, 51, 234, 0.2); color: #c084fc; border-color: rgba(147, 51, 234, 0.3); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Match Room",
+    "overview": "Whos Playing should feel like a compact analysis room for a Dota group: dark, information-rich, and built for repeat visits. The interface trusts the user to understand dense match data while making the next useful action obvious. It supports both light and dark modes via CSS custom properties, but the dark palette is the primary experience and the one this system is tuned for.\n\nThe design is a product UI, so it favors familiar controls, sortable data tables, compact filters, clear tabs, and restrained accent color. Visual energy comes from real Dota assets: role icons, win/loss color, hero images, impact rating chips, and data variation rather than decorative backgrounds. The shadcn/ui component library provides the structural primitives (Button, Card, Select, Tabs, Table, HoverCard) on top of bits-ui headless components, while custom components (MatchModal, RatingChip, MultiSelect, SearchBox) carry the product-specific vocabulary.",
+    "keyCharacteristics": [
+      "Dense dashboards with calm spacing.",
+      "Dark neutral surfaces with restrained green primary and sky-blue navigation accents.",
+      "Tables, filters, and chips as primary interface vocabulary.",
+      "A six-tier impact rating system (S through F) with grade-specific color coding.",
+      "Meaningful imagery from heroes, roles, and match context.",
+      "Local interactions that preserve user momentum across tabs, filters, and modals."
+    ],
+    "rules": [
+      { "name": "The Result Color Rule", "body": "Green and red are strictly for wins, losses, success, failure, and combined result bars. Never use them as generic decoration or status indicators unrelated to match outcomes.", "section": "colors" },
+      { "name": "The Sky Action Rule", "body": "Sky blue (#0ea5e9) is reserved for navigation active states (desktop border-bottom, mobile pill) and clear-filter links. It does not appear in the CSS variable system; it lives as direct Tailwind classes. Keep it rare so active controls remain easy to find.", "section": "colors" },
+      { "name": "The Grade Color Rule", "body": "Each impact grade (S through F) owns a single hue at 30% opacity background with full-saturation text: yellow for S, green for A, blue for B, purple for C, orange for D, red for F. These are the only sanctioned uses of those mid-saturation tones.", "section": "colors" },
+      { "name": "The Data Scale Rule", "body": "Avoid hero-scale typography inside product panels. Metrics should be large enough to scan, not so large that they dominate the workflow. The largest in-panel number should rarely exceed 1.5rem.", "section": "typography" },
+      { "name": "The Poppins Boundary Rule", "body": "Poppins is display-only. Never use it for body text, table cells, or form labels. If something reads like data, it uses Nunito Sans.", "section": "typography" },
+      { "name": "The Flat By Default Rule", "body": "Surfaces are flat at rest. Shadow appears only when something floats above the page: modals, popovers, dropdowns. If you are reaching for a shadow on a card, use a border instead.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use CSS custom properties (--background, --card, --primary) for all semantic colors. Both light and dark values resolve automatically.",
+      "Do keep filters compact and consistent across matches, records, stats, and profile pages. Filters are part of the analysis.",
+      "Do use hero images and role icons where they reduce text. Dota context should be visual.",
+      "Do keep win/loss bars hoverable and numerically interpretable. Color supports meaning; text and numbers carry it.",
+      "Do preserve tab, filter, and modal context when users navigate locally. Tab changes and row clicks should feel local.",
+      "Do prefer sortable TanStack data tables for comparable datasets. Tables beat cards for data comparison.",
+      "Do use the six-tier rating chip system (S/A/B/C/D/F) consistently for impact. Each grade owns its color.",
+      "Do use tabular-nums for numeric table columns so digits align vertically."
+    ],
+    "donts": [
+      "Don't turn stat groups into oversized repeated cards when a banner or table would scan better. Dense can still be calm.",
+      "Don't add decorative gradients, glass panels, or generic hero sections to product screens. This is not a SaaS landing page.",
+      "Don't use novelty gamer UI, heavy fantasy ornament, or noisy neon treatments. The product is sharp and practical, not theatrical.",
+      "Don't hide essential meaning behind color alone. Text and numeric labels must carry the result independently.",
+      "Don't use modal dialogs for simple selection when an inline select or popover is enough. Exhaust inline alternatives first.",
+      "Don't let charts replace tables when exact comparison matters. Charts support patterns; tables support precision.",
+      "Don't spread green or red outside win/loss/success/failure contexts. The Result Color Rule is absolute.",
+      "Don't use Poppins for body text, table cells, or form labels. It is display-only.",
+      "Don't add shadows to cards in dark mode. Use border + surface color step instead.",
+      "Don't use #000000 or #ffffff as raw values. The darkest surface is #1a1d23; the lightest text is #e5e5e5."
+    ]
+  }
+}

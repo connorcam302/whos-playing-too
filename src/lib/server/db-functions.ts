@@ -24,25 +24,40 @@ import {
 	countDistinct,
 	count
 } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import { getHeroString } from './private-functions';
 import { STEAM_KEY } from '$env/static/private';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { heroMap } from '$lib/data/heroMap';
+import type { DateRangeBounds } from '$lib/data/dotaPatchRanges';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
+type RecordsDateFilter = number | DateRangeBounds;
+
+const getRecordsDateFilter = (dateFilter: RecordsDateFilter = 31) => {
+	if (typeof dateFilter === 'number') {
+		return gte(matches.startTime, dayjs().subtract(dateFilter, 'day').unix());
+	}
+
+	const filters = [];
+	if (dateFilter.start !== null) {
+		filters.push(gte(matches.startTime, dateFilter.start));
+	}
+	if (dateFilter.end !== null) {
+		filters.push(lte(matches.startTime, dateFilter.end));
+	}
+
+	return filters.length > 0 ? and(...filters) : sql`true`;
+};
 
 export const getHeroStats = async (
 	offset: number = dayjs(0).add(2, 'week').valueOf() / 1000,
 	player: number = 0
 ) => {
-	const heroJson = await fetch(
-		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
-	);
-	const heroes: DotaAsset[] = await heroJson.json();
-
 	let heroMatches: any;
 	let heroWinsRadiant: any;
 	let heroWinsDire: any;
@@ -958,7 +973,7 @@ export const getFeatures = async () => {
 };
 
 export const getPlayer = async (id: number) => {
-	const player = await db
+	const mainAccountPlayer = await db
 		.select({
 			id: players.id,
 			username: players.username,
@@ -968,7 +983,41 @@ export const getPlayer = async (id: number) => {
 		.from(players)
 		.where(and(eq(players.id, id), eq(accounts.smurf, false)))
 		.innerJoin(accounts, eq(accounts.owner, players.id));
-	return player[0];
+
+	if (mainAccountPlayer[0]) {
+		return mainAccountPlayer[0];
+	}
+
+	const anyAccountPlayer = await db
+		.select({
+			id: players.id,
+			username: players.username,
+			accountId: accounts.accountId,
+			image: accounts.image
+		})
+		.from(players)
+		.where(eq(players.id, id))
+		.innerJoin(accounts, eq(accounts.owner, players.id));
+
+	if (anyAccountPlayer[0]) {
+		return anyAccountPlayer[0];
+	}
+
+	const player = await db
+		.select({
+			id: players.id,
+			username: players.username
+		})
+		.from(players)
+		.where(eq(players.id, id));
+
+	return player[0]
+		? {
+				...player[0],
+				accountId: 0,
+				image: ''
+			}
+		: undefined;
 };
 
 export const getAccounts = async (id: number) => {
@@ -1244,7 +1293,7 @@ export const getMatchesByDay = async (id: number, offset: number = 12) => {
 export const getMostKills = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1285,7 +1334,7 @@ export const getMostKills = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1309,7 +1358,7 @@ export const getMostKills = async (
 export const getMostDeaths = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1350,7 +1399,7 @@ export const getMostDeaths = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1375,7 +1424,7 @@ export const getMostDeaths = async (
 export const getMostAssists = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1416,7 +1465,7 @@ export const getMostAssists = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1441,7 +1490,7 @@ export const getMostAssists = async (
 export const getHighestImpact = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1482,7 +1531,7 @@ export const getHighestImpact = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1507,7 +1556,7 @@ export const getHighestImpact = async (
 export const getLowestImpact = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1548,7 +1597,7 @@ export const getLowestImpact = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1573,7 +1622,7 @@ export const getLowestImpact = async (
 export const getMostGPM = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1614,7 +1663,7 @@ export const getMostGPM = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1638,7 +1687,7 @@ export const getMostGPM = async (
 export const getMostXPM = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1679,7 +1728,7 @@ export const getMostXPM = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1704,7 +1753,7 @@ export const getMostXPM = async (
 export const getMostLastHits = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1745,7 +1794,7 @@ export const getMostLastHits = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1769,7 +1818,7 @@ export const getMostLastHits = async (
 export const getMostHeroDamage = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1811,7 +1860,7 @@ export const getMostHeroDamage = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1836,7 +1885,7 @@ export const getMostHeroDamage = async (
 export const getLeastHeroDamage = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1878,7 +1927,7 @@ export const getLeastHeroDamage = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1902,7 +1951,7 @@ export const getLeastHeroDamage = async (
 export const getMostBuildingDamage = async (
 	games: number = 10,
 	smurfFilter: boolean = false,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1
@@ -1943,7 +1992,7 @@ export const getMostBuildingDamage = async (
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
 			and(
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -1969,7 +2018,7 @@ export const getMostBuildingDamage = async (
 
 export const getPlayerStats = async (
 	id: number,
-	offset: number = 31,
+	dateFilter: RecordsDateFilter = 31,
 	roleFilter: number[] = [1, 2, 3, 4, 5],
 	lobbyFilter: number[] = [0, 7],
 	hero: number = -1,
@@ -2004,7 +2053,7 @@ export const getPlayerStats = async (
 					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'radiant')),
 					and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
 				),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.lobby, 7),
 				eq(players.id, id),
 				inArray(matchData.role, roleFilter),
@@ -2030,7 +2079,7 @@ export const getPlayerStats = async (
 					and(eq(matchData.team, 'radiant'), eq(matches.winner, 'dire')),
 					and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
 				),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.lobby, 7),
 				eq(players.id, id),
 				inArray(matchData.role, roleFilter),
@@ -2057,7 +2106,7 @@ export const getPlayerStats = async (
 					and(eq(matchData.team, 'dire'), eq(matches.winner, 'dire'))
 				),
 				eq(matches.gameMode, 22),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(players.id, id),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -2082,7 +2131,7 @@ export const getPlayerStats = async (
 					and(eq(matchData.team, 'dire'), eq(matches.winner, 'radiant'))
 				),
 				eq(matches.gameMode, 22),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(players.id, id),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -2112,7 +2161,7 @@ export const getPlayerStats = async (
 		.where(
 			and(
 				eq(players.id, id),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -2138,7 +2187,7 @@ export const getPlayerStats = async (
 		.where(
 			and(
 				eq(players.id, id),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -2165,7 +2214,7 @@ export const getPlayerStats = async (
 		.where(
 			and(
 				eq(players.id, id),
-				gte(matches.startTime, dayjs().subtract(offset, 'day').unix()),
+				getRecordsDateFilter(dateFilter),
 				eq(matches.gameMode, 22),
 				inArray(matchData.role, roleFilter),
 				inArray(matches.lobby, lobbyFilter),
@@ -2587,4 +2636,197 @@ export const getPlayerImpactCountsByRole = async (playerId: number) => {
 	}, {});
 
 	return groupedByRating;
+};
+
+export const getPlayerRecords = async (playerId: number) => {
+	const playerMatches = await db
+		.select({
+			id: players.id,
+			username: players.username,
+			smurf: accounts.smurf,
+			kills: matchData.kills,
+			deaths: matchData.deaths,
+			assists: matchData.assists,
+			impact: matchData.impact,
+			role: matchData.role,
+			gpm: matchData.goldPerMin,
+			xpm: matchData.xpPerMin,
+			lastHits: matchData.lastHits,
+			heroDamage: matchData.heroDamage,
+			towerDamage: matchData.towerDamage,
+			matchId: matchData.matchId,
+			sequenceNumber: matches.sequenceNumber,
+			duration: matches.duration,
+			startTime: matches.startTime,
+			team: matchData.team,
+			winner: matches.winner,
+			hero: {
+				id: heroes.id,
+				name: heroes.name,
+				img: heroes.img
+			}
+		})
+		.from(matchData)
+		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(players, eq(accounts.owner, players.id))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
+		.where(and(eq(players.id, playerId), gt(matches.duration, 900)));
+
+	const matchIds = Array.from(new Set(playerMatches.map((match) => match.matchId)));
+	const lobbyPlayers =
+		matchIds.length > 0
+			? await db
+					.select({
+						matchId: matchData.matchId,
+						playerId: accounts.owner
+					})
+					.from(matchData)
+					.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+					.where(inArray(matchData.matchId, matchIds))
+			: [];
+	const lobbyPlayersByMatch = new Map<number, Set<number>>();
+
+	for (const lobbyPlayer of lobbyPlayers) {
+		if (!lobbyPlayersByMatch.has(lobbyPlayer.matchId)) {
+			lobbyPlayersByMatch.set(lobbyPlayer.matchId, new Set());
+		}
+		lobbyPlayersByMatch.get(lobbyPlayer.matchId)?.add(lobbyPlayer.playerId);
+	}
+
+	const matchesWithLobbyPlayers = playerMatches.map((match) => ({
+		...match,
+		lobbyPlayerIds: Array.from(lobbyPlayersByMatch.get(match.matchId) ?? [])
+	}));
+
+	return {
+		matches: matchesWithLobbyPlayers
+	};
+};
+
+export const getPlayerTeammateStats = async (playerId: number) => {
+	const playerMatchData = alias(matchData, 'player_match_data');
+	const teammateMatchData = alias(matchData, 'teammate_match_data');
+	const teammateAccounts = alias(accounts, 'teammate_accounts');
+	const teammatePlayers = alias(players, 'teammate_players');
+	const playerHeroes = alias(heroes, 'player_heroes');
+
+	const rows = await db
+		.select({
+			teammateId: teammatePlayers.id,
+			username: teammatePlayers.username,
+			matchId: matches.id,
+			startTime: matches.startTime,
+			role: playerMatchData.role,
+			heroId: playerHeroes.id,
+			heroName: playerHeroes.name,
+			heroImg: playerHeroes.img,
+			team: playerMatchData.team,
+			winner: matches.winner
+		})
+		.from(playerMatchData)
+		.innerJoin(accounts, eq(accounts.accountId, playerMatchData.playerId))
+		.innerJoin(matches, eq(matches.id, playerMatchData.matchId))
+		.innerJoin(playerHeroes, eq(playerHeroes.id, playerMatchData.heroId))
+		.innerJoin(
+			teammateMatchData,
+			and(
+				eq(teammateMatchData.matchId, playerMatchData.matchId),
+				eq(teammateMatchData.team, playerMatchData.team),
+				ne(teammateMatchData.playerId, playerMatchData.playerId)
+			)
+		)
+		.innerJoin(teammateAccounts, eq(teammateAccounts.accountId, teammateMatchData.playerId))
+		.innerJoin(teammatePlayers, eq(teammateAccounts.owner, teammatePlayers.id))
+		.where(and(eq(accounts.owner, playerId), ne(teammatePlayers.id, playerId)));
+
+	const teammateMap = new Map<
+		number,
+		{
+			id: number;
+			username: string;
+			matches: Set<number>;
+			wins: Set<number>;
+			losses: Set<number>;
+			results: {
+				matchId: number;
+				startTime: number;
+				role: number;
+				hero: {
+					id: number;
+					name: string;
+					img: string;
+				};
+				won: boolean;
+			}[];
+		}
+	>();
+
+	for (const row of rows) {
+		if (!teammateMap.has(row.teammateId)) {
+			teammateMap.set(row.teammateId, {
+				id: row.teammateId,
+				username: row.username,
+				matches: new Set(),
+				wins: new Set(),
+				losses: new Set(),
+				results: []
+			});
+		}
+
+		const teammate = teammateMap.get(row.teammateId)!;
+		teammate.matches.add(row.matchId);
+		const won = row.team === row.winner;
+
+		if (won) {
+			teammate.wins.add(row.matchId);
+		} else {
+			teammate.losses.add(row.matchId);
+		}
+
+		teammate.results.push({
+			matchId: row.matchId,
+			startTime: row.startTime,
+			role: row.role,
+			hero: {
+				id: row.heroId,
+				name: row.heroName,
+				img: row.heroImg
+			},
+			won
+		});
+	}
+
+	return Array.from(teammateMap.values())
+		.map((teammate) => {
+			const matchCount = teammate.matches.size;
+			const wins = teammate.wins.size;
+			const losses = teammate.losses.size;
+			const uniqueResults = Array.from(
+				new Map(teammate.results.map((result) => [result.matchId, result])).values()
+			).sort((a, b) => a.startTime - b.startTime);
+			let currentWinStreak = 0;
+			let longestWinStreak = 0;
+
+			for (const result of uniqueResults) {
+				if (result.won) {
+					currentWinStreak += 1;
+					longestWinStreak = Math.max(longestWinStreak, currentWinStreak);
+				} else {
+					currentWinStreak = 0;
+				}
+			}
+
+			return {
+				id: teammate.id,
+				username: teammate.username,
+				matches: matchCount,
+				wins,
+				losses,
+				winRate: matchCount > 0 ? (wins / matchCount) * 100 : 0,
+				longestWinStreak,
+				matchesData: uniqueResults
+			};
+		})
+		.sort((a, b) => b.matches - a.matches || b.winRate - a.winRate);
 };

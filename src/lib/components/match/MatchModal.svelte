@@ -6,12 +6,7 @@
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import MatchTable from './MatchTable.svelte';
-	import { goto } from '$app/navigation';
-	import FxemojiPoo from '~icons/fxemoji/poo';
-	import MaterialSymbolsTrophyRounded from '~icons/material-symbols/trophy-rounded';
-	import { calcImpact } from '$lib/functions';
-	import tippy from 'tippy.js';
-	import { onDestroy, onMount } from 'svelte';
+	import { X } from 'lucide-svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -30,6 +25,7 @@
 		first_blood_time: number;
 		lobby_type: number;
 		human_players: number;
+		leagueid: number;
 		game_mode: number;
 		flags: number;
 		engine: number;
@@ -129,12 +125,23 @@
 
 	let showMatchData = $state(false);
 
-	let matchDetails: {
-		matchData: MatchData;
-		radiantData: PlayerData[];
-		direData: PlayerData[];
-		error?: any;
-	} = $state();
+	type MatchDetails =
+		| {
+				matchData: MatchData;
+				radiantData: PlayerData[];
+				direData: PlayerData[];
+				error?: undefined;
+				message?: undefined;
+		  }
+		| {
+				error: number;
+				message: string;
+				matchData?: undefined;
+				radiantData?: undefined;
+				direData?: undefined;
+		  };
+
+	let matchDetails: MatchDetails | undefined = $state();
 	const openMatchData = async () => {
 		showMatchData = true;
 		if (!matchDetails) {
@@ -168,9 +175,15 @@
 	{/if}
 </svelte:head>
 
-<button onclick={openMatchData} class="h-full w-full transition-all duration-300">
+<div
+	onclick={openMatchData}
+	onkeydown={(event) => event.key === 'Enter' && openMatchData()}
+	role="button"
+	tabindex="0"
+	class="h-full w-full cursor-pointer transition-colors duration-150"
+>
 	{@render children?.()}
-</button>
+</div>
 
 {#if showMatchData}
 	<div
@@ -183,17 +196,43 @@
 		role="button"
 		class:scroll-lock={showMatchData}
 	>
-		<div class="absolute z-20 max-h-[75vh] overflow-auto lg:max-h-[90vh]">
-			<div class="rounded-xl bg-zinc-900 px-4 py-2 opacity-100">
+		<div class="absolute z-20 w-[min(96vw,1180px)] max-h-[88vh] overflow-hidden rounded-md border border-zinc-800 bg-zinc-950 shadow-2xl shadow-black/60">
+			<div class="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
+				<div>
+					<div class="text-sm font-medium text-zinc-100">Match Details</div>
+					<div class="text-xs text-zinc-500">
+						{#if matchId}
+							Match {matchId}
+						{:else if sequenceNum}
+							Sequence {sequenceNum}
+						{:else}
+							Loading match
+						{/if}
+					</div>
+				</div>
+				<button
+					type="button"
+					class="rounded-md p-2 text-zinc-400 transition duration-150 hover:bg-zinc-900 hover:text-zinc-100"
+					onclick={() => (showMatchData = false)}
+					aria-label="Close match details"
+				>
+					<X class="h-4 w-4" />
+				</button>
+			</div>
+			<div class="max-h-[calc(88vh-4rem)] overflow-auto p-3">
 				{#if matchDetails}
 					{#if matchDetails.error}
-						<div class="px-4 py-4 text-center">
-							<h1 class="font-display text-3xl">Error {matchDetails.error}</h1>
-							<p class="text-lg">{matchDetails.message}</p>
+						<div class="rounded-md border border-red-900/60 bg-red-950/30 px-4 py-6 text-center">
+							<h1 class="text-lg font-semibold text-red-100">Error {matchDetails.error}</h1>
+							<p class="mt-1 text-sm text-red-200/80">{matchDetails.message}</p>
 						</div>
-					{:else}
+					{:else if matchDetails.matchData}
 						<MatchTable {matchDetails} />
 					{/if}
+				{:else}
+					<div class="flex min-h-40 items-center justify-center">
+						<Loading />
+					</div>
 				{/if}
 			</div>
 		</div>
@@ -222,103 +261,7 @@
 		bottom: 0;
 		right: 0;
 		left: 0;
-		background: rgba(0, 0, 0, 0.5);
-	}
-
-	:root {
-		--splus-base: #fef3c7;
-		--splus-accent1: #fcd34d;
-		--splus-accent2: #fbbf24;
-
-		--splusplus-base: #fdba74;
-		--splusplus-accent1: #f97316;
-		--splusplus-accent2: #ea580c;
-
-		--f-base: #b45309;
-		--f-accent1: #9a3412;
-		--f-accent2: #7c2d12;
-	}
-
-	#srating {
-		animation: srating 1s ease-in-out infinite alternate;
-		color: var(--splus-base);
-	}
-
-	@keyframes srating {
-		from {
-			text-shadow:
-				0 0 2px var(--splus-base),
-				0 0 4px var(--splus-base),
-				0 0 6px var(--splus-accent1),
-				0 0 8px var(--splus-accent1),
-				0 0 10px var(--splus-accent1),
-				0 0 12px var(--splus-accent1),
-				0 0 14px var(--splus-accent1);
-		}
-		to {
-			text-shadow:
-				0 0 4px var(--splus-base),
-				0 0 8px var(--splus-accent2),
-				0 0 12px var(--splus-accent2),
-				0 0 12px var(--splus-accent2),
-				0 0 15px var(--splus-accent2),
-				0 0 18px var(--splus-accent2),
-				0 0 21px var(--splus-accent2);
-		}
-	}
-
-	#frating {
-		color: var(--f-base);
-		animation: frating 1s ease-in-out infinite alternate;
-	}
-
-	@keyframes frating {
-		from {
-			filter: drop-shadow(0 0 8px var(--f-accent1));
-		}
-		to {
-			filter: drop-shadow(0 0 4px var(--f-accent2));
-		}
-	}
-
-	#splusplusrating {
-		color: var(--splusplus-base);
-		animation: ssrating 1s ease-in-out infinite alternate;
-	}
-
-	@keyframes ssrating {
-		from {
-			text-shadow:
-				0 0 2px var(--splusplus-base),
-				0 0 4px var(--splusplus-base),
-				0 0 6px var(--splusplus-accent1),
-				0 0 8px var(--splusplus-accent1),
-				0 0 10px var(--splusplus-accent1),
-				0 0 12px var(--splusplus-accent1),
-				0 0 14px var(--splusplus-accent1);
-		}
-
-		to {
-			text-shadow:
-				0 0 4px var(--splusplus-base),
-				0 0 8px var(--splusplus-accent2),
-				0 0 12px var(--splusplus-accent2),
-				0 0 16px var(--splusplus-accent2),
-				0 0 20px var(--splusplus-accent2),
-				0 0 24px var(--splusplus-accent2),
-				0 0 28px var(--splusplus-accent2);
-		}
-	}
-
-	@keyframes shine {
-		0% {
-			background-position: left;
-		}
-		50% {
-			background-position: right;
-		}
-		100% {
-			background-position: left;
-		}
+		background: rgba(3, 3, 4, 0.78);
+		backdrop-filter: blur(8px);
 	}
 </style>

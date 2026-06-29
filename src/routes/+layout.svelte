@@ -17,6 +17,7 @@
 	import BiGithub from 'virtual:icons/bi/github';
 	import BiTwitterX from 'virtual:icons/bi/twitter-x';
 	import BiLinkedin from 'virtual:icons/bi/linkedin';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 
 	inject({ mode: dev ? 'development' : 'production' });
 
@@ -79,6 +80,7 @@
 
 <svelte:window bind:innerWidth bind:innerHeight />
 
+<Tooltip.Provider>
 {#if viewport === 'loading'}
 	<div class="flex h-64 w-full items-center justify-center">
 		<Loading />
@@ -127,3 +129,4 @@
 		</div>
 	</div>
 {/if}
+</Tooltip.Provider>

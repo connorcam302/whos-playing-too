@@ -16,6 +16,7 @@
 	import SimpleIconsRedhat from '~icons/simple-icons/redhat';
 	import MatchModal from '$lib/components/match/MatchModal.svelte';
 	import Loading from '$lib/components/Loading.svelte';
+	import { DATE_RANGE_PRESETS, DOTA_MAJOR_PATCHES } from '$lib/data/dotaPatchRanges';
 	dayjs.extend(relativeTime);
 
 	interface Record {
@@ -38,6 +39,7 @@
 		deaths: number;
 		assists: number;
 		matchId: number;
+		sequenceNumber: number;
 		hero: Hero;
 		impact: number;
 		role: number;
@@ -52,7 +54,7 @@
 	}
 
 	interface Props {
-		data: { playerList: any[]; url: string; records: Record[] };
+		data: { playerList: any[]; url: string; records: Record[]; heroList: DotaAsset[] };
 	}
 
 	let { data }: Props = $props();
@@ -64,7 +66,7 @@
 		return '#FFFFFF00';
 	};
 
-	let records = $derived([]);
+	let records = $state<Record[]>([]);
 	let heroList = $derived(data.heroList);
 
 	const getImpactDetails = (match: any, role: any, duration: any) => {
@@ -129,7 +131,7 @@
 		return { csMinRating, deathRating, kapmRating, impact };
 	};
 
-	const distribution = (role: number, heroId: number) => {
+	const distribution = (role: number, heroId: number = 0) => {
 		if (role === 1) {
 			return {
 				kapm: 47.5,
@@ -198,13 +200,14 @@
 	let hero = $derived(-1);
 
 	let time = $state(365);
+	let selectedDateRange = $state('last-365-days');
 	
 
-	const fetchRecordData: Promise<Record[]> = async () => {
+	const fetchRecordData = async (): Promise<Record[]> => {
 		const data = await fetch(
 			`/api/records?roles=[${pos1 ? 1 : -1},${pos2 ? 2 : -1},${pos3 ? 3 : -1},${pos4 ? 4 : -1},${
 				pos5 ? 5 : -1
-			}]&lobby=[${ranked ? 7 : -1},${unranked ? 0 : -1}]&time=${time}&hero=${hero}&smurf=${smurfs}`
+			}]&lobby=[${ranked ? 7 : -1},${unranked ? 0 : -1}]&time=${time}&dateRange=${encodeURIComponent(selectedDateRange)}&hero=${hero}&smurf=${smurfs}`
 		);
 		const json = await data.json();
 		return await json;
@@ -305,14 +308,16 @@
 	<title>whos-playing | Records</title>
 </svelte:head>
 
-<div class="flex flex-col items-center justify-center gap-4">
-	<div class="flex flex-wrap justify-center gap-6">
-		<div class="flex flex-col gap-1 text-sm">
-			Roles
-			<div class="flex gap-1">
+<div class="mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-3 sm:px-4">
+	<div
+		class="grid w-full grid-cols-1 gap-3 rounded-md border border-zinc-800 bg-zinc-950/60 p-3 sm:grid-cols-2 lg:grid-cols-[auto_auto_auto_minmax(13rem,1fr)_minmax(15rem,1.15fr)] lg:items-end"
+	>
+		<div class="flex flex-col gap-1.5 text-sm">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Roles</div>
+			<div class="flex gap-1.5">
 				<button
 					onclick={() => handleRoleChange(1)}
-					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					class="h-9 w-9 rounded-md border border-zinc-700 bg-zinc-800 p-1 transition duration-150 hover:border-zinc-500"
 					style="background-color: {pos1 ? '#27272a' : '#18181b'};"
 					use:tippy={{
 						content: `Carry`,
@@ -324,7 +329,7 @@
 				</button>
 				<button
 					onclick={() => handleRoleChange(2)}
-					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					class="h-9 w-9 rounded-md border border-zinc-700 bg-zinc-800 p-1 transition duration-150 hover:border-zinc-500"
 					style="background-color: {pos2 ? '#27272a' : '#18181b'};"
 					use:tippy={{
 						content: `Mid`,
@@ -336,7 +341,7 @@
 				</button>
 				<button
 					onclick={() => handleRoleChange(3)}
-					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					class="h-9 w-9 rounded-md border border-zinc-700 bg-zinc-800 p-1 transition duration-150 hover:border-zinc-500"
 					style="background-color: {pos3 ? '#27272a' : '#18181b'};"
 					use:tippy={{
 						content: `Offlane`,
@@ -348,7 +353,7 @@
 				</button>
 				<button
 					onclick={() => handleRoleChange(4)}
-					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					class="h-9 w-9 rounded-md border border-zinc-700 bg-zinc-800 p-1 transition duration-150 hover:border-zinc-500"
 					style="background-color: {pos4 ? '#27272a' : '#18181b'};"
 					use:tippy={{
 						content: `Soft Support`,
@@ -360,7 +365,7 @@
 				</button>
 				<button
 					onclick={() => handleRoleChange(5)}
-					class="h-10 w-10 rounded-xl bg-zinc-800 p-1 transition duration-100"
+					class="h-9 w-9 rounded-md border border-zinc-700 bg-zinc-800 p-1 transition duration-150 hover:border-zinc-500"
 					style="background-color: {pos5 ? '#27272a' : '#18181b'};"
 					use:tippy={{
 						content: `Hard Support`,
@@ -372,12 +377,12 @@
 				</button>
 			</div>
 		</div>
-		<div class="flex flex-col gap-1 text-sm">
-			Lobby
-			<div class="flex gap-1">
+		<div class="flex flex-col gap-1.5 text-sm">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
+			<div class="flex gap-1.5">
 				<button
 					onclick={() => handleLobbyChange(7)}
-					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					class="flex h-9 w-9 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800 p-1 text-xl transition duration-150 hover:border-zinc-500"
 					style="background-color: {ranked ? '#27272a' : '#18181b'};"
 					use:tippy={{
 						content: `Ranked`,
@@ -389,7 +394,7 @@
 				</button>
 				<button
 					onclick={() => handleLobbyChange(0)}
-					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					class="flex h-9 w-9 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800 p-1 text-xl transition duration-150 hover:border-zinc-500"
 					style="background-color: {unranked ? '#27272a' : '#18181b'};"
 					use:tippy={{
 						content: `Unranked`,
@@ -401,12 +406,12 @@
 				</button>
 			</div>
 		</div>
-		<div class="flex flex-col gap-1 text-sm">
-			Smurf
+		<div class="flex flex-col gap-1.5 text-sm">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurf</div>
 			<div class="flex gap-1">
 				<button
 					onclick={() => handleSmurfChange()}
-					class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800 p-1 text-2xl transition duration-100"
+					class="flex h-9 w-9 items-center justify-center rounded-md border border-zinc-700 bg-zinc-800 p-1 text-xl transition duration-150 hover:border-zinc-500"
 					style="background-color: {smurfs ? '#27272a' : '#18181b'};"
 					use:tippy={{
 						content: `Smurf`,
@@ -418,12 +423,12 @@
 				</button>
 			</div>
 		</div>
-		<div class="flex flex-col gap-1 text-sm">
-			Heroes
+		<div class="flex min-w-0 flex-col gap-1.5 text-sm">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Heroes</div>
 			<div>
 				<select
 					bind:value={hero}
-					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
+					class="h-9 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 text-sm text-zinc-100 outline-none transition duration-150 hover:border-zinc-500 focus:border-zinc-400"
 					onchange={() => handleHeroChange()}
 				>
 					<option value={-1}>All Heroes</option>
@@ -434,24 +439,20 @@
 			</div>
 		</div>
 
-		<div class="flex flex-col gap-1 text-sm">
-			Date
+		<div class="flex min-w-0 flex-col gap-1.5 text-sm">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Date Range</div>
 			<div>
 				<select
-					bind:value={time}
-					class="rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
+					bind:value={selectedDateRange}
+					class="h-9 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 text-sm text-zinc-100 outline-none transition duration-150 hover:border-zinc-500 focus:border-zinc-400"
 					onchange={() => handleTimeChange()}
 				>
-					<option value={7}>Last 7 Days</option>
-					<option value={30}>Last 30 Days</option>
-					<option value={90}>Last 90 Days</option>
-					<option value={180}>Last 180 Days</option>
-					<option value={365}>Last 365 Days</option>
-					<option value={730}>Last 2 Years</option>
-					<option value={1095}>Last 3 Years</option>
-					<option value={1461}>Last 4 Years</option>
-					<option value={1826}>Last 5 Years</option>
-					<option value={9999}>All Time</option>
+					{#each DATE_RANGE_PRESETS as range}
+						<option value={range.value}>{range.label}</option>
+					{/each}
+					{#each DOTA_MAJOR_PATCHES.slice().reverse() as patch}
+						<option value={`patch-${patch.version}`}>{patch.label}</option>
+					{/each}
 				</select>
 			</div>
 		</div>

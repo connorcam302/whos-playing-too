@@ -30,12 +30,23 @@
 		rankedWins: number;
 		rankedLosses: number;
 	};
+	type Hero = {
+		id: number;
+		name: string;
+		localized_name: string;
+		icon: string;
+	};
 
 	import ProfileHome from './ProfileHome.svelte';
 	import ProfileBanner from './ProfileBanner.svelte';
 	import ProfileStats from './ProfileStats.svelte';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import ProfileMatches from './ProfileMatches.svelte';
+	import ProfileRecords from './ProfileRecords.svelte';
+	import ProfileTeammates from './ProfileTeammates.svelte';
+	import { replaceState } from '$app/navigation';
+	import { page } from '$app/state';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		data: {
@@ -47,9 +58,16 @@
 			heroStats: any;
 			allTimeHeroStats: any;
 			winGraph: { resultsArray: number[]; daysArray: number[] };
-			heroList: { id: number; name: string }[];
-			impactCounts: object;
+			heroList: Hero[];
+			playerList: any[];
+			impactCounts: Record<string, { role: number; count: number | string }[]>;
+			roleCounts: { role: number; count: number }[];
+			matchesByDay: { wins: number; losses: number; date: number }[];
+			featuredHero: any;
+			averageStats: any;
 			winLossByMinute: any;
+			playerRecords: any[];
+			teammateStats: any[];
 		};
 	}
 
@@ -65,8 +83,42 @@
 		allTimeHeroStats,
 		winGraph,
 		heroList,
-		winLossByMinute
+		winLossByMinute,
+		roleCounts,
+		matchesByDay,
+		featuredHero,
+		averageStats,
+		playerList
 	} = $derived(data);
+
+	type ProfileTab = 'home' | 'stats' | 'matches' | 'records' | 'teammates';
+
+	const profileTabs: ProfileTab[] = ['home', 'stats', 'matches', 'records', 'teammates'];
+
+	const getUrlTab = () => {
+		const tab = page.url.searchParams.get('tab');
+		return profileTabs.includes(tab as ProfileTab) ? (tab as ProfileTab) : 'home';
+	};
+
+	let selectedTab = $state<ProfileTab>(getUrlTab());
+	let mounted = $state(false);
+
+	onMount(() => {
+		mounted = true;
+	});
+
+	$effect(() => {
+		const tab = selectedTab;
+		if (!mounted) return;
+		const nextUrl = new URL(page.url);
+		if (tab === 'home') {
+			nextUrl.searchParams.delete('tab');
+		} else {
+			nextUrl.searchParams.set('tab', tab);
+		}
+		replaceState(`${nextUrl.pathname}${nextUrl.search}`, page.state);
+	});
+
 </script>
 
 <svelte:head>
@@ -83,23 +135,23 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 />
 <meta property="og:image" content={player.image} />
 <meta property="og:url" content={`https://whos-playing.com/player/${player.id}`} />
-<div class="flex w-full flex-col content-center items-center justify-center gap-4 px-1">
+<div class="flex w-full flex-col items-center gap-4 px-3 py-3 sm:px-4">
 	<ProfileBanner {data} />
 	<Tabs.Root
-		value="stats"
-		class="flex w-full flex-col items-center gap-2 md:max-w-screen-md md:items-start"
+		bind:value={selectedTab}
+		class="flex w-full max-w-6xl flex-col items-stretch gap-3"
 	>
-		<Tabs.List class="">
-			<Tabs.Trigger value="home">Home</Tabs.Trigger>
-			<Tabs.Trigger value="stats">Stats</Tabs.Trigger>
-			<Tabs.Trigger value="matches">Matches</Tabs.Trigger>
-			<Tabs.Trigger value="records">Records</Tabs.Trigger>
-			<Tabs.Trigger value="teammates">Teammates</Tabs.Trigger>
+		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1 border-zinc-800 bg-card sm:inline-grid sm:w-fit sm:grid-cols-5">
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="home">Home</Tabs.Trigger>
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="stats">Stats</Tabs.Trigger>
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="matches">Matches</Tabs.Trigger>
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="records">Records</Tabs.Trigger>
+			<Tabs.Trigger class="col-span-2 min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none sm:col-span-1" value="teammates">Teammates</Tabs.Trigger>
 		</Tabs.List>
-		<Tabs.Content value="home"><ProfileHome {data} /></Tabs.Content>
-		<Tabs.Content value="stats"><ProfileStats {data} /></Tabs.Content>
-		<Tabs.Content value="matches"><ProfileMatches {data} /></Tabs.Content>
-		<Tabs.Content value="records"><ProfileHome {data} /></Tabs.Content>
-		<Tabs.Content value="teammates"><ProfileHome {data} /></Tabs.Content>
+		<Tabs.Content value="home" class="w-full"><ProfileHome {data} /></Tabs.Content>
+		<Tabs.Content value="stats" class="w-full"><ProfileStats {data} /></Tabs.Content>
+		<Tabs.Content value="matches" class="w-full"><ProfileMatches {data} /></Tabs.Content>
+		<Tabs.Content value="records" class="w-full min-w-0"><ProfileRecords {data} /></Tabs.Content>
+		<Tabs.Content value="teammates" class="w-full"><ProfileTeammates {data} /></Tabs.Content>
 	</Tabs.Root>
 </div>

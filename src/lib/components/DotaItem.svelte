@@ -1,17 +1,17 @@
 <script lang="ts">
-	import * as HoverCard from '$lib/components/ui/hover-card';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { twMerge } from 'tailwind-merge';
 
 	let { item, styles } = $props();
 </script>
 
-<HoverCard.Root>
-	<HoverCard.Trigger
+<Tooltip.Root>
+	<Tooltip.Trigger
 		><img
 			class={twMerge(styles, 'h-full w-auto')}
 			src={item.img}
 			alt={item.name}
-		/></HoverCard.Trigger
+		/></Tooltip.Trigger
 	>
-	<HoverCard.Content class="w-auto">{item.name}</HoverCard.Content>
-</HoverCard.Root>
+	<Tooltip.Content class="w-auto">{item.name}</Tooltip.Content>
+</Tooltip.Root>

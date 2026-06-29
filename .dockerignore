@@ -1,0 +1,11 @@
+node_modules
+.svelte-kit
+build
+.env
+.env.local
+.git
+DESIGN.json
+DESIGN.md
+PRODUCT.md
+CLAUDE.md
+*.md

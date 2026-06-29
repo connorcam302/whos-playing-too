@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	type SteamProfile = {
 		avatar: string;
 		avatarfull: string;
@@ -33,16 +31,12 @@
 		rankedLosses: number;
 	};
 	import * as Card from '$lib/components/ui/card';
-	import FxemojiPoo from '~icons/fxemoji/poo';
-	import MaterialSymbolsCalendarMonth from '~icons/material-symbols/calendar-month';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
 	import WinChart from '$lib/components/profile/WinChart.svelte';
-	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
 	import Bar from '$lib/components/stats/Bar.svelte';
 	import type { getPlayerWinLossByMinutes } from '$lib/server/db-functions';
 	import WinLossByMinuteBarChart from '$lib/components/stats/WinLossByMinuteBarChart.svelte';
+	import { CalendarDays } from 'lucide-svelte';
 
 	interface Props {
 		data: {
@@ -50,152 +44,75 @@
 			mainAccount: SteamProfile;
 			smurfAccounts: SteamProfile[];
 			allTimeStats: Stats;
-			weeklyStats: Stats;
+			recentStats: Stats;
 			heroStats: any;
 			allTimeHeroStats: any;
 			winGraph: { resultsArray: number[]; daysArray: number[] };
 			heroList: { id: number; name: string }[];
-			impactCounts: object;
-			winLossByMinute: ReturnType<typeof getPlayerWinLossByMinutes>;
+			impactCounts: Record<string, { role: number; count: number | string }[]>;
+			winLossByMinute: Awaited<ReturnType<typeof getPlayerWinLossByMinutes>>;
 		};
 	}
 
 	let { data }: Props = $props();
 
-	let pageNumber = $state(1);
-
-	let matchBlocks = $derived([]);
-
-	let pos1 = $state(true);
-
-	let pos2 = $state(true);
-
-	let pos3 = $state(true);
-
-	let pos4 = $state(true);
-
-	let pos5 = $state(true);
-
-	let ranked = $state(true);
-
-	let unranked = $state(true);
-
-	let smurfs = $state(false);
-
-	let hero = $state(-1);
-
-	onMount(() => {
-		if ($page.url.searchParams.get('page')) {
-			pageNumber = Number($page.url.searchParams.get('page'));
-		}
-		fetchMatches(pageNumber, Number($page.params.id));
-	});
-
-	const fetchMatches = async (pageNumber: number, playerId: number) => {
-		matchBlocks = [];
-		let pageNumberFilter = '';
-		if (pageNumber > -1) {
-			pageNumberFilter = `page=${pageNumber - 1}`;
-		}
-		let heroFilter = '';
-		if (hero > 0) {
-			heroFilter = `heroes=[${hero}]`;
-		}
-		let gameModes: string[] = ['ranked-all-pick', 'unranked-all-pick', 'other'];
-		let gameModeFilter = '';
-		if (ranked && unranked) {
-			gameModeFilter = `gameMode=["${gameModes.join('","')}"]`;
-		} else if (ranked) {
-			gameModeFilter = `gameMode=["${gameModes[0]}"]`;
-		} else if (unranked) {
-			gameModeFilter = `gameMode=["${gameModes[1]}","${gameModes[2]}"]`;
-		}
-		let smurfFilter = 'false';
-		if (smurfs) {
-			smurfFilter = `smurf=true`;
-		}
-
-		pageNumber = pageNumber - 1;
-		let roleFilter = 'roles=[';
-		if (pos1) {
-			roleFilter += '1,';
-		}
-		if (pos2) {
-			roleFilter += '2,';
-		}
-		if (pos3) {
-			roleFilter += '3,';
-		}
-		if (pos4) {
-			roleFilter += '4,';
-		}
-		if (pos5) {
-			roleFilter += '5,';
-		}
-		roleFilter = roleFilter.slice(0, -1) + ']';
-		return await fetch(
-			`/api/matches/all/profile/${playerId}?players=[${playerId}]&${heroFilter}&${gameModeFilter}&${pageNumberFilter}&${roleFilter}&${smurfFilter}`
-		).then((res) => res.json());
-	};
-
 	let chartType = $state('days');
 
 	let {
 		player,
-		mainAccount,
-		smurfAccounts,
-		allTimeStats,
-		weeklyStats,
 		heroStats,
 		allTimeHeroStats,
 		winGraph,
-		heroList,
 		winLossByMinute
 	} = $derived(data);
 
-	const toSteam32 = (accountId: string) => {
-		return BigInt(accountId) - BigInt('76561197960265728');
+	const getImpactTotal = (ratingName: string) => {
+		return data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0);
 	};
 
-	const mostCommonImpact = Object.keys(data.impactCounts).reduce(
-		(maxRating, ratingName) => {
-			// Sum the counts for the current rating
-			const total = data.impactCounts[ratingName].reduce(
-				(sum, item) => sum + Number(item.count),
-				0
-			);
+	const getRoleImpactCount = (ratingName: string, role: number) => {
+		return Number(data.impactCounts[ratingName].find((item) => item.role === role)?.count || 0);
+	};
 
-			// Compare with the current maxRating
-			if (total > maxRating.total) {
-				return { rating: ratingName, total };
-			}
+	const getRoleImpactPercentage = (ratingName: string, role: number) => {
+		const total = getImpactTotal(ratingName);
+		return total > 0 ? (getRoleImpactCount(ratingName, role) / total) * 100 : 0;
+	};
 
-			return maxRating;
-		},
-		{ rating: null, total: 0 }
+	let mostCommonImpact = $derived(
+		Object.keys(data.impactCounts).reduce(
+			(maxRating, ratingName) => {
+				const total = getImpactTotal(ratingName);
+
+				if (total > maxRating.total) {
+					return { rating: ratingName, total };
+				}
+
+				return maxRating;
+			},
+			{ rating: null, total: 0 } as { rating: string | null; total: number }
+		)
 	);
-
-	$inspect(winLossByMinute);
 </script>
 
-<div class="flex flex-col gap-4">
-	<div class="flex flex-wrap gap-4">
-		<Card.Root class="grow">
+<div class="flex w-full min-w-0 flex-col gap-4">
+	<div class="grid gap-4 lg:grid-cols-2">
+		<Card.Root class="min-w-0">
 			<Card.Header>
 				<Card.Title>All Time</Card.Title>
 			</Card.Header>
-			<Card.Content class="p-2">
+			<Card.Content class="overflow-x-auto p-2">
 				{#await allTimeHeroStats then allTimeHeroStats}
 					<HeroStatbox heroStats={allTimeHeroStats} />
 				{/await}
 			</Card.Content>
 		</Card.Root>
 
-		<Card.Root class="grow">
+		<Card.Root class="min-w-0">
 			<Card.Header>
 				<Card.Title>This Month</Card.Title>
 			</Card.Header>
-			<Card.Content class="p-2">
+			<Card.Content class="overflow-x-auto p-2">
 				{#await heroStats then heroStats}
 					<HeroStatbox {heroStats} />
 				{/await}
@@ -203,17 +120,18 @@
 		</Card.Root>
 	</div>
 	<div>
-		{#if matchBlocks.length > 0}
+		{#if winGraph.resultsArray.length > 0 || winGraph.daysArray.length > 0}
 			<Card.Root>
 				<div class="flex flex-col">
 					{#if chartType == 'days'}
 						<Card.Header>
 							<Card.Title class="flex justify-between">
 								<div>Wins By Game</div>
-								<button
-									class="flex basis-1/6 items-center justify-end"
-									onclick={() => (chartType = 'games')}><MaterialSymbolsCalendarMonth /></button
-								>
+									<button
+										class="flex basis-1/6 items-center justify-end rounded-md p-1 text-zinc-400 transition-colors hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										aria-label="Show wins per day"
+										onclick={() => (chartType = 'games')}><CalendarDays class="h-4 w-4" /></button
+									>
 							</Card.Title>
 						</Card.Header>
 						<Card.Content>
@@ -235,10 +153,11 @@
 						<Card.Header>
 							<Card.Title class="flex justify-between">
 								<div>Wins Per Day</div>
-								<button
-									class="flex basis-1/6 items-center justify-end"
-									onclick={() => (chartType = 'days')}><MaterialSymbolsCalendarMonth /></button
-								>
+									<button
+										class="flex basis-1/6 items-center justify-end rounded-md p-1 text-zinc-400 transition-colors hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+										aria-label="Show wins by game"
+										onclick={() => (chartType = 'days')}><CalendarDays class="h-4 w-4" /></button
+									>
 							</Card.Title>
 						</Card.Header>
 						<Card.Content>
@@ -261,117 +180,184 @@
 			</Card.Root>
 		{/if}
 	</div>
-	<div
-		class="bg-opacity-95 mx-auto flex w-full flex-col justify-center rounded-xl bg-zinc-800 px-2"
-	>
-		<div class="my-1 flex gap-4 border-b-[1px] border-zinc-500 pr-2 pb-1">
-			<div class="flex w-8 items-center justify-center text-sm lg:w-16"></div>
-			<div class="flex w-8 items-center justify-center lg:w-28">
-				<div>TOTAL</div>
-			</div>
-			<div class="flex w-8 items-center justify-center text-sm lg:w-28">
-				<img src="/roles/pos1.svg" alt="pos1" class="h-8" />
-			</div>
-			<div class="flex w-8 items-center justify-center text-sm lg:w-28">
-				<img src="/roles/pos2.svg" alt="pos2" class="h-8" />
-			</div>
-			<div class="flex w-8 items-center justify-center text-sm lg:w-28">
-				<img src="/roles/pos3.svg" alt="pos3" class="h-8" />
-			</div>
-			<div class="flex w-8 items-center justify-center text-sm lg:w-28">
-				<img src="/roles/pos4.svg" alt="pos4" class="h-8" />
-			</div>
-			<div class="flex w-8 items-center justify-center text-sm lg:w-28">
-				<img src="/roles/pos5.svg" alt="pos5" class="h-8" />
-			</div>
-		</div>
-		<div class="flex max-h-72 flex-col gap-2 overflow-auto" id="scrollbox">
+	<Card.Root class="min-w-0">
+		<Card.Header class="space-y-1 pb-4">
+			<Card.Title>Impact Distribution</Card.Title>
+			<Card.Description>Impact grades split by role.</Card.Description>
+		</Card.Header>
+		<Card.Content class="p-0">
+			<div class="overflow-x-auto">
+				<div class="min-w-[680px]">
+					<div class="grid grid-cols-[4rem_repeat(6,minmax(4.75rem,1fr))] items-center gap-3 border-b border-zinc-800 px-4 py-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+						<div>Grade</div>
+						<div class="text-center">Total</div>
+						<div class="flex justify-center">
+							<img src="/roles/pos1.svg" alt="Position 1" class="h-7 w-7" />
+						</div>
+						<div class="flex justify-center">
+							<img src="/roles/pos2.svg" alt="Position 2" class="h-7 w-7" />
+						</div>
+						<div class="flex justify-center">
+							<img src="/roles/pos3.svg" alt="Position 3" class="h-7 w-7" />
+						</div>
+						<div class="flex justify-center">
+							<img src="/roles/pos4.svg" alt="Position 4" class="h-7 w-7" />
+						</div>
+						<div class="flex justify-center">
+							<img src="/roles/pos5.svg" alt="Position 5" class="h-7 w-7" />
+						</div>
+					</div>
+		<div class="flex max-h-80 flex-col overflow-auto" id="scrollbox">
 			{#each ['S++', 'S+', 'S', 'S-', 'A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F+', 'F', 'F-'] as ratingName}
-				<div class="flex gap-4">
-					<div class="flex h-8 w-12 items-center justify-center text-center lg:w-16">
+				<div class="grid grid-cols-[4rem_repeat(6,minmax(4.75rem,1fr))] items-center gap-3 border-b border-zinc-900/80 px-4 py-2 last:border-b-0">
+					<div class="flex h-8 items-center text-center">
 						{#if ratingName === 'S++'}
-							<div id="splusplusrating" class="font-display lg:text-xl">
+							<div id="splusplusrating" class="font-display text-sm font-semibold">
 								{ratingName}
 							</div>
 						{:else if ratingName === 'S+'}
-							<div id="srating" class="font-display lg:text-xl">
+							<div id="srating" class="font-display text-sm font-semibold">
 								{ratingName}
 							</div>
 						{:else if ratingName !== 'F-'}
-							<div class="font-display lg:text-xl">
+							<div class="font-display text-sm font-semibold text-zinc-100">
 								{ratingName}
 							</div>
 						{:else}
-							<div id="frating" class="font-display flex justify-center lg:text-xl">
-								<FxemojiPoo />
+							<div id="frating" class="font-display flex justify-center text-sm">
+								F-
 							</div>
 						{/if}
 					</div>
-					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
-						{data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0)}
+					<div class="font-display flex min-w-0 flex-col justify-center gap-1 text-center text-sm tabular-nums">
+						{getImpactTotal(ratingName)}
 						<Bar
-							percentage={(data.impactCounts[ratingName].reduce(
-								(sum, item) => sum + Number(item.count),
-								0
-							) /
-								mostCommonImpact.total) *
-								100}
+							percentage={(getImpactTotal(ratingName) / mostCommonImpact.total) * 100}
 							colour="#9234ea"
 						/>
 					</div>
-					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
-						{data.impactCounts[ratingName].find((item) => item.role === 1)?.count || 0}
+					<div class="font-display flex min-w-0 flex-col justify-center gap-1 text-center text-sm tabular-nums">
+						{getRoleImpactCount(ratingName, 1)}
 						<Bar
-							percentage={((data.impactCounts[ratingName].find((item) => item.role === 1)?.count ||
-								0) /
-								data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0)) *
-								100}
+							percentage={getRoleImpactPercentage(ratingName, 1)}
 							colour="#4753a5"
 						/>
 					</div>
-					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
-						{data.impactCounts[ratingName].find((item) => item.role === 2)?.count || 0}
+					<div class="font-display flex min-w-0 flex-col justify-center gap-1 text-center text-sm tabular-nums">
+						{getRoleImpactCount(ratingName, 2)}
 						<Bar
-							percentage={((data.impactCounts[ratingName].find((item) => item.role === 2)?.count ||
-								0) /
-								data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0)) *
-								100}
+							percentage={getRoleImpactPercentage(ratingName, 2)}
 							colour="#2f8c94"
 						/>
 					</div>
-					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
-						{data.impactCounts[ratingName].find((item) => item.role === 3)?.count || 0}
+					<div class="font-display flex min-w-0 flex-col justify-center gap-1 text-center text-sm tabular-nums">
+						{getRoleImpactCount(ratingName, 3)}
 						<Bar
-							percentage={((data.impactCounts[ratingName].find((item) => item.role === 3)?.count ||
-								0) /
-								data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0)) *
-								100}
+							percentage={getRoleImpactPercentage(ratingName, 3)}
 							colour="#bc7412"
 						/>
 					</div>
-					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
-						{data.impactCounts[ratingName].find((item) => item.role === 4)?.count || 0}
+					<div class="font-display flex min-w-0 flex-col justify-center gap-1 text-center text-sm tabular-nums">
+						{getRoleImpactCount(ratingName, 4)}
 						<Bar
-							percentage={((data.impactCounts[ratingName].find((item) => item.role === 4)?.count ||
-								0) /
-								data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0)) *
-								100}
+							percentage={getRoleImpactPercentage(ratingName, 4)}
 							colour="#c24958"
 						/>
 					</div>
-					<div class="font-display flex w-8 flex-col justify-center pb-1 lg:w-28 lg:text-sm">
-						{data.impactCounts[ratingName].find((item) => item.role === 5)?.count || 0}
+					<div class="font-display flex min-w-0 flex-col justify-center gap-1 text-center text-sm tabular-nums">
+						{getRoleImpactCount(ratingName, 5)}
 						<Bar
-							percentage={((data.impactCounts[ratingName].find((item) => item.role === 5)?.count ||
-								0) /
-								data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0)) *
-								100}
+							percentage={getRoleImpactPercentage(ratingName, 5)}
 							colour="#37a075"
 						/>
 					</div>
 				</div>
 			{/each}
-		</div>
-	</div>
+					</div>
+				</div>
+				</div>
+			</Card.Content>
+	</Card.Root>
 	<WinLossByMinuteBarChart data={data.winLossByMinute} />
 </div>
+
+<style>
+	:root {
+		--splus-base: #fef3c7;
+		--splus-accent1: #fcd34d;
+		--splus-accent2: #fbbf24;
+		--splusplus-base: #fdba74;
+		--splusplus-accent1: #f97316;
+		--splusplus-accent2: #ea580c;
+		--f-base: #b45309;
+		--f-accent1: #9a3412;
+		--f-accent2: #7c2d12;
+	}
+
+	#srating {
+		animation: srating 1s ease-in-out infinite alternate;
+		color: var(--splus-base);
+	}
+
+	@keyframes srating {
+		from {
+			text-shadow:
+				0 0 2px var(--splus-base),
+				0 0 4px var(--splus-base),
+				0 0 6px var(--splus-accent1),
+				0 0 8px var(--splus-accent1);
+		}
+		to {
+			text-shadow:
+				0 0 4px var(--splus-base),
+				0 0 8px var(--splus-accent2),
+				0 0 12px var(--splus-accent2);
+		}
+	}
+
+	#frating {
+		animation: frating 1s ease-in-out infinite alternate;
+		color: var(--f-base);
+	}
+
+	@keyframes frating {
+		from {
+			filter: drop-shadow(0 0 8px var(--f-accent1));
+		}
+		to {
+			filter: drop-shadow(0 0 4px var(--f-accent2));
+		}
+	}
+
+	#splusplusrating {
+		animation: ssrating 1s ease-in-out infinite alternate;
+		color: var(--splusplus-base);
+	}
+
+	@keyframes ssrating {
+		from {
+			text-shadow:
+				0 0 2px var(--splusplus-base),
+				0 0 4px var(--splusplus-base),
+				0 0 6px var(--splusplus-accent1),
+				0 0 8px var(--splusplus-accent1);
+		}
+
+		to {
+			text-shadow:
+				0 0 4px var(--splusplus-base),
+				0 0 8px var(--splusplus-accent2),
+				0 0 12px var(--splusplus-accent2);
+		}
+	}
+
+	#scrollbox::-webkit-scrollbar {
+		width: 4px;
+		background-color: #404040;
+	}
+
+	#scrollbox::-webkit-scrollbar-thumb {
+		background-color: #e7e5e4;
+		border-radius: 8px;
+	}
+</style>

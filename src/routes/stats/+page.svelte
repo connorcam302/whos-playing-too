@@ -1,905 +1,591 @@
 <script lang="ts">
-	import { self } from 'svelte/legacy';
-
-
-	const { graph, playerList, heroList } = data;
-
-	import { getRoleIcon, toTime, calcImpact } from '$lib/functions';
-	import WinChart from '$lib/components/profile/WinChart.svelte';
-	import BiSortDown from '~icons/bi/sort-down';
-	import BiSortDownAlt from '~icons/bi/sort-down-alt';
-	import FxemojiPoo from '~icons/fxemoji/poo';
-	import { fade } from 'svelte/transition';
-	import MatchModal from '$lib/components/match/MatchModal.svelte';
-	import tippy from 'tippy.js';
+	import * as Card from '$lib/components/ui/card/index.js';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import * as Tooltip from '$lib/components/ui/tooltip';
+	import DashboardSortableTable from '$lib/components/stats/DashboardSortableTable.svelte';
+	import { Toggle } from '$lib/components/ui/toggle/index.js';
+	import { getRoleIcon, getRoleName } from '$lib/functions';
+	import {
+		DATE_RANGE_PRESETS,
+		DOTA_MAJOR_PATCHES,
+		getDotaPatchForTimestamp
+	} from '$lib/data/dotaPatchRanges';
+	import { BarChart3, Crosshair, Swords, Trophy, VenetianMask } from 'lucide-svelte';
 	import dayjs from 'dayjs';
-	import relativeTime from 'dayjs/plugin/relativeTime';
-	interface Props {
-		data: any;
-	}
+
+	type StatRow = {
+		playerId: number;
+		username: string;
+		smurf: boolean;
+		matchId: number;
+		sequenceNumber: number | null;
+		startTime: number;
+		duration: number;
+		lobby: number;
+		gameMode: number;
+		winner: string;
+		team: string;
+		role: number;
+		heroId: number;
+		heroName: string;
+		heroImg: string;
+		kills: number;
+		deaths: number;
+		assists: number;
+		impact: number;
+		gpm: number | null;
+		xpm: number | null;
+		lastHits: number | null;
+		heroDamage: number | null;
+		towerDamage: number | null;
+	};
+
+	type Props = {
+		data: {
+			rows: StatRow[];
+			playerList: { id: number; username: string }[];
+			heroList: { id: number; name: string; img: string }[];
+		};
+	};
 
 	let { data }: Props = $props();
-	dayjs.extend(relativeTime);
-	const getImpactDetails = (match: any, role: any, duration: any) => {
-		let impact = 0;
-		const csMin = match.lastHits / (duration / 60);
-		const deathsPerMin = match.deaths / (duration / 60);
+	let selectedPlayers = $state(['-1']);
+	let selectedHeroes = $state(['-1']);
+	let selectedRoles = $state(['1', '2', '3', '4', '5']);
+	let selectedDateRange = $state('all');
+	let ranked = $state(true);
+	let unranked = $state(true);
+	let other = $state(true);
+	let smurfs = $state(false);
+	let wins = $state(true);
+	let losses = $state(true);
 
-		let csMinRating: number = 0;
-		let deathRating: number = 0;
-		let kapmRating: number = 0;
-
-		// Carry
-		if (role === 1) {
-			// Heroes with lower returns for high CS/min
-			// Anti-mage, Naga Siren, Medusa, Luna, Terrorblade
-			if ([1, 89, 94, 48, 109].includes(match.hero_id)) {
-				csMinRating = csMin ** 1.3 / 25;
-			} else {
-				csMinRating = csMin ** 1.3 / 20;
-			}
-			deathRating = 3 / (20 * deathsPerMin + 1);
-			kapmRating = ((match.kills * 2.4 + match.assists * 1.2) / (duration / 60)) ** 2;
-			impact = kapmRating * 0.45 + deathRating * 0.4 + csMinRating * 0.1;
-
-			// Mid
-		} else if (role === 2) {
-			// Heroes with lower returns for high CS/min
-			// Templar Assassin, Arc Warden, Shadow Fiend
-			if ([46, 113, 11].includes(match.hero_id)) {
-				csMinRating = csMin ** 1.3 / 23;
-			} else {
-				csMinRating = csMin ** 1.3 / 18;
-			}
-			deathRating = 4 / (24 * deathsPerMin + 1);
-			kapmRating = ((match.kills * 1.6 + match.assists * 1.4) / (duration / 60)) ** 2;
-			impact = kapmRating * 0.65 + deathRating * 0.3 + csMinRating * 0.05;
-
-			// Offlane
-		} else if (role === 3) {
-			csMinRating = csMin ** 1.3 / 18;
-			deathRating = 4.5 / (23 * deathsPerMin + 1);
-			// Lower returns on kills for Axe
-			kapmRating = ((match.kills * 1.35 + match.assists * 1.35) / (duration / 60)) ** 2;
-			impact = kapmRating * 0.65 + deathRating * 0.3 + csMinRating * 0.05;
-
-			// Support
-		} else if (role === 4 || role === 5) {
-			deathRating = 5 / (24 * deathsPerMin + 1);
-			kapmRating = ((match.kills * 0.65 + match.assists * 1.35) / (duration / 60)) ** 2;
-			if ([20, 105].includes(match.hero_id)) {
-				impact = kapmRating * 0.7 + deathRating * 0.3;
-			} else {
-				impact = kapmRating * 0.55 + deathRating * 0.45;
-			}
-		}
-
-		csMinRating = Math.round(csMinRating * 100);
-		deathRating = Math.round(deathRating * 100);
-		kapmRating = Math.round(kapmRating * 100);
-		impact = Math.round(impact * 100);
-
-		return { csMinRating, deathRating, kapmRating, impact };
-	};
-
-	const distribution = (role: number, heroId: number) => {
-		if (role === 1) {
-			return {
-				kapm: 47.5,
-				death: 42.5,
-				csMin: 10
-			};
-		}
-		if (role === 2) {
-			return {
-				kapm: 65,
-				death: 30,
-				csMin: 5
-			};
-		}
-		if (role === 3) {
-			return {
-				kapm: 65,
-				death: 30,
-				csMin: 5
-			};
-		}
-		if (role === 4 || role === 5) {
-			if ([20, 105].includes(heroId)) {
-				return {
-					kapm: 70,
-					death: 30,
-					csMin: 0
-				};
-			} else {
-				return {
-					kapm: 55,
-					death: 45,
-					csMin: 0
-				};
-			}
+	const toggleResult = (result: 'wins' | 'losses') => {
+		const current = result === 'wins' ? wins : losses;
+		if (Number(wins) + Number(losses) > 1 || current === false) {
+			if (result === 'wins') wins = !wins;
+			if (result === 'losses') losses = !losses;
 		}
 	};
-	let highlightRow = $state(-1);
-	let highlightColumn = $state(-1);
 
-	function highlight(row, column) {
-		highlightRow = row;
-		highlightColumn = column;
-	}
-
-	function clearHighlight() {
-		highlightRow = -1;
-		highlightColumn = -1;
-	}
-
-	let sortedBy = $state('total');
-	const orderBy = (key) => {
-		if (key === 'player') {
-			if (sortedBy === 'player') {
-				sortedBy = 'player-reverse';
-				return totwCounts.reverse();
-			}
-			sortedBy = key;
-			return totwCounts.sort((a, b) => {
-				if (a[key].username < b[key].username) {
-					return -1;
-				}
-				if (a[key].username > b[key].username) {
-					return 1;
-				}
-				return 0;
-			});
-		}
-
-		if (sortedBy === key) {
-			sortedBy = `${key}-reverse`;
-			return totwCounts.reverse();
-		}
-		sortedBy = key;
-		const sorted = totwCounts.sort((a, b) => {
-			if (a[key].length < b[key].length) {
-				return 1;
-			}
-			if (a[key].length > b[key].length) {
-				return -1;
-			}
-			return 0;
-		});
-		return sorted;
+	const selectedPlayerIds = $derived(selectedPlayers.filter((id) => id !== '-1'));
+	const selectedHeroIds = $derived(selectedHeroes.filter((id) => id !== '-1'));
+	const selectedPatchVersion = $derived(
+		selectedDateRange.startsWith('patch-') ? selectedDateRange.replace('patch-', '') : null
+	);
+	const dateStart = $derived.by(() => {
+		const preset = DATE_RANGE_PRESETS.find((range) => range.value === selectedDateRange);
+		if (!preset?.amount || !preset.unit) return null;
+		return dayjs().subtract(preset.amount, preset.unit).startOf('day').unix();
+	});
+	let filteredRows = $derived(
+		data.rows.filter((row) => {
+			const rowWon = row.team === row.winner;
+			const matchesPlayer =
+				selectedPlayerIds.length === 0 || selectedPlayerIds.includes(row.playerId.toString());
+			const matchesHero = selectedHeroIds.length === 0 || selectedHeroIds.includes(row.heroId.toString());
+			const matchesRole = selectedRoles.length === 0 || selectedRoles.includes(row.role.toString());
+			const matchesLobby =
+				(ranked && row.lobby === 7 && row.gameMode === 22) ||
+				(unranked && row.lobby === 0 && row.gameMode === 22) ||
+				(other && !(row.lobby === 7 && row.gameMode === 22) && !(row.lobby === 0 && row.gameMode === 22));
+			const matchesResult = (wins && rowWon) || (losses && !rowWon);
+			const matchesSmurf = smurfs || !row.smurf;
+			const matchesDate = selectedPatchVersion
+				? getDotaPatchForTimestamp(row.startTime)?.version === selectedPatchVersion
+				: dateStart === null || row.startTime >= dateStart;
+			return (
+				matchesPlayer &&
+				matchesHero &&
+				matchesRole &&
+				matchesLobby &&
+				matchesResult &&
+				matchesSmurf &&
+				matchesDate
+			);
+		})
+	);
+	const average = (rows: StatRow[], getter: (row: StatRow) => number | null) => {
+		const values = rows.map(getter).filter((value): value is number => value !== null);
+		return values.length > 0 ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 	};
-
-	const matchList = async (row, key) => {
-		const matchData = await fetch(`/api/matches/list/`, {
-			method: 'POST',
-			body: JSON.stringify({ matches: row[key], player: row.player }),
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
-
-		totwMatches = await matchData.json();
-		showTotwMatches = true;
+	const uniqueMatchCount = (rows: StatRow[]) => new Set(rows.map((row) => row.matchId)).size;
+	const formatNumber = (value: number, decimals = 0) =>
+		new Intl.NumberFormat('en-GB', {
+			maximumFractionDigits: decimals,
+			minimumFractionDigits: decimals
+		}).format(value || 0);
+	const makePlayerTrigger = () => {
+		if (selectedPlayerIds.length === 0) return 'All Players';
+		if (selectedPlayerIds.length === 1) {
+			return data.playerList.find((player) => player.id.toString() === selectedPlayerIds[0])?.username;
+		}
+		return `${selectedPlayerIds.length} Players`;
 	};
-
-
-
-	const calculateImpact = () => {
-		impactError = '';
-		if (
-			impactKills === '' ||
-			impactDeaths === '' ||
-			impactAssists === '' ||
-			impactDuration === '' ||
-			impactLastHits === '' ||
-			impactHero === -1 ||
-			impactRole === 0
-		) {
-			estimatedImpact = 0;
-			return;
+	const makeHeroTrigger = () => {
+		if (selectedHeroIds.length === 0) return 'All Heroes';
+		if (selectedHeroIds.length === 1) {
+			return data.heroList.find((hero) => hero.id.toString() === selectedHeroIds[0])?.name;
 		}
-
-		const kills = parseInt(impactKills);
-		const deaths = parseInt(impactDeaths);
-		const assists = parseInt(impactAssists);
-		const lastHits = parseInt(impactLastHits);
-
-		if (isNaN(kills) || isNaN(deaths) || isNaN(assists) || isNaN(lastHits)) {
-			impactError = 'Please enter valid numbers.';
-			estimatedImpact = 0;
-			return;
-		}
-
-		if (kills < 0 || deaths < 0 || assists < 0 || lastHits < 0) {
-			impactError = 'Please enter positive numbers.';
-			estimatedImpact = 0;
-			return;
-		}
-
-		if (/^([0-9]+):([0-5]?[0-9])$/.test(impactDuration) === false) {
-			impactError = 'Please enter a valid duration.';
-			estimatedImpact = 0;
-			return;
-		}
-
-		const duration =
-			parseInt(impactDuration.split(':')[0]) * 60 + parseInt(impactDuration.split(':')[1]);
-
-		const match = { kills, deaths, assists, lastHits, hero_id: impactHero };
-
-		const { csMinRating, deathRating, kapmRating, impact } = getImpactDetails(
-			match,
-			impactRole,
-			duration
+		return `${selectedHeroIds.length} Heroes`;
+	};
+	const makeRolesTrigger = () => {
+		if (selectedRoles.length === 0 || selectedRoles.length === 5) return 'All Roles';
+		if (selectedRoles.length === 1) return getRoleName(selectedRoles[0]);
+		return `${selectedRoles.length} Roles`;
+	};
+	const makeDateTrigger = () => {
+		const preset = DATE_RANGE_PRESETS.find((range) => range.value === selectedDateRange);
+		if (preset) return preset.label;
+		return (
+			DOTA_MAJOR_PATCHES.find((patch) => `patch-${patch.version}` === selectedDateRange)?.label ??
+			'All Time'
 		);
-
-		estimatedImpact = impact;
 	};
-	let totwCounts = $derived(data.totwCounts);
-	let totwMatches = $derived([]);
-	let showTotwMatches = $state(false);
-	
-	let impactHero = $derived(-1);
-	let impactKills = $state('');
-	
-	let impactDeaths = $state('');
-	
-	let impactAssists = $state('');
-	
-	let impactDuration = $state('');
-	
-	let impactLastHits = $state('');
-	
-	let impactError = $state('');
-	
-	let impactRole = $state(0);
-	
-	let estimatedImpact = $state(0);
-	
-	
-	
-	
+	const byPlayer = $derived(
+		Array.from(
+			filteredRows
+				.reduce((map, row) => {
+					const current = map.get(row.playerId) ?? {
+						id: row.playerId,
+						username: row.username,
+						rows: [] as StatRow[]
+					};
+					current.rows.push(row);
+					map.set(row.playerId, current);
+					return map;
+				}, new Map<number, { id: number; username: string; rows: StatRow[] }>())
+				.values()
+		)
+			.map((player) => {
+				const wins = player.rows.filter((row) => row.team === row.winner).length;
+				return {
+					...player,
+					matches: player.rows.length,
+					wins,
+					losses: player.rows.length - wins,
+					winRate: player.rows.length > 0 ? (wins / player.rows.length) * 100 : 0,
+					impact: average(player.rows, (row) => row.impact),
+					kda:
+						(average(player.rows, (row) => row.kills) + average(player.rows, (row) => row.assists)) /
+						Math.max(average(player.rows, (row) => row.deaths), 1),
+					gpm: average(player.rows, (row) => row.gpm),
+					heroDamage: average(player.rows, (row) => row.heroDamage)
+				};
+			})
+			.sort((a, b) => b.matches - a.matches || b.winRate - a.winRate)
+	);
+	const byHero = $derived(
+		Array.from(
+			filteredRows
+				.reduce((map, row) => {
+					const current = map.get(row.heroId) ?? {
+						id: row.heroId,
+						name: row.heroName,
+						img: row.heroImg,
+						rows: [] as StatRow[]
+					};
+					current.rows.push(row);
+					map.set(row.heroId, current);
+					return map;
+				}, new Map<number, { id: number; name: string; img: string; rows: StatRow[] }>())
+				.values()
+		)
+			.map((hero) => {
+				const wins = hero.rows.filter((row) => row.team === row.winner).length;
+				return {
+					...hero,
+					matches: hero.rows.length,
+					wins,
+					losses: hero.rows.length - wins,
+					winRate: hero.rows.length > 0 ? (wins / hero.rows.length) * 100 : 0,
+					impact: average(hero.rows, (row) => row.impact),
+					kda:
+						(average(hero.rows, (row) => row.kills) + average(hero.rows, (row) => row.assists)) /
+						Math.max(average(hero.rows, (row) => row.deaths), 1)
+				};
+			})
+			.sort((a, b) => b.matches - a.matches || b.winRate - a.winRate)
+	);
+	const byRole = $derived(
+		[1, 2, 3, 4, 5].map((role) => {
+			const rows = filteredRows.filter((row) => row.role === role);
+			const wins = rows.filter((row) => row.team === row.winner).length;
+			const losses = rows.length - wins;
+			return {
+				role,
+				matches: rows.length,
+				wins,
+				losses,
+				winRate: rows.length > 0 ? (wins / rows.length) * 100 : 0,
+				impact: average(rows, (row) => row.impact),
+				kda:
+					(average(rows, (row) => row.kills) + average(rows, (row) => row.assists)) /
+					Math.max(average(rows, (row) => row.deaths), 1),
+				gpm: average(rows, (row) => row.gpm),
+				xpm: average(rows, (row) => row.xpm),
+				heroDamage: average(rows, (row) => row.heroDamage),
+				avgDuration: average(rows, (row) => row.duration)
+			};
+		})
+	);
+	const patchBreakdown = $derived(
+		Array.from(
+			filteredRows
+				.reduce((map, row) => {
+					const patch = getDotaPatchForTimestamp(row.startTime);
+					const key = patch?.version ?? 'Unknown';
+					const current = map.get(key) ?? {
+						patch: key,
+						label: patch?.label ?? 'Unknown Patch',
+						rows: [] as StatRow[]
+					};
+					current.rows.push(row);
+					map.set(key, current);
+					return map;
+				}, new Map<string, { patch: string; label: string; rows: StatRow[] }>())
+				.values()
+		)
+			.map((patch) => {
+				const wins = patch.rows.filter((row) => row.team === row.winner).length;
+				const losses = patch.rows.length - wins;
+				return {
+					...patch,
+					matches: patch.rows.length,
+					wins,
+					losses,
+					winRate: patch.rows.length ? (wins / patch.rows.length) * 100 : 0,
+					impact: average(patch.rows, (row) => row.impact),
+					kda:
+						(average(patch.rows, (row) => row.kills) + average(patch.rows, (row) => row.assists)) /
+						Math.max(average(patch.rows, (row) => row.deaths), 1)
+				};
+			})
+			.sort((a, b) => b.matches - a.matches || b.patch.localeCompare(a.patch))
+	);
+	const durationBuckets = $derived(
+		[
+			{ label: '< 30m', min: 0, max: 30 * 60 },
+			{ label: '30-40m', min: 30 * 60, max: 40 * 60 },
+			{ label: '40-50m', min: 40 * 60, max: 50 * 60 },
+			{ label: '50-60m', min: 50 * 60, max: 60 * 60 },
+			{ label: '60m+', min: 60 * 60, max: Number.POSITIVE_INFINITY }
+		].map((bucket) => {
+			const rows = filteredRows.filter((row) => row.duration >= bucket.min && row.duration < bucket.max);
+			const wins = rows.filter((row) => row.team === row.winner).length;
+			const losses = rows.length - wins;
+			return {
+				...bucket,
+				wins,
+				losses,
+				matches: rows.length,
+				winRate: rows.length ? (wins / rows.length) * 100 : 0,
+				impact: average(rows, (row) => row.impact),
+				avgDuration: average(rows, (row) => row.duration)
+			};
+		})
+	);
+	const trend = $derived(
+		Array.from(
+			filteredRows
+				.reduce((map, row) => {
+					const key = dayjs.unix(row.startTime).format('YYYY-MM-DD');
+					const current = map.get(key) ?? { date: key, wins: 0, losses: 0 };
+					if (row.team === row.winner) current.wins += 1;
+					else current.losses += 1;
+					map.set(key, current);
+					return map;
+				}, new Map<string, { date: string; wins: number; losses: number }>())
+				.values()
+		)
+			.sort((a, b) => a.date.localeCompare(b.date))
+			.slice(-20)
+	);
+	const trendMax = $derived(Math.max(1, ...trend.map((day) => day.wins + day.losses)));
+	const matchCount = $derived(uniqueMatchCount(filteredRows));
+	const playerWinRate = $derived(
+		filteredRows.length > 0
+			? (filteredRows.filter((row) => row.team === row.winner).length / filteredRows.length) * 100
+			: 0
+	);
 </script>
 
 <svelte:head>
 	<title>whos-playing | Stats</title>
-	{#if showTotwMatches}
-		<style>
-			body {
-				overflow: hidden;
-			}
-		</style>
-	{:else}
-		<style>
-			body {
-				overflow: auto;
-			}
-		</style>
-	{/if}
 </svelte:head>
 
-<div class="flex flex-col gap-2">
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-3 sm:px-4">
 	<div>
-		<div class="my-2 flex flex-col items-center justify-center">
-			<div class="flex justify-center font-display text-3xl">TEAM OF THE WEEK COUNTS</div>
+		<h1 class="text-2xl font-semibold tracking-tight text-zinc-100">Stats Dashboard</h1>
+		<p class="mt-1 text-sm text-zinc-400">Collective performance across all tracked players.</p>
+	</div>
+
+	<div class="grid gap-3 rounded-md border border-zinc-800 bg-zinc-950/60 p-3 lg:grid-cols-4 xl:grid-cols-[1fr_1fr_1fr_1fr_auto_auto_auto_auto]">
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Players</div>
+			<Select.Root type="multiple" bind:value={selectedPlayers}>
+				<Select.Trigger class="w-full">{makePlayerTrigger()}</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="-1" label="All Players">All Players</Select.Item>
+					{#each data.playerList as player}
+						<Select.Item value={player.id.toString()} label={player.username}>{player.username}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
 		</div>
-		<div class="flex w-full items-center gap-4 rounded-xl bg-zinc-800 p-2">
-			{#key totwCounts}
-				<table>
-					<thead>
-						<tr>
-							<th class="w-28">
-								<button
-									class="flex w-full items-center"
-									onclick={() => (totwCounts = orderBy('player'))}
-								>
-									<div class="basis-1/3"></div>
-									<div class="basis-1/3">PLAYER</div>
-									<div class="flex basis-1/3 justify-end">
-										{#if sortedBy == 'player'}
-											<BiSortDown />
-										{:else if sortedBy == 'player-reverse'}
-											<BiSortDownAlt />
-										{/if}
-									</div>
-								</button>
-							</th>
-							<th class:highlight-column={highlightColumn === 1} class="w-16">
-								<button
-									class="flex w-full items-center"
-									onclick={() => (totwCounts = orderBy('one'))}
-								>
-									<div class="basis-1/3"></div>
-									<div class="basis-1/3">1</div>
-									<div class="flex basis-1/3 justify-end">
-										{#if sortedBy == 'one'}
-											<BiSortDown />
-										{:else if sortedBy == 'one-reverse'}
-											<BiSortDownAlt />
-										{/if}
-									</div>
-								</button></th
-							>
-							<th class:highlight-column={highlightColumn === 2} class="w-16">
-								<button
-									class="flex w-full items-center"
-									onclick={() => (totwCounts = orderBy('two'))}
-								>
-									<div class="basis-1/3"></div>
-									<div class="basis-1/3">2</div>
-									<div class="flex basis-1/3 justify-end">
-										{#if sortedBy == 'two'}
-											<BiSortDown />
-										{:else if sortedBy == 'two-reverse'}
-											<BiSortDownAlt />
-										{/if}
-									</div>
-								</button></th
-							>
-							<th class:highlight-column={highlightColumn === 3} class="w-16"
-								><button
-									class="flex w-full items-center"
-									onclick={() => (totwCounts = orderBy('three'))}
-								>
-									<div class="basis-1/3"></div>
-									<div class="basis-1/3">3</div>
-									<div class="flex basis-1/3 justify-end">
-										{#if sortedBy == 'three'}
-											<BiSortDown />
-										{:else if sortedBy == 'three-reverse'}
-											<BiSortDownAlt />
-										{/if}
-									</div>
-								</button></th
-							>
-							<th class:highlight-column={highlightColumn === 4} class="w-16"
-								><button
-									class="flex w-full items-center"
-									onclick={() => (totwCounts = orderBy('four'))}
-								>
-									<div class="basis-1/3"></div>
-									<div class="basis-1/3">4</div>
-									<div class="flex basis-1/3 justify-end">
-										{#if sortedBy == 'four'}
-											<BiSortDown />
-										{:else if sortedBy == 'four-reverse'}
-											<BiSortDownAlt />
-										{/if}
-									</div>
-								</button>
-							</th><th class:highlight-column={highlightColumn === 5} class="w-16"
-								><button
-									class="flex w-full items-center"
-									onclick={() => (totwCounts = orderBy('five'))}
-								>
-									<div class="basis-1/3"></div>
-									<div class="basis-1/3">5</div>
-									<div class="flex basis-1/3 justify-end">
-										{#if sortedBy == 'five'}
-											<BiSortDown />
-										{:else if sortedBy == 'five-reverse'}
-											<BiSortDownAlt />
-										{/if}
-									</div>
-								</button>
-							</th><th class:highlight-column={highlightColumn === 6} class="w-24"
-								><button
-									class="flex w-full items-center"
-									onclick={() => (totwCounts = orderBy('total'))}
-								>
-									<div class="basis-1/3"></div>
-									<div class="basis-1/3">SUM</div>
-									<div class="flex basis-1/3 justify-end">
-										{#if sortedBy == 'total'}
-											<BiSortDown />
-										{:else if sortedBy == 'total-reverse'}
-											<BiSortDownAlt />
-										{/if}
-									</div>
-								</button></th
-							>
-						</tr>
-					</thead>
-					<tbody>
-						{#each totwCounts as row, i}
-							{#key sortedBy}
-								<tr class="border-y-[1px] border-white border-opacity-10 text-right">
-									<td
-										class="px-2 text-center"
-										class:highlight-row={highlightRow === i}
-										class:highlight-column={highlightColumn === 0}
-										onmouseenter={() => highlight(i, -1)}
-										onmouseleave={clearHighlight}
-										>{row.player.username}
-									</td>
-									<td
-										class="px-2"
-										onmouseenter={() => highlight(i, 1)}
-										onmouseleave={clearHighlight}
-										class:highlight-row={highlightRow === i}
-										class:highlight-column={highlightColumn === 1}
-										class:highlight-cell={highlightRow === i && highlightColumn === 1}
-										><button onclick={() => matchList(row, 'one')}>{row.one.length}</button></td
-									>
-									<td
-										class="px-2"
-										onmouseenter={() => highlight(i, 2)}
-										onmouseleave={clearHighlight}
-										class:highlight-row={highlightRow === i}
-										class:highlight-column={highlightColumn === 2}
-										class:highlight-cell={highlightRow === i && highlightColumn === 2}
-										onclick={() => matchList(row, 'two')}
-										><button onclick={() => matchList(row, 'two')}>{row.two.length}</button></td
-									>
-									<td
-										class="px-2"
-										onmouseenter={() => highlight(i, 3)}
-										onmouseleave={clearHighlight}
-										class:highlight-row={highlightRow === i}
-										class:highlight-column={highlightColumn === 3}
-										class:highlight-cell={highlightRow === i && highlightColumn === 3}
-										onclick={() => matchList(row, 'three')}
-										><button onclick={() => matchList(row, 'three')}>{row.three.length}</button
-										></td
-									>
-									<td
-										class="px-2"
-										onmouseenter={() => highlight(i, 4)}
-										onmouseleave={clearHighlight}
-										class:highlight-row={highlightRow === i}
-										class:highlight-column={highlightColumn === 4}
-										class:highlight-cell={highlightRow === i && highlightColumn === 4}
-										onclick={() => matchList(row, 'four')}
-										><button onclick={() => matchList(row, 'four')}>{row.four.length}</button></td
-									>
-									<td
-										class="px-2"
-										onmouseenter={() => highlight(i, 5)}
-										onmouseleave={clearHighlight}
-										class:highlight-row={highlightRow === i}
-										class:highlight-column={highlightColumn === 5}
-										class:highlight-cell={highlightRow === i && highlightColumn === 5}
-										onclick={() => matchList(row, 'five')}
-										><button onclick={() => matchList(row, 'five')}>{row.five.length}</button></td
-									>
-									<td
-										class="px-2"
-										onmouseenter={() => highlight(i, 6)}
-										onmouseleave={clearHighlight}
-										class:highlight-row={highlightRow === i}
-										class:highlight-column={highlightColumn === 6}
-										class:highlight-cell={highlightRow === i && highlightColumn === 6}
-										onclick={() => matchList(row, 'total')}
-										><button onclick={() => matchList(row, 'total')}>{row.total.length}</button
-										></td
-									>
-								</tr>
-							{/key}
-						{/each}
-					</tbody>
-				</table>
-			{/key}
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Heroes</div>
+			<Select.Root type="multiple" bind:value={selectedHeroes}>
+				<Select.Trigger class="w-full">{makeHeroTrigger()}</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="-1" label="All Heroes">All Heroes</Select.Item>
+					{#each data.heroList as hero}
+						<Select.Item value={hero.id.toString()} label={hero.name}>
+							<div class="flex items-center gap-2">
+								<img src={hero.img} alt="" class="h-6 w-8 rounded-sm object-cover" />
+								<span>{hero.name}</span>
+							</div>
+						</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Roles</div>
+			<Select.Root type="multiple" bind:value={selectedRoles}>
+				<Select.Trigger class="w-full">{makeRolesTrigger()}</Select.Trigger>
+				<Select.Content>
+					{#each [1, 2, 3, 4, 5] as role}
+						<Select.Item value={role.toString()} label={getRoleName(role)}>
+							<div class="flex items-center gap-2">
+								<img src={getRoleIcon(role)} alt="" class="h-6 w-6" />
+								<span>{getRoleName(role)}</span>
+							</div>
+						</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Date Range</div>
+			<Select.Root type="single" bind:value={selectedDateRange}>
+				<Select.Trigger class="w-full">{makeDateTrigger()}</Select.Trigger>
+				<Select.Content>
+					{#each DATE_RANGE_PRESETS as range}
+						<Select.Item value={range.value} label={range.label}>{range.label}</Select.Item>
+					{/each}
+					{#each DOTA_MAJOR_PATCHES.slice().reverse() as patch}
+						<Select.Item value={`patch-${patch.version}`} label={patch.label}>{patch.label}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
+			<div class="flex gap-1">
+				<Toggle bind:pressed={ranked} class="h-10 border px-3 data-[state=on]:bg-sky-600">Ranked</Toggle>
+				<Toggle bind:pressed={unranked} class="h-10 border px-3 data-[state=on]:bg-sky-600">Unranked</Toggle>
+				<Toggle bind:pressed={other} class="h-10 border px-3 data-[state=on]:bg-sky-600">Other</Toggle>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Result</div>
+			<div class="flex gap-1">
+				<Toggle pressed={wins} onclick={() => toggleResult('wins')} class="h-10 border px-3 data-[state=on]:bg-sky-600">Wins</Toggle>
+				<Toggle pressed={losses} onclick={() => toggleResult('losses')} class="h-10 border px-3 data-[state=on]:bg-sky-600">Losses</Toggle>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurfs</div>
+			<Toggle bind:pressed={smurfs} class="h-10 border px-3 data-[state=on]:bg-sky-600">
+				<VenetianMask class="h-5 w-5" />
+			</Toggle>
 		</div>
 	</div>
-	<div>
-		<div class="my-2 flex flex-col items-center justify-center gap-2">
-			<div class="flex justify-center font-display text-3xl">IMPACT CALCULATOR</div>
-			<div class="flex gap-4">
-				<div class="flex flex-col gap-2">
-					<div>
-						<div class="text-sm">Hero</div>
-						<select
-							oninput={() => calculateImpact()}
-							bind:value={impactHero}
-							onchange={() => calculateImpact()}
-							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-						>
-							<option value={-1}>Select Hero</option>
-							{#each heroList as hero}
-								<option value={hero.id}>{hero.name}</option>
-							{/each}
-						</select>
-					</div>
-					<div>
-						<div class="text-sm">Kills</div>
-						<input
-							oninput={() => calculateImpact()}
-							onchange={() => calculateImpact()}
-							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-							bind:value={impactKills}
-						/>
-					</div>
-					<div>
-						<div class="text-sm">Deaths</div>
-						<input
-							oninput={() => calculateImpact()}
-							onchange={() => calculateImpact()}
-							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-							bind:value={impactDeaths}
-						/>
-					</div>
+
+	<div class="grid gap-3 md:grid-cols-4">
+		<Card.Root>
+			<Card.Content class="p-4">
+				<div class="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-400">
+					<Swords class="h-4 w-4" /> Matches
 				</div>
-				<div class="flex flex-col gap-2">
-					<div>
-						<div class="text-sm">Assists</div>
-						<input
-							oninput={() => calculateImpact()}
-							onchange={() => calculateImpact()}
-							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-							bind:value={impactAssists}
-						/>
-					</div>
-					<div>
-						<div class="text-sm">Duration</div>
-						<input
-							oninput={() => calculateImpact()}
-							onchange={() => calculateImpact()}
-							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-							bind:value={impactDuration}
-						/>
-					</div>
-					<div>
-						<div class="text-sm">Last Hits</div>
-						<input
-							oninput={() => calculateImpact()}
-							onchange={() => calculateImpact()}
-							class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-							bind:value={impactLastHits}
-						/>
-					</div>
+				<div class="mt-2 text-3xl font-semibold">{formatNumber(matchCount)}</div>
+				<div class="text-sm text-zinc-400">{formatNumber(filteredRows.length)} player performances</div>
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Content class="p-4">
+				<div class="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-400">
+					<Trophy class="h-4 w-4" /> Win Rate
 				</div>
-			</div>
-			<div>
-				<div class="text-sm">Role</div>
-				<select
-					oninput={() => calculateImpact()}
-					bind:value={impactRole}
-					onchange={() => calculateImpact()}
-					class="w-40 rounded-xl border-x-8 border-zinc-800 bg-zinc-800 p-2 text-base"
-				>
-					<option value={0}>Select Role</option>
-					<option value={1}>Carry</option>
-					<option value={2}>Mid</option>
-					<option value={3}>Offlane</option>
-					<option value={4}>Soft Support</option>
-					<option value={5}>Hard Support</option>
-				</select>
-			</div>
-			<div class="text-red-500">{impactError}</div>
-			<div class="flex h-12 items-center justify-center gap-8">
-				<div class="text-right text-3xl">{estimatedImpact}</div>
-				<div class="cursor-default items-center text-left text-3xl">
-					{#if estimatedImpact > 200}
-						<div id="splusplusrating" class="font-display">
-							{calcImpact(estimatedImpact)}
-						</div>
-					{:else if estimatedImpact >= 140}
-						<div id="srating" class="font-display">
-							{calcImpact(estimatedImpact)}
-						</div>
-					{:else if estimatedImpact < 140 && estimatedImpact > 25}
-						<div class="font-display">
-							{calcImpact(estimatedImpact)}
-						</div>
-					{:else if estimatedImpact <= 25}
-						<div id="frating" class="flex justify-center font-display">
-							<FxemojiPoo />
-						</div>
-					{/if}
+				<div class="mt-2 text-3xl font-semibold">{formatNumber(playerWinRate, 1)}%</div>
+				<div class="text-sm text-zinc-400">Across filtered player rows</div>
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Content class="p-4">
+				<div class="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-400">
+					<BarChart3 class="h-4 w-4" /> Impact
 				</div>
-			</div>
-			<table class="text-lg">
-				<tbody>
-					<tr>
-						<td class="pr-4 text-zinc-300">
-							CS/min Rating ({distribution(impactRole, impactHero)?.csMin || 'N/A'}%)
-						</td>
-						<td>{csMinRating}</td>
-					</tr>
-					<tr>
-						<td class="pr-4 text-zinc-300">
-							Death Rating ({distribution(impactRole, impactHero)?.death || 'N/A'}%)
-						</td>
-						<td>{deathRating}</td>
-					</tr>
-					<tr>
-						<td class="pr-4 text-zinc-300">
-							K/A Rating ({distribution(impactRole, impactHero)?.kapm || 'N/A'}%)
-						</td>
-						<td>{kapmRating}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+				<div class="mt-2 text-3xl font-semibold">{formatNumber(average(filteredRows, (row) => row.impact))}</div>
+				<div class="text-sm text-zinc-400">Average impact</div>
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Content class="p-4">
+				<div class="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-400">
+					<Crosshair class="h-4 w-4" /> KDA
+				</div>
+				<div class="mt-2 text-3xl font-semibold">
+					{formatNumber(
+						(average(filteredRows, (row) => row.kills) + average(filteredRows, (row) => row.assists)) /
+							Math.max(average(filteredRows, (row) => row.deaths), 1),
+						2
+					)}
+				</div>
+				<div class="text-sm text-zinc-400">Average K+A/D</div>
+			</Card.Content>
+		</Card.Root>
 	</div>
-	<div class="w-full">
-		<WinChart data={graph} type="collective" />
+
+	<div class="grid gap-3 xl:grid-cols-[1fr_1fr]">
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>Trend</Card.Title>
+				<Card.Description>Filtered win/loss volume by active day.</Card.Description>
+			</Card.Header>
+			<Card.Content>
+				<div class="flex h-56 items-end gap-1">
+					{#each trend as day}
+						<div class="flex min-w-0 flex-1 flex-col items-center gap-1">
+							<Tooltip.Root>
+								<Tooltip.Trigger
+									class="flex w-full flex-col justify-end overflow-hidden rounded-sm bg-zinc-900"
+									style={`height: ${Math.max(8, ((day.wins + day.losses) / trendMax) * 184)}px`}
+								>
+									<div
+										class="bg-green-500/80"
+										style={`height: ${day.wins + day.losses ? (day.wins / (day.wins + day.losses)) * 100 : 0}%`}
+									></div>
+									<div
+										class="bg-red-500/80"
+										style={`height: ${day.wins + day.losses ? (day.losses / (day.wins + day.losses)) * 100 : 0}%`}
+									></div>
+								</Tooltip.Trigger>
+								<Tooltip.Content class="text-xs">
+									<div class="font-medium">{dayjs(day.date).format('DD MMM YYYY')}</div>
+									<div class="tabular-nums">{day.wins} wins, {day.losses} losses</div>
+								</Tooltip.Content>
+							</Tooltip.Root>
+							<div class="w-full truncate text-center text-[10px] text-zinc-500">{dayjs(day.date).format('DD MMM')}</div>
+						</div>
+					{/each}
+				</div>
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>Role Split</Card.Title>
+				<Card.Description>Volume, results, and average performance by role.</Card.Description>
+			</Card.Header>
+			<Card.Content class="overflow-x-auto">
+				<DashboardSortableTable
+					rows={byRole}
+					initialSort={[{ id: 'role', desc: false }]}
+					columns={[
+						{ id: 'role', label: 'Role', minWidth: '11rem' },
+						{ id: 'matches', label: 'Matches', align: 'right' },
+						{ id: 'wl', label: 'W/L', minWidth: '10rem' },
+						{ id: 'winRate', label: 'WR', align: 'right' },
+						{ id: 'impact', label: 'Impact', align: 'right' },
+						{ id: 'kda', label: 'KDA', align: 'right' },
+						{ id: 'gpm', label: 'GPM', align: 'right' },
+						{ id: 'xpm', label: 'XPM', align: 'right' }
+					]}
+				/>
+			</Card.Content>
+		</Card.Root>
+	</div>
+
+	<div class="grid gap-3 xl:grid-cols-2">
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>Players</Card.Title>
+				<Card.Description>Top filtered players by match volume.</Card.Description>
+			</Card.Header>
+			<Card.Content class="overflow-x-auto">
+				<DashboardSortableTable
+					rows={byPlayer.slice(0, 24)}
+					columns={[
+						{ id: 'player', label: 'Player', minWidth: '12rem' },
+						{ id: 'matches', label: 'Matches', align: 'right' },
+						{ id: 'winRate', label: 'WR', align: 'right' },
+						{ id: 'impact', label: 'Impact', align: 'right' },
+						{ id: 'kda', label: 'KDA', align: 'right' },
+						{ id: 'gpm', label: 'GPM', align: 'right' }
+					]}
+				/>
+			</Card.Content>
+		</Card.Root>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>Heroes</Card.Title>
+				<Card.Description>Most played heroes in the filtered set.</Card.Description>
+			</Card.Header>
+			<Card.Content class="overflow-x-auto">
+				<DashboardSortableTable
+					rows={byHero.slice(0, 24)}
+					columns={[
+						{ id: 'hero', label: 'Hero', minWidth: '14rem' },
+						{ id: 'matches', label: 'Matches', align: 'right' },
+						{ id: 'winRate', label: 'WR', align: 'right' },
+						{ id: 'impact', label: 'Impact', align: 'right' },
+						{ id: 'kda', label: 'KDA', align: 'right' }
+					]}
+				/>
+			</Card.Content>
+		</Card.Root>
+	</div>
+
+	<div class="grid gap-3 xl:grid-cols-2">
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>Patch Breakdown</Card.Title>
+				<Card.Description>Filtered volume and performance by Dota patch.</Card.Description>
+			</Card.Header>
+			<Card.Content class="overflow-x-auto">
+				<DashboardSortableTable
+					rows={patchBreakdown.slice(0, 18)}
+					columns={[
+						{ id: 'label', label: 'Patch', minWidth: '9rem' },
+						{ id: 'matches', label: 'Matches', align: 'right' },
+						{ id: 'wl', label: 'W/L', minWidth: '10rem' },
+						{ id: 'winRate', label: 'WR', align: 'right' },
+						{ id: 'impact', label: 'Impact', align: 'right' },
+						{ id: 'kda', label: 'KDA', align: 'right' }
+					]}
+				/>
+			</Card.Content>
+		</Card.Root>
+
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>Duration Bands</Card.Title>
+				<Card.Description>How match length changes volume, winrate, and impact.</Card.Description>
+			</Card.Header>
+			<Card.Content class="overflow-x-auto">
+				<DashboardSortableTable
+					rows={durationBuckets}
+					columns={[
+						{ id: 'label', label: 'Duration', minWidth: '9rem' },
+						{ id: 'matches', label: 'Matches', align: 'right' },
+						{ id: 'wl', label: 'W/L', minWidth: '10rem' },
+						{ id: 'winRate', label: 'WR', align: 'right' },
+						{ id: 'impact', label: 'Impact', align: 'right' },
+						{ id: 'avgDuration', label: 'Avg', align: 'right' }
+					]}
+				/>
+			</Card.Content>
+		</Card.Root>
 	</div>
 </div>
-
-{#if showTotwMatches}
-	<div
-		transition:fade={{ duration: 200 }}
-		id="backdrop"
-		class="fixed top-0 z-10 flex h-screen w-screen cursor-default items-center justify-center"
-		onclick={self(() => (showTotwMatches = false))}
-		onkeypress={(e) => e.key === 'Escape' && (showTotwMatches = false)}
-		tabindex="0"
-		role="button"
-		class:scroll-lock={showTotwMatches}
-	>
-		<div
-			class="absolute z-20 rounded-xl border-[1px] border-zinc-200 border-opacity-15 bg-zinc-900 px-4 py-2 opacity-100"
-		>
-			<table>
-				<tbody>
-					{#each totwMatches as match}
-						<tr class="hover:bg-zinc-800">
-							{#if !match.matchId}
-								<td><div class="flex h-10 w-20 items-center text-left">Week {match.week}</div></td>
-								<td colspan="15">Match not available.</td>
-							{:else}
-								<td
-									><MatchModal matchId={match.match.matchId}
-										><div class="flex h-10 w-20 items-center text-left">
-											Week {match.week}
-										</div></MatchModal
-									></td
-								>
-
-								<td class="flex items-center">
-									<MatchModal matchId={match.match.matchId}>
-										<img
-											src={match.match.hero.img}
-											alt={match.match.hero.name}
-											class="m-auto max-w-16"
-										/>
-									</MatchModal>
-								</td>
-								<td class="text-center">
-									<img
-										src={getRoleIcon(match.match.role)}
-										alt={`position ${match.match.role}`}
-										class="mx-auto w-8"
-									/>
-								</td>
-								<td>
-									<MatchModal matchId={match.match.matchId}>
-										<div class="w-7 text-center text-green-400">
-											{match.match.kills}
-										</div>
-									</MatchModal>
-								</td>
-
-								<td>
-									<MatchModal matchId={match.match.matchId}>
-										<div class="w-7 text-center text-red-400">
-											{match.match.deaths}
-										</div>
-									</MatchModal>
-								</td>
-
-								<td class="text-center">
-									<MatchModal matchId={match.match.matchId}>
-										<div class="w-7 text-center text-cyan-300">
-											{match.match.assists}
-										</div>
-									</MatchModal>
-								</td>
-
-								<td class="text-center">
-									<MatchModal matchId={match.match.matchId}>
-										<div
-											class="w-12 cursor-default items-center text-center text-base"
-											use:tippy={{
-												content: `
-                <div class='text-center'>Impact Rating: <span class='font-bold'>${
-									match.match.impact
-								}</span></div>
-                <table>
-<thead>
-    <tr class='border-b-2 border-black'>
-        <th class='text-left'>Stat</th>
-        <th class='px-4 text-center'>Dist</th>
-        <th class='text-right'>Rating</th>
-    </tr>
-  <tbody>
-    <tr>
-      <td class='text-left'>K/A</td>
-      <td class='px-4 text-center'>${distribution(match.match.role)?.kapm}%</td>
-      <td class='text-right'>${
-				getImpactDetails(match.match, match.match.role, match.match.duration).kapmRating
-			}</td>
-    </tr>
-    <tr>
-      <td class='text-left'>Death</td>
-      <td class='px-4 text-center'>${distribution(match.match.role)?.death}%</td>
-      <td class='text-right'>${
-				getImpactDetails(match.match, match.match.role, match.match.duration).deathRating
-			}</td>
-    </tr>
-    ${
-			match.match.role === 1 || match.match.role === 2 || match.match.role === 3
-				? `<tr>
-      <td class='text-left'>CS</td>
-      <td class='px-4 text-center'>${distribution(match.match.role)?.csMin}%</td>
-      <td class='text-right'>${
-				getImpactDetails(match.match, match.match.role, match.match.duration).csMinRating
-			}</td>
-    </tr>`
-				: ``
-		}
-
-  </tbody>
-</table>`,
-												placement: 'bottom',
-												theme: 'light',
-												allowHTML: true
-											}}
-										>
-											{#if match.match.impact > 200}
-												<div id="splusplusrating" class="font-display">
-													{calcImpact(match.match.impact)}
-												</div>
-											{:else if match.match.impact >= 140}
-												<div id="srating" class="font-display">
-													{calcImpact(match.match.impact)}
-												</div>
-											{:else if match.match.impact < 140 && match.match.impact > 25}
-												<div class="font-display">
-													{calcImpact(match.match.impact)}
-												</div>
-											{:else if match.match.impact <= 25}
-												<div id="frating" class="flex justify-center font-display">
-													<FxemojiPoo />
-												</div>
-											{/if}
-										</div>
-									</MatchModal>
-								</td>
-								<td>
-									<MatchModal matchId={match.match.matchId}>
-										<div class="w-12">{toTime(match.match.duration)}</div>
-									</MatchModal>
-								</td>
-							{/if}
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	</div>
-{/if}
-
-<style>
-	.scroll-lock {
-		overflow-y: hidden;
-	}
-	#backdrop {
-		position: fixed;
-		top: 0;
-		bottom: 0;
-		right: 0;
-		left: 0;
-		background: rgba(0, 0, 0, 0.5);
-	}
-	table {
-		border-collapse: collapse;
-	}
-
-	td,
-	th {
-		padding-top: 4px;
-		padding-bottom: 4px;
-		transition: background-color 0.1s ease; /* Add transition for background-color */
-		font-weight: normal;
-	}
-
-	.highlight-row {
-		background-color: #3f3f46; /* Row highlight */
-	}
-
-	.highlight-column {
-		background-color: #3f3f46; /* Column highlight */
-	}
-
-	.highlight-cell {
-		background-color: #52525b; /* Cell highlight */
-	}
-	:root {
-		--splus-base: #fef3c7;
-		--splus-accent1: #fcd34d;
-		--splus-accent2: #fbbf24;
-
-		--splusplus-base: #fdba74;
-		--splusplus-accent1: #f97316;
-		--splusplus-accent2: #ea580c;
-
-		--f-base: #b45309;
-		--f-accent1: #9a3412;
-		--f-accent2: #7c2d12;
-	}
-
-	#srating {
-		animation: srating 1s ease-in-out infinite alternate;
-		color: var(--splus-base);
-	}
-
-	@keyframes srating {
-		from {
-			text-shadow:
-				0 0 2px var(--splus-base),
-				0 0 4px var(--splus-base),
-				0 0 6px var(--splus-accent1),
-				0 0 8px var(--splus-accent1),
-				0 0 10px var(--splus-accent1),
-				0 0 12px var(--splus-accent1),
-				0 0 14px var(--splus-accent1);
-		}
-		to {
-			text-shadow:
-				0 0 4px var(--splus-base),
-				0 0 8px var(--splus-accent2),
-				0 0 12px var(--splus-accent2),
-				0 0 12px var(--splus-accent2),
-				0 0 15px var(--splus-accent2),
-				0 0 18px var(--splus-accent2),
-				0 0 21px var(--splus-accent2);
-		}
-	}
-
-	#frating {
-		color: var(--f-base);
-		animation: frating 1s ease-in-out infinite alternate;
-	}
-
-	@keyframes frating {
-		from {
-			filter: drop-shadow(0 0 8px var(--f-accent1));
-		}
-		to {
-			filter: drop-shadow(0 0 4px var(--f-accent2));
-		}
-	}
-
-	#splusplusrating {
-		color: var(--splusplus-base);
-		animation: ssrating 1s ease-in-out infinite alternate;
-	}
-
-	@keyframes ssrating {
-		from {
-			text-shadow:
-				0 0 2px var(--splusplus-base),
-				0 0 4px var(--splusplus-base),
-				0 0 6px var(--splusplus-accent1),
-				0 0 8px var(--splusplus-accent1),
-				0 0 10px var(--splusplus-accent1),
-				0 0 12px var(--splusplus-accent1),
-				0 0 14px var(--splusplus-accent1);
-		}
-
-		to {
-			text-shadow:
-				0 0 4px var(--splusplus-base),
-				0 0 8px var(--splusplus-accent2),
-				0 0 12px var(--splusplus-accent2),
-				0 0 16px var(--splusplus-accent2),
-				0 0 20px var(--splusplus-accent2),
-				0 0 24px var(--splusplus-accent2),
-				0 0 28px var(--splusplus-accent2);
-		}
-	}
-
-	@keyframes shine {
-		0% {
-			background-position: left;
-		}
-		50% {
-			background-position: right;
-		}
-		100% {
-			background-position: left;
-		}
-	}
-</style>

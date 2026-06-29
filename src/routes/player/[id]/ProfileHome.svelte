@@ -31,14 +31,12 @@
 		rankedLosses: number;
 	};
 
-	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
-	import MaterialSymbolsArrowForwardRounded from '~icons/material-symbols/arrow-forward-rounded';
 	import Loading from '$lib/components/Loading.svelte';
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { blur, crossfade, draw, fade, fly, scale, slide } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
 	import { browser } from '$app/environment';
 	import Bar from '$lib/components/stats/Bar.svelte';
@@ -47,14 +45,15 @@
 	import dayjs from 'dayjs';
 	import advancedFormat from 'dayjs/plugin/advancedFormat';
 	import RoleDoughnut from '$lib/components/stats/RoleDoughnut.svelte';
-	import { getRoleIcon, getRoleName, calcImpact, getHeroIdSting } from '$lib/functions';
+	import { calcImpact, getHeroIdSting } from '$lib/functions';
 	import RoleStats from '$lib/components/stats/RoleStats.svelte';
+	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
 
 	dayjs.extend(advancedFormat);
 
 	interface Props {
 		data: {
-			roleCounts: { role: number; count: number }[];
+			roleCounts: any[];
 			player: Player;
 			mainAccount: SteamProfile;
 			smurfAccounts: SteamProfile[];
@@ -83,7 +82,7 @@
 
 	let pageNumber = $state(1);
 
-	let matchBlocks = $state([]);
+	let matchBlocks: any[] = $state([]);
 
 	onMount(() => {
 		if ($page.url.searchParams.get('page')) {
@@ -109,8 +108,8 @@
 	const updateMatchesData = async () => {
 		if (browser) {
 			matchBlocks = [];
-			const data = await fetchMatches(pageNumber, Number($page.params.id));
-			matchBlocks = data;
+			const response = await fetchMatches(pageNumber, Number($page.params.id));
+			matchBlocks = Array.isArray(response) ? response : (response.matches ?? []);
 		}
 	};
 
@@ -126,8 +125,7 @@
 
 	let {
 		roleCounts,
-		playerId,
-		averageStats,
+		averageStats: loadedAverageStats,
 		player,
 		mainAccount,
 		smurfAccounts,
@@ -141,12 +139,30 @@
 		featuredHero
 	} = $derived(data);
 
+	let averageStats = $derived(
+		loadedAverageStats ?? {
+			avgImpact: 0,
+			avgKills: 0,
+			avgDeaths: 0,
+			avgAssists: 0,
+			avgGpm: 0,
+			avgXpm: 0,
+			avgLastHits: 0
+		}
+	);
+
 	let hero = $state('');
 
 	$effect(() => {
-		heroStats.then((stats) => {
-			hero = getHeroIdSting(stats[0].hero.id).replace('npc_dota_hero_', '');
-		});
+		heroStats
+			.then((stats: any[]) => {
+				if (stats[0]?.hero?.id) {
+					hero = getHeroIdSting(stats[0].hero.id).replace('npc_dota_hero_', '');
+				}
+			})
+			.catch(() => {
+				hero = '';
+			});
 	});
 </script>
 
@@ -154,24 +170,24 @@
 	<title>whos-playing | {player.username || 'Unknown'}</title>
 </svelte:head>
 
-<div class="w-full">
+<div class="w-full min-w-0">
 	{#key player}
-		<div class="flex w-96 flex-wrap gap-4 md:w-full">
-			<div class="flex w-full flex-col items-center justify-center gap-4 md:flex-row">
-				<Card.Root class="w-96 flex-1 grow md:h-full md:w-full">
+		<div class="flex min-w-0 flex-col gap-4">
+			<div class="grid w-full gap-4 md:grid-cols-3">
+				<Card.Root class="min-w-0">
 					<Card.Header>
 						<Card.Title>Overall Performance</Card.Title>
-						<Card.Description>All time win loss ratio.</Card.Description>
+						<Card.Description>All-time match record.</Card.Description>
 					</Card.Header>
 					<Card.Content>
-						<div class="flex w-full items-center gap-1">
-							<div class=" text-green-400">{allTimeStats.wins}</div>
-							<div class="">-</div>
+						<div class="flex w-full items-baseline gap-2 tabular-nums">
+							<div class="text-2xl font-semibold text-green-400">{allTimeStats.wins}</div>
+							<div class="text-zinc-500">-</div>
 							<div class="text-red-500">{allTimeStats.losses}</div>
 						</div>
 					</Card.Content>
 					<Card.Footer>
-						<div class="flex h-3 items-center justify-center gap-1">
+						<div class="flex h-3 w-full items-center gap-1">
 							{#each matchBlocks.slice(0, 12) as match}
 								{#if match.matchData.winner === match.player.team}
 									<HoverCard.Root>
@@ -198,20 +214,20 @@
 						</div>
 					</Card.Footer>
 				</Card.Root>
-				<Card.Root class="w-96 flex-1 grow md:h-full md:w-full">
+				<Card.Root class="min-w-0">
 					<Card.Header>
 						<Card.Title>Recent Form</Card.Title>
 						<Card.Description>Last 31 days.</Card.Description>
 					</Card.Header>
 					<Card.Content>
-						<div class="flex w-full items-center gap-1">
-							<div class=" text-green-400">{recentStats.wins}</div>
-							<div class="">-</div>
+						<div class="flex w-full items-baseline gap-2 tabular-nums">
+							<div class="text-2xl font-semibold text-green-400">{recentStats.wins}</div>
+							<div class="text-zinc-500">-</div>
 							<div class="text-red-500">{recentStats.losses}</div>
 						</div>
 					</Card.Content>
 					<Card.Footer>
-						<div class="flex h-3 items-center justify-center gap-1">
+						<div class="flex h-3 w-full items-center gap-1 overflow-hidden">
 							{#each matchesByDay as day}
 								<HoverCard.Root>
 									<HoverCard.Trigger>
@@ -258,29 +274,27 @@
 						</div>
 					</Card.Footer>
 				</Card.Root>
-				<Card.Root class="w-96 flex-1 grow md:h-full md:w-full">
+				<Card.Root class="min-w-0">
 					<Card.Header>
 						<Card.Title>Stats</Card.Title>
 						<Card.Description>Average of last 31 days.</Card.Description>
 					</Card.Header>
 					<Card.Content>
 						<div class="flex flex-col gap-2">
-							<div class="flex justify-between">
-								<div class="flex w-12 flex-col gap-0">
+							<div class="grid grid-cols-2 gap-3">
+								<div class="flex flex-col gap-0 rounded-md bg-zinc-900/70 px-3 py-2">
 									<div class="text-xl text-green-300">{averageStats.avgKills}</div>
 									<div class="text-xs text-zinc-400">Kills</div>
 								</div>
-								<div class="flex w-12 flex-col gap-0">
+								<div class="flex flex-col gap-0 rounded-md bg-zinc-900/70 px-3 py-2">
 									<div class="text-xl text-red-400">{averageStats.avgDeaths}</div>
 									<div class="text-xs text-zinc-400">Deaths</div>
 								</div>
-							</div>
-							<div class="flex justify-between">
-								<div class="flex w-12 flex-col gap-0">
+								<div class="flex flex-col gap-0 rounded-md bg-zinc-900/70 px-3 py-2">
 									<div class="text-xl text-cyan-300">{averageStats.avgAssists}</div>
 									<div class="text-xs text-zinc-400">Assists</div>
 								</div>
-								<div class="flex w-12 flex-col gap-0">
+								<div class="flex flex-col gap-0 rounded-md bg-zinc-900/70 px-3 py-2">
 									<div class="text-impact text-xl">{averageStats.avgImpact}</div>
 									<div class="text-xs text-zinc-400">Impact</div>
 								</div>
@@ -291,65 +305,74 @@
 			</div>
 
 			{#if featuredHero}
-				<Card.Root class="w-96 md:w-full md:grow">
+				<Card.Root class="min-w-0 overflow-hidden">
 					<Card.Header>
 						<Card.Title>Featured Hero</Card.Title>
 						<Card.Description>Biggest standout hero of the last 31 days.</Card.Description>
 					</Card.Header>
 					<Card.Content>
-						<div class="flex items-center justify-between">
+						<div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
 							<div class="flex w-full flex-col items-start gap-4">
-								{#await featuredHero then featuredHero}
-									<div class="text-5xl">{featuredHero.hero.name}</div>
-									<div>
-										<div class="text-xl">KDA</div>
-										<div class="flex gap-1 text-lg">
-											<div class=" text-green-300">{featuredHero.avgKills}</div>
+								{#await featuredHero then featuredHeroData}
+									{#if featuredHeroData}
+									<div class="text-2xl font-semibold text-zinc-100">{featuredHeroData.hero.name}</div>
+									<div class="grid w-full gap-3 sm:grid-cols-3">
+										<div class="rounded-md bg-zinc-900/70 px-3 py-2">
+											<div class="text-xs uppercase tracking-wide text-zinc-500">KDA</div>
+											<div class="mt-1 flex gap-1 text-lg tabular-nums">
+											<div class=" text-green-300">{featuredHeroData.avgKills}</div>
 											<div class="">/</div>
-											<div class=" text-red-400">{featuredHero.avgDeaths}</div>
+											<div class=" text-red-400">{featuredHeroData.avgDeaths}</div>
 											<div class="">/</div>
-											<div class=" text-cyan-300">{featuredHero.avgAssists}</div>
+											<div class=" text-cyan-300">{featuredHeroData.avgAssists}</div>
 										</div>
 									</div>
-									<div class="flex flex-col gap-2">
-										<div class="text-xl">Matches</div>
-										<div class="text-lg">{featuredHero.matches}</div>
+										<div class="rounded-md bg-zinc-900/70 px-3 py-2">
+											<div class="text-xs uppercase tracking-wide text-zinc-500">Matches</div>
+											<div class="mt-1 text-lg tabular-nums text-zinc-100">{featuredHeroData.matches}</div>
+										</div>
+										<div class="rounded-md bg-zinc-900/70 px-3 py-2">
+											<div class="text-xs uppercase tracking-wide text-zinc-500">Grade</div>
+											<div class="mt-1 text-lg text-zinc-100">{calcImpact(featuredHeroData.avgImpact)}</div>
+										</div>
 									</div>
-									<div class="flex w-full max-w-64 grow flex-col gap-2">
+									<div class="flex w-full max-w-xl grow flex-col gap-2">
 										<div class="flex justify-between">
 											<div>
-												<div class="text-xl">Impact</div>
+												<div class="text-sm font-medium text-zinc-200">Impact</div>
 												<div class="text-sm text-zinc-400">
-													{featuredHero.avgImpact}
+													{featuredHeroData.avgImpact}
 												</div>
 											</div>
-											<div class="text-3xl">{calcImpact(featuredHero.avgImpact)}</div>
 										</div>
-										<Bar colour="#9333EA" percentage={(featuredHero.avgImpact / 140) * 100} />
+										<Bar colour="#9333EA" percentage={(featuredHeroData.avgImpact / 140) * 100} />
 									</div>
-									<div class="flex w-full max-w-64 grow flex-col gap-2">
+									<div class="flex w-full max-w-xl grow flex-col gap-2">
 										<div class="flex justify-between">
 											<div>
-												<div class="text-xl">Winrate</div>
+												<div class="text-sm font-medium text-zinc-200">Win Rate</div>
 												<div class="flex gap-1 text-sm text-zinc-400">
 													<div class="text-green-400">
-														{featuredHero.radiantWins + featuredHero.direWins}
+														{featuredHeroData.radiantWins + featuredHeroData.direWins}
 													</div>
 													<div>-</div>
 													<div class="text-red-400">
-														{featuredHero.matches -
-															featuredHero.radiantWins -
-															featuredHero.direWins}
+														{featuredHeroData.matches -
+															featuredHeroData.radiantWins -
+															featuredHeroData.direWins}
 													</div>
 												</div>
 											</div>
-											<div class="text-3xl">{featuredHero.winRate.toFixed(2)}%</div>
+											<div class="text-xl font-semibold tabular-nums text-zinc-100">{featuredHeroData.winRate.toFixed(2)}%</div>
 										</div>
-										<Bar percentage={featuredHero.winRate} />
+										<Bar percentage={featuredHeroData.winRate} />
 									</div>
+									{:else}
+										<div class="text-sm text-zinc-400">No featured hero yet.</div>
+									{/if}
 								{/await}
 							</div>
-							<div class="max-w-96 overflow-hidden bg-no-repeat">
+							<div class="hidden max-h-80 overflow-hidden rounded-md bg-zinc-950 bg-no-repeat lg:block">
 								<!---
 								<video
 									autoplay
@@ -367,7 +390,7 @@
 								--->
 								<img
 									src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.png`}
-									alt="hero background"
+										alt="Featured hero render"
 									class="h-full w-full object-cover object-center"
 								/>
 							</div>
@@ -375,7 +398,8 @@
 					</Card.Content>
 				</Card.Root>
 			{/if}
-			<Card.Root class="w-96 md:w-full md:flex-1">
+			<div class="grid gap-4 lg:grid-cols-[minmax(18rem,0.75fr)_minmax(0,1.25fr)]">
+			<Card.Root class="min-w-0">
 				<Card.Header>
 					<Card.Title>Roles</Card.Title>
 					<Card.Description>All time role stats.</Card.Description>
@@ -386,25 +410,29 @@
 							<RoleDoughnut data={roleCounts} cutout={50} />
 						</div>
 
-						<RoleStats {roleCounts} />
+							<div class="w-full overflow-x-auto">
+								<RoleStats {roleCounts} />
+							</div>
 					</div>
 				</Card.Content>
 			</Card.Root>
-			<Card.Root class="w-96 md:w-full md:flex-1">
+			<Card.Root class="min-w-0">
 				<Card.Header>
 					<Card.Title>Stats</Card.Title>
 					<Card.Description>Average of all time stats.</Card.Description>
 				</Card.Header>
 				<Card.Content>
-					<div>
-						{#await allTimeHeroStats then allTimeHeroStats}
-							<HeroStatbox heroStats={allTimeHeroStats} height="h-[380px]" />
-						{/await}
+						<div class="overflow-x-auto">
+							{#await allTimeHeroStats then allTimeHeroStats}
+								<HeroStatbox heroStats={allTimeHeroStats} height="h-[380px]" />
+							{/await}
 					</div>
 				</Card.Content>
 			</Card.Root>
 
-			<div class="w-auto">
+			</div>
+
+			<div class="w-full min-w-0">
 				{#key matchBlocks}
 					<div class="min-h-64" in:fade={{ duration: 400 }}>
 						{#if matchBlocks.length == 0}
@@ -414,10 +442,8 @@
 								</div>
 							</div>
 						{:else}
-							<div class="flex flex-col gap-2">
-								<div
-									class="justify-centerpy-3 mx-auto flex w-fit flex-col items-center gap-2 md:px-2"
-								>
+							<div class="flex flex-col gap-3">
+								<div class="mx-auto flex w-full max-w-5xl flex-col items-stretch gap-3 py-2">
 									{#each matchBlocks.slice(0, 20) as match}
 										<Card.Root>
 											<Card.Content class="p-0 ">
@@ -426,21 +452,21 @@
 										</Card.Root>
 									{/each}
 								</div>
-								<div class="flex items-center justify-center gap-4">
+								<div class="flex items-center justify-center gap-3">
 									<button
-										class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
+										class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
 										disabled={pageNumber == 1}
 										onclick={() => decrementPage()}
 									>
-										<MaterialSymbolsArrowBackRounded /></button
+										<ArrowLeft class="h-4 w-4" /></button
 									>
-									<div>{pageNumber}</div>
+									<div class="min-w-10 text-center text-sm tabular-nums text-zinc-300">{pageNumber}</div>
 									<button
-										class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
+										class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
 										disabled={matchBlocks.length < 20}
 										onclick={() => incrementPage()}
 									>
-										<MaterialSymbolsArrowForwardRounded />
+										<ArrowRight class="h-4 w-4" />
 									</button>
 								</div>
 							</div>
@@ -451,116 +477,3 @@
 		</div>
 	{/key}
 </div>
-
-<style>
-	meta[name='description'] {
-		white-space: pre-line;
-	}
-
-	:root {
-		--splus-base: #fef3c7;
-		--splus-accent1: #fcd34d;
-		--splus-accent2: #fbbf24;
-
-		--splusplus-base: #fdba74;
-		--splusplus-accent1: #f97316;
-		--splusplus-accent2: #ea580c;
-
-		--f-base: #b45309;
-		--f-accent1: #9a3412;
-		--f-accent2: #7c2d12;
-	}
-
-	#srating {
-		animation: srating 1s ease-in-out infinite alternate;
-		color: var(--splus-base);
-	}
-
-	@keyframes srating {
-		from {
-			text-shadow:
-				0 0 2px var(--splus-base),
-				0 0 4px var(--splus-base),
-				0 0 6px var(--splus-accent1),
-				0 0 8px var(--splus-accent1),
-				0 0 10px var(--splus-accent1),
-				0 0 12px var(--splus-accent1),
-				0 0 14px var(--splus-accent1);
-		}
-		to {
-			text-shadow:
-				0 0 4px var(--splus-base),
-				0 0 8px var(--splus-accent2),
-				0 0 12px var(--splus-accent2),
-				0 0 12px var(--splus-accent2),
-				0 0 15px var(--splus-accent2),
-				0 0 18px var(--splus-accent2),
-				0 0 21px var(--splus-accent2);
-		}
-	}
-
-	#frating {
-		color: var(--f-base);
-		animation: frating 1s ease-in-out infinite alternate;
-	}
-
-	@keyframes frating {
-		from {
-			filter: drop-shadow(0 0 8px var(--f-accent1));
-		}
-		to {
-			filter: drop-shadow(0 0 4px var(--f-accent2));
-		}
-	}
-
-	#splusplusrating {
-		color: var(--splusplus-base);
-		animation: ssrating 1s ease-in-out infinite alternate;
-	}
-
-	@keyframes ssrating {
-		from {
-			text-shadow:
-				0 0 2px var(--splusplus-base),
-				0 0 4px var(--splusplus-base),
-				0 0 6px var(--splusplus-accent1),
-				0 0 8px var(--splusplus-accent1),
-				0 0 10px var(--splusplus-accent1),
-				0 0 12px var(--splusplus-accent1),
-				0 0 14px var(--splusplus-accent1);
-		}
-
-		to {
-			text-shadow:
-				0 0 4px var(--splusplus-base),
-				0 0 8px var(--splusplus-accent2),
-				0 0 12px var(--splusplus-accent2),
-				0 0 16px var(--splusplus-accent2),
-				0 0 20px var(--splusplus-accent2),
-				0 0 24px var(--splusplus-accent2),
-				0 0 28px var(--splusplus-accent2);
-		}
-	}
-
-	@keyframes shine {
-		0% {
-			background-position: left;
-		}
-		50% {
-			background-position: right;
-		}
-		100% {
-			background-position: left;
-		}
-	}
-
-	#scrollbox::-webkit-scrollbar {
-		width: 4px;
-		background-color: #404040;
-	}
-
-	#scrollbox::-webkit-scrollbar-thumb {
-		background-color: #e7e5e4;
-		border-radius: 64px;
-	}
-</style>
