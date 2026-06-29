@@ -141,7 +141,7 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 		bind:value={selectedTab}
 		class="flex w-full max-w-6xl flex-col items-stretch gap-3"
 	>
-		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1 border-zinc-800 bg-card sm:inline-grid sm:w-fit sm:grid-cols-5">
+		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1  rounded-lg border border-zinc-700 bg-card sm:inline-grid sm:w-fit sm:grid-cols-5">
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="home">Home</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="stats">Stats</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="matches">Matches</Tabs.Trigger>

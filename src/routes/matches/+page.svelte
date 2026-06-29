@@ -1,175 +1,154 @@
 <script lang="ts">
-	import { goto, invalidateAll } from '$app/navigation';
+	import { replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { fade } from 'svelte/transition';
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
-	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
-	import PlayerStatbox from '$lib/components/stats/PlayerStatbox.svelte';
 	import Loading from '$lib/components/Loading.svelte';
-	import MaterialSymbolsSearchRounded from '~icons/material-symbols/search-rounded';
-	import IcOutlineCheck from '~icons/ic/outline-check';
-	import MaterialSymbolsKeyboardBackspaceRounded from '~icons/material-symbols/keyboard-backspace-rounded';
-	import MaterialSymbolsCloseRounded from '~icons/material-symbols/close-rounded';
-	import MaterialSymbolsArrowBackRounded from '~icons/material-symbols/arrow-back-rounded';
-	import MaterialSymbolsArrowForwardRounded from '~icons/material-symbols/arrow-forward-rounded';
-	import IconamoonMenuBurgerHorizontalDuotone from '~icons/iconamoon/menu-burger-horizontal-duotone';
+	import * as Card from '$lib/components/ui/card';
+	import * as Select from '$lib/components/ui/select/index.js';
+	import { Toggle } from '$lib/components/ui/toggle/index.js';
+	import { ArrowLeft, ArrowRight, VenetianMask } from 'lucide-svelte';
+	import { onMount, tick } from 'svelte';
 
-	import { onMount } from 'svelte';
 	let { data } = $props();
-
 	const { playerList, heroList } = data;
-	let filterPlayerList = $state(playerList);
-	let filterHeroList = $state(heroList);
+
+	let selectedPlayers = $state<string[]>([]);
+	let selectedHeroes = $state<string[]>([]);
+	let ranked = $state(true);
+	let unranked = $state(true);
+	let other = $state(true);
+	let smurfs = $state(false);
 	let matchBlocks: any[] = $state([]);
-	let playerCheckboxes: any[] = $state(playerList);
-	let heroCheckboxes: any[] = $state(heroList);
-
-	let searchPlayers = $state('');
-	const searchPlayersByName = (
-		allPlayers: { id: number; username: string; accounts: { accountId: number }[] }[],
-		searchString: string
-	) => {
-		const lowerSearchString = searchString.toLowerCase();
-
-		return allPlayers.filter((player) => player.username.toLowerCase().includes(lowerSearchString));
-	};
-
-	let searchHeroes = $state('');
-	const searchHeroesByName = (allHeroes: DotaAsset[], searchString: string) => {
-		const lowerSearchString = searchString.toLowerCase();
-
-		return allHeroes.filter((hero) => hero.name.toLowerCase().includes(lowerSearchString));
-	};
-
-	let gameModes: string[] = ['ranked-all-pick', 'unranked-all-pick', 'other'];
-	let gameModeCheckboxes: string[] = $state(['ranked-all-pick', 'unranked-all-pick', 'other']);
-
-	let playerFilter = $state(0);
-	let heroFilter = $state(0);
 	let pageNumber = $state(1);
-	
-	let incrementDisabled = $state(false);
-	
-	let decrementDisabled = $state(false);
-	
+	let mounted = $state(false);
+	let loading = $state(false);
 
-	const fetchMatches = (
-		players: number[],
-		heroes: number[],
-		gameModes: string[],
-		pageNumber: number
-	) => {
-		matchBlocks = [];
-		let playerFilter = '';
+	const makePlayerTrigger = () => {
+		if (selectedPlayers.length === 0 || selectedPlayers.includes('-1')) return 'All Players';
+		if (selectedPlayers.length === 1) {
+			return playerList.find((p: any) => p.id.toString() === selectedPlayers[0])?.username;
+		}
+		return `${selectedPlayers.length} Players`;
+	};
+
+	const makeHeroTrigger = () => {
+		if (selectedHeroes.length === 0 || selectedHeroes.includes('-1')) return 'All Heroes';
+		if (selectedHeroes.length === 1) {
+			return heroList.find((h: any) => h.id.toString() === selectedHeroes[0])?.name;
+		}
+		return `${selectedHeroes.length} Heroes`;
+	};
+
+	const buildParams = () => {
+		const params = new URLSearchParams();
+
+		const players = selectedPlayers.filter((id) => id !== '-1');
 		if (players.length > 0) {
-			playerFilter = `players=[${players.join(',')}]`;
+			params.set('players', `[${players.join(',')}]`);
 		}
-		let heroFilter = '';
+
+		const heroes = selectedHeroes.filter((id) => id !== '-1');
 		if (heroes.length > 0) {
-			heroFilter = `heroes=[${heroes.join(',')}]`;
+			params.set('heroes', `[${heroes.join(',')}]`);
 		}
-		let gameModeFilter = '';
+
+		const gameModes: string[] = [];
+		if (ranked) gameModes.push('ranked-all-pick');
+		if (unranked) gameModes.push('unranked-all-pick');
+		if (other) gameModes.push('other');
 		if (gameModes.length > 0) {
-			gameModeFilter = `gameMode=["${gameModes.join('","')}"]`;
+			params.set('gameMode', `["${gameModes.join('","')}"]`);
 		}
-		pageNumber = pageNumber - 1;
-		let pageNumberFilter = '';
-		if (pageNumber > -1) {
-			pageNumberFilter = `page=${pageNumber}`;
+
+		params.set('page', (pageNumber - 1).toString());
+		params.set('smurf', smurfs.toString());
+
+		return params;
+	};
+
+	let fetchId = 0;
+
+	const fetchMatches = async () => {
+		const id = ++fetchId;
+		loading = true;
+
+		await tick();
+		const params = buildParams();
+
+		try {
+			const res = await fetch(`/api/matches/all?${params.toString()}`);
+			const data = await res.json();
+			if (id === fetchId) {
+				matchBlocks = data;
+				loading = false;
+			}
+		} catch {
+			if (id === fetchId) {
+				loading = false;
+			}
 		}
-		fetch(`/api/matches/all?${playerFilter}&${heroFilter}&${gameModeFilter}&${pageNumberFilter}`)
-			.then((res) => res.json())
-			.then((res) => {
-				matchBlocks = res;
-			});
+
+		const url = new URL($page.url);
+		url.search = params.toString();
+		replaceState(`${url.pathname}${url.search}`, $page.state);
 	};
 
 	onMount(() => {
-		let players: number[] = [];
-		if ($page.url.searchParams.has('players')) {
-			players = JSON.parse($page.url.searchParams.get('players'));
-		}
-		if (players.length > 0) {
-			playerCheckboxes = playerCheckboxes.filter((obj) => players.includes(obj.id));
-		}
-		let heroes: number[] = [];
-		if ($page.url.searchParams.has('heroes')) {
-			heroes = JSON.parse($page.url.searchParams.get('heroes'));
-		}
-		if (heroes.length > 0) {
-			heroCheckboxes = heroCheckboxes.filter((obj) => heroes.includes(obj.id));
-		}
-		let gameModes: string[] = [];
-		if ($page.url.searchParams.has('gameMode')) {
-			gameModes = JSON.parse($page.url.searchParams.get('gameMode'));
-		}
-		if (gameModes.length > 0) {
-			gameModeCheckboxes = gameModeCheckboxes.filter((obj) => gameModes.includes(obj));
-		}
-		let pageNumberFilter = 1;
-		if ($page.url.searchParams.has('page')) {
-			pageNumberFilter = JSON.parse($page.url.searchParams.get('page'));
-		}
-		pageNumber = pageNumberFilter;
+		const url = $page.url;
 
-		fetchMatches(players, heroes, gameModes, pageNumberFilter);
+		if (url.searchParams.has('players')) {
+			try {
+				const ids: number[] = JSON.parse(url.searchParams.get('players')!);
+				selectedPlayers = ids.map(String);
+			} catch {}
+		}
+		if (url.searchParams.has('heroes')) {
+			try {
+				const ids: number[] = JSON.parse(url.searchParams.get('heroes')!);
+				selectedHeroes = ids.map(String);
+			} catch {}
+		}
+		if (url.searchParams.has('page')) {
+			pageNumber = Number(url.searchParams.get('page')) || 1;
+		}
+
+		fetchMatches();
+		mounted = true;
 	});
 
-	const clearPlayerSearch = () => {
-		searchPlayers = '';
-		filterPlayerList = playerList;
-	};
-
-	const clearPlayerFilter = () => {
-		playerCheckboxes = [];
-	};
-
-	const selectAllPlayersFilter = () => {
-		playerCheckboxes = playerList;
-	};
-
-	const clearHeskyarch = () => {
-		searchHeroes = '';
-		filterHeroList = heroList;
-	};
-
-	const clearHeroFilter = () => {
-		heroCheckboxes = [];
-	};
-
-	const selectAllHeroFilter = () => {
-		heroCheckboxes = heroList;
-	};
-
-	const applyFilters = () => {
-		let playerList = playerCheckboxes.map((player) => player.id);
-		let heroList = heroCheckboxes.map((hero) => hero.id);
-		let gameMode = gameModeCheckboxes;
-
-		goto(
-			`${$page.url.pathname}?players=[${playerList.join(',')}]&heroes=[${heroList.join(
-				','
-			)}]&gameMode=["${gameMode.join('","')}"]&page=${pageNumber}`
-		);
-	};
+	$effect(() => {
+		if (!mounted) return;
+		// Track all filter values to re-fetch when they change
+		selectedPlayers;
+		selectedHeroes;
+		ranked;
+		unranked;
+		other;
+		smurfs;
+		// Reset to page 1 and fetch
+		pageNumber = 1;
+		fetchMatches();
+	});
 
 	const incrementPage = () => {
-		pageNumber = pageNumber + 1;
-		applyFilters();
-		if (matchBlocks.length > 10) {
-			incrementDisabled = true;
-		}
+		pageNumber += 1;
+		fetchMatches();
 	};
 
 	const decrementPage = () => {
-		pageNumber = pageNumber - 1;
-		applyFilters();
-		if (pageNumber == 1) {
-			decrementDisabled = true;
-		}
+		pageNumber -= 1;
+		fetchMatches();
 	};
 
-	let advancedFilters = $state(false);
+	const clearFilters = () => {
+		selectedPlayers = [];
+		selectedHeroes = [];
+		ranked = true;
+		unranked = true;
+		other = true;
+		smurfs = false;
+	};
 </script>
 
 <svelte:head>
@@ -177,275 +156,98 @@
 </svelte:head>
 
 <div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-3 sm:px-4">
-	<div class="flex flex-wrap justify-center gap-4">
-		<div class="flex h-fit w-64 flex-col gap-4 rounded-xl bg-zinc-800 px-4 py-2">
-			<div class="">
-				<div class="text-md">Search Players</div>
-				<select
-					name="players"
-					class="w-full rounded-lg bg-zinc-700 py-1 text-sm"
-					bind:value={playerFilter}
-					onchange={() =>
-						playerFilter === 0
-							? (playerCheckboxes = playerList)
-							: (playerCheckboxes = playerList.filter((obj) => obj.id == playerFilter))}
-				>
-					<option selected value={0}>All Players</option>
-					{#each playerList as player}
-						<option value={player.id}>{player.username}</option>
-					{/each}
-				</select>
-			</div>
-			<div class="">
-				<div class="text-md">Search Heroes</div>
-				<select
-					name="heroes"
-					class="w-full rounded-lg bg-zinc-700 py-1 text-sm"
-					bind:value={heroFilter}
-					onchange={() =>
-						heroFilter === 0
-							? (heroCheckboxes = heroList)
-							: (heroCheckboxes = heroList.filter((obj) => obj.id == heroFilter))}
-				>
-					<option selected value={0}>All Heroes</option>
-					{#each heroList as hero}
-						<option value={hero.id}>{hero.name}</option>
-					{/each}
-				</select>
-			</div>
-			<div>
-				<div class="text-md">Game Mode</div>
-				<div class="text-sm">
-					<div>
-						<input
-							type="checkbox"
-							bind:group={gameModeCheckboxes}
-							value={'ranked-all-pick'}
-							id="ranked-all-pick"
-							class="cursor-pointer accent-white"
-						/>
-						<label for="ranked-all-pick" class="cursor-pointer">Ranked All Pick</label>
-					</div>
-					<div>
-						<input
-							type="checkbox"
-							bind:group={gameModeCheckboxes}
-							value={'unranked-all-pick'}
-							id="unranked-all-pick"
-							class="cursor-pointer accent-white"
-						/>
-						<label for="unranked-all-pick" class="cursor-pointer">Unranked All Pick</label>
-					</div>
-					<div>
-						<input
-							type="checkbox"
-							bind:group={gameModeCheckboxes}
-							value={'other'}
-							id="other"
-							class="cursor-pointer accent-white"
-						/>
-						<label for="other" class="cursor-pointer">Other</label>
-					</div>
-				</div>
-			</div>
-			<button
-				onclick={() => (advancedFilters = !advancedFilters)}
-				class="flex items-center justify-center text-lg"
-			>
-				<div>Advanced Filters</div>
-				<div class="grow"></div>
-				<div>
-					{#if advancedFilters}
-						<MaterialSymbolsCloseRounded />
-					{:else}
-						<IconamoonMenuBurgerHorizontalDuotone />
-					{/if}
-				</div>
-			</button>
-			{#if advancedFilters}
-				<div>
-					<div class="text-md">Included Players</div>
-					<div class="flex flex-col text-sm">
-						<div class="flex items-center">
-							<MaterialSymbolsSearchRounded />
-							<input
-								type="text"
-								bind:value={searchPlayers}
-								oninput={() => (filterPlayerList = searchPlayersByName(playerList, searchPlayers))}
-								placeholder="Search Players"
-								class="w-full bg-zinc-800 px-1 py-0.5 text-zinc-100"
-							/>
-							<button onclick={() => clearPlayerSearch()}>
-								<MaterialSymbolsCloseRounded />
-							</button>
-						</div>
-						<div class="mx-2 h-[1px] bg-white opacity-30"></div>
-						<div id="scrollbox" class="h-64 overflow-y-auto px-1">
-							{#each playerList as player}
-								{#if filterPlayerList.includes(player)}
-									<div>
-										<input
-											bind:group={playerCheckboxes}
-											type="checkbox"
-											id={player.username}
-											name={player.username}
-											value={player}
-											checked={true}
-											class="cursor-pointer accent-white"
-										/>
-										<label for={player.username} class="cursor-pointer">{player.username}</label>
-									</div>
-								{:else}
-									<div class="invisible h-0">
-										<input
-											bind:group={playerCheckboxes}
-											type="checkbox"
-											id={player.username}
-											name={player.username}
-											value={player}
-											checked={true}
-											class="cursor-pointer accent-white"
-										/>
-										<label for={player.username}>{player.username}</label>
-									</div>
-								{/if}
-							{/each}
-						</div>
-						<div class="mt-4 flex text-sm">
-							<button
-								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
-								onclick={() => clearPlayerFilter()}>Clear</button
-							>
-							<div class="grow"></div>
-							<button
-								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
-								onclick={() => selectAllPlayersFilter()}>Select All</button
-							>
-						</div>
-					</div>
-				</div>
-				<div>
-					<div>Included Heroes</div>
+	<div>
+		<h1 class="text-2xl font-semibold tracking-tight text-zinc-100">Matches</h1>
+		<p class="mt-1 text-sm text-zinc-400">Browse all tracked matches with filters.</p>
+	</div>
 
-					<div class="flex flex-col text-sm">
-						<div class="flex items-center">
-							<MaterialSymbolsSearchRounded />
-							<input
-								type="text"
-								bind:value={searchHeroes}
-								oninput={() => (filterHeroList = searchHeroesByName(heroList, searchHeroes))}
-								placeholder="Search Heroes"
-								class="w-full bg-zinc-800 px-1 py-0.5 text-zinc-100"
-							/>
-							<button onclick={() => clearHeskyarch()}>
-								<MaterialSymbolsCloseRounded />
-							</button>
-						</div>
-						<div class="mx-2 h-[1px] bg-white opacity-30"></div>
-						<div id="scrollbox" class="h-64 overflow-y-auto px-1">
-							{#each heroList as hero}
-								{#if filterHeroList.includes(hero)}
-									<div>
-										<input
-											bind:group={heroCheckboxes}
-											type="checkbox"
-											id={hero.name}
-											name={hero.name}
-											value={hero}
-											checked={true}
-											class="cursor-pointer accent-white"
-										/>
-										<label for={hero.name} class="cursor-pointer">{hero.name}</label>
-									</div>
-								{:else}
-									<div class="invisible h-0">
-										<input
-											bind:group={heroCheckboxes}
-											type="checkbox"
-											id={hero.name}
-											name={hero.name}
-											value={hero}
-											checked={true}
-											class="cursor-pointer accent-white"
-										/>
-										<label for={hero.name} class="cursor-pointer">{hero.name}</label>
-									</div>
-								{/if}
-							{/each}
-						</div>
-						<div class="mt-4 flex text-sm">
-							<button
-								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
-								onclick={() => clearHeroFilter()}>Clear</button
-							>
-							<div class="grow"></div>
-							<button
-								class="w-fit rounded-lg bg-sky-500 px-3 py-[1px] transition-all duration-300 hover:bg-sky-700"
-								onclick={() => selectAllHeroFilter()}>Select All</button
-							>
-						</div>
-					</div>
-				</div>
-			{/if}
-			<div class="mb-2 flex justify-center">
-				<button
-					class="w-fit rounded-lg bg-sky-500 px-4 py-1 transition-all duration-300 hover:bg-sky-700"
-					onclick={() => applyFilters()}
-				>
-					<div class="flex items-center gap-2">
-						<IcOutlineCheck />
-						<div>Apply Filters</div>
-					</div>
-				</button>
+	<div class="grid gap-3 rounded-md border border-border bg-card p-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[1fr_1fr_auto_auto_auto]">
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Players</div>
+			<Select.Root type="multiple" bind:value={selectedPlayers}>
+				<Select.Trigger class="w-full">{makePlayerTrigger()}</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="-1" label="All Players">All Players</Select.Item>
+					{#each playerList as player}
+						<Select.Item value={player.id.toString()} label={player.username}>{player.username}</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Heroes</div>
+			<Select.Root type="multiple" bind:value={selectedHeroes}>
+				<Select.Trigger class="w-full">{makeHeroTrigger()}</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="-1" label="All Heroes">All Heroes</Select.Item>
+					{#each heroList as hero}
+						<Select.Item value={hero.id.toString()} label={hero.name}>
+							<div class="flex items-center gap-2">
+								<img src={hero.img} alt="" class="h-6 w-8 rounded-sm object-cover" />
+								<span>{hero.name}</span>
+							</div>
+						</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
+			<div class="flex flex-wrap gap-1">
+				<Toggle bind:pressed={ranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">Ranked</Toggle>
+				<Toggle bind:pressed={unranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">Unranked</Toggle>
+				<Toggle bind:pressed={other} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">Other</Toggle>
 			</div>
 		</div>
-		{#key (matchBlocks, pageNumber)}
-			<div class="min-h-64" in:fade={{ duration: 400 }}>
-				{#if matchBlocks.length == 0}
-					<div class="flex h-full items-center justify-center">
-						<div class="absolute">
-							<Loading />
-						</div>
-					</div>
-				{:else}
-					<div>
-						{#each matchBlocks.slice(0, 10) as match}
-							<div class="mb-2">
-								<MatchBlock {match} />
-							</div>
-						{/each}
-						<div class="flex items-center justify-center gap-4">
-							<button
-								class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
-								disabled={pageNumber == 1}
-								onclick={() => decrementPage()}
-							>
-								<MaterialSymbolsArrowBackRounded /></button
-							>
-							<div>{pageNumber}</div>
-							<button
-								class="w-fit rounded-lg bg-sky-500 p-2 transition-all duration-300 hover:bg-sky-700 disabled:bg-zinc-800"
-								disabled={matchBlocks.length < 10}
-								onclick={() => incrementPage()}
-							>
-								<MaterialSymbolsArrowForwardRounded />
-							</button>
-						</div>
-					</div>
-				{/if}
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurfs</div>
+			<Toggle bind:pressed={smurfs} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">
+				<VenetianMask class="h-5 w-5" />
+			</Toggle>
+		</div>
+		<div class="flex items-end">
+			<button
+				type="button"
+				class="h-10 rounded-md bg-sky-600 px-3 text-sm font-medium text-white transition-colors hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+				onclick={clearFilters}
+			>
+				Clear
+			</button>
+		</div>
+	</div>
+
+	<div class="min-h-64">
+		{#if loading || matchBlocks.length === 0}
+			<div class="flex min-h-64 items-center justify-center">
+				<Loading />
 			</div>
-		{/key}
+		{:else}
+			<div class="flex flex-col gap-2" in:fade={{ duration: 400 }}>
+				{#each matchBlocks.slice(0, 10) as match}
+					<Card.Root class="max-w-105 lg:max-w-190 overflow-hidden">
+						<Card.Content class="p-0">
+							<MatchBlock {match} />
+						</Card.Content>
+					</Card.Root>
+				{/each}
+				<div class="flex items-center justify-center gap-3 py-2">
+					<button
+						class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
+						disabled={pageNumber === 1}
+						onclick={decrementPage}
+					>
+						<ArrowLeft class="h-4 w-4" />
+					</button>
+					<div class="min-w-10 text-center text-sm tabular-nums text-zinc-300">{pageNumber}</div>
+					<button
+						class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
+						disabled={matchBlocks.length < 10}
+						onclick={incrementPage}
+					>
+						<ArrowRight class="h-4 w-4" />
+					</button>
+				</div>
+			</div>
+		{/if}
 	</div>
 </div>
-
-<style>
-	#scrollbox::-webkit-scrollbar {
-		width: 4px;
-		background-color: #404040;
-	}
-
-	#scrollbox::-webkit-scrollbar-thumb {
-		background-color: #e7e5e4;
-		border-radius: 64px;
-	}
-</style>

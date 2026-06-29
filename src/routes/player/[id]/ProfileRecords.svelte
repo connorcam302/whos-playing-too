@@ -594,14 +594,14 @@
 						<Toggle
 							pressed={wins}
 							onclick={() => handleResultChange('wins')}
-							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+							class="h-10 border px-3 data-[state=on]:bg-green-600 data-[state=on]:text-white"
 						>
 							Wins
 						</Toggle>
 						<Toggle
 							pressed={losses}
 							onclick={() => handleResultChange('losses')}
-							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+							class="h-10 border px-3 data-[state=on]:bg-red-600 data-[state=on]:text-white"
 						>
 							Losses
 						</Toggle>

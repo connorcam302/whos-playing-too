@@ -59,6 +59,19 @@
 	let smurfs = $state(false);
 	let wins = $state(true);
 	let losses = $state(true);
+
+	const clearFilters = () => {
+		selectedPlayers = ['-1'];
+		selectedHeroes = ['-1'];
+		selectedRoles = ['1', '2', '3', '4', '5'];
+		selectedDateRange = 'all';
+		ranked = true;
+		unranked = true;
+		other = true;
+		smurfs = false;
+		wins = true;
+		losses = true;
+	};
 	const DURATION_BUCKET_SECONDS = 5 * 60;
 
 	const toggleResult = (result: 'wins' | 'losses') => {
@@ -337,7 +350,7 @@
 		<p class="text-sm text-zinc-400">Collective performance across all tracked players.</p>
 	</div>
 
-	<div class="grid gap-3 rounded-md border border-border bg-card p-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+	<div class="grid gap-3 rounded-md border border-border bg-card p-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[repeat(7,auto)_auto]">
 		<div class="flex min-w-0 flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Players</div>
 			<Select.Root type="multiple" bind:value={selectedPlayers}>
@@ -400,23 +413,32 @@
 		<div class="flex flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
 			<div class="flex flex-wrap gap-1">
-				<Toggle bind:pressed={ranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Ranked</Toggle>
-				<Toggle bind:pressed={unranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Unranked</Toggle>
-				<Toggle bind:pressed={other} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Other</Toggle>
+				<Toggle bind:pressed={ranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">Ranked</Toggle>
+				<Toggle bind:pressed={unranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">Unranked</Toggle>
+				<Toggle bind:pressed={other} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">Other</Toggle>
 			</div>
 		</div>
 		<div class="flex flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Result</div>
 			<div class="flex gap-1">
-				<Toggle pressed={wins} onclick={() => toggleResult('wins')} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Wins</Toggle>
-				<Toggle pressed={losses} onclick={() => toggleResult('losses')} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Losses</Toggle>
+				<Toggle pressed={wins} onclick={() => toggleResult('wins')} class="h-10 border px-3 data-[state=on]:bg-green-600 data-[state=on]:text-white">Wins</Toggle>
+				<Toggle pressed={losses} onclick={() => toggleResult('losses')} class="h-10 border px-3 data-[state=on]:bg-red-600 data-[state=on]:text-white">Losses</Toggle>
 			</div>
 		</div>
 		<div class="flex flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurfs</div>
-			<Toggle bind:pressed={smurfs} class="h-10 w-full border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">
+			<Toggle bind:pressed={smurfs} class="h-10 w-full border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">
 				<VenetianMask class="h-5 w-5" />
 			</Toggle>
+		</div>
+		<div class="flex items-end">
+			<button
+				type="button"
+				class="h-10 rounded-md bg-sky-600 px-3 text-sm font-medium text-white transition-colors hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+				onclick={clearFilters}
+			>
+				Clear
+			</button>
 		</div>
 	</div>
 

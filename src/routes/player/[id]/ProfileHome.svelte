@@ -372,28 +372,15 @@
 									{/if}
 								{/await}
 							</div>
-							<div class="hidden max-h-80 overflow-hidden rounded-md bg-zinc-950 bg-no-repeat lg:block">
-								<!---
-								<video
-									autoplay
-									muted
-									loop
-									playsinline
-									class="h-full w-full object-cover object-center opacity-100"
-								>
-									<source
-										type="video/webm"
-										src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.webm`}
-										class="h-full w-full"
-									/>
-								</video>
-								--->
-								<img
-									src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.png`}
+							{#if hero}
+								<div class="hidden max-h-80 overflow-hidden rounded-md bg-zinc-950 bg-no-repeat lg:block">
+									<img
+										src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/videos/dota_react/heroes/renders/${hero}.png`}
 										alt="Featured hero render"
-									class="h-full w-full object-cover object-center"
-								/>
-							</div>
+										class="h-full w-full object-cover object-center"
+									/>
+								</div>
+							{/if}
 						</div>
 					</Card.Content>
 				</Card.Root>
@@ -443,14 +430,14 @@
 							</div>
 						{:else}
 							<div class="flex flex-col gap-3">
-								<div class="mx-auto flex w-full max-w-5xl flex-col items-stretch gap-3 py-2">
-									{#each matchBlocks.slice(0, 20) as match}
-										<Card.Root>
-											<Card.Content class="p-0 ">
-												<MatchDropdown {match} />
-											</Card.Content>
-										</Card.Root>
-									{/each}
+								<div class="mx-auto flex w-full max-w-5xl flex-col items-center gap-3 py-2">
+								{#each matchBlocks.slice(0, 20) as match}
+									<Card.Root class="overflow-hidden w-full max-w-105 lg:max-w-190">
+										<Card.Content class="p-0 flex items-center justify-center">
+											<MatchDropdown {match} />
+										</Card.Content>
+									</Card.Root>
+								{/each}
 								</div>
 								<div class="flex items-center justify-center gap-3">
 									<button

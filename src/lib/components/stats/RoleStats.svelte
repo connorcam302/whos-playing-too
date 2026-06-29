@@ -7,7 +7,6 @@
 	} from '@tanstack/table-core';
 	import { FlexRender, createSvelteTable } from '$lib/components/ui/data-table/index.js';
 	import * as Table from '$lib/components/ui/table';
-	import { Button } from '$lib/components/ui/button';
 	import { ArrowUpDown } from 'lucide-svelte';
 	import RoleCell from './cells/RoleCell.svelte';
 	import MatchesCell from './cells/MatchesCell.svelte';
@@ -75,25 +74,24 @@
 	);
 </script>
 
-<div class="w-full max-w-[100vw] rounded-md border">
+<div class="w-full max-w-[100vw] overflow-x-auto rounded-md border border-zinc-800/80 bg-zinc-950/35">
 	<Table.Root>
-		<Table.Header>
+		<Table.Header class="bg-zinc-950/70">
 			{#each table.getHeaderGroups() as headerGroup}
-				<Table.Row>
+				<Table.Row class="border-zinc-800 hover:bg-transparent">
 					{#each headerGroup.headers as header}
-						<Table.Head class="text-zinc-400">
+						<Table.Head class="h-8 px-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
 							{#if !header.isPlaceholder}
-								<Button
-									variant="ghost"
-									class="flex gap-0.5 hover:bg-transparent"
+								<button
+									class="inline-flex items-center gap-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400 hover:text-zinc-100"
 									onclick={header.column.getToggleSortingHandler()}
 								>
 									<FlexRender
 										content={header.column.columnDef.header}
 										context={header.getContext()}
 									/>
-									<ArrowUpDown class="h-4 w-4" />
-								</Button>
+									<ArrowUpDown class="h-2.5 w-2.5" />
+								</button>
 							{/if}
 						</Table.Head>
 					{/each}
@@ -102,9 +100,9 @@
 		</Table.Header>
 		<Table.Body>
 			{#each table.getRowModel().rows as row}
-				<Table.Row class="hover:bg-zinc-700/20">
+				<Table.Row class="border-zinc-900 transition-colors hover:bg-zinc-900/70">
 					{#each row.getVisibleCells() as cell}
-						<Table.Cell>
+						<Table.Cell class="px-1.5 py-1.5 text-sm text-zinc-300">
 							{#if cell.column.id === 'role'}
 								<RoleCell role={cell.getValue()} />
 							{:else if cell.column.id === 'count'}

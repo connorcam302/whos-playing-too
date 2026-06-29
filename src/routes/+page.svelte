@@ -106,9 +106,9 @@
 									<Loading />
 								</div>
 							{:else}
-								<div class="flex flex-col gap-2">
+								<div class="flex min-w-0 flex-col gap-2">
 									{#each matchBlocks.slice(0, 10) as match}
-										<Card.Root class="w-fit overflow-hidden">
+										<Card.Root class="min-w-0 overflow-hidden">
 											<Card.Content class="p-0">
 												<MatchBlock {match} />
 											</Card.Content>

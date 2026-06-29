@@ -53,6 +53,16 @@
 	let unranked = $state(true);
 	let smurfs = $state(false);
 	let playerStats = $state<PlayerStats[]>([]);
+
+	const clearFilters = () => {
+		selectedPlayers = [];
+		selectedRoles = ['1', '2', '3', '4', '5'];
+		selectedHero = '-1';
+		selectedDateRange = 'all';
+		ranked = true;
+		unranked = true;
+		smurfs = false;
+	};
 	let loading = $state(false);
 	let playerPickerOpen = $state(false);
 	let playerSearch = $state('');
@@ -171,7 +181,7 @@
 		<p class="mt-1 text-sm text-zinc-400">Compare filtered player performance side by side.</p>
 	</div>
 
-	<div class="grid gap-3 rounded-md border border-zinc-800 bg-zinc-950/60 p-3 lg:grid-cols-4 xl:grid-cols-[1.2fr_1fr_1fr_1fr_auto_auto]">
+	<div class="grid gap-3 rounded-md border border-border bg-card p-3 lg:grid-cols-4 xl:grid-cols-[1.2fr_1fr_1fr_1fr_auto_auto]">
 		<div class="flex min-w-0 flex-col gap-1">
 			<div class="flex items-center justify-between gap-2 text-xs font-medium uppercase tracking-wide text-zinc-400">
 				<span>Players</span>
@@ -236,15 +246,24 @@
 		<div class="flex flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
 			<div class="flex gap-1">
-				<Toggle bind:pressed={ranked} class="h-10 border px-3 data-[state=on]:bg-sky-600">Ranked</Toggle>
-				<Toggle bind:pressed={unranked} class="h-10 border px-3 data-[state=on]:bg-sky-600">Unranked</Toggle>
+				<Toggle bind:pressed={ranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">Ranked</Toggle>
+				<Toggle bind:pressed={unranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">Unranked</Toggle>
 			</div>
 		</div>
 		<div class="flex flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurfs</div>
-			<Toggle bind:pressed={smurfs} class="h-10 border px-3 data-[state=on]:bg-sky-600">
+			<Toggle bind:pressed={smurfs} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">
 				<VenetianMask class="h-5 w-5" />
 			</Toggle>
+		</div>
+		<div class="flex items-end">
+			<button
+				type="button"
+				class="h-10 rounded-md bg-sky-600 px-3 text-sm font-medium text-white transition-colors hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+				onclick={clearFilters}
+			>
+				Clear
+			</button>
 		</div>
 	</div>
 

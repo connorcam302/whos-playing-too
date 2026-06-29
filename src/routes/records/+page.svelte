@@ -239,7 +239,7 @@
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurfs</div>
 			<Toggle
 				bind:pressed={smurfs}
-				class="h-10 w-full border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+				class="h-10 w-full border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white"
 			>
 				<VenetianMask class="h-5 w-5" />
 			</Toggle>

@@ -271,6 +271,19 @@
 		}
 	};
 
+	const clearFilters = () => {
+		selectedRoles = ['1', '2', '3', '4', '5'];
+		selectedHeroSingle = '-1';
+		selectedHeroMulti = ['-1'];
+		selectedDateRange = 'all';
+		ranked = true;
+		unranked = true;
+		wins = true;
+		losses = true;
+		smurfs = true;
+		heroSelectVariant = 'single';
+	};
+
 	const updateMatchesData = async (targetPage = pageNumber) => {
 		const requestId = ++latestMatchesRequest;
 		pageNumber = targetPage;
@@ -391,7 +404,7 @@
 	{#key player}
 		<div class="flex flex-col gap-5">
 			<div
-				class="grid gap-3 rounded-md border border-zinc-800 bg-card p-3 sm:grid-cols-2 xl:grid-cols-[minmax(11rem,1fr)_minmax(11rem,1fr)_minmax(11rem,1fr)_minmax(11rem,1fr)_auto_auto_auto]"
+				class="grid gap-3 rounded-lg border border-zinc-700  bg-card p-3 sm:grid-cols-2 xl:grid-cols-[minmax(11rem,1fr)_minmax(11rem,1fr)_minmax(11rem,1fr)_minmax(11rem,1fr)_auto_auto_auto]"
 			>
 				<div class="flex min-w-0 flex-col gap-1">
 					<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Roles</div>
@@ -523,14 +536,14 @@
 						<Toggle
 							pressed={ranked}
 							onclick={() => handleLobbyChange(7)}
-							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white"
 						>
 							Ranked
 						</Toggle>
 						<Toggle
 							pressed={unranked}
 							onclick={() => handleLobbyChange(0)}
-							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white"
 						>
 							Unranked
 						</Toggle>
@@ -542,14 +555,14 @@
 						<Toggle
 							pressed={wins}
 							onclick={() => handleResultChange('wins')}
-							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+							class="h-10 border px-3 data-[state=on]:bg-green-600 data-[state=on]:text-white"
 						>
 							Wins
 						</Toggle>
 						<Toggle
 							pressed={losses}
 							onclick={() => handleResultChange('losses')}
-							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+							class="h-10 border px-3 data-[state=on]:bg-red-600 data-[state=on]:text-white"
 						>
 							Losses
 						</Toggle>
@@ -557,14 +570,23 @@
 				</div>
 				<div class="flex flex-col gap-1">
 					<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurfs</div>
-					<Toggle bind:pressed={smurfs} class="h-10 w-full gap-0 border p-0 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">
+					<Toggle bind:pressed={smurfs} class="h-10 w-full gap-0 border p-0 data-[state=on]:bg-sky-600 data-[state=on]:text-white">
 						<div class="text-xl">
 							<VenetianMask class="w-8 text-xl" />
 						</div>
 					</Toggle>
 				</div>
+				<div class="flex items-end">
+					<button
+						type="button"
+						class="h-10 rounded-md bg-sky-600 px-3 text-sm font-medium text-white transition-colors hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						onclick={clearFilters}
+					>
+						Clear
+					</button>
+				</div>
 			</div>
-			<div class="rounded-md border border-zinc-800 bg-card p-3 sm:p-4">
+			<div class="rounded-lg border border-zinc-700 bg-card p-3 sm:p-4">
 				<div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_18rem]">
 					<div class="grid min-w-0 gap-2 sm:grid-cols-2 lg:grid-cols-4">
 						<div class="rounded-md border border-zinc-800/70 bg-zinc-900/45 p-3 sm:col-span-2">
@@ -749,9 +771,9 @@
 						</div>
 					{:else}
 						<div class="flex flex-col gap-2">
-							<div class="mx-auto flex w-full max-w-4xl flex-col items-stretch gap-2 py-2">
+							<div class="mx-auto flex w-full max-w-4xl flex-col items-center gap-2 py-2">
 								{#each matchBlocks.slice(0, 20) as match}
-									<Card.Root class="overflow-hidden">
+									<Card.Root class="overflow-hidden w-full max-w-[420px] lg:max-w-[760px]">
 										<Card.Content class="p-0 ">
 											<MatchDropdown {match} />
 										</Card.Content>

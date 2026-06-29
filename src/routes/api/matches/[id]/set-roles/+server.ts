@@ -109,9 +109,7 @@ const getImpactScore = (match: any, role: any, duration: any) => {
 };
 
 export const POST: RequestHandler = async ({ url, params, request }) => {
-	console.log(url);
 	const reqBody = await request.json();
-	console.log(reqBody);
 	const changedRoles = Object.values(reqBody.roleData);
 	const sequenceNum = reqBody.sequenceNum;
 

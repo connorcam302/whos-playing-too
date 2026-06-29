@@ -463,14 +463,14 @@
 						<Toggle
 							pressed={wins}
 							onclick={() => handleResultChange('wins')}
-							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+							class="h-10 border px-3 data-[state=on]:bg-green-600 data-[state=on]:text-white"
 						>
 							Wins
 						</Toggle>
 						<Toggle
 							pressed={losses}
 							onclick={() => handleResultChange('losses')}
-							class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950"
+							class="h-10 border px-3 data-[state=on]:bg-red-600 data-[state=on]:text-white"
 						>
 							Losses
 						</Toggle>
@@ -479,7 +479,7 @@
 				<div class="flex items-end">
 					<button
 						type="button"
-						class="h-10 rounded-md bg-sky-600 px-3 text-sm font-medium text-sky-950 transition-colors hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						class="h-10 rounded-md bg-sky-600 px-3 text-sm font-medium text-white transition-colors hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						onclick={clearFilters}
 					>
 						Clear
@@ -490,15 +490,15 @@
 	</Card.Root>
 
 	<Card.Root class="min-w-0">
-		<Card.Header>
+		<Card.Header class="space-y-1 pb-4">
 			<Card.Title>Teammates</Card.Title>
 			<Card.Description>Win rates when playing on the same team.</Card.Description>
 		</Card.Header>
-		<Card.Content class="overflow-x-auto p-0">
+		<Card.Content class="min-w-0 space-y-4">
 			{#if teammateStats.length === 0}
-				<div class="px-4 py-8 text-sm text-zinc-400">No teammate matches found.</div>
+				<div class="rounded-md border border-zinc-800 px-4 py-8 text-sm text-zinc-400">No teammate matches found.</div>
 			{:else if filteredTeammates.length === 0}
-				<div class="px-4 py-8 text-sm text-zinc-400">
+				<div class="rounded-md border border-zinc-800 px-4 py-8 text-sm text-zinc-400">
 					No teammates match those filters.
 					<button
 						type="button"
@@ -507,6 +507,7 @@
 					>
 				</div>
 			{:else}
+				<div class="w-full max-w-[100vw] overflow-x-auto rounded-md border border-zinc-800">
 				<Table.Root class="min-w-[680px]">
 					<Table.Header>
 						{#each table.getHeaderGroups() as headerGroup}
@@ -563,6 +564,7 @@
 						{/each}
 					</Table.Body>
 				</Table.Root>
+				</div>
 			{/if}
 		</Card.Content>
 	</Card.Root>

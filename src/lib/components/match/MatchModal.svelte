@@ -159,7 +159,7 @@
 		{/snippet}
 	</Dialog.Trigger>
 	<Dialog.Content
-		class="w-[min(96vw,1180px)] max-w-none gap-0 overflow-hidden rounded-md border-border bg-card p-0 shadow-2xl shadow-black/60"
+		class="w-[min(96vw,1400px)] max-w-none gap-0 overflow-hidden rounded-md border-border bg-card p-0 shadow-2xl shadow-black/60"
 	>
 		<Dialog.Header class="border-b border-border px-4 py-3">
 			<Dialog.Title class="text-sm font-medium text-zinc-100">Match Details</Dialog.Title>

@@ -58,10 +58,10 @@
 	};
 </script>
 
-<div>
+<div class="min-w-0 w-full overflow-hidden">
 	<MatchModal matchId={matchData.id} sequenceNum={matchData.sequenceNumber}>
-		<div>
-			<div id="box" class="flex flex-col rounded-lg">
+		<div class="min-w-0 overflow-hidden">
+			<div id="box" class="flex flex-col rounded-lg overflow-hidden">
 				<div class="mx-2 my-2 flex items-center justify-center gap-1 text-zinc-300">
 					<div class="flex items-center justify-end">
 						<div class="flex">
