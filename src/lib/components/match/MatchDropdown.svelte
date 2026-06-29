@@ -243,9 +243,9 @@
 	};
 </script>
 
-<div class="flex items-center">
+<div class="flex min-w-0 items-center overflow-hidden">
 	<MatchModal matchId={matchData.id} sequenceNum={matchData.sequenceNumber}>
-		<div class={twMerge(matchStyling, 'flex items-center gap-1 px-2 py-1 md:gap-2')}>
+		<div class={twMerge(matchStyling, 'flex min-w-0 items-center gap-1 px-2 py-1 md:gap-2')}>
 			<div class="w-12 md:w-16">
 				<div class="relative">
 					<img src={player.hero.img} alt={player.hero.name} class="object-fit w-12 md:w-16" />

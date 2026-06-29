@@ -176,7 +176,7 @@
 	<title>whos-playing | Matches</title>
 </svelte:head>
 
-<div class="flex flex-col gap-4">
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-3 sm:px-4">
 	<div class="flex flex-wrap justify-center gap-4">
 		<div class="flex h-fit w-64 flex-col gap-4 rounded-xl bg-zinc-800 px-4 py-2">
 			<div class="">

@@ -216,9 +216,9 @@
 	};
 </script>
 
-<div class={'flex items-center duration-200'}>
+<div class={'flex w-full min-w-0 items-center overflow-hidden duration-200'}>
 	<MatchModal matchId={matchData.id} sequenceNum={matchData.sequenceNumber}>
-		<div class={'flex items-center gap-2 px-2 py-1 md:gap-4'}>
+		<div class={'flex w-full min-w-0 items-center gap-2 px-2 py-1 md:gap-4'}>
 			<div class="w-12 md:w-16">
 				<div class="relative">
 					<img src={player.hero.img} alt={player.hero.name} class="w-12 md:w-16" />

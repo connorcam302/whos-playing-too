@@ -1,21 +1,30 @@
-<script>
-	import LucideCornerDownLeft from '~icons/lucide/corner-down-left';
+<script lang="ts">
+	import { Search, X } from 'lucide-svelte';
 
-	let { groups = [], placeholder = 'Type a command or search...' } = $props();
+	interface SearchOption {
+		label: string;
+		icon?: string;
+		shortcut?: string;
+		action?: () => void;
+	}
+
+	interface SearchGroup {
+		header: string;
+		options: SearchOption[];
+	}
+
+	interface Props {
+		groups?: SearchGroup[];
+		placeholder?: string;
+	}
+
+	let { groups = [], placeholder = 'Search players...' }: Props = $props();
 
 	let searchValue = $state('');
 	let isOpen = $state(false);
-	let searchInput = $state();
+	let searchInput = $state<HTMLInputElement>();
 	let selectedIndex = $state(-1);
 
-	// Flatten all options for keyboard navigation
-	let allOptions = $derived(
-		groups.reduce((acc, group) => {
-			return [...acc, ...group.options.map((option) => ({ ...option, groupHeader: group.header }))];
-		}, [])
-	);
-
-	// Filter options based on search
 	let filteredGroups = $derived(
 		groups
 			.map((group) => ({
@@ -28,14 +37,17 @@
 	);
 
 	function handleInput() {
-		isOpen = searchValue.length > 0 || true; // Always show suggestions
+		isOpen = true;
 		selectedIndex = -1;
 	}
 
-	function handleKeydown(event) {
+	function handleKeydown(event: KeyboardEvent) {
 		if (!isOpen) return;
 
-		const flatFiltered = filteredGroups.reduce((acc, group) => [...acc, ...group.options], []);
+		const flatFiltered = filteredGroups.reduce<SearchOption[]>(
+			(acc, group) => [...acc, ...group.options],
+			[]
+		);
 
 		switch (event.key) {
 			case 'ArrowDown':
@@ -51,27 +63,28 @@
 				if (selectedIndex >= 0 && flatFiltered[selectedIndex]) {
 					selectOption(flatFiltered[selectedIndex]);
 				} else if (flatFiltered.length > 0) {
-					// If no option is selected, select the first one
 					selectOption(flatFiltered[0]);
 				}
 				break;
 			case 'Escape':
 				isOpen = false;
 				selectedIndex = -1;
-				searchInput.blur();
+				searchInput?.blur();
 				break;
 		}
 	}
 
-	function selectOption(option) {
-		searchValue = option.label;
+	function selectOption(option: SearchOption) {
+		searchValue = '';
 		isOpen = false;
 		selectedIndex = -1;
+		option.action?.();
+	}
 
-		// Execute the option's function if it exists
-		if (option.action && typeof option.action === 'function') {
-			option.action();
-		}
+	function clearSearch() {
+		searchValue = '';
+		selectedIndex = -1;
+		searchInput?.focus();
 	}
 
 	function handleFocus() {
@@ -79,7 +92,6 @@
 	}
 
 	function handleBlur() {
-		// Delay closing to allow clicks on options
 		setTimeout(() => {
 			isOpen = false;
 			selectedIndex = -1;
@@ -87,15 +99,9 @@
 	}
 </script>
 
-<div class="relative w-full max-w-sm font-sans">
+<div class="relative w-full font-sans">
 	<div class="relative flex items-center">
-		<svg class="absolute left-3 z-10 h-4 w-4 text-zinc-400" viewBox="0 0 20 20" fill="currentColor">
-			<path
-				fill-rule="evenodd"
-				d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-				clip-rule="evenodd"
-			/>
-		</svg>
+		<Search class="absolute left-2.5 z-10 h-3.5 w-3.5 text-zinc-500" />
 		<input
 			bind:this={searchInput}
 			bind:value={searchValue}
@@ -104,59 +110,58 @@
 			onfocus={handleFocus}
 			onblur={handleBlur}
 			{placeholder}
-			class="w-full rounded-lg border border-zinc-600 bg-[#09090b] py-2.5 pl-10 pr-3 text-sm text-zinc-100 placeholder-zinc-400 outline-none transition-colors focus:border-zinc-500"
+			class="h-8 w-full rounded-md border border-zinc-700/50 bg-zinc-950 pl-8 pr-7 text-sm text-zinc-200 placeholder-zinc-500 outline-none transition-colors focus:border-zinc-600 focus:bg-zinc-900"
 			type="text"
 		/>
+		{#if searchValue}
+			<button
+				class="absolute right-2 z-10 flex items-center justify-center rounded-sm text-zinc-500 transition-colors hover:text-zinc-300"
+				onclick={clearSearch}
+				tabindex={-1}
+			>
+				<X class="h-3.5 w-3.5" />
+			</button>
+		{/if}
 	</div>
 
 	{#if isOpen && filteredGroups.length > 0}
 		<div
-			class="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-lg border bg-[#09090b] shadow-xl"
+			class="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-72 overflow-y-auto rounded-md border border-zinc-800 bg-zinc-950 shadow-xl shadow-black/40"
 		>
-			{#each filteredGroups as group}
-				<div class="py-2">
-					<div class="px-4 py-1 text-xs text-zinc-400">
+			{#each filteredGroups as group, groupIndex}
+				{#if groupIndex > 0}
+					<div class="border-t border-zinc-800/60"></div>
+				{/if}
+				<div class="py-1.5">
+					<div class="px-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-500">
 						{group.header}
 					</div>
 					{#each group.options as option, optionIndex}
 						{@const globalIndex =
 							filteredGroups
-								.slice(0, filteredGroups.indexOf(group))
+								.slice(0, groupIndex)
 								.reduce((acc, g) => acc + g.options.length, 0) + optionIndex}
-						{@const isFirstOption =
-							filteredGroups.findIndex((g) => g.options.length > 0) ===
-								filteredGroups.indexOf(group) && optionIndex === 0}
 						<button
-							class="flex w-full items-center justify-between px-4 py-2 text-left text-sm text-zinc-100 transition-colors hover:bg-zinc-800 {selectedIndex ===
-							globalIndex
-								? 'bg-zinc-600'
-								: ''}"
+							class="flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-sm transition-colors
+								{selectedIndex === globalIndex
+								? 'bg-zinc-800 text-zinc-100'
+								: 'text-zinc-300 hover:bg-zinc-800/60 hover:text-zinc-100'}"
 							onclick={() => selectOption(option)}
 						>
-							<div class="flex items-center gap-3">
-								{#if option.icon}
-									<span class="flex w-5 items-center justify-center text-base">
-										{option.icon}
-									</span>
-								{/if}
-								<span class="font-medium">{option.label}</span>
-							</div>
-							<div class="flex items-center gap-2">
-								{#if isFirstOption && selectedIndex < 0}
-									<LucideCornerDownLeft class="h-5 w-5 text-zinc-400" />
-								{/if}
-								{#if option.shortcut}
-									<span class="rounded bg-zinc-700 px-2 py-1 font-mono text-xs text-zinc-400">
-										{option.shortcut}
-									</span>
-								{/if}
-							</div>
+							{#if option.icon}
+								<span class="flex w-4 shrink-0 items-center justify-center text-sm text-zinc-500">
+									{option.icon}
+								</span>
+							{/if}
+							<span class="truncate">{option.label}</span>
+							{#if option.shortcut}
+								<span class="ml-auto shrink-0 rounded border border-zinc-800 bg-zinc-900 px-1.5 py-0.5 font-mono text-[10px] text-zinc-500">
+									{option.shortcut}
+								</span>
+							{/if}
 						</button>
 					{/each}
 				</div>
-				{#if filteredGroups.indexOf(group) < filteredGroups.length - 1}
-					<div class="border-b border-zinc-600"></div>
-				{/if}
 			{/each}
 		</div>
 	{/if}

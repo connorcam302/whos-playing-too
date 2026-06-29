@@ -1,21 +1,18 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
 	import PlayerStatbox from '$lib/components/stats/PlayerStatbox.svelte';
-	import Features from '$lib/components/feature/Features.svelte';
+	import FeatureBox from '$lib/components/feature/FeatureBox.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 	import TeamOfTheWeek from '$lib/components/otw/TeamOfTheWeek.svelte';
 	import FlopOfTheWeek from '$lib/components/otw/FlopOfTheWeek.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import dayjs from 'dayjs';
-	import relativeTime from 'dayjs/plugin/relativeTime';
-	dayjs.extend(relativeTime);
 
 	let { data } = $props();
 
-	const { heroStats, playerStats, totw, features, timings, allPlayerSteamData, fotw } = data;
+	const { heroStats, playerStats, totw, features, fotw } = data;
 	let matchBlocks: any[] = $state([]);
 
 	onMount(() => {
@@ -26,12 +23,23 @@
 			});
 	});
 
-	let viewport = $derived(getContext('viewport'));
-
-	let stats = $state('hero');
-
 	const headers = ['totw', 'flop'];
 	let header = $state('totw');
+
+	const makeFeatureItems = (f: any) => [
+		{ data: f.mostKills, title: 'Most Kills', type: 'kills' },
+		{ data: f.mostDeaths, title: 'Most Deaths', type: 'deaths' },
+		{ data: f.mostAssists, title: 'Most Assists', type: 'assists' },
+		{ data: f.mostGPM, title: 'Most GPM', type: 'gpm' },
+		{ data: f.mostXPM, title: 'Most XPM', type: 'xpm' },
+		{ data: f.mostImpact, title: 'Most Impact', type: 'impact' },
+		{ data: f.leastImpact, title: 'Least Impact', type: 'impact' },
+		{ data: f.mostLastHits, title: 'Most Last Hits', type: 'lastHits' },
+		{ data: f.mostHeroDamage, title: 'Most Hero Damage', type: 'heroDamage' },
+		{ data: f.leastHeroDamage, title: 'Least Hero Damage', type: 'heroDamage' },
+		{ data: f.mostGained, title: 'Most MMR Gained', type: 'winLoss' },
+		{ data: f.mostLost, title: 'Most MMR Lost', type: 'winLoss' }
+	];
 </script>
 
 <svelte:head>
@@ -39,7 +47,7 @@
 </svelte:head>
 
 <div class="flex w-full flex-col items-center">
-	<!-- Hero Backdrop Header -->
+	<!-- TOTW / FOTW Banner (untouched) -->
 	<div class="hero-backdrop w-full">
 		<div class="flex w-full flex-col items-center justify-center px-4 py-8">
 			<div class="flex h-fit">
@@ -69,91 +77,76 @@
 	</div>
 
 	<!-- Main Content -->
-	<div class="w-full px-4">
-		<div class="my-8 flex flex-col items-center justify-center">
-			<div class="flex justify-center text-3xl">MATCHES & STATS</div>
-			<div class="text-sm text-zinc-400">Recent matches, and stats from the past 14 days</div>
-		</div>
-		<div class="mx-auto flex max-w-screen-2xl flex-col gap-4 md:flex-row">
-			<div class="flex w-full grow flex-row items-center justify-center gap-4">
-				<div class="mt-2 flex flex-col gap-2">
-					<div class="flex flex-wrap justify-center gap-4">
-						{#key matchBlocks}
-							<div class="min-h-64" in:fade={{ duration: 500 }}>
-								{#if matchBlocks.length == 0}
-									<div class="flex h-full items-center justify-center">
-										<div class="absolute">
-											<Loading />
-										</div>
-									</div>
-								{:else}
-									<div class="flex flex-col gap-4">
-										{#each matchBlocks.slice(0, 10) as match}
-											<Card.Root>
-												<Card.Content class="p-0">
-													<MatchBlock {match} />
-												</Card.Content>
-											</Card.Root>
-										{/each}
-									</div>
-								{/if}
-							</div>
-						{/key}
-					</div>
+	<div class="mx-auto w-full max-w-7xl px-4">
+		<!-- 7-Day Records -->
+		<section class="mt-10 mb-8">
+			<div class="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+				7-Day Records
+			</div>
+			{#await features then resolvedFeatures}
+				<div class="records-grid">
+					{#each makeFeatureItems(resolvedFeatures) as item}
+						{#if item.data && item.data.length >= 3}
+							<FeatureBox data={item.data} title={item.title} type={item.type} />
+						{/if}
+					{/each}
+				</div>
+			{/await}
+		</section>
+
+		<!-- Matches & Stats -->
+		<section class="mb-12">
+			<div class="flex flex-col gap-6 xl:flex-row xl:gap-4">
+				<!-- Recent Matches (left on large screens) -->
+				<div class="min-w-0 xl:flex-1">
+					{#key matchBlocks}
+						<div in:fade={{ duration: 400 }}>
+							{#if matchBlocks.length === 0}
+								<div class="flex min-h-48 items-center justify-center">
+									<Loading />
+								</div>
+							{:else}
+								<div class="flex flex-col gap-2">
+									{#each matchBlocks.slice(0, 10) as match}
+										<Card.Root class="w-fit overflow-hidden">
+											<Card.Content class="p-0">
+												<MatchBlock {match} />
+											</Card.Content>
+										</Card.Root>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					{/key}
+				</div>
+
+				<!-- Stats (right on large screens) -->
+				<div class="flex w-full flex-col gap-4 xl:w-[480px] xl:shrink-0">
+					<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+						<Card.Header class="px-4 pt-4 pb-0">
+							<Card.Title class="text-base">Hero Stats</Card.Title>
+							<Card.Description class="text-xs text-zinc-400">Most played heroes, last 14 days.</Card.Description>
+						</Card.Header>
+						<Card.Content class="px-4 pt-3 pb-4">
+							{#await heroStats then heroStats}
+								<HeroStatbox {heroStats} height="h-72" />
+							{/await}
+						</Card.Content>
+					</Card.Root>
+					<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+						<Card.Header class="px-4 pt-4 pb-0">
+							<Card.Title class="text-base">Player Stats</Card.Title>
+							<Card.Description class="text-xs text-zinc-400">Player performance, last 14 days.</Card.Description>
+						</Card.Header>
+						<Card.Content class="px-4 pt-3 pb-4">
+							{#await playerStats then playerStats}
+								<PlayerStatbox {playerStats} />
+							{/await}
+						</Card.Content>
+					</Card.Root>
 				</div>
 			</div>
-			<div class="mt-2 flex grow-0 flex-col gap-2 md:max-w-[90vw]">
-				{#if $viewport !== 'mobile'}
-					<div class="flex w-full flex-col items-center justify-center gap-4">
-						<div class="w-full">
-							<Card.Root class="flex items-center justify-center bg-transparent">
-								<Card.Content>
-									{#await features then features}
-										<Features {features} />
-									{/await}
-								</Card.Content>
-							</Card.Root>
-						</div>
-						<div class="w-full">
-							{#await heroStats then heroStats}
-								<HeroStatbox {heroStats} />
-							{/await}
-						</div>
-						<div class="w-full">
-							{#await playerStats then playerStats}
-								<PlayerStatbox {playerStats} />
-							{/await}
-						</div>
-					</div>
-				{:else}
-					<div class="flex w-full">
-						<button
-							class="grow rounded-xl bg-zinc-800 px-4 py-2 text-white"
-							style={`background-color: ${stats === 'player' ? '#27272a' : '#18181b'}`}
-							onclick={() => (stats = 'player')}>Player</button
-						>
-						<button
-							class="grow rounded-xl bg-zinc-800 px-4 py-2 text-white"
-							style={`background-color: ${stats === 'hero' ? '#27272a' : '#18181b'}`}
-							onclick={() => (stats = 'hero')}>Hero</button
-						>
-					</div>
-					{#if stats === 'hero'}
-						<div in:fade={{ duration: 250 }}>
-							{#await heroStats then heroStats}
-								<HeroStatbox {heroStats} />
-							{/await}
-						</div>
-					{:else}
-						<div in:fade={{ duration: 250 }}>
-							{#await playerStats then playerStats}
-								<PlayerStatbox {playerStats} />
-							{/await}
-						</div>
-					{/if}
-				{/if}
-			</div>
-		</div>
+		</section>
 	</div>
 </div>
 
@@ -184,21 +177,9 @@
 		z-index: 1;
 	}
 
-	#gradient-box {
-		background: linear-gradient(45deg, #c47716, #2d6a75, #c14755, #4555a9, #3b9c75);
-		background-size: 400% 400%;
-		animation: rotate-gradient 5s linear infinite;
-	}
-
-	@keyframes rotate-gradient {
-		0% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-		100% {
-			background-position: 0% 50%;
-		}
+	.records-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+		gap: 0.75rem;
 	}
 </style>

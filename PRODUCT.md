@@ -28,6 +28,7 @@ Avoid generic SaaS landing page tropes, oversized decorative hero sections, nove
 4. Dota context should be visual. Hero images, role icons, result color, and patch context should carry meaning where they reduce reading.
 5. Preserve user momentum. Tab changes, row clicks, modal opens, and pagination should feel local and should not reset context unnecessarily.
 6. Action controls should be easy to find. Use sky blue for active filters, pagination, clear/reset controls, and compact mode toggles when they directly change the analysis surface.
+7. Highest-level boxes need visible borders. Page filter trays, summary stat boxes, and major dashboard panels should keep a full border so dense dark surfaces stay easy to parse; remove borders only from clearly nested utility elements.
 
 ## Accessibility & Inclusion
 

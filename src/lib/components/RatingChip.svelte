@@ -2,22 +2,47 @@
 	import { calcImpact, getImpactDetails, roleDistribution, getRoleName } from '$lib/functions';
 	import * as HoverCard from '$lib/components/ui/hover-card';
 	import * as Table from '$lib/components/ui/table';
-	import FxemojiPoo from '~icons/fxemoji/poo';
+	import PooIcon from '$lib/components/PooIcon.svelte';
 	import { twMerge } from 'tailwind-merge'; // Optional: avoids class conflicts
 
-	let { data } = $props();
-	const { player, matchData } = data;
+	type RatingChipData = {
+		player: {
+			impact: number;
+			role: number;
+			kills: number;
+			deaths: number;
+			assists: number;
+			lastHits: number;
+			hero: {
+				id: number;
+				name: string;
+			};
+			hero_id?: number;
+		};
+		matchData: {
+			duration: number;
+		};
+	};
 
-	const impactDetails = getImpactDetails(player, player.role, matchData.duration);
-	const impactRating = calcImpact(player.impact);
-	const distributionDetails = roleDistribution(player.role, player.hero.id);
-	const baseGrade = impactRating.charAt(0);
+	type Props = {
+		data: RatingChipData;
+	};
 
-	const isSPlus = impactRating === 'S+';
-	const isSPlusPlus = impactRating === 'S++';
-	const isPoo = impactRating === 'F-';
+	let { data }: Props = $props();
+	const player = $derived(data.player);
+	const matchData = $derived(data.matchData);
+	const impactDetails = $derived(getImpactDetails(player, player.role, matchData.duration));
+	const impactRating = $derived(calcImpact(player.impact));
+	const distributionDetails = $derived(
+		roleDistribution(player.role, player.hero.id) ?? { kapm: 0, death: 0, csMin: 0 }
+	);
+	const baseGrade = $derived(impactRating.charAt(0));
 
-	const borderColorClass =
+	const isSPlus = $derived(impactRating === 'S+');
+	const isSPlusPlus = $derived(impactRating === 'S++');
+	const isPoo = $derived(impactRating === 'F-');
+
+	const borderColorClass = $derived(
 		{
 			S: 'bg-yellow-400/30 text-yellow-400', // Gold
 			A: 'bg-green-500/30 text-green-500',
@@ -25,21 +50,22 @@
 			C: 'bg-purple-500/30 text-purple-500',
 			D: 'bg-orange-500/30 text-orange-500',
 			F: 'bg-red-500/30 text-red-500'
-		}[baseGrade] ?? 'bg-gray-300/20 text-gray-300';
-	const triggerClasses = twMerge(
-		'bg-2 rounded-md px-1 md:px-2 w-8 md:w-12 text-bold font-display relative',
+		}[baseGrade] ?? 'bg-gray-300/20 text-gray-300'
+	);
+	const triggerClasses = $derived(twMerge(
+		'bg-2 rounded-md px-1 md:px-2 w-8 md:w-12 text-bold font-display relative text-center',
 		borderColorClass,
 		isSPlusPlus && 'animate-pulse',
 		isSPlus && ' animate-pulse'
-	);
+	));
 </script>
 
 <HoverCard.Root>
 	<HoverCard.Trigger>
 		{#if isPoo}
 			<div class="flex w-8 justify-center md:w-12">
-				<div class="animate-bounce text-xl">
-					<FxemojiPoo class="drop-shadow-[0_2px_6px_#441306] filter" />
+				<div class="text-xl">
+					<PooIcon class="h-5 w-5 drop-shadow-[0_2px_6px_#441306] filter" />
 				</div>
 			</div>
 		{:else}
@@ -74,27 +100,27 @@
 			<Table.Body>
 				<Table.Row>
 					<Table.Cell>Kill Involvement</Table.Cell>
-					<Table.Cell>{distributionDetails?.kapm}%</Table.Cell>
+					<Table.Cell>{distributionDetails.kapm}%</Table.Cell>
 					<Table.Cell>{impactDetails.kapmRating}</Table.Cell>
 					<Table.Cell class="text-right">
-						{Math.floor(impactDetails.kapmRating * (distributionDetails?.kapm / 100))}
+						{Math.floor(impactDetails.kapmRating * (distributionDetails.kapm / 100))}
 					</Table.Cell>
 				</Table.Row>
 				<Table.Row>
 					<Table.Cell>Death Rating</Table.Cell>
-					<Table.Cell>{distributionDetails?.death}%</Table.Cell>
+					<Table.Cell>{distributionDetails.death}%</Table.Cell>
 					<Table.Cell>{impactDetails.deathRating}</Table.Cell>
 					<Table.Cell class="text-right">
-						{Math.floor(impactDetails.deathRating * (distributionDetails?.death / 100))}
+						{Math.floor(impactDetails.deathRating * (distributionDetails.death / 100))}
 					</Table.Cell>
 				</Table.Row>
-				{#if distributionDetails?.csMin}
+				{#if distributionDetails.csMin}
 					<Table.Row>
 						<Table.Cell>Farm Rating</Table.Cell>
-						<Table.Cell>{distributionDetails?.csMin}%</Table.Cell>
+						<Table.Cell>{distributionDetails.csMin}%</Table.Cell>
 						<Table.Cell>{impactDetails.csMinRating}</Table.Cell>
 						<Table.Cell class="text-right">
-							{Math.round(impactDetails.csMinRating * (distributionDetails?.csMin / 100))}
+							{Math.round(impactDetails.csMinRating * (distributionDetails.csMin / 100))}
 						</Table.Cell>
 					</Table.Row>
 				{/if}

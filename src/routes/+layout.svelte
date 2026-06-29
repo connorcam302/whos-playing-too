@@ -9,8 +9,7 @@
 	import { navigating } from '$app/stores';
 	import { writable } from 'svelte/store';
 	import { onMount, setContext } from 'svelte';
-	import DesktopNavbar from '$lib/components/navbar/DesktopNavbar.svelte';
-	import ReducedNavbar from '$lib/components/navbar/ReducedNavbar.svelte';
+	import Navbar from '$lib/components/navbar/Navbar.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 	import { dev } from '$app/environment';
 	import { inject } from '@vercel/analytics';
@@ -22,7 +21,7 @@
 	inject({ mode: dev ? 'development' : 'production' });
 
 	let { data, children } = $props();
-	const { playerList } = data;
+	const { playerList, heroList } = data;
 
 	const links: { link: string; title: string }[] = [
 		{ link: '/matches', title: 'Matches' },
@@ -43,12 +42,7 @@
 		if (mounted) {
 			if (innerWidth === 0) {
 				viewport = 'loading';
-			} else if (innerWidth > 667) {
-				viewport = 'tablet';
-			} else {
-				viewport = 'mobile';
-			}
-			if (innerWidth > 1200) {
+			} else if (innerWidth > 1200) {
 				viewport = 'desktop';
 			} else if (innerWidth > 667) {
 				viewport = 'tablet';
@@ -72,10 +66,6 @@
 	});
 
 	setContext('viewport', viewportStore);
-
-	$effect(() => {
-		console.log(navigating);
-	});
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
@@ -87,17 +77,9 @@
 	</div>
 {:else}
 	<div class="flex min-h-screen flex-col text-zinc-100">
-		{#if viewport === 'desktop'}
-			<div>
-				<DesktopNavbar {playerList} {links} />
-			</div>
-		{:else}
-			<div class="min-w-screen">
-				<ReducedNavbar {playerList} {links} />
-			</div>
-		{/if}
+		<Navbar {playerList} {heroList} {links} />
 		{#key data.url}
-			<div in:fade={{ delay: 120, duration: 250 }} class="mt-4 grow">
+			<div in:fade={{ delay: 120, duration: 250 }} class="grow">
 				{#if $navigating}
 					<div class="flex h-64 w-full items-center justify-center">
 						<Loading />

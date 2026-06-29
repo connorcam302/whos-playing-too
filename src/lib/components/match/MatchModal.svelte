@@ -1,12 +1,9 @@
 <script lang="ts">
-	import { nonpassive, self } from 'svelte/legacy';
-
 	import Loading from '$lib/components/Loading.svelte';
-	import { fade } from 'svelte/transition';
+	import MatchTable from './MatchTable.svelte';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
-	import MatchTable from './MatchTable.svelte';
-	import { X } from 'lucide-svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -123,7 +120,7 @@
 		return await res.json();
 	};
 
-	let showMatchData = $state(false);
+	let open = $state(false);
 
 	type MatchDetails =
 		| {
@@ -142,126 +139,55 @@
 		  };
 
 	let matchDetails: MatchDetails | undefined = $state();
-	const openMatchData = async () => {
-		showMatchData = true;
-		if (!matchDetails) {
+
+	const handleOpenChange = async (isOpen: boolean) => {
+		if (isOpen && !matchDetails) {
 			matchDetails = await fetchMatchData();
 		}
 	};
 </script>
 
-<svelte:window
-	use:nonpassive={[
-		'wheel',
-		() => (e) => {
-			if (showMatchData) e.preventDefault();
-		}
-	]}
-/>
-
-<svelte:head>
-	{#if showMatchData}
-		<style>
-			body {
-				overflow: hidden;
-			}
-		</style>
-	{:else}
-		<style>
-			body {
-				overflow: auto;
-			}
-		</style>
-	{/if}
-</svelte:head>
-
-<div
-	onclick={openMatchData}
-	onkeydown={(event) => event.key === 'Enter' && openMatchData()}
-	role="button"
-	tabindex="0"
-	class="h-full w-full cursor-pointer transition-colors duration-150"
->
-	{@render children?.()}
-</div>
-
-{#if showMatchData}
-	<div
-		transition:fade={{ duration: 200 }}
-		id="backdrop"
-		class="fixed top-0 z-10 flex h-screen w-screen cursor-default items-center justify-center"
-		onclick={self(() => (showMatchData = false))}
-		onkeypress={(e) => e.key === 'Escape' && (showMatchData = false)}
-		tabindex="0"
-		role="button"
-		class:scroll-lock={showMatchData}
+<Dialog.Root bind:open onOpenChange={handleOpenChange}>
+	<Dialog.Trigger>
+		{#snippet child({ props })}
+			<div
+				{...props}
+				class="h-full w-full cursor-pointer transition-colors duration-150"
+			>
+				{@render children?.()}
+			</div>
+		{/snippet}
+	</Dialog.Trigger>
+	<Dialog.Content
+		class="w-[min(96vw,1180px)] max-w-none gap-0 overflow-hidden rounded-md border-border bg-card p-0 shadow-2xl shadow-black/60"
 	>
-		<div class="absolute z-20 w-[min(96vw,1180px)] max-h-[88vh] overflow-hidden rounded-md border border-zinc-800 bg-zinc-950 shadow-2xl shadow-black/60">
-			<div class="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-				<div>
-					<div class="text-sm font-medium text-zinc-100">Match Details</div>
-					<div class="text-xs text-zinc-500">
-						{#if matchId}
-							Match {matchId}
-						{:else if sequenceNum}
-							Sequence {sequenceNum}
-						{:else}
-							Loading match
-						{/if}
-					</div>
-				</div>
-				<button
-					type="button"
-					class="rounded-md p-2 text-zinc-400 transition duration-150 hover:bg-zinc-900 hover:text-zinc-100"
-					onclick={() => (showMatchData = false)}
-					aria-label="Close match details"
-				>
-					<X class="h-4 w-4" />
-				</button>
-			</div>
-			<div class="max-h-[calc(88vh-4rem)] overflow-auto p-3">
-				{#if matchDetails}
-					{#if matchDetails.error}
-						<div class="rounded-md border border-red-900/60 bg-red-950/30 px-4 py-6 text-center">
-							<h1 class="text-lg font-semibold text-red-100">Error {matchDetails.error}</h1>
-							<p class="mt-1 text-sm text-red-200/80">{matchDetails.message}</p>
-						</div>
-					{:else if matchDetails.matchData}
-						<MatchTable {matchDetails} />
-					{/if}
+		<Dialog.Header class="border-b border-border px-4 py-3">
+			<Dialog.Title class="text-sm font-medium text-zinc-100">Match Details</Dialog.Title>
+			<Dialog.Description class="text-xs text-zinc-500">
+				{#if matchId}
+					Match {matchId}
+				{:else if sequenceNum}
+					Sequence {sequenceNum}
 				{:else}
-					<div class="flex min-h-40 items-center justify-center">
-						<Loading />
-					</div>
+					Loading match
 				{/if}
-			</div>
+			</Dialog.Description>
+		</Dialog.Header>
+		<div class="max-h-[calc(88vh-4rem)] overflow-auto p-3">
+			{#if matchDetails}
+				{#if matchDetails.error}
+					<div class="rounded-md border border-red-900/60 bg-red-950/30 px-4 py-6 text-center">
+						<h1 class="text-lg font-semibold text-red-100">Error {matchDetails.error}</h1>
+						<p class="mt-1 text-sm text-red-200/80">{matchDetails.message}</p>
+					</div>
+				{:else if matchDetails.matchData}
+					<MatchTable {matchDetails} />
+				{/if}
+			{:else}
+				<div class="flex min-h-40 items-center justify-center">
+					<Loading />
+				</div>
+			{/if}
 		</div>
-	</div>
-{/if}
-
-<style>
-	.scroll-lock {
-		overflow-y: hidden;
-	}
-
-	::-webkit-scrollbar {
-		height: 3px;
-		background-color: transparent;
-	}
-
-	::-webkit-scrollbar-thumb {
-		background-color: #e7e5e4;
-		border-radius: 64px;
-		width: 20px;
-	}
-
-	#backdrop {
-		position: fixed;
-		top: 0;
-		bottom: 0;
-		right: 0;
-		left: 0;
-		background: rgba(3, 3, 4, 0.78);
-		backdrop-filter: blur(8px);
-	}
-</style>
+	</Dialog.Content>
+</Dialog.Root>

@@ -265,52 +265,52 @@
 			Loading comparison...
 		</div>
 	{:else}
-		<div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+		<div class="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-2">
 			{#each playerStats as player}
 				<Card.Root class="overflow-hidden">
-					<Card.Header class="border-b border-zinc-800 pb-3">
-						<div class="flex items-start justify-between gap-3">
+					<Card.Header class="border-b border-zinc-800 px-3 py-2">
+						<div class="flex items-center justify-between gap-2">
 							<button
-								class="text-left text-xl font-semibold text-zinc-100 hover:text-sky-300"
+								class="text-left text-sm font-semibold text-zinc-100 hover:text-sky-300"
 								onclick={() => goto(`/player/${player.id}`)}
 							>
 								{player.username}
 							</button>
 							<button
-								class="rounded-md p-1 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-100"
+								class="rounded-sm p-0.5 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-100"
 								onclick={() => removePlayer(player.id)}
 								aria-label={`Remove ${player.username}`}
 							>
-								<X class="h-4 w-4" />
+								<X class="h-3.5 w-3.5" />
 							</button>
 						</div>
-						<Card.Description>
-							{player.wins + player.losses} matches, {formatNumber(calculateWinRate(player.wins, player.losses), 1)}% winrate
+						<Card.Description class="text-xs">
+							{player.wins + player.losses} matches, {formatNumber(calculateWinRate(player.wins, player.losses), 1)}%
 						</Card.Description>
 					</Card.Header>
-					<Card.Content class="space-y-4 p-4">
-						<div class="grid grid-cols-3 gap-2">
-							<div class="rounded-md border border-zinc-800 bg-zinc-950/60 p-2">
-								<div class="text-xs text-zinc-500">Impact</div>
-								<div class="text-lg font-semibold">{formatNumber(player.impact)}</div>
+					<Card.Content class="space-y-2 px-3 py-2">
+						<div class="grid grid-cols-3 gap-1.5">
+							<div class="rounded border border-zinc-800 bg-zinc-950/60 px-2 py-1">
+								<div class="text-[10px] text-zinc-500">Impact</div>
+								<div class="text-sm font-semibold">{formatNumber(player.impact)}</div>
 							</div>
-							<div class="rounded-md border border-zinc-800 bg-zinc-950/60 p-2">
-								<div class="text-xs text-zinc-500">KDA</div>
-								<div class="text-lg font-semibold">
+							<div class="rounded border border-zinc-800 bg-zinc-950/60 px-2 py-1">
+								<div class="text-[10px] text-zinc-500">KDA</div>
+								<div class="text-sm font-semibold">
 									{formatNumber((player.kills + player.assists) / Math.max(player.deaths, 1), 2)}
 								</div>
 							</div>
-							<div class="rounded-md border border-zinc-800 bg-zinc-950/60 p-2">
-								<div class="text-xs text-zinc-500">Duration</div>
-								<div class="text-lg font-semibold">{toTime(Math.round(player.duration || 0))}</div>
+							<div class="rounded border border-zinc-800 bg-zinc-950/60 px-2 py-1">
+								<div class="text-[10px] text-zinc-500">Duration</div>
+								<div class="text-sm font-semibold">{toTime(Math.round(player.duration || 0))}</div>
 							</div>
 						</div>
-						<div class="space-y-1">
-							<div class="flex justify-between text-xs text-zinc-500">
+						<div class="space-y-0.5">
+							<div class="flex justify-between text-[10px] text-zinc-500">
 								<span>Overall</span>
 								<span>{formatNumber(calculateWinRate(player.wins, player.losses), 1)}%</span>
 							</div>
-							<div class="h-2 overflow-hidden rounded-full bg-red-500/60">
+							<div class="h-1.5 overflow-hidden rounded-full bg-red-500/60">
 								<div
 									class="h-full bg-green-500"
 									style={`width: ${calculateWinRate(player.wins, player.losses)}%`}
@@ -320,25 +320,25 @@
 						<div class="grid grid-cols-5 gap-1">
 							{#each [1, 2, 3, 4, 5] as role}
 								{@const count = player.roleDistribution.find((item) => item.role === role)?.count ?? 0}
-								<div class="rounded-md bg-zinc-900 p-2 text-center">
-									<img src={getRoleIcon(role)} alt="" class="mx-auto h-6 w-6" />
-									<div class="mt-1 text-xs text-zinc-400">{count}</div>
+								<div class="rounded bg-zinc-900 px-1 py-1 text-center">
+									<img src={getRoleIcon(role)} alt="" class="mx-auto h-4 w-4" />
+									<div class="text-[10px] text-zinc-400">{count}</div>
 								</div>
 							{/each}
 						</div>
-						<div class="grid grid-cols-3 overflow-hidden rounded-md border border-zinc-800">
+						<div class="grid grid-cols-3 overflow-hidden rounded border border-zinc-800">
 							{#each player.mostPlayedHeroes ?? [] as hero}
-								<div class="relative h-12 bg-zinc-900">
+								<div class="relative h-9 bg-zinc-900">
 									{#if hero?.hero}
 										<img src={hero.hero.img} alt={hero.hero.name} class="h-full w-full object-cover" />
-										<div class="absolute right-1 bottom-1 rounded bg-zinc-950/80 px-1 text-xs">
+										<div class="absolute right-0.5 bottom-0.5 rounded bg-zinc-950/80 px-1 text-[10px]">
 											{hero.count}
 										</div>
 									{/if}
 								</div>
 							{/each}
 						</div>
-						<table class="w-full text-sm">
+						<table class="w-full text-xs">
 							<tbody>
 								{#each [
 									['Kills', 'kills'],
@@ -351,8 +351,8 @@
 									['Versatility', 'versatility']
 								] as [label, stat]}
 									<tr class="border-t border-zinc-900">
-										<td class="py-1.5 text-zinc-400">{label}</td>
-										<td class={`py-1.5 text-right ${getRankClass(player, stat as keyof PlayerStats)}`}>
+										<td class="py-1 text-zinc-400">{label}</td>
+										<td class={`py-1 text-right ${getRankClass(player, stat as keyof PlayerStats)}`}>
 											{formatNumber(Number(player[stat as keyof PlayerStats]) || 0, 1)}
 										</td>
 									</tr>

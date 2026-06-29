@@ -16,7 +16,9 @@
 		id: string;
 		label: string;
 		align?: 'left' | 'right';
+		width?: string;
 		minWidth?: string;
+		maxWidth?: string;
 	};
 
 	type DashboardRow = Record<string, any>;
@@ -46,7 +48,7 @@
 	const getCellSortValue = (row: DashboardRow, columnId: string) => {
 		if (columnId === 'hero') return row.name ?? '';
 		if (columnId === 'role') return row.role ?? 0;
-		if (columnId === 'label') return row.label ?? '';
+		if (columnId === 'label') return row.sortValue ?? row.label ?? '';
 		if (columnId === 'wl') return row.matches ? row.wins / row.matches : 0;
 		return row[columnId] ?? 0;
 	};
@@ -93,28 +95,39 @@
 	const getCellClass = (column: DashboardColumn) =>
 		column.align === 'right' ? 'text-right tabular-nums' : '';
 
+	const getColumnStyle = (column: DashboardColumn | undefined) => {
+		if (!column) return undefined;
+
+		const declarations = [
+			column.width ? `width: ${column.width}` : undefined,
+			column.minWidth ? `min-width: ${column.minWidth}` : undefined,
+			column.maxWidth ? `max-width: ${column.maxWidth}` : undefined
+		].filter(Boolean);
+
+		return declarations.length > 0 ? declarations.join('; ') : undefined;
+	};
+
 	const formatCellValue = (value: unknown) => {
 		if (typeof value === 'number') return formatNumber(value);
 		return String(value ?? '');
 	};
 </script>
 
-<div class="w-full max-w-[100vw] overflow-hidden rounded-md border border-zinc-800">
-	<div class="overflow-x-auto">
+<div class="dashboard-table w-full overflow-x-auto rounded-md border border-zinc-800/80 bg-zinc-950/35">
+	<div>
 		<Table.Root>
-			<Table.Header>
+			<Table.Header class="bg-zinc-950/70">
 				{#each table.getHeaderGroups() as headerGroup}
-					<Table.Row>
+					<Table.Row class="border-zinc-800 hover:bg-transparent">
 						{#each headerGroup.headers as header}
 							{@const column = columns.find((item) => item.id === header.column.id)}
 							<Table.Head
-								class="{getCellClass(column ?? { id: header.column.id, label: '' })} px-2.5 text-xs text-zinc-400"
-								style={column?.minWidth ? `min-width: ${column.minWidth}` : undefined}
+								class="{getCellClass(column ?? { id: header.column.id, label: '' })} h-8 px-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
+								style={getColumnStyle(column)}
 							>
 								{#if !header.isPlaceholder}
-									<Button
-										variant="ghost"
-										class="h-8 px-1.5 text-xs font-medium text-zinc-400 hover:bg-transparent hover:text-zinc-100 {column?.align ===
+									<button
+										class="inline-flex items-center gap-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400 hover:text-zinc-100 {column?.align ===
 										'right'
 											? 'ml-auto'
 											: ''}"
@@ -124,8 +137,8 @@
 											content={header.column.columnDef.header}
 											context={header.getContext()}
 										/>
-										<ArrowUpDown class="ml-1 h-3.5 w-3.5" />
-									</Button>
+										<ArrowUpDown class="h-2.5 w-2.5" />
+									</button>
 								{/if}
 							</Table.Head>
 						{/each}
@@ -135,20 +148,23 @@
 			<Table.Body>
 				{#if table.getRowModel().rows.length === 0}
 					<Table.Row>
-						<Table.Cell colspan={columns.length} class="h-24 text-center text-sm text-zinc-500">
+						<Table.Cell colspan={columns.length} class="h-24 text-center text-sm text-zinc-400">
 							{emptyLabel}
 						</Table.Cell>
 					</Table.Row>
 				{:else}
 					{#each table.getRowModel().rows as row}
-						<Table.Row class="hover:bg-zinc-900/70">
+						<Table.Row class="border-zinc-900 transition-colors hover:bg-zinc-900/70">
 							{#each row.getVisibleCells() as cell}
 								{@const column = columns.find((item) => item.id === cell.column.id)}
-								<Table.Cell class="{getCellClass(column ?? { id: cell.column.id, label: '' })} px-2.5">
+								<Table.Cell
+									class="{getCellClass(column ?? { id: cell.column.id, label: '' })} px-1.5 py-1.5 text-sm text-zinc-300"
+									style={getColumnStyle(column)}
+								>
 									{#if cell.column.id === 'player'}
-										<span class="font-medium text-zinc-100">{row.original.username}</span>
+										<span class="block truncate font-medium text-zinc-100">{row.original.username}</span>
 									{:else if cell.column.id === 'hero'}
-										<div class="flex min-w-44 items-center gap-2 font-medium text-zinc-100">
+										<div class="flex min-w-0 items-center gap-2 font-medium text-zinc-100">
 											<img src={row.original.img} alt="" class="h-7 w-10 rounded-sm object-cover" />
 											<span class="truncate">{row.original.name}</span>
 										</div>
@@ -158,15 +174,15 @@
 											<span>{getRoleName(row.original.role)}</span>
 										</div>
 									{:else if cell.column.id === 'wl'}
-										<div class="min-w-36">
+										<div class="min-w-24">
 											<Tooltip.Root>
-												<Tooltip.Trigger class="flex h-2 w-full overflow-hidden rounded-full bg-zinc-900">
+												<Tooltip.Trigger class="flex h-2 w-full overflow-hidden rounded-full bg-zinc-950 outline-none focus-visible:ring-2 focus-visible:ring-ring">
 													<div
-														class="bg-green-500"
+														class="bg-green-500/80"
 														style={`width: ${row.original.matches ? (row.original.wins / row.original.matches) * 100 : 0}%`}
 													></div>
 													<div
-														class="bg-red-500"
+														class="bg-red-500/80"
 														style={`width: ${row.original.matches ? (row.original.losses / row.original.matches) * 100 : 0}%`}
 													></div>
 												</Tooltip.Trigger>
@@ -195,3 +211,9 @@
 		</Table.Root>
 	</div>
 </div>
+
+<style>
+	.dashboard-table :global(.overflow-auto) {
+		overflow: visible;
+	}
+</style>

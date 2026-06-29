@@ -59,6 +59,7 @@
 	let smurfs = $state(false);
 	let wins = $state(true);
 	let losses = $state(true);
+	const DURATION_BUCKET_SECONDS = 5 * 60;
 
 	const toggleResult = (result: 'wins' | 'losses') => {
 		const current = result === 'wins' ? wins : losses;
@@ -263,14 +264,30 @@
 			})
 			.sort((a, b) => b.matches - a.matches || b.patch.localeCompare(a.patch))
 	);
-	const durationBuckets = $derived(
-		[
-			{ label: '< 30m', min: 0, max: 30 * 60 },
-			{ label: '30-40m', min: 30 * 60, max: 40 * 60 },
-			{ label: '40-50m', min: 40 * 60, max: 50 * 60 },
-			{ label: '50-60m', min: 50 * 60, max: 60 * 60 },
-			{ label: '60m+', min: 60 * 60, max: Number.POSITIVE_INFINITY }
-		].map((bucket) => {
+	const durationBuckets = $derived.by(() => {
+		if (filteredRows.length === 0) return [];
+
+		const shortestDuration = Math.min(...filteredRows.map((row) => row.duration));
+		const longestDuration = Math.max(...filteredRows.map((row) => row.duration));
+		const firstBucketStart =
+			Math.floor(shortestDuration / DURATION_BUCKET_SECONDS) * DURATION_BUCKET_SECONDS;
+		const lastBucketStart =
+			Math.floor(longestDuration / DURATION_BUCKET_SECONDS) * DURATION_BUCKET_SECONDS;
+		const buckets = Array.from(
+			{ length: (lastBucketStart - firstBucketStart) / DURATION_BUCKET_SECONDS + 1 },
+			(_, index) => {
+				const min = firstBucketStart + index * DURATION_BUCKET_SECONDS;
+				const max = min + DURATION_BUCKET_SECONDS;
+				return {
+					label: `${Math.floor(min / 60)}–${Math.floor(max / 60)} min`,
+					sortValue: min,
+					min,
+					max
+				};
+			}
+		);
+
+		return buckets.map((bucket) => {
 			const rows = filteredRows.filter((row) => row.duration >= bucket.min && row.duration < bucket.max);
 			const wins = rows.filter((row) => row.team === row.winner).length;
 			const losses = rows.length - wins;
@@ -283,8 +300,8 @@
 				impact: average(rows, (row) => row.impact),
 				avgDuration: average(rows, (row) => row.duration)
 			};
-		})
-	);
+		});
+	});
 	const trend = $derived(
 		Array.from(
 			filteredRows
@@ -314,13 +331,13 @@
 	<title>whos-playing | Stats</title>
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-3 sm:px-4">
-	<div>
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-6 overflow-hidden px-3 py-4 sm:px-4">
+	<div class="flex flex-col gap-1">
 		<h1 class="text-2xl font-semibold tracking-tight text-zinc-100">Stats Dashboard</h1>
-		<p class="mt-1 text-sm text-zinc-400">Collective performance across all tracked players.</p>
+		<p class="text-sm text-zinc-400">Collective performance across all tracked players.</p>
 	</div>
 
-	<div class="grid gap-3 rounded-md border border-zinc-800 bg-zinc-950/60 p-3 lg:grid-cols-4 xl:grid-cols-[1fr_1fr_1fr_1fr_auto_auto_auto_auto]">
+	<div class="grid gap-3 rounded-md border border-border bg-card p-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
 		<div class="flex min-w-0 flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Players</div>
 			<Select.Root type="multiple" bind:value={selectedPlayers}>
@@ -382,120 +399,133 @@
 		</div>
 		<div class="flex flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
-			<div class="flex gap-1">
-				<Toggle bind:pressed={ranked} class="h-10 border px-3 data-[state=on]:bg-sky-600">Ranked</Toggle>
-				<Toggle bind:pressed={unranked} class="h-10 border px-3 data-[state=on]:bg-sky-600">Unranked</Toggle>
-				<Toggle bind:pressed={other} class="h-10 border px-3 data-[state=on]:bg-sky-600">Other</Toggle>
+			<div class="flex flex-wrap gap-1">
+				<Toggle bind:pressed={ranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Ranked</Toggle>
+				<Toggle bind:pressed={unranked} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Unranked</Toggle>
+				<Toggle bind:pressed={other} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Other</Toggle>
 			</div>
 		</div>
 		<div class="flex flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Result</div>
 			<div class="flex gap-1">
-				<Toggle pressed={wins} onclick={() => toggleResult('wins')} class="h-10 border px-3 data-[state=on]:bg-sky-600">Wins</Toggle>
-				<Toggle pressed={losses} onclick={() => toggleResult('losses')} class="h-10 border px-3 data-[state=on]:bg-sky-600">Losses</Toggle>
+				<Toggle pressed={wins} onclick={() => toggleResult('wins')} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Wins</Toggle>
+				<Toggle pressed={losses} onclick={() => toggleResult('losses')} class="h-10 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">Losses</Toggle>
 			</div>
 		</div>
 		<div class="flex flex-col gap-1">
 			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurfs</div>
-			<Toggle bind:pressed={smurfs} class="h-10 border px-3 data-[state=on]:bg-sky-600">
+			<Toggle bind:pressed={smurfs} class="h-10 w-full border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-sky-950">
 				<VenetianMask class="h-5 w-5" />
 			</Toggle>
 		</div>
 	</div>
 
-	<div class="grid gap-3 md:grid-cols-4">
-		<Card.Root>
+	<div class="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
 			<Card.Content class="p-4">
-				<div class="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-400">
-					<Swords class="h-4 w-4" /> Matches
+				<div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+					<Swords class="h-3.5 w-3.5 text-zinc-500" /> Matches
 				</div>
-				<div class="mt-2 text-3xl font-semibold">{formatNumber(matchCount)}</div>
-				<div class="text-sm text-zinc-400">{formatNumber(filteredRows.length)} player performances</div>
+				<div class="mt-1 text-2xl font-semibold tabular-nums text-zinc-100">{formatNumber(matchCount)}</div>
+				<div class="text-xs text-zinc-400">{formatNumber(filteredRows.length)} player performances</div>
 			</Card.Content>
 		</Card.Root>
-		<Card.Root>
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
 			<Card.Content class="p-4">
-				<div class="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-400">
-					<Trophy class="h-4 w-4" /> Win Rate
+				<div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+					<Trophy class="h-3.5 w-3.5 text-zinc-500" /> Win Rate
 				</div>
-				<div class="mt-2 text-3xl font-semibold">{formatNumber(playerWinRate, 1)}%</div>
-				<div class="text-sm text-zinc-400">Across filtered player rows</div>
+				<div class="mt-1 text-2xl font-semibold tabular-nums text-zinc-100">{formatNumber(playerWinRate, 1)}%</div>
+				<div class="text-xs text-zinc-400">Across filtered player rows</div>
 			</Card.Content>
 		</Card.Root>
-		<Card.Root>
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
 			<Card.Content class="p-4">
-				<div class="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-400">
-					<BarChart3 class="h-4 w-4" /> Impact
+				<div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+					<BarChart3 class="h-3.5 w-3.5 text-zinc-500" /> Impact
 				</div>
-				<div class="mt-2 text-3xl font-semibold">{formatNumber(average(filteredRows, (row) => row.impact))}</div>
-				<div class="text-sm text-zinc-400">Average impact</div>
+				<div class="mt-1 text-2xl font-semibold tabular-nums text-zinc-100">{formatNumber(average(filteredRows, (row) => row.impact))}</div>
+				<div class="text-xs text-zinc-400">Average impact</div>
 			</Card.Content>
 		</Card.Root>
-		<Card.Root>
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
 			<Card.Content class="p-4">
-				<div class="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-400">
-					<Crosshair class="h-4 w-4" /> KDA
+				<div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+					<Crosshair class="h-3.5 w-3.5 text-zinc-500" /> KDA
 				</div>
-				<div class="mt-2 text-3xl font-semibold">
+				<div class="mt-1 text-2xl font-semibold tabular-nums text-zinc-100">
 					{formatNumber(
 						(average(filteredRows, (row) => row.kills) + average(filteredRows, (row) => row.assists)) /
 							Math.max(average(filteredRows, (row) => row.deaths), 1),
 						2
 					)}
 				</div>
-				<div class="text-sm text-zinc-400">Average K+A/D</div>
+				<div class="text-xs text-zinc-400">Average K+A/D</div>
 			</Card.Content>
 		</Card.Root>
 	</div>
 
-	<div class="grid gap-3 xl:grid-cols-[1fr_1fr]">
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>Trend</Card.Title>
-				<Card.Description>Filtered win/loss volume by active day.</Card.Description>
+	<div class="grid gap-4 xl:grid-cols-2">
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+			<Card.Header class="px-4 pt-4 pb-0">
+				<Card.Title class="text-base">Trend</Card.Title>
+				<Card.Description class="text-xs text-zinc-400">Filtered win/loss volume by active day.</Card.Description>
 			</Card.Header>
-			<Card.Content>
-				<div class="flex h-56 items-end gap-1">
-					{#each trend as day}
-						<div class="flex min-w-0 flex-1 flex-col items-center gap-1">
-							<Tooltip.Root>
-								<Tooltip.Trigger
-									class="flex w-full flex-col justify-end overflow-hidden rounded-sm bg-zinc-900"
-									style={`height: ${Math.max(8, ((day.wins + day.losses) / trendMax) * 184)}px`}
-								>
-									<div
-										class="bg-green-500/80"
-										style={`height: ${day.wins + day.losses ? (day.wins / (day.wins + day.losses)) * 100 : 0}%`}
-									></div>
-									<div
-										class="bg-red-500/80"
-										style={`height: ${day.wins + day.losses ? (day.losses / (day.wins + day.losses)) * 100 : 0}%`}
-									></div>
-								</Tooltip.Trigger>
-								<Tooltip.Content class="text-xs">
-									<div class="font-medium">{dayjs(day.date).format('DD MMM YYYY')}</div>
-									<div class="tabular-nums">{day.wins} wins, {day.losses} losses</div>
-								</Tooltip.Content>
-							</Tooltip.Root>
-							<div class="w-full truncate text-center text-[10px] text-zinc-500">{dayjs(day.date).format('DD MMM')}</div>
-						</div>
-					{/each}
+			<Card.Content class="min-w-0 overflow-x-auto px-4 pt-3 pb-4">
+				<div class="mb-3 flex items-center justify-between gap-3">
+					<div class="text-xs text-zinc-300">{formatNumber(filteredRows.length)} filtered performances</div>
+					<div class="flex items-center gap-2 text-[11px] text-zinc-400">
+						<span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-green-500/80"></span>Wins</span>
+						<span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-red-500/80"></span>Losses</span>
+					</div>
 				</div>
+				{#if trend.length > 0}
+					<div class="flex h-48 items-end gap-1">
+						{#each trend as day}
+							<div class="flex min-w-0 flex-1 flex-col items-center gap-1">
+								<Tooltip.Root>
+									<Tooltip.Trigger
+										class="flex w-full flex-col justify-end overflow-hidden rounded-sm bg-zinc-950 outline-none transition-colors hover:bg-zinc-800 focus-visible:ring-2 focus-visible:ring-ring"
+										style={`height: ${Math.max(8, ((day.wins + day.losses) / trendMax) * 152)}px`}
+									>
+										<div
+											class="bg-green-500/80"
+											style={`height: ${day.wins + day.losses ? (day.wins / (day.wins + day.losses)) * 100 : 0}%`}
+										></div>
+										<div
+											class="bg-red-500/80"
+											style={`height: ${day.wins + day.losses ? (day.losses / (day.wins + day.losses)) * 100 : 0}%`}
+										></div>
+									</Tooltip.Trigger>
+									<Tooltip.Content class="text-xs">
+										<div class="font-medium">{dayjs(day.date).format('DD MMM YYYY')}</div>
+										<div class="tabular-nums">{day.wins} wins, {day.losses} losses</div>
+									</Tooltip.Content>
+								</Tooltip.Root>
+								<div class="w-full truncate text-center text-[10px] text-zinc-500">{dayjs(day.date).format('DD MMM')}</div>
+							</div>
+						{/each}
+					</div>
+				{:else}
+					<div class="flex h-48 items-center justify-center rounded-md border border-dashed border-zinc-800 text-sm text-zinc-400">
+						No trend data for these filters
+					</div>
+				{/if}
 			</Card.Content>
 		</Card.Root>
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>Role Split</Card.Title>
-				<Card.Description>Volume, results, and average performance by role.</Card.Description>
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+			<Card.Header class="px-4 pt-4 pb-0">
+				<Card.Title class="text-base">Role Split</Card.Title>
+				<Card.Description class="text-xs text-zinc-400">Volume, results, and average performance by role.</Card.Description>
 			</Card.Header>
-			<Card.Content class="overflow-x-auto">
+			<Card.Content class="px-4 pt-3 pb-4">
 				<DashboardSortableTable
 					rows={byRole}
 					initialSort={[{ id: 'role', desc: false }]}
 					columns={[
-						{ id: 'role', label: 'Role', minWidth: '11rem' },
+						{ id: 'role', label: 'Role', minWidth: '8rem' },
 						{ id: 'matches', label: 'Matches', align: 'right' },
-						{ id: 'wl', label: 'W/L', minWidth: '10rem' },
+						{ id: 'wl', label: 'W/L', minWidth: '7rem' },
 						{ id: 'winRate', label: 'WR', align: 'right' },
 						{ id: 'impact', label: 'Impact', align: 'right' },
 						{ id: 'kda', label: 'KDA', align: 'right' },
@@ -507,17 +537,17 @@
 		</Card.Root>
 	</div>
 
-	<div class="grid gap-3 xl:grid-cols-2">
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>Players</Card.Title>
-				<Card.Description>Top filtered players by match volume.</Card.Description>
+	<div class="grid gap-4 xl:grid-cols-2">
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+			<Card.Header class="px-4 pt-4 pb-0">
+				<Card.Title class="text-base">Players</Card.Title>
+				<Card.Description class="text-xs text-zinc-400">Top filtered players by match volume.</Card.Description>
 			</Card.Header>
-			<Card.Content class="overflow-x-auto">
+			<Card.Content class="px-4 pt-3 pb-4">
 				<DashboardSortableTable
 					rows={byPlayer.slice(0, 24)}
 					columns={[
-						{ id: 'player', label: 'Player', minWidth: '12rem' },
+						{ id: 'player', label: 'Player', width: '9rem', minWidth: '7rem' },
 						{ id: 'matches', label: 'Matches', align: 'right' },
 						{ id: 'winRate', label: 'WR', align: 'right' },
 						{ id: 'impact', label: 'Impact', align: 'right' },
@@ -527,16 +557,16 @@
 				/>
 			</Card.Content>
 		</Card.Root>
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>Heroes</Card.Title>
-				<Card.Description>Most played heroes in the filtered set.</Card.Description>
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+			<Card.Header class="px-4 pt-4 pb-0">
+				<Card.Title class="text-base">Heroes</Card.Title>
+				<Card.Description class="text-xs text-zinc-400">Most played heroes in the filtered set.</Card.Description>
 			</Card.Header>
-			<Card.Content class="overflow-x-auto">
+			<Card.Content class="px-4 pt-3 pb-4">
 				<DashboardSortableTable
 					rows={byHero.slice(0, 24)}
 					columns={[
-						{ id: 'hero', label: 'Hero', minWidth: '14rem' },
+						{ id: 'hero', label: 'Hero', minWidth: '8rem' },
 						{ id: 'matches', label: 'Matches', align: 'right' },
 						{ id: 'winRate', label: 'WR', align: 'right' },
 						{ id: 'impact', label: 'Impact', align: 'right' },
@@ -547,19 +577,19 @@
 		</Card.Root>
 	</div>
 
-	<div class="grid gap-3 xl:grid-cols-2">
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>Patch Breakdown</Card.Title>
-				<Card.Description>Filtered volume and performance by Dota patch.</Card.Description>
+	<div class="grid gap-4 xl:grid-cols-2">
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+			<Card.Header class="px-4 pt-4 pb-0">
+				<Card.Title class="text-base">Patch Breakdown</Card.Title>
+				<Card.Description class="text-xs text-zinc-400">Filtered volume and performance by Dota patch.</Card.Description>
 			</Card.Header>
-			<Card.Content class="overflow-x-auto">
+			<Card.Content class="px-4 pt-3 pb-4">
 				<DashboardSortableTable
 					rows={patchBreakdown.slice(0, 18)}
 					columns={[
-						{ id: 'label', label: 'Patch', minWidth: '9rem' },
+						{ id: 'label', label: 'Patch' },
 						{ id: 'matches', label: 'Matches', align: 'right' },
-						{ id: 'wl', label: 'W/L', minWidth: '10rem' },
+						{ id: 'wl', label: 'W/L', minWidth: '7rem' },
 						{ id: 'winRate', label: 'WR', align: 'right' },
 						{ id: 'impact', label: 'Impact', align: 'right' },
 						{ id: 'kda', label: 'KDA', align: 'right' }
@@ -568,18 +598,19 @@
 			</Card.Content>
 		</Card.Root>
 
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>Duration Bands</Card.Title>
-				<Card.Description>How match length changes volume, winrate, and impact.</Card.Description>
+		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+			<Card.Header class="px-4 pt-4 pb-0">
+				<Card.Title class="text-base">Duration Bands</Card.Title>
+				<Card.Description class="text-xs text-zinc-400">How match length changes volume, winrate, and impact.</Card.Description>
 			</Card.Header>
-			<Card.Content class="overflow-x-auto">
+			<Card.Content class="px-4 pt-3 pb-4">
 				<DashboardSortableTable
 					rows={durationBuckets}
+					initialSort={[{ id: 'label', desc: false }]}
 					columns={[
-						{ id: 'label', label: 'Duration', minWidth: '9rem' },
+						{ id: 'label', label: 'Duration' },
 						{ id: 'matches', label: 'Matches', align: 'right' },
-						{ id: 'wl', label: 'W/L', minWidth: '10rem' },
+						{ id: 'wl', label: 'W/L', minWidth: '7rem' },
 						{ id: 'winRate', label: 'WR', align: 'right' },
 						{ id: 'impact', label: 'Impact', align: 'right' },
 						{ id: 'avgDuration', label: 'Avg', align: 'right' }

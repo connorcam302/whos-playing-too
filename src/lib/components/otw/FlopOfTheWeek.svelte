@@ -33,7 +33,7 @@
 
 <div class="flex h-fit flex-col items-center justify-center rounded-lg px-2 pb-2">
 	<div class="my-2 flex flex-col items-center justify-center">
-		<div id="title" class="font-display w-fit px-4 pt-1 text-center text-4xl">TEAM OF THE WEEK</div>
+		<div id="title" class="font-display w-fit px-4 pt-1 text-center text-4xl"><span class='text-amber-900'>FLOP</span> OF THE WEEK</div>
 		<div class="text-center text-sm text-zinc-400">
 			{dayjs(dayjs().weekday(-6), 'YYYY-MM-DD').format('dddd Do [of] MMMM')} - {dayjs(
 				dayjs().weekday(0),

@@ -226,7 +226,7 @@ The palette is restrained: dark zinc surfaces for structure, green primary for a
 
 ## 4. Elevation
 
-The system is mostly flat and layered through tonal steps and borders. Shadows exist in the token set (seven levels from `--shadow-2xs` through `--shadow-2xl`) but the dark-mode app relies on surface color progression (`#1a1d23` > `#242830` > `#2f3436`) and thin `border-zinc-800` lines rather than box-shadow.
+The system is mostly flat and layered through tonal steps and borders. Shadows exist in the token set (seven levels from `--shadow-2xs` through `--shadow-2xl`) but the dark-mode app relies on surface color progression (`#1a1d23` > `#242830` > `#2f3436`) and visible full borders on highest-level boxes rather than box-shadow.
 
 ### Shadow Vocabulary
 - **Modal Shadow** (`shadow-2xl shadow-black/60`): The MatchModal combines the heaviest shadow token with a dark tint. Paired with an 8px backdrop blur and rgba overlay.
@@ -236,6 +236,8 @@ The system is mostly flat and layered through tonal steps and borders. Shadows e
 ### Named Rules
 
 **The Flat By Default Rule.** Surfaces are flat at rest. Shadow appears only when something floats above the page: modals, popovers, dropdowns. If you are reaching for a shadow on a card, use a border instead.
+
+**The Top-Level Box Rule.** Highest-level boxes always keep a full 1px border. This includes page filter trays, summary metric boxes, and major dashboard/data panels. In dark mode prefer `border border-border` for these outer boxes; reserve `border-zinc-800` and `border-zinc-900` for nested table wrappers, internal dividers, and dense row separators.
 
 ## 5. Components
 
@@ -263,7 +265,7 @@ The RatingChip is the product's signature component. A compact grade indicator w
 - **Corner Style:** Rounded-lg (0.5rem) for most panels via shadcn/ui Card.Root.
 - **Background:** `bg-card` (resolves to #242830 dark, #ffffff light).
 - **Shadow Strategy:** Flat by default. `shadow-sm` is applied but invisible in dark mode; `border` does the work.
-- **Border:** `border-zinc-800` for panels, `border-zinc-900` for dense row separators.
+- **Border:** Highest-level panels use `border border-border` (dark #444444). Nested panels and table wrappers use `border-zinc-800`; dense row separators use `border-zinc-900`.
 - **Internal Padding:** Card.Header uses 24px (p-6) with no bottom padding; Card.Content often overridden to 8px (p-2) or 0 for full-bleed tables. 12px for dense toolbars, 16px for card content, 24px only for empty states.
 
 ### Inputs / Fields

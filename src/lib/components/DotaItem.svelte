@@ -6,9 +6,9 @@
 </script>
 
 <Tooltip.Root>
-	<Tooltip.Trigger
+	<Tooltip.Trigger class="h-full"
 		><img
-			class={twMerge(styles, 'h-full w-auto')}
+			class={twMerge('h-full w-auto', styles)}
 			src={item.img}
 			alt={item.name}
 		/></Tooltip.Trigger

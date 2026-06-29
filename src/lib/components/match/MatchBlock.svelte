@@ -103,7 +103,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="flex flex-col items-center justify-center border-t-2 border-zinc-800">
+				<div class="flex flex-col border-t-2 border-zinc-800">
 					{#if radiant.length > 0 && dire.length > 0}
 						<div class={twMerge(radiantHeaderStyling, 'w-full ')}>
 							<div class="flex items-center justify-center gap-4 border-b-2 border-zinc-800 py-1">

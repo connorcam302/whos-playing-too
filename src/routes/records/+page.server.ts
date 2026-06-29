@@ -11,6 +11,8 @@ import {
 	getMostGPM,
 	getMostXPM
 } from '$lib/server/db-functions';
+import { db } from '$lib/server/database';
+import { heroes } from '$lib/server/schema';
 
 interface Record {
 	id: number;
@@ -76,10 +78,13 @@ export const load = async ({ url, params }) => {
 		};
 	});
 
-	const heroJson = await fetch(
-		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
-	);
-	const heroList: DotaAsset[] = await heroJson.json();
+	const heroList: DotaAsset[] = await db
+		.select({
+			id: heroes.id,
+			name: heroes.name,
+			img: heroes.img
+		})
+		.from(heroes);
 	heroList.sort((a, b) => a.name.localeCompare(b.name));
 
 	return { records, heroList };
