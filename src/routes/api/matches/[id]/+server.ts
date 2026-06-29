@@ -1,4 +1,4 @@
-import { STEAM_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
 import { laneRates } from '$lib/server/laneRates';
 import { heroMap } from '$lib/data/heroMap';
@@ -121,7 +121,7 @@ const getImpactScore = (match: any, role: any, duration: any) => {
 
 export const GET: RequestHandler = async ({ url, params }) => {
     const steamMatchData = await fetch(
-        `https://api.steampowered.com/IDOTA2Match_570/getMatchDetails/v1?key=${STEAM_KEY}&match_id=${params.id}`
+        `https://api.steampowered.com/IDOTA2Match_570/getMatchDetails/v1?key=${env.STEAM_KEY}&match_id=${params.id}`
     )
         .then((res) => res.json())
         .then((data) => data.result);

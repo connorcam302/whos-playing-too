@@ -18,6 +18,10 @@ RUN bun run build
 FROM base AS production
 WORKDIR /app
 ENV NODE_ENV=production
+ENV DATABASE_URL=
+ENV STEAM_KEY=
+ENV BASE_URL=
+ENV STRATZ_KEY=
 
 COPY --from=build /app/build ./build
 COPY --from=build /app/package.json ./

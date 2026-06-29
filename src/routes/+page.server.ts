@@ -1,4 +1,4 @@
-import { STEAM_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import {
 	getFeatures,
 	getHeroStats,
@@ -19,7 +19,7 @@ const toSteam64 = (steam32: string) => {
 
 const getSteamData = async (steamIds: number[]) => {
 	const steamData = await fetch(
-		`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_KEY}&steamids=${steamIds
+		`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${env.STEAM_KEY}&steamids=${steamIds
 			.map((id) => toSteam64(id.toString()))
 			.join(',')
 			.toString()}`

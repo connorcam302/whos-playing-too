@@ -15,7 +15,7 @@ import {
 	getPlayerTeammateStats,
 	getPlayers
 } from '$lib/server/db-functions';
-import { STEAM_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
 import dayjs from 'dayjs';
 import { heroData } from '$lib/data/heroData';
@@ -32,7 +32,7 @@ const getSteamData = async (steamIds: number[]) => {
 
 	try {
 		const steamData = await fetch(
-			`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_KEY}&steamids=${validSteamIds
+			`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${env.STEAM_KEY}&steamids=${validSteamIds
 				.map((id) => BigInt(id) + BigInt('76561197960265728'))
 				.join(',')
 				.toString()}`,

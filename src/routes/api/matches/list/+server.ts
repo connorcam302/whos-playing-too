@@ -1,4 +1,4 @@
-import { STEAM_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { laneRates } from '$lib/server/laneRates';
 import { heroMap } from '$lib/data/heroMap';

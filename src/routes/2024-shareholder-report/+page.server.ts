@@ -1,5 +1,5 @@
 import { getMatchData, getPlayers } from '$lib/server/db-functions';
-import { STEAM_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export const load = async ({ fetch, data, params }) => {
 	const longestMatch = await getMatchData(7547028321);
@@ -29,7 +29,7 @@ export const load = async ({ fetch, data, params }) => {
 
 	const getSteamData = async (steamIds: number[]) => {
 		const steamData = await fetch(
-			`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_KEY}&steamids=${steamIds
+			`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${env.STEAM_KEY}&steamids=${steamIds
 				.map((id) => toSteam64(id.toString()))
 				.join(',')
 				.toString()}`

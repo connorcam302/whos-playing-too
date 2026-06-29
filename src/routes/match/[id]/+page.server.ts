@@ -1,17 +1,17 @@
-import { BASE_URL, STRATZ_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 //import matchDetails from '$lib/data/match-details.json';
 import { type MatchDetails } from './matchDetails.type';
 
 export const load = async ({ params }) => {
 	const fetchMatchData = async () => {
-		const res = await fetch(BASE_URL + `/api/matches/${params.id}`);
+		const res = await fetch(env.BASE_URL + `/api/matches/${params.id}`);
 		return await res.json();
 	};
 
 	const matchDetails: MatchDetails = await fetch(
 		`https://api.stratz.com/api/v1/match/${params.id}/breakdown`,
 		{
-			headers: { Authorization: `Bearer ${STRATZ_KEY}` }
+			headers: { Authorization: `Bearer ${env.STRATZ_KEY}` }
 		}
 	).then((res) => res.json());
 

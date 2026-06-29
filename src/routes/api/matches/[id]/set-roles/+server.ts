@@ -1,4 +1,4 @@
-import { STEAM_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { db } from '$lib/server/database';
 import { matchData } from '$lib/server/schema';
 import { error, json, type RequestHandler } from '@sveltejs/kit';
@@ -116,13 +116,13 @@ export const POST: RequestHandler = async ({ url, params, request }) => {
 	const sequenceNum = reqBody.sequenceNum;
 
 	let steamMatchData = await fetch(
-		`https://api.steampowered.com/IDOTA2Match_570/getMatchDetails/v1?key=${STEAM_KEY}&match_id=${params.id}`
+		`https://api.steampowered.com/IDOTA2Match_570/getMatchDetails/v1?key=${env.STEAM_KEY}&match_id=${params.id}`
 	)
 		.then((res) => res.json())
 		.then((data) => data.result);
 	if (!steamMatchData) {
 		steamMatchData = await fetch(
-			`https://api.steampowered.com/IDOTA2Match_570/GetMatchHistoryBySequenceNum/v1?key=${STEAM_KEY}&start_at_match_seq_num=${sequenceNum}&matches_requested=1`
+			`https://api.steampowered.com/IDOTA2Match_570/GetMatchHistoryBySequenceNum/v1?key=${env.STEAM_KEY}&start_at_match_seq_num=${sequenceNum}&matches_requested=1`
 		)
 			.then((res) => res.json())
 			.then((data) => data.result.matches[0]);

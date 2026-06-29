@@ -26,7 +26,7 @@ import {
 } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getHeroString } from './private-functions';
-import { STEAM_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
