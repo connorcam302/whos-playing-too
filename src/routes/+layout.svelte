@@ -25,6 +25,7 @@
 
 	const links: { link: string; title: string }[] = [
 		{ link: '/matches', title: 'Matches' },
+		{ link: '/heroes', title: 'Heroes' },
 		{ link: '/records', title: 'Records' },
 		{ link: '/stats', title: 'Stats' },
 		{ link: '/comparison', title: 'Comparison' }

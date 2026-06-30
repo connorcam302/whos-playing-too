@@ -3,6 +3,14 @@ import { accounts, heroes, matchData, matches, players } from '$lib/server/schem
 import { eq, gt } from 'drizzle-orm';
 
 export const load = async () => {
+	const allHeroes = await db
+		.select({
+			id: heroes.id,
+			name: heroes.name,
+			img: heroes.img
+		})
+		.from(heroes);
+
 	const rows = await db
 		.select({
 			playerId: players.id,
@@ -40,18 +48,7 @@ export const load = async () => {
 	const playerList = Array.from(
 		new Map(rows.map((row) => [row.playerId, { id: row.playerId, username: row.username }])).values()
 	).sort((a, b) => a.username.localeCompare(b.username));
-	const heroList = Array.from(
-		new Map(
-			rows.map((row) => [
-				row.heroId,
-				{
-					id: row.heroId,
-					name: row.heroName,
-					img: row.heroImg
-				}
-			])
-		).values()
-	).sort((a, b) => a.name.localeCompare(b.name));
+	const heroList = allHeroes.sort((a, b) => a.name.localeCompare(b.name));
 
 	return {
 		rows,

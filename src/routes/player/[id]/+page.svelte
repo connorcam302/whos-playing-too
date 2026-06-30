@@ -44,6 +44,7 @@
 	import ProfileMatches from './ProfileMatches.svelte';
 	import ProfileRecords from './ProfileRecords.svelte';
 	import ProfileTeammates from './ProfileTeammates.svelte';
+	import ProfileHeroPool from './ProfileHeroPool.svelte';
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
@@ -57,6 +58,8 @@
 			recentStats: Stats;
 			heroStats: any;
 			allTimeHeroStats: any;
+			recentHeroPoolStats: any;
+			recentHeroPoolMatchLimit: number;
 			winGraph: { resultsArray: number[]; daysArray: number[] };
 			heroList: Hero[];
 			playerList: any[];
@@ -91,9 +94,9 @@
 		playerList
 	} = $derived(data);
 
-	type ProfileTab = 'home' | 'stats' | 'matches' | 'records' | 'teammates';
+	type ProfileTab = 'home' | 'stats' | 'hero-pool' | 'matches' | 'records' | 'teammates';
 
-	const profileTabs: ProfileTab[] = ['home', 'stats', 'matches', 'records', 'teammates'];
+	const profileTabs: ProfileTab[] = ['home', 'stats', 'hero-pool', 'matches', 'records', 'teammates'];
 
 	const getUrlTab = () => {
 		const tab = page.url.searchParams.get('tab');
@@ -141,15 +144,17 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 		bind:value={selectedTab}
 		class="flex w-full max-w-6xl flex-col items-stretch gap-3"
 	>
-		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1  rounded-lg border border-zinc-700 bg-card sm:inline-grid sm:w-fit sm:grid-cols-5">
+		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1  rounded-lg border border-zinc-700 bg-card sm:inline-grid sm:w-fit sm:grid-cols-6">
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="home">Home</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="stats">Stats</Tabs.Trigger>
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="hero-pool">Hero Pool</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="matches">Matches</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="records">Records</Tabs.Trigger>
-			<Tabs.Trigger class="col-span-2 min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none sm:col-span-1" value="teammates">Teammates</Tabs.Trigger>
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="teammates">Teammates</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="home" class="w-full"><ProfileHome {data} /></Tabs.Content>
 		<Tabs.Content value="stats" class="w-full"><ProfileStats {data} /></Tabs.Content>
+		<Tabs.Content value="hero-pool" class="w-full"><ProfileHeroPool {data} /></Tabs.Content>
 		<Tabs.Content value="matches" class="w-full"><ProfileMatches {data} /></Tabs.Content>
 		<Tabs.Content value="records" class="w-full min-w-0"><ProfileRecords {data} /></Tabs.Content>
 		<Tabs.Content value="teammates" class="w-full"><ProfileTeammates {data} /></Tabs.Content>

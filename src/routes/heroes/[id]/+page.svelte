@@ -330,9 +330,6 @@
 										class="inline-flex max-w-36 items-center gap-1 truncate text-left font-medium text-zinc-100 transition-colors hover:text-sky-300"
 									>
 										<span class="truncate">{player.username}</span>
-										{#if player.smurf}
-											<VenetianMask class="h-4 w-4 shrink-0" aria-hidden="true" />
-										{/if}
 									</button>
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right tabular-nums">

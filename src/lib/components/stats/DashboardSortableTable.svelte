@@ -169,9 +169,8 @@
 											<span class="truncate">{row.original.name}</span>
 										</div>
 									{:else if cell.column.id === 'role'}
-										<div class="flex items-center gap-2 font-medium text-zinc-100">
-											<img src={getRoleIcon(row.original.role)} alt="" class="h-7 w-7" />
-											<span>{getRoleName(row.original.role)}</span>
+										<div class="flex items-center font-medium text-zinc-100">
+											<img src={getRoleIcon(row.original.role)} alt={getRoleName(row.original.role)} class="h-7 w-7" />
 										</div>
 									{:else if cell.column.id === 'wl'}
 										<div class="min-w-24">
@@ -191,12 +190,26 @@
 												</Tooltip.Content>
 											</Tooltip.Root>
 										</div>
-									{:else if cell.column.id === 'winRate'}
+									{:else if cell.column.id === 'winRate' || cell.column.id === 'pickRate'}
 										{formatNumber(Number(cell.getValue()), 1)}%
 									{:else if cell.column.id === 'kda'}
 										{formatNumber(Number(cell.getValue()), 2)}
 									{:else if cell.column.id === 'avgDuration'}
 										{toTime(Math.round(Number(cell.getValue()) || 0))}
+									{:else if cell.column.id === 'label'}
+										{row.original.label}
+									{:else if cell.column.id === 'tag'}
+										{@const tagClasses: Record<string, string> = {
+											Signature: 'border-yellow-500/30 bg-yellow-500/10 text-yellow-200',
+											Comfort: 'border-sky-500/30 bg-sky-500/10 text-sky-200',
+											Pocket: 'border-purple-500/30 bg-purple-500/10 text-purple-200',
+											Damage: 'border-orange-500/30 bg-orange-500/10 text-orange-200',
+											Danger: 'border-red-500/30 bg-red-500/10 text-red-200',
+											Rotation: 'border-zinc-700 bg-zinc-950/40 text-zinc-300'
+										}}
+										<span class="rounded-sm border px-1.5 py-0.5 text-[11px] font-medium {tagClasses[String(cell.getValue())] ?? 'border-zinc-700 bg-zinc-950/40 text-zinc-300'}">
+											{cell.getValue()}
+										</span>
 									{:else if ['impact', 'gpm', 'xpm', 'heroDamage'].includes(cell.column.id)}
 										{formatNumber(Number(cell.getValue()))}
 									{:else}

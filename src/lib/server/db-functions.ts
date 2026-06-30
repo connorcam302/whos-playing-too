@@ -325,6 +325,93 @@ export const getHeroStats = async (
 	return sortedHeroData;
 };
 
+export const getRecentHeroPoolStats = async (player: number, limit: number = 50) => {
+	const recentRows = await db
+		.select({
+			hero: matchData.heroId,
+			matchId: matchData.matchId,
+			team: matchData.team,
+			winner: matches.winner,
+			avgImpact: matchData.impact,
+			avgKills: matchData.kills,
+			avgDeaths: matchData.deaths,
+			avgAssists: matchData.assists,
+			startTime: matches.startTime,
+			role: matchData.role
+		})
+		.from(matchData)
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+		.where(eq(accounts.owner, player))
+		.orderBy(desc(matches.startTime))
+		.limit(limit);
+
+	const heroBuckets = new Map<
+		number,
+		{
+			hero: DotaAsset;
+			matches: number;
+			radiantWins: number;
+			direWins: number;
+			impactTotal: number;
+			killsTotal: number;
+			deathsTotal: number;
+			assistsTotal: number;
+			latestStartTime: number;
+			roleCounts: Map<number, number>;
+		}
+	>();
+
+	for (const row of recentRows) {
+		const bucket = heroBuckets.get(row.hero) ?? {
+			hero: heroMap.get(row.hero),
+			matches: 0,
+			radiantWins: 0,
+			direWins: 0,
+			impactTotal: 0,
+			killsTotal: 0,
+			deathsTotal: 0,
+			assistsTotal: 0,
+			latestStartTime: 0,
+			roleCounts: new Map<number, number>()
+		};
+
+		bucket.matches += 1;
+		if (row.role) bucket.roleCounts.set(row.role, (bucket.roleCounts.get(row.role) ?? 0) + 1);
+		bucket.impactTotal += row.avgImpact ?? 0;
+		bucket.killsTotal += row.avgKills ?? 0;
+		bucket.deathsTotal += row.avgDeaths ?? 0;
+		bucket.assistsTotal += row.avgAssists ?? 0;
+		bucket.latestStartTime = Math.max(bucket.latestStartTime, row.startTime ?? 0);
+
+		if (row.team === 'radiant' && row.winner === 'radiant') {
+			bucket.radiantWins += 1;
+		}
+		if (row.team === 'dire' && row.winner === 'dire') {
+			bucket.direWins += 1;
+		}
+
+		heroBuckets.set(row.hero, bucket);
+	}
+
+	return Array.from(heroBuckets.values())
+		.map((bucket) => ({
+			hero: bucket.hero,
+			matches: bucket.matches,
+			radiantWins: bucket.radiantWins,
+			direWins: bucket.direWins,
+			avgImpact: Math.round(bucket.impactTotal / bucket.matches),
+			avgKills: Math.round(bucket.killsTotal / bucket.matches),
+			avgDeaths: Math.round(bucket.deathsTotal / bucket.matches),
+			avgAssists: Math.round(bucket.assistsTotal / bucket.matches),
+			latestStartTime: bucket.latestStartTime,
+			role: bucket.roleCounts.size > 0
+				? [...bucket.roleCounts.entries()].sort((a, b) => b[1] - a[1])[0][0]
+				: 0
+		}))
+		.sort((a, b) => b.matches - a.matches);
+};
+
 export const getAllPlayerStats = async (
 	offset: number = dayjs(0).add(2, 'week').valueOf() / 1000
 ) => {

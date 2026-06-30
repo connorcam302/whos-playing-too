@@ -13,7 +13,8 @@ import {
 	getPlayerWinLossByMinutes,
 	getPlayerRecords,
 	getPlayerTeammateStats,
-	getPlayers
+	getPlayers,
+	getRecentHeroPoolStats
 } from '$lib/server/db-functions';
 import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
@@ -81,7 +82,14 @@ const emptyImpactCounts = () => {
 	);
 };
 
-export const load = async ({ params }) => {
+const DEFAULT_HERO_POOL_MATCH_LIMIT = 500;
+const HERO_POOL_MATCH_LIMIT_OPTIONS = [100, 200, 500, 1000];
+
+export const load = async ({ params, url }) => {
+	const requestedLimit = Number(url.searchParams.get('pool') || DEFAULT_HERO_POOL_MATCH_LIMIT);
+	const RECENT_HERO_POOL_MATCH_LIMIT = HERO_POOL_MATCH_LIMIT_OPTIONS.includes(requestedLimit)
+		? requestedLimit
+		: DEFAULT_HERO_POOL_MATCH_LIMIT;
 	const playerId = Number(params.id);
 	if (!Number.isFinite(playerId)) {
 		throw error(404, 'Player not found');
@@ -116,6 +124,10 @@ export const load = async ({ params }) => {
 	);
 	const allTimeHeroStats = withTimeout(
 		getHeroStats(dayjs(0).add(99, 'years').valueOf() / 1000, playerId),
+		[]
+	);
+	const recentHeroPoolStats = withTimeout(
+		getRecentHeroPoolStats(playerId, RECENT_HERO_POOL_MATCH_LIMIT),
 		[]
 	);
 	const [
@@ -188,6 +200,9 @@ export const load = async ({ params }) => {
 		recentStats,
 		heroStats,
 		allTimeHeroStats,
+		recentHeroPoolStats,
+		recentHeroPoolMatchLimit: RECENT_HERO_POOL_MATCH_LIMIT,
+		heroPoolMatchLimitOptions: HERO_POOL_MATCH_LIMIT_OPTIONS,
 		winGraph,
 		impactCounts,
 		matchesByDay,

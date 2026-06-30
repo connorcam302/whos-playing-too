@@ -189,38 +189,33 @@
 			})
 			.sort((a, b) => b.matches - a.matches || b.winRate - a.winRate)
 	);
-	const byHero = $derived(
-		Array.from(
-			filteredRows
-				.reduce((map, row) => {
-					const current = map.get(row.heroId) ?? {
-						id: row.heroId,
-						name: row.heroName,
-						img: row.heroImg,
-						rows: [] as StatRow[]
-					};
-					current.rows.push(row);
-					map.set(row.heroId, current);
-					return map;
-				}, new Map<number, { id: number; name: string; img: string; rows: StatRow[] }>())
-				.values()
-		)
+	const byHero = $derived.by(() => {
+		const rowsByHero = filteredRows.reduce((map, row) => {
+			const rows = map.get(row.heroId) ?? [];
+			rows.push(row);
+			map.set(row.heroId, rows);
+			return map;
+		}, new Map<number, StatRow[]>());
+
+		return data.heroList
 			.map((hero) => {
-				const wins = hero.rows.filter((row) => row.team === row.winner).length;
+				const rows = rowsByHero.get(hero.id) ?? [];
+				const wins = rows.filter((row) => row.team === row.winner).length;
 				return {
 					...hero,
-					matches: hero.rows.length,
+					rows,
+					matches: rows.length,
 					wins,
-					losses: hero.rows.length - wins,
-					winRate: hero.rows.length > 0 ? (wins / hero.rows.length) * 100 : 0,
-					impact: average(hero.rows, (row) => row.impact),
+					losses: rows.length - wins,
+					winRate: rows.length > 0 ? (wins / rows.length) * 100 : 0,
+					impact: average(rows, (row) => row.impact),
 					kda:
-						(average(hero.rows, (row) => row.kills) + average(hero.rows, (row) => row.assists)) /
-						Math.max(average(hero.rows, (row) => row.deaths), 1)
+						(average(rows, (row) => row.kills) + average(rows, (row) => row.assists)) /
+						Math.max(average(rows, (row) => row.deaths), 1)
 				};
 			})
-			.sort((a, b) => b.matches - a.matches || b.winRate - a.winRate)
-	);
+			.sort((a, b) => b.matches - a.matches || b.winRate - a.winRate);
+	});
 	const byRole = $derived(
 		[1, 2, 3, 4, 5].map((role) => {
 			const rows = filteredRows.filter((row) => row.role === role);
@@ -243,23 +238,25 @@
 			};
 		})
 	);
-	const patchBreakdown = $derived(
-		Array.from(
-			filteredRows
-				.reduce((map, row) => {
-					const patch = getDotaPatchForTimestamp(row.startTime);
-					const key = patch?.version ?? 'Unknown';
-					const current = map.get(key) ?? {
-						patch: key,
-						label: patch?.label ?? 'Unknown Patch',
-						rows: [] as StatRow[]
-					};
-					current.rows.push(row);
-					map.set(key, current);
-					return map;
-				}, new Map<string, { patch: string; label: string; rows: StatRow[] }>())
-				.values()
-		)
+	const patchBreakdown = $derived.by(() => {
+		const rowsByPatch = filteredRows.reduce((map, row) => {
+			const patch = getDotaPatchForTimestamp(row.startTime);
+			if (!patch) return map;
+			const rows = map.get(patch.version) ?? [];
+			rows.push(row);
+			map.set(patch.version, rows);
+			return map;
+		}, new Map<string, StatRow[]>());
+
+		return DOTA_MAJOR_PATCHES.map((patch, index) => {
+			const rows = rowsByPatch.get(patch.version) ?? [];
+			return {
+				patch: patch.version,
+				label: patch.label,
+				sortValue: index,
+				rows
+			};
+		})
 			.map((patch) => {
 				const wins = patch.rows.filter((row) => row.team === row.winner).length;
 				const losses = patch.rows.length - wins;
@@ -275,8 +272,8 @@
 						Math.max(average(patch.rows, (row) => row.deaths), 1)
 				};
 			})
-			.sort((a, b) => b.matches - a.matches || b.patch.localeCompare(a.patch))
-	);
+			.sort((a, b) => b.sortValue - a.sortValue);
+	});
 	const durationBuckets = $derived.by(() => {
 		if (filteredRows.length === 0) return [];
 
@@ -292,7 +289,7 @@
 				const min = firstBucketStart + index * DURATION_BUCKET_SECONDS;
 				const max = min + DURATION_BUCKET_SECONDS;
 				return {
-					label: `${Math.floor(min / 60)}–${Math.floor(max / 60)} min`,
+					label: `${Math.floor(min / 60)}m-${Math.floor(max / 60)}m`,
 					sortValue: min,
 					min,
 					max
@@ -582,19 +579,21 @@
 		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
 			<Card.Header class="px-4 pt-4 pb-0">
 				<Card.Title class="text-base">Heroes</Card.Title>
-				<Card.Description class="text-xs text-zinc-400">Most played heroes in the filtered set.</Card.Description>
+				<Card.Description class="text-xs text-zinc-400">All heroes with filtered performance totals.</Card.Description>
 			</Card.Header>
 			<Card.Content class="px-4 pt-3 pb-4">
-				<DashboardSortableTable
-					rows={byHero.slice(0, 24)}
-					columns={[
-						{ id: 'hero', label: 'Hero', minWidth: '8rem' },
-						{ id: 'matches', label: 'Matches', align: 'right' },
-						{ id: 'winRate', label: 'WR', align: 'right' },
-						{ id: 'impact', label: 'Impact', align: 'right' },
-						{ id: 'kda', label: 'KDA', align: 'right' }
-					]}
-				/>
+				<div class="max-h-[30rem] overflow-y-auto pr-1">
+					<DashboardSortableTable
+						rows={byHero}
+						columns={[
+							{ id: 'hero', label: 'Hero', minWidth: '8rem' },
+							{ id: 'matches', label: 'Matches', align: 'right' },
+							{ id: 'winRate', label: 'WR', align: 'right' },
+							{ id: 'impact', label: 'Impact', align: 'right' },
+							{ id: 'kda', label: 'KDA', align: 'right' }
+						]}
+					/>
+				</div>
 			</Card.Content>
 		</Card.Root>
 	</div>
@@ -606,17 +605,20 @@
 				<Card.Description class="text-xs text-zinc-400">Filtered volume and performance by Dota patch.</Card.Description>
 			</Card.Header>
 			<Card.Content class="px-4 pt-3 pb-4">
-				<DashboardSortableTable
-					rows={patchBreakdown.slice(0, 18)}
-					columns={[
-						{ id: 'label', label: 'Patch' },
-						{ id: 'matches', label: 'Matches', align: 'right' },
-						{ id: 'wl', label: 'W/L', minWidth: '7rem' },
-						{ id: 'winRate', label: 'WR', align: 'right' },
-						{ id: 'impact', label: 'Impact', align: 'right' },
-						{ id: 'kda', label: 'KDA', align: 'right' }
-					]}
-				/>
+				<div class="max-h-[30rem] overflow-y-auto pr-1">
+					<DashboardSortableTable
+						rows={patchBreakdown}
+						initialSort={[{ id: 'label', desc: true }]}
+						columns={[
+							{ id: 'label', label: 'Patch' },
+							{ id: 'matches', label: 'Matches', align: 'right' },
+							{ id: 'wl', label: 'W/L', minWidth: '7rem' },
+							{ id: 'winRate', label: 'WR', align: 'right' },
+							{ id: 'impact', label: 'Impact', align: 'right' },
+							{ id: 'kda', label: 'KDA', align: 'right' }
+						]}
+					/>
+				</div>
 			</Card.Content>
 		</Card.Root>
 
