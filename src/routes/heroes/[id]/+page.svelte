@@ -8,7 +8,7 @@
 	import * as Table from '$lib/components/ui/table';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { getGameMode, getLobbyType, getRoleIcon, getRoleName, toTime } from '$lib/functions';
-	import { HelpCircle, VenetianMask } from 'lucide-svelte';
+	import { ArrowLeft, ArrowRight, HelpCircle, VenetianMask } from 'lucide-svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -129,6 +129,29 @@
 	};
 
 	let { data }: Props = $props();
+	const MATCHES_PER_PAGE = 20;
+	let matchPage = $state(1);
+
+	const totalMatchPages = $derived(Math.max(1, Math.ceil(data.matches.length / MATCHES_PER_PAGE)));
+	const paginatedMatches = $derived(
+		data.matches.slice((matchPage - 1) * MATCHES_PER_PAGE, matchPage * MATCHES_PER_PAGE)
+	);
+	const matchPageStart = $derived(
+		data.matches.length === 0 ? 0 : (matchPage - 1) * MATCHES_PER_PAGE + 1
+	);
+	const matchPageEnd = $derived(Math.min(matchPage * MATCHES_PER_PAGE, data.matches.length));
+
+	const incrementMatchPage = () => {
+		if (matchPage < totalMatchPages) {
+			matchPage += 1;
+		}
+	};
+
+	const decrementMatchPage = () => {
+		if (matchPage > 1) {
+			matchPage -= 1;
+		}
+	};
 
 	const formatNumber = (value: number | null | undefined, decimals = 0) =>
 		new Intl.NumberFormat('en-GB', {
@@ -556,7 +579,33 @@
 		</section>
 
 		<section class="rounded-md border border-border bg-card p-4">
-			<h2 class="mb-3 text-base font-semibold text-zinc-100">Matches</h2>
+			<div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					<h2 class="text-base font-semibold text-zinc-100">Matches</h2>
+					<div class="mt-0.5 text-xs text-zinc-400">
+						Showing {matchPageStart}-{matchPageEnd} of {data.matches.length} matches
+					</div>
+				</div>
+				<div class="flex items-center gap-3">
+					<button
+						class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
+						disabled={matchPage === 1}
+						onclick={decrementMatchPage}
+					>
+						<ArrowLeft class="h-4 w-4" />
+					</button>
+					<div class="min-w-16 text-center text-sm tabular-nums text-zinc-300">
+						{matchPage} / {totalMatchPages}
+					</div>
+					<button
+						class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
+						disabled={matchPage === totalMatchPages}
+						onclick={incrementMatchPage}
+					>
+						<ArrowRight class="h-4 w-4" />
+					</button>
+				</div>
+			</div>
 			<div class="overflow-x-auto rounded-md border border-zinc-800/80 bg-zinc-950/35">
 				<Table.Root>
 					<Table.Header class="bg-zinc-950/70">
@@ -574,7 +623,7 @@
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each data.matches as match}
+						{#each paginatedMatches as match}
 							<Table.Row class="relative border-zinc-900 transition-colors hover:bg-zinc-900/70">
 								<Table.Cell class="px-2 py-2 text-xs text-zinc-400">
 									<MatchModal matchId={match.matchId} sequenceNum={match.sequenceNumber ?? undefined}>
@@ -640,6 +689,27 @@
 					</Table.Body>
 				</Table.Root>
 			</div>
+			{#if totalMatchPages > 1}
+				<div class="mt-3 flex items-center justify-center gap-3">
+					<button
+						class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
+						disabled={matchPage === 1}
+						onclick={decrementMatchPage}
+					>
+						<ArrowLeft class="h-4 w-4" />
+					</button>
+					<div class="min-w-16 text-center text-sm tabular-nums text-zinc-300">
+						{matchPage} / {totalMatchPages}
+					</div>
+					<button
+						class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
+						disabled={matchPage === totalMatchPages}
+						onclick={incrementMatchPage}
+					>
+						<ArrowRight class="h-4 w-4" />
+					</button>
+				</div>
+			{/if}
 		</section>
 	{/if}
 </div>
