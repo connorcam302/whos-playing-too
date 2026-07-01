@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { and, desc, eq, gt } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, not, sql } from 'drizzle-orm';
 import { db } from '$lib/server/database';
 import { accounts, heroes, matchData, matches, players } from '$lib/server/schema';
 import { getHeroIdSting } from '$lib/functions';
@@ -9,6 +9,7 @@ import {
 	toAverage,
 	type HeroStatsRow
 } from '$lib/server/heroStats';
+import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
 
 type HeroMatchRow = HeroStatsRow & {
 	matchId: number;
@@ -62,6 +63,11 @@ const getRecord = (
 		match: row
 	};
 };
+
+const visiblePlayerFilter = () =>
+	hiddenFromAggregatePlayerIds.length > 0
+		? not(inArray(players.id, hiddenFromAggregatePlayerIds))
+		: sql`true`;
 
 export const load = async ({ params }) => {
 	const heroId = Number(params.id);
@@ -117,7 +123,7 @@ export const load = async ({ params }) => {
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 		.innerJoin(players, eq(players.id, accounts.owner))
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(and(eq(matchData.heroId, heroId), gt(matches.duration, 900)))
+		.where(and(eq(matchData.heroId, heroId), gt(matches.duration, 900), visiblePlayerFilter()))
 		.orderBy(desc(matches.startTime));
 
 	const playerRankings = getHeroPlayerRankings(rows);

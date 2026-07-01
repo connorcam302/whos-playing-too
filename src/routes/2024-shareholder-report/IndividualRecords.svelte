@@ -4,8 +4,6 @@
 	import IndividualRecord from './IndividualRecord.svelte';
 
 	let { records } = $props();
-
-	console.log(records);
 </script>
 
 <div class="flex flex-col items-center gap-8">

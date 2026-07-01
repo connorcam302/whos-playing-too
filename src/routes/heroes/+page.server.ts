@@ -1,4 +1,4 @@
-import { desc, eq, gt } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, not, sql } from 'drizzle-orm';
 import { db } from '$lib/server/database';
 import { accounts, heroes, matchData, matches, players } from '$lib/server/schema';
 import {
@@ -6,6 +6,7 @@ import {
 	type HeroPlayerRanking,
 	type HeroStatsRow
 } from '$lib/server/heroStats';
+import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
 
 type HeroMatchRow = HeroStatsRow & {
 	heroId: number;
@@ -21,6 +22,11 @@ type HeroSummary = {
 	winRate: number;
 	topPlayers: HeroPlayerRanking[];
 };
+
+const visiblePlayerFilter = () =>
+	hiddenFromAggregatePlayerIds.length > 0
+		? not(inArray(players.id, hiddenFromAggregatePlayerIds))
+		: sql`true`;
 
 export const load = async () => {
 	const heroList = await db
@@ -56,7 +62,7 @@ export const load = async () => {
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 		.innerJoin(players, eq(players.id, accounts.owner))
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(gt(matches.duration, 900))
+		.where(and(gt(matches.duration, 900), visiblePlayerFilter()))
 		.orderBy(desc(matches.startTime));
 
 	const rowsByHero = rows.reduce((map, row) => {

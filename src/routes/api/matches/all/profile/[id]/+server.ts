@@ -185,7 +185,7 @@ const calculateProfileStats = (rows: any[], profilePlayerId: number) => {
 
 export const GET: RequestHandler = async ({ url, params }) => {
 	try {
-		const allPlayers = await getPlayers();
+		const allPlayers = await getPlayers({ includeHiddenFromAggregates: true });
 		const allPlayerIds = allPlayers.map((player) => player.id);
 
 		let playerFilter: number[] = allPlayerIds;
@@ -311,7 +311,9 @@ export const GET: RequestHandler = async ({ url, params }) => {
 		const filteredMatchIds = allMatchedIds.filter((match) => {
 			const outcome = outcomeByMatchId.get(match.id);
 			const isWin = outcome?.team === outcome?.winner;
-			return (isWin && resultFilter.includes('wins')) || (!isWin && resultFilter.includes('losses'));
+			return (
+				(isWin && resultFilter.includes('wins')) || (!isWin && resultFilter.includes('losses'))
+			);
 		});
 		const matchIds = filteredMatchIds.slice(pageNumber * 20, pageNumber * 20 + 20);
 

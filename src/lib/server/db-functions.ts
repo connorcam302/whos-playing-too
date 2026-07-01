@@ -22,7 +22,8 @@ import {
 	avg,
 	inArray,
 	countDistinct,
-	count
+	count,
+	not
 } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getHeroString } from './private-functions';
@@ -32,11 +33,26 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { heroMap } from '$lib/data/heroMap';
 import type { DateRangeBounds } from '$lib/data/dotaPatchRanges';
+import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 type RecordsDateFilter = number | DateRangeBounds;
+
+type GetPlayersOptions = {
+	includeHiddenFromAggregates?: boolean;
+};
+
+const visiblePlayerFilter = () =>
+	hiddenFromAggregatePlayerIds.length > 0
+		? not(inArray(players.id, hiddenFromAggregatePlayerIds))
+		: sql`true`;
+
+const visibleAccountOwnerFilter = () =>
+	hiddenFromAggregatePlayerIds.length > 0
+		? not(inArray(accounts.owner, hiddenFromAggregatePlayerIds))
+		: sql`true`;
 
 const getRecordsDateFilter = (dateFilter: RecordsDateFilter = 31) => {
 	if (typeof dateFilter === 'number') {
@@ -74,7 +90,13 @@ export const getHeroStats = async (
 			})
 			.from(matchData)
 			.innerJoin(matches, eq(matches.id, matchData.matchId))
-			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					visibleAccountOwnerFilter()
+				)
+			)
 			.groupBy(matchData.heroId)
 			.orderBy(matchData.heroId);
 
@@ -85,11 +107,13 @@ export const getHeroStats = async (
 			})
 			.from(matchData)
 			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 			.where(
 				and(
 					eq(matchData.team, 'radiant'),
 					eq(matches.winner, 'radiant'),
-					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					visibleAccountOwnerFilter()
 				)
 			)
 			.groupBy(matchData.heroId)
@@ -102,11 +126,13 @@ export const getHeroStats = async (
 			})
 			.from(matchData)
 			.innerJoin(matches, eq(matches.id, matchData.matchId))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 			.where(
 				and(
 					eq(matchData.team, 'dire'),
 					eq(matches.winner, 'dire'),
-					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					visibleAccountOwnerFilter()
 				)
 			)
 			.groupBy(matchData.heroId)
@@ -119,7 +145,13 @@ export const getHeroStats = async (
 			})
 			.from(matchData)
 			.innerJoin(matches, eq(matches.id, matchData.matchId))
-			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					visibleAccountOwnerFilter()
+				)
+			)
 			.groupBy(matchData.heroId)
 			.orderBy(matchData.heroId);
 
@@ -130,7 +162,13 @@ export const getHeroStats = async (
 			})
 			.from(matchData)
 			.innerJoin(matches, eq(matches.id, matchData.matchId))
-			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					visibleAccountOwnerFilter()
+				)
+			)
 			.groupBy(matchData.heroId)
 			.orderBy(matchData.heroId);
 
@@ -141,7 +179,13 @@ export const getHeroStats = async (
 			})
 			.from(matchData)
 			.innerJoin(matches, eq(matches.id, matchData.matchId))
-			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					visibleAccountOwnerFilter()
+				)
+			)
 			.groupBy(matchData.heroId)
 			.orderBy(matchData.heroId);
 
@@ -152,7 +196,13 @@ export const getHeroStats = async (
 			})
 			.from(matchData)
 			.innerJoin(matches, eq(matches.id, matchData.matchId))
-			.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+			.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+			.where(
+				and(
+					gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+					visibleAccountOwnerFilter()
+				)
+			)
 			.groupBy(matchData.heroId)
 			.orderBy(matchData.heroId);
 	} else {
@@ -405,9 +455,10 @@ export const getRecentHeroPoolStats = async (player: number, limit: number = 50)
 			avgDeaths: Math.round(bucket.deathsTotal / bucket.matches),
 			avgAssists: Math.round(bucket.assistsTotal / bucket.matches),
 			latestStartTime: bucket.latestStartTime,
-			role: bucket.roleCounts.size > 0
-				? [...bucket.roleCounts.entries()].sort((a, b) => b[1] - a[1])[0][0]
-				: 0
+			role:
+				bucket.roleCounts.size > 0
+					? [...bucket.roleCounts.entries()].sort((a, b) => b[1] - a[1])[0][0]
+					: 0
 		}))
 		.sort((a, b) => b.matches - a.matches);
 };
@@ -425,7 +476,9 @@ export const getAllPlayerStats = async (
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 		.innerJoin(players, eq(accounts.owner, players.id))
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+		.where(
+			and(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset), visiblePlayerFilter())
+		)
 		.groupBy(players.id)
 		.orderBy(players.id);
 
@@ -443,7 +496,8 @@ export const getAllPlayerStats = async (
 			and(
 				eq(matchData.team, 'radiant'),
 				eq(matches.winner, 'radiant'),
-				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+				visiblePlayerFilter()
 			)
 		)
 		.groupBy(players.id)
@@ -463,7 +517,8 @@ export const getAllPlayerStats = async (
 			and(
 				eq(matchData.team, 'dire'),
 				eq(matches.winner, 'dire'),
-				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset)
+				gte(matches.startTime, Math.floor(Date.now() / 1000) - offset),
+				visiblePlayerFilter()
 			)
 		)
 		.groupBy(players.id)
@@ -479,7 +534,9 @@ export const getAllPlayerStats = async (
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
 		.innerJoin(players, eq(accounts.owner, players.id))
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
-		.where(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset))
+		.where(
+			and(gte(matches.startTime, Math.floor(Date.now() / 1000) - offset), visiblePlayerFilter())
+		)
 		.groupBy(players.id)
 		.orderBy(players.id);
 
@@ -511,7 +568,7 @@ export const getAllPlayerStats = async (
 	return sortedHeroData;
 };
 
-export const getPlayers = async () => {
+export const getPlayers = async (options: GetPlayersOptions = {}) => {
 	const playerList = await db
 		.select({
 			id: players.id,
@@ -520,6 +577,7 @@ export const getPlayers = async () => {
 		})
 		.from(players)
 		.innerJoin(accounts, eq(players.id, accounts.owner))
+		.where(options.includeHiddenFromAggregates ? sql`true` : visiblePlayerFilter())
 		.orderBy(players.username)
 		.groupBy(players.id);
 
@@ -636,7 +694,9 @@ export const getTeamOfTheWeek = async () => {
 		}
 	];
 
-	return totwWithIds;
+	return totwWithIds.filter(
+		(feature) => !hiddenFromAggregatePlayerIds.includes(Number(feature.player.id))
+	);
 };
 
 export const getFlopOfTheWeek = async () => {
@@ -744,7 +804,9 @@ export const getFlopOfTheWeek = async () => {
 		}
 	];
 
-	return fotwWithIds;
+	return fotwWithIds.filter(
+		(feature) => !hiddenFromAggregatePlayerIds.includes(Number(feature.player.id))
+	);
 };
 
 export const getFeatures = async () => {
@@ -767,7 +829,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(desc(matchData.kills))
 		.limit(3);
@@ -790,7 +856,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(desc(matchData.deaths))
 		.limit(3);
@@ -813,7 +883,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(desc(matchData.assists))
 		.limit(3);
@@ -836,7 +910,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(desc(matchData.goldPerMin))
 		.limit(3);
@@ -859,7 +937,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(desc(matchData.xpPerMin))
 		.limit(3);
@@ -882,7 +964,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(desc(matchData.impact))
 		.limit(3);
@@ -905,7 +991,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(matchData.impact)
 		.limit(3);
@@ -929,7 +1019,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(desc(matchData.lastHits))
 		.limit(3);
@@ -952,7 +1046,11 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(desc(matchData.heroDamage))
 		.limit(3);
@@ -976,12 +1074,16 @@ export const getFeatures = async () => {
 		.innerJoin(matches, eq(matches.id, matchData.matchId))
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(
-			and(eq(accounts.smurf, false), gte(matches.startTime, dayjs().subtract(7, 'day').unix()))
+			and(
+				eq(accounts.smurf, false),
+				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
+				visiblePlayerFilter()
+			)
 		)
 		.orderBy(matchData.heroDamage)
 		.limit(3);
 
-	const playerList = await db.select().from(players);
+	const playerList = await db.select().from(players).where(visiblePlayerFilter());
 	const playerWins = await db
 		.select({
 			id: players.id,
@@ -1000,7 +1102,8 @@ export const getFeatures = async () => {
 				),
 				eq(matches.lobby, 7),
 				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
-				eq(accounts.smurf, false)
+				eq(accounts.smurf, false),
+				visiblePlayerFilter()
 			)
 		)
 		.groupBy(players.id)
@@ -1024,7 +1127,8 @@ export const getFeatures = async () => {
 				),
 				gte(matches.startTime, dayjs().subtract(7, 'day').unix()),
 				eq(matches.lobby, 7),
-				eq(accounts.smurf, false)
+				eq(accounts.smurf, false),
+				visiblePlayerFilter()
 			)
 		)
 		.groupBy(players.id)
@@ -1427,6 +1531,7 @@ export const getMostKills = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900)
 			)
 		)
@@ -1492,6 +1597,7 @@ export const getMostDeaths = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 
 				gt(matches.duration, 900)
 			)
@@ -1558,6 +1664,7 @@ export const getMostAssists = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900)
 			)
 		)
@@ -1624,6 +1731,7 @@ export const getHighestImpact = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900)
 			)
 		)
@@ -1690,6 +1798,7 @@ export const getLowestImpact = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900)
 			)
 		)
@@ -1756,6 +1865,7 @@ export const getMostGPM = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900)
 			)
 		)
@@ -1821,6 +1931,7 @@ export const getMostXPM = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900)
 			)
 		)
@@ -1887,6 +1998,7 @@ export const getMostLastHits = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900)
 			)
 		)
@@ -1953,6 +2065,7 @@ export const getMostHeroDamage = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900),
 				gt(matchData.heroDamage, 0)
 			)
@@ -2020,6 +2133,7 @@ export const getLeastHeroDamage = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 				gt(matches.duration, 900)
 			)
 		)
@@ -2085,6 +2199,7 @@ export const getMostBuildingDamage = async (
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.heroId, heroFilter),
 				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
 
 				gt(matches.duration, 900),
 				gt(matchData.towerDamage, 0)
@@ -2415,7 +2530,8 @@ export const getTOTWCounts = async () => {
 			id: players.id,
 			username: players.username
 		})
-		.from(players);
+		.from(players)
+		.where(visiblePlayerFilter());
 
 	const totwCounts = playerList.map((player) => {
 		const one = oneCount.find((p) => p.player.id === player.id);

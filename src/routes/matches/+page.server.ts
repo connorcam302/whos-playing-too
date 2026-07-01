@@ -2,7 +2,7 @@ import { getHeroStats, getAllPlayerStats, getPlayers } from '$lib/server/db-func
 import dayjs from 'dayjs';
 
 export const load = async ({ url, params }) => {
-	const playerList = await getPlayers();
+	const playerList = await getPlayers({ includeHiddenFromAggregates: true });
 	const heroJson = await fetch(
 		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
 	);

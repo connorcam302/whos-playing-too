@@ -3,7 +3,7 @@ import { db } from '$lib/server/database';
 import { heroes } from '$lib/server/schema';
 
 export const load = async ({ url }) => {
-	const playerList = await getPlayers();
+	const playerList = await getPlayers({ includeHiddenFromAggregates: true });
 	const heroList = await db
 		.select({
 			id: heroes.id,

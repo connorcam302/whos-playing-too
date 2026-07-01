@@ -771,9 +771,9 @@
 						</div>
 					{:else}
 						<div class="flex flex-col gap-2">
-							<div class="mx-auto flex w-full max-w-4xl flex-col items-center gap-2 py-2">
+							<div class="mx-auto flex w-full max-w-4xl flex-col items-stretch gap-2 py-2">
 								{#each matchBlocks.slice(0, 20) as match}
-									<Card.Root class="overflow-hidden w-full max-w-[420px] lg:max-w-[760px]">
+									<Card.Root class="overflow-hidden max-w-105 lg:max-w-190">
 										<Card.Content class="p-0 ">
 											<MatchDropdown {match} />
 										</Card.Content>

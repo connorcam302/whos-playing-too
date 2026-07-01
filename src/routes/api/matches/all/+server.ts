@@ -37,7 +37,7 @@ type MatchData = {
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
 
 export const GET: RequestHandler = async ({ url, params }) => {
-	const allPlayers = await getPlayers();
+	const allPlayers = await getPlayers({ includeHiddenFromAggregates: true });
 	const allPlayerIds = allPlayers.map((player) => player.id);
 	let playerFilter: number[] = allPlayerIds;
 	if (url.searchParams.has('players')) {
