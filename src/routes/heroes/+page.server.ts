@@ -6,10 +6,12 @@ import {
 	type HeroPlayerRanking,
 	type HeroStatsRow
 } from '$lib/server/heroStats';
+import { getHeroOwnershipChanges, type OwnershipChange } from '$lib/server/heroOwnershipChanges';
 import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
 
 type HeroMatchRow = HeroStatsRow & {
 	heroId: number;
+	matchId: number;
 };
 
 type HeroSummary = {
@@ -40,6 +42,7 @@ export const load = async () => {
 	const rows: HeroMatchRow[] = await db
 		.select({
 			heroId: matchData.heroId,
+			matchId: matches.id,
 			playerId: players.id,
 			username: players.username,
 			smurf: accounts.smurf,
@@ -71,6 +74,7 @@ export const load = async () => {
 		map.set(row.heroId, current);
 		return map;
 	}, new Map<number, HeroMatchRow[]>());
+	const ownershipChanges: OwnershipChange[] = await getHeroOwnershipChanges();
 
 	const heroSummaries: HeroSummary[] = heroList
 		.map((hero) => {
@@ -96,6 +100,7 @@ export const load = async () => {
 
 	return {
 		heroes: heroSummaries,
+		ownershipChanges,
 		totalMatches: rows.length,
 		trackedHeroes: heroSummaries.filter((hero) => hero.matches > 0).length
 	};

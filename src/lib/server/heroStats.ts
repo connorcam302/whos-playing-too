@@ -67,6 +67,8 @@ type PlayerBucket = {
 	lastPlayed: number;
 };
 
+export const HERO_CALIBRATION_MATCHES = 10;
+
 export const toAverage = (value: number, count: number) => (count > 0 ? value / count : 0);
 
 export const getKda = (kills: number, deaths: number, assists: number) =>
@@ -79,8 +81,7 @@ export const getVolumeScore = (matches: number) =>
 	Math.min(100, (Math.log(matches + 1) / Math.log(101)) * 100);
 
 export const getScoreBand = (matches: number) => {
-	if (matches < 3) return 'Low sample';
-	if (matches < 6) return 'Developing';
+	if (matches < HERO_CALIBRATION_MATCHES) return 'Uncalibrated';
 	return 'Proven';
 };
 
@@ -158,6 +159,7 @@ export const getHeroPlayerRankings = (rows: HeroStatsRow[]): HeroPlayerRanking[]
 	}
 
 	return Array.from(buckets.values())
+		.filter((bucket) => bucket.matches >= HERO_CALIBRATION_MATCHES)
 		.map((bucket) => {
 			const score = getPlayerScore(bucket);
 			const wins = bucket.wins;

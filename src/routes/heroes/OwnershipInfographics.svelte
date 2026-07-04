@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { Shuffle, TrendingDown, Trophy } from 'lucide-svelte';
 
 	type TopPlayer = {
 		playerId: number;
@@ -18,6 +19,17 @@
 		img: string;
 		topPlayers: TopPlayer[];
 	};
+
+	type OwnershipChange = {
+		hero: {
+			id: number;
+			name: string;
+			img: string;
+		};
+		changeType: 'changed' | 'new';
+	};
+
+	type OwnershipMode = 'best' | 'worst';
 
 	type OwnedHero = {
 		id: number;
@@ -49,9 +61,11 @@
 
 	type Props = {
 		heroes: HeroSummary[];
+		ownershipChanges?: OwnershipChange[];
 	};
 
-	const { heroes }: Props = $props();
+	const { heroes, ownershipChanges = [] }: Props = $props();
+	let ownershipMode = $state<OwnershipMode>('best');
 
 	const palette = [
 		'#34a85a',
@@ -70,12 +84,27 @@
 	const stageWidth = 1000;
 	const stageHeight = 520;
 	const territoryGap = 5;
+	const ownershipModes: { id: OwnershipMode; label: string }[] = [
+		{ id: 'best', label: 'Best' },
+		{ id: 'worst', label: 'Worst' }
+	];
+
+	const getHeroOwner = (hero: HeroSummary) => {
+		if (ownershipMode === 'worst') return hero.topPlayers[hero.topPlayers.length - 1];
+		return hero.topPlayers[0];
+	};
+
+	const getModeButtonClass = (mode: OwnershipMode) =>
+		[
+			'inline-flex h-7 items-center gap-1.5 rounded-sm px-2.5 text-xs font-medium transition-colors',
+			ownershipMode === mode ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'
+		].join(' ');
 
 	const ownedPlayers = $derived.by(() => {
 		const playerMap = new Map<number, Omit<OwnershipPlayer, 'count' | 'color'>>();
 
 		for (const hero of heroes) {
-			const owner = hero.topPlayers[0];
+			const owner = getHeroOwner(hero);
 			if (!owner) continue;
 
 			const current = playerMap.get(owner.playerId) ?? {
@@ -100,7 +129,9 @@
 				...player,
 				count: player.heroes.length,
 				color: palette[index % palette.length],
-				heroes: player.heroes.sort((a, b) => b.score - a.score)
+				heroes: player.heroes.sort((a, b) =>
+					ownershipMode === 'worst' ? a.score - b.score : b.score - a.score
+				)
 			}))
 			.sort((a, b) => {
 				if (b.count !== a.count) return b.count - a.count;
@@ -108,10 +139,15 @@
 			});
 	});
 
-	const totalOwnedHeroes = $derived(
-		ownedPlayers.reduce((total, player) => total + player.count, 0)
-	);
-	const topOwner = $derived(ownedPlayers[0]);
+	const recentlyChangedHeroIds = $derived(new Set(ownershipChanges.map((change) => change.hero.id)));
+	const modeCopy = $derived({
+		eyebrow: ownershipMode === 'worst' ? 'Weakness Infographic' : 'Ownership Infographic',
+		title: ownershipMode === 'worst' ? 'Who Struggles With The Hero Pool?' : 'Who Owns The Hero Pool?',
+		description:
+			ownershipMode === 'worst'
+				? 'Area shows how many heroes each player is currently worst calibrated on.'
+				: 'Area shows how many heroes each player owns.'
+	});
 
 	const getWorstAspect = (row: LayoutItem[], side: number) => {
 		if (row.length === 0) return Number.POSITIVE_INFINITY;
@@ -270,30 +306,34 @@
 <section class="rounded-md border border-border bg-card p-4">
 	<div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
 		<div>
-			<div class="text-sm text-zinc-400">Ownership Infographic</div>
+			<div class="text-sm text-zinc-400">{modeCopy.eyebrow}</div>
 			<h2 class="mt-1 text-xl font-semibold tracking-normal text-zinc-100">
-				Who Owns The Hero Pool?
+				{modeCopy.title}
 			</h2>
 		</div>
-		<div class="flex flex-wrap gap-2 text-xs text-zinc-400">
-			<span class="rounded-sm border border-zinc-700 bg-zinc-950/40 px-2 py-1">
-				{ownedPlayers.length} owners
-			</span>
-			<span class="rounded-sm border border-zinc-700 bg-zinc-950/40 px-2 py-1">
-				{totalOwnedHeroes} assigned heroes
-			</span>
-			{#if topOwner}
-				<span class="rounded-sm border border-zinc-700 bg-zinc-950/40 px-2 py-1">
-					Most owned: {topOwner.username}, {topOwner.count}
-				</span>
-			{/if}
+		<div class="inline-flex rounded-md border border-zinc-800 bg-zinc-950/50 p-0.5">
+			{#each ownershipModes as mode}
+				<button
+					class={getModeButtonClass(mode.id)}
+					type="button"
+					aria-pressed={ownershipMode === mode.id}
+					onclick={() => (ownershipMode = mode.id)}
+				>
+					{#if mode.id === 'best'}
+						<Trophy class="h-3.5 w-3.5" />
+					{:else}
+						<TrendingDown class="h-3.5 w-3.5" />
+					{/if}
+					{mode.label}
+				</button>
+			{/each}
 		</div>
 	</div>
 
 	<article class="overflow-hidden rounded-md border border-zinc-800 bg-zinc-950/35">
 		<div class="border-b border-zinc-800 px-3 py-2">
 			<h3 class="text-sm font-semibold text-zinc-100">Treemap Territories</h3>
-			<p class="mt-0.5 text-xs text-zinc-500">Area shows how many heroes each player owns.</p>
+			<p class="mt-0.5 text-xs text-zinc-500">{modeCopy.description}</p>
 		</div>
 		<div class="ownership-stage">
 			{#each treemapRects as rect}
@@ -313,10 +353,18 @@
 							class="absolute overflow-hidden rounded-sm border border-zinc-950/70 bg-zinc-900 transition-transform hover:z-20 hover:scale-105 focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							style={getHeroStyle(rect, index)}
 							onclick={() => handleHeroClick(hero.id)}
-							title={`${hero.name}: ${rect.username}, score ${hero.score}`}
+							title={`${hero.name}: ${rect.username}, score ${hero.score}${recentlyChangedHeroIds.has(hero.id) ? ' · recently changed owner' : ''}`}
 							aria-label={`${hero.name}, owned by ${rect.username}`}
 						>
 							<img src={hero.img} alt="" class="h-full w-full object-cover" />
+							{#if recentlyChangedHeroIds.has(hero.id)}
+								<span
+									class="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-sm border border-sky-300/70 bg-sky-950/90 text-sky-200 shadow-sm shadow-black/40"
+									aria-hidden="true"
+								>
+									<Shuffle class="h-2.5 w-2.5" />
+								</span>
+							{/if}
 						</button>
 					{/each}
 				</div>

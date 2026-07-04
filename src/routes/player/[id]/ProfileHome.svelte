@@ -41,7 +41,7 @@
 	import { browser } from '$app/environment';
 	import Bar from '$lib/components/stats/Bar.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import * as HoverCard from '$lib/components/ui/hover-card';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import dayjs from 'dayjs';
 	import advancedFormat from 'dayjs/plugin/advancedFormat';
 	import RoleDoughnut from '$lib/components/stats/RoleDoughnut.svelte';
@@ -187,28 +187,28 @@
 						</div>
 					</Card.Content>
 					<Card.Footer>
-						<div class="flex h-3 w-full items-center gap-1">
+						<div class="flex h-4 w-full items-center gap-1.5">
 							{#each matchBlocks.slice(0, 12) as match}
 								{#if match.matchData.winner === match.player.team}
-									<HoverCard.Root>
-										<HoverCard.Trigger>
-											<div class="h-3 w-3 rounded-sm bg-green-400 hover:bg-green-600"></div>
-										</HoverCard.Trigger>
-										<HoverCard.Content class="w-fit"
-											><div class="w-full"><MatchBlock {match} /></div></HoverCard.Content
-										>
-									</HoverCard.Root>
+									<Tooltip.Root>
+										<Tooltip.Trigger>
+											<div class="h-4 w-4 rounded-sm bg-green-400 hover:bg-green-600"></div>
+										</Tooltip.Trigger>
+										<Tooltip.Content class="w-fit">
+											<div class="w-full"><MatchBlock {match} /></div>
+										</Tooltip.Content>
+									</Tooltip.Root>
 								{:else}
-									<HoverCard.Root>
-										<HoverCard.Trigger>
-											<div class="h-3 w-3 rounded-sm bg-red-500 hover:bg-red-600"></div>
-										</HoverCard.Trigger>
-										<HoverCard.Content class="w-fit p-0"
-											><div class="object-fit w-full">
+									<Tooltip.Root>
+										<Tooltip.Trigger>
+											<div class="h-4 w-4 rounded-sm bg-red-500 hover:bg-red-600"></div>
+										</Tooltip.Trigger>
+										<Tooltip.Content class="w-fit p-0">
+											<div class="object-fit w-full">
 												<MatchBlock {match} />
-											</div></HoverCard.Content
-										>
-									</HoverCard.Root>
+											</div>
+										</Tooltip.Content>
+									</Tooltip.Root>
 								{/if}
 							{/each}
 						</div>
@@ -227,33 +227,33 @@
 						</div>
 					</Card.Content>
 					<Card.Footer>
-						<div class="flex h-3 w-full items-center gap-1 overflow-hidden">
+						<div class="flex h-4 w-full items-center gap-1.5 overflow-hidden">
 							{#each matchesByDay as day}
-								<HoverCard.Root>
-									<HoverCard.Trigger>
+								<Tooltip.Root>
+									<Tooltip.Trigger>
 										{#if day.wins === 0 && day.losses === 0}
-											<div class="h-3 w-3 rounded-sm bg-zinc-400 hover:bg-zinc-600"></div>
+											<div class="h-4 w-4 rounded-sm bg-zinc-400 hover:bg-zinc-600"></div>
 										{:else if day.wins === day.losses}
-											<div class="h-3 w-3 rounded-sm bg-amber-400 hover:bg-amber-600"></div>
+											<div class="h-4 w-4 rounded-sm bg-amber-400 hover:bg-amber-600"></div>
 										{:else if day.wins > day.losses}
 											{#if day.wins > day.losses + 3}
 												<div
-													class="h-3 w-3 animate-pulse rounded-sm bg-green-300 hover:bg-green-300/70"
+													class="h-4 w-4 animate-pulse rounded-sm bg-green-300 hover:bg-green-300/70"
 												></div>
 											{:else}
-												<div class="h-3 w-3 rounded-sm bg-green-600 hover:bg-green-600/70"></div>
+												<div class="h-4 w-4 rounded-sm bg-green-600 hover:bg-green-600/70"></div>
 											{/if}
 										{:else if day.wins < day.losses}
 											{#if day.wins + 3 > day.losses}
-												<div class="h-3 w-3 rounded-sm bg-red-500 hover:bg-red-500/70"></div>
+												<div class="h-4 w-4 rounded-sm bg-red-500 hover:bg-red-500/70"></div>
 											{:else}
 												<div
-													class=" h-3 w-3 animate-pulse rounded-sm bg-red-600 hover:bg-red-600/70"
+													class=" h-4 w-4 animate-pulse rounded-sm bg-red-600 hover:bg-red-600/70"
 												></div>
 											{/if}
 										{/if}
-									</HoverCard.Trigger>
-									<HoverCard.Content class="p-0">
+									</Tooltip.Trigger>
+									<Tooltip.Content class="p-0">
 										<Card.Root class="flex-1 border-0">
 											<Card.Header>
 												<Card.Title class="text-sm"
@@ -268,8 +268,8 @@
 												</div>
 											</Card.Content>
 										</Card.Root>
-									</HoverCard.Content>
-								</HoverCard.Root>
+									</Tooltip.Content>
+								</Tooltip.Root>
 							{/each}
 						</div>
 					</Card.Footer>

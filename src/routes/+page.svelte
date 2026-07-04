@@ -9,10 +9,11 @@
 	import TeamOfTheWeek from '$lib/components/otw/TeamOfTheWeek.svelte';
 	import FlopOfTheWeek from '$lib/components/otw/FlopOfTheWeek.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import OwnershipChanges from './heroes/OwnershipChanges.svelte';
 
 	let { data } = $props();
 
-	const { heroStats, playerStats, totw, features, fotw } = data;
+	const { heroStats, playerStats, totw, features, fotw, ownershipChanges } = data;
 	let matchBlocks: any[] = $state([]);
 
 	onMount(() => {
@@ -78,6 +79,12 @@
 
 	<!-- Main Content -->
 	<div class="mx-auto w-full max-w-7xl px-4">
+		{#if ownershipChanges.length > 0}
+			<section class="mt-10">
+				<OwnershipChanges changes={ownershipChanges} />
+			</section>
+		{/if}
+
 		<!-- 7-Day Records -->
 		<section class="mt-10 mb-8">
 			<div class="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-400">

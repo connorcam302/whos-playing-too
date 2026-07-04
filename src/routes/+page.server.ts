@@ -8,6 +8,7 @@ import {
 	getPlayer,
 	getFlopOfTheWeek
 } from '$lib/server/db-functions';
+import { getHeroOwnershipChanges } from '$lib/server/heroOwnershipChanges';
 
 /*const toSteam32 = (steam64: string) => {
 	return (BigInt(steam64.toString()) - BigInt('76561197960265728')).toString();
@@ -34,6 +35,7 @@ export const load = async ({ url, params }) => {
 	const totw = await getTeamOfTheWeek();
 	const fotw = await getFlopOfTheWeek();
 	const features = getFeatures();
+	const ownershipChanges = await getHeroOwnershipChanges();
 
-	return { heroStats, playerStats, totw, features, fotw };
+	return { heroStats, playerStats, totw, features, fotw, ownershipChanges };
 };

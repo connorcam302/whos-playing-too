@@ -28,6 +28,7 @@
 		{ link: '/heroes', title: 'Heroes' },
 		{ link: '/records', title: 'Records' },
 		{ link: '/stats', title: 'Stats' },
+		{ link: '/stack-analysis', title: 'Stacks' },
 		{ link: '/comparison', title: 'Comparison' }
 	];
 

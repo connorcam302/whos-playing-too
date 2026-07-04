@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { calcImpact, getImpactDetails, roleDistribution, getRoleName } from '$lib/functions';
-	import * as HoverCard from '$lib/components/ui/hover-card';
+	import * as Tooltip from '$lib/components/ui/tooltip';
 	import * as Table from '$lib/components/ui/table';
 	import PooIcon from '$lib/components/PooIcon.svelte';
 	import { twMerge } from 'tailwind-merge'; // Optional: avoids class conflicts
@@ -60,8 +60,8 @@
 	));
 </script>
 
-<HoverCard.Root>
-	<HoverCard.Trigger>
+<Tooltip.Root>
+	<Tooltip.Trigger>
 		{#if isPoo}
 			<div class="flex w-8 justify-center md:w-12">
 				<div class="text-xl">
@@ -76,8 +76,8 @@
 				<span class="z--10 relative text-xs md:text-base">{impactRating}</span>
 			</div>
 		{/if}
-	</HoverCard.Trigger>
-	<HoverCard.Content class="w-96">
+	</Tooltip.Trigger>
+	<Tooltip.Content class="w-96">
 		<div class="text-center">Rating: {player.impact}</div>
 		<Table.Root>
 			<Table.Caption>
@@ -135,5 +135,5 @@
 				</Table.Row>
 			</Table.Body>
 		</Table.Root>
-	</HoverCard.Content>
-</HoverCard.Root>
+	</Tooltip.Content>
+</Tooltip.Root>

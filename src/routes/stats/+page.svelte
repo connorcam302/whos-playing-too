@@ -3,6 +3,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import DashboardSortableTable from '$lib/components/stats/DashboardSortableTable.svelte';
+	import StackChemistryMatrix from './StackChemistryMatrix.svelte';
 	import { Toggle } from '$lib/components/ui/toggle/index.js';
 	import { getRoleIcon, getRoleName } from '$lib/functions';
 	import {
@@ -92,33 +93,49 @@
 		if (!preset?.amount || !preset.unit) return null;
 		return dayjs().subtract(preset.amount, preset.unit).startOf('day').unix();
 	});
-	let filteredRows = $derived(
-		data.rows.filter((row) => {
-			const rowWon = row.team === row.winner;
-			const matchesPlayer =
-				selectedPlayerIds.length === 0 || selectedPlayerIds.includes(row.playerId.toString());
-			const matchesHero = selectedHeroIds.length === 0 || selectedHeroIds.includes(row.heroId.toString());
-			const matchesRole = selectedRoles.length === 0 || selectedRoles.includes(row.role.toString());
-			const matchesLobby =
-				(ranked && row.lobby === 7 && row.gameMode === 22) ||
-				(unranked && row.lobby === 0 && row.gameMode === 22) ||
-				(other && !(row.lobby === 7 && row.gameMode === 22) && !(row.lobby === 0 && row.gameMode === 22));
-			const matchesResult = (wins && rowWon) || (losses && !rowWon);
-			const matchesSmurf = smurfs || !row.smurf;
-			const matchesDate = selectedPatchVersion
-				? getDotaPatchForTimestamp(row.startTime)?.version === selectedPatchVersion
-				: dateStart === null || row.startTime >= dateStart;
-			return (
-				matchesPlayer &&
-				matchesHero &&
-				matchesRole &&
-				matchesLobby &&
-				matchesResult &&
-				matchesSmurf &&
-				matchesDate
-			);
-		})
-	);
+	const matchesSelectedPlayers = (row: StatRow) =>
+		selectedPlayerIds.length === 0 || selectedPlayerIds.includes(row.playerId.toString());
+	const matchesSelectedHeroes = (row: StatRow) =>
+		selectedHeroIds.length === 0 || selectedHeroIds.includes(row.heroId.toString());
+	const matchesSelectedRoles = (row: StatRow) =>
+		selectedRoles.length === 0 || selectedRoles.includes(row.role.toString());
+	const matchesContextFilters = (row: StatRow) => {
+		const rowWon = row.team === row.winner;
+		const matchesLobby =
+			(ranked && row.lobby === 7 && row.gameMode === 22) ||
+			(unranked && row.lobby === 0 && row.gameMode === 22) ||
+			(other && !(row.lobby === 7 && row.gameMode === 22) && !(row.lobby === 0 && row.gameMode === 22));
+		const matchesResult = (wins && rowWon) || (losses && !rowWon);
+		const matchesSmurf = smurfs || !row.smurf;
+		const matchesDate = selectedPatchVersion
+			? getDotaPatchForTimestamp(row.startTime)?.version === selectedPatchVersion
+			: dateStart === null || row.startTime >= dateStart;
+		return matchesLobby && matchesResult && matchesSmurf && matchesDate;
+	};
+	const matchesAllFilters = (row: StatRow) =>
+		matchesSelectedPlayers(row) &&
+		matchesSelectedHeroes(row) &&
+		matchesSelectedRoles(row) &&
+		matchesContextFilters(row);
+	const getSideKey = (row: StatRow) => `${row.matchId}:${row.team}`;
+	let filteredRows = $derived(data.rows.filter(matchesAllFilters));
+	const chemistryRows = $derived.by(() => {
+		const contextRows = data.rows.filter(matchesContextFilters);
+		const hasAnchorFilters =
+			selectedPlayerIds.length > 0 || selectedHeroIds.length > 0 || selectedRoles.length < 5;
+		if (!hasAnchorFilters) return contextRows;
+
+		const eligibleSides = new Set(
+			contextRows
+				.filter(
+					(row) =>
+						matchesSelectedPlayers(row) && matchesSelectedHeroes(row) && matchesSelectedRoles(row)
+				)
+				.map(getSideKey)
+		);
+
+		return contextRows.filter((row) => eligibleSides.has(getSideKey(row)));
+	});
 	const average = (rows: StatRow[], getter: (row: StatRow) => number | null) => {
 		const values = rows.map(getter).filter((value): value is number => value !== null);
 		return values.length > 0 ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
@@ -483,6 +500,16 @@
 			</Card.Content>
 		</Card.Root>
 	</div>
+
+	<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+		<Card.Header class="px-4 pt-4 pb-0">
+			<Card.Title class="text-base">Stack Chemistry</Card.Title>
+			<Card.Description class="text-xs text-zinc-400">Pairwise teammate results across the current filters.</Card.Description>
+		</Card.Header>
+		<Card.Content class="min-w-0 px-4 pt-3 pb-4">
+			<StackChemistryMatrix rows={chemistryRows} playerList={data.playerList} />
+		</Card.Content>
+	</Card.Root>
 
 	<div class="grid gap-4 xl:grid-cols-2">
 		<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">

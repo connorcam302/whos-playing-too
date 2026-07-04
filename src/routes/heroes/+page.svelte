@@ -9,9 +9,9 @@
 	import { FlexRender, createSvelteTable } from '$lib/components/ui/data-table/index.js';
 	import * as Table from '$lib/components/ui/table';
 	import * as Tooltip from '$lib/components/ui/tooltip';
-	import { getRoleIcon, getRoleName } from '$lib/functions';
 	import { ArrowUpDown, ChevronDown, ChevronRight, Search } from 'lucide-svelte';
 	import OwnershipInfographics from './OwnershipInfographics.svelte';
+	import OwnershipChanges from './OwnershipChanges.svelte';
 
 	type TopPlayer = {
 		playerId: number;
@@ -42,9 +42,21 @@
 		topPlayers: TopPlayer[];
 	};
 
+	type OwnershipChange = {
+		hero: {
+			id: number;
+			name: string;
+			img: string;
+		};
+		previousOwner: TopPlayer | null;
+		currentOwner: TopPlayer | null;
+		changeType: 'changed' | 'new';
+	};
+
 	type Props = {
 		data: {
 			heroes: HeroSummary[];
+			ownershipChanges: OwnershipChange[];
 			totalMatches: number;
 			trackedHeroes: number;
 		};
@@ -165,30 +177,33 @@
 					</span>
 					{#if topHero?.topPlayers[0]}
 						<span class="rounded-sm border border-zinc-700 bg-zinc-950/40 px-2 py-1">
-							Top score: {topHero.topPlayers[0].username} on {topHero.name}, {topHero.topPlayers[0].score}
+							Top calibrated score: {topHero.topPlayers[0].username} on {topHero.name}, {topHero.topPlayers[0].score}
 						</span>
 					{/if}
 				</div>
 			</div>
-
-			<label class="relative block w-full max-w-sm">
-				<span class="sr-only">Search heroes</span>
-				<Search class="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
-				<input
-					bind:value={searchValue}
-					placeholder="Search heroes..."
-					class="h-9 w-full rounded-md border border-zinc-700/50 bg-zinc-950 pl-8 pr-3 text-sm text-zinc-200 placeholder-zinc-500 outline-none transition-colors focus:border-zinc-600 focus:bg-zinc-900"
-				/>
-			</label>
 		</div>
 	</section>
 
-	<OwnershipInfographics heroes={data.heroes} />
+	<OwnershipChanges changes={data.ownershipChanges} />
+
+	<OwnershipInfographics heroes={data.heroes} ownershipChanges={data.ownershipChanges} />
 
 	<section class="rounded-md border border-border bg-card p-4">
-		<div class="mb-3 flex items-center justify-between gap-3">
+		<div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 			<h2 class="text-base font-semibold text-zinc-100">Heroes</h2>
-			<div class="text-xs text-zinc-500">{filteredHeroes.length} shown</div>
+			<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+				<label class="relative block w-full sm:w-64">
+					<span class="sr-only">Search heroes</span>
+					<Search class="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
+					<input
+						bind:value={searchValue}
+						placeholder="Search heroes..."
+						class="h-9 w-full rounded-md border border-zinc-700/50 bg-zinc-950 pl-8 pr-3 text-sm text-zinc-200 placeholder-zinc-500 outline-none transition-colors focus:border-zinc-600 focus:bg-zinc-900"
+					/>
+				</label>
+				<div class="text-xs text-zinc-500">{filteredHeroes.length} shown</div>
+			</div>
 		</div>
 
 		<div class="overflow-x-auto rounded-md border border-zinc-800/80 bg-zinc-950/35">
@@ -256,7 +271,7 @@
 										<span class="truncate">{bestPlayer.username}</span>
 									</button>
 								{:else}
-									<span class="text-sm text-zinc-500">No matches</span>
+									<span class="text-sm text-zinc-500">Uncalibrated</span>
 								{/if}
 							</Table.Cell>
 							<Table.Cell class="px-2 py-2 text-right tabular-nums">

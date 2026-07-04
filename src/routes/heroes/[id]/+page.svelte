@@ -248,17 +248,17 @@
 				<div class="rounded-md border border-zinc-800 bg-zinc-950/35 p-3">
 					<div class="text-xs font-medium text-zinc-400">Best Player</div>
 					<div class="mt-1 truncate text-lg font-semibold text-zinc-100">
-						{data.summary.bestPlayer?.username ?? 'No matches'}
+						{data.summary.bestPlayer?.username ?? 'Uncalibrated'}
 					</div>
 					<div class="mt-1 flex items-center gap-2 text-xs text-zinc-400">
-						<span>{data.summary.bestPlayer?.score ?? 0} score</span>
+						<span>{data.summary.bestPlayer ? `${data.summary.bestPlayer.score} score` : 'Needs 10 games'}</span>
 						<Tooltip.Root>
 							<Tooltip.Trigger class="inline-flex text-zinc-500 outline-none hover:text-zinc-200 focus-visible:ring-2 focus-visible:ring-ring">
 								<HelpCircle class="h-3.5 w-3.5" />
 							</Tooltip.Trigger>
 							<Tooltip.Content class="max-w-72 text-xs">
 								Server-side score from win rate, recent form, role-adjusted impact, KDA, sample
-								weight, and capped match volume.
+								weight, and capped match volume. Players need 10 games on a hero before they receive a score.
 							</Tooltip.Content>
 						</Tooltip.Root>
 					</div>
@@ -323,7 +323,7 @@
 						<HelpCircle class="h-4 w-4" />
 					</Tooltip.Trigger>
 					<Tooltip.Content class="max-w-80 text-xs">
-						Score is calculated on the server. Match volume now contributes directly, but with a
+						Score is calculated on the server for players with at least 10 games on this hero. Match volume now contributes directly, but with a
 						capped curve so experience matters without making this a games-played leaderboard.
 					</Tooltip.Content>
 				</Tooltip.Root>
