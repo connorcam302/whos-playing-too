@@ -11,6 +11,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { getRoleIcon, getRoleName } from '$lib/functions';
 	import { ArrowUpDown, ChevronDown, ChevronRight, Search } from 'lucide-svelte';
+	import OwnershipInfographics from './OwnershipInfographics.svelte';
 
 	type TopPlayer = {
 		playerId: number;
@@ -181,6 +182,8 @@
 			</label>
 		</div>
 	</section>
+
+	<OwnershipInfographics heroes={data.heroes} />
 
 	<section class="rounded-md border border-border bg-card p-4">
 		<div class="mb-3 flex items-center justify-between gap-3">
