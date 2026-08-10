@@ -13,7 +13,15 @@
 
 	let { data } = $props();
 
-	const { heroStats, playerStats, totw, features, fotw, ownershipChanges } = data;
+	const {
+		heroStats,
+		playerStats,
+		totw,
+		features,
+		fotw,
+		ownershipChanges,
+		worstOwnershipChanges
+	} = data;
 	let matchBlocks: any[] = $state([]);
 
 	onMount(() => {
@@ -79,9 +87,9 @@
 
 	<!-- Main Content -->
 	<div class="mx-auto w-full max-w-7xl px-4">
-		{#if ownershipChanges.length > 0}
+		{#if ownershipChanges.length > 0 || worstOwnershipChanges.length > 0}
 			<section class="mt-10">
-				<OwnershipChanges changes={ownershipChanges} />
+				<OwnershipChanges changes={ownershipChanges} worstChanges={worstOwnershipChanges} />
 			</section>
 		{/if}
 

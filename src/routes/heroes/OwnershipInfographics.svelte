@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { replaceState } from '$app/navigation';
+	import { page } from '$app/state';
 	import { Shuffle, TrendingDown, Trophy } from 'lucide-svelte';
 
 	type TopPlayer = {
@@ -65,7 +66,9 @@
 	};
 
 	const { heroes, ownershipChanges = [] }: Props = $props();
-	let ownershipMode = $state<OwnershipMode>('best');
+	const getOwnershipMode = (): OwnershipMode =>
+		page.url.searchParams.get('ownership') === 'worst' ? 'worst' : 'best';
+	let ownershipMode = $state<OwnershipMode>(getOwnershipMode());
 
 	const palette = [
 		'#34a85a',
@@ -298,8 +301,11 @@
 		return 13;
 	};
 
-	const handleHeroClick = (heroId: number) => {
-		goto(`/heroes/${heroId}`);
+	const setOwnershipMode = (mode: OwnershipMode) => {
+		ownershipMode = mode;
+		const nextUrl = new URL(page.url);
+		nextUrl.searchParams.set('ownership', mode);
+		replaceState(`${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`, page.state);
 	};
 </script>
 
@@ -317,7 +323,7 @@
 					class={getModeButtonClass(mode.id)}
 					type="button"
 					aria-pressed={ownershipMode === mode.id}
-					onclick={() => (ownershipMode = mode.id)}
+					onclick={() => setOwnershipMode(mode.id)}
 				>
 					{#if mode.id === 'best'}
 						<Trophy class="h-3.5 w-3.5" />
@@ -349,23 +355,28 @@
 						<span class="shrink-0 tabular-nums text-zinc-300">{rect.count}</span>
 					</div>
 					{#each rect.heroes as hero, index}
-						<button
+						<a
+							href={`/heroes/${hero.id}`}
 							class="absolute overflow-hidden rounded-sm border border-zinc-950/70 bg-zinc-900 transition-transform hover:z-20 hover:scale-105 focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							style={getHeroStyle(rect, index)}
-							onclick={() => handleHeroClick(hero.id)}
 							title={`${hero.name}: ${rect.username}, score ${hero.score}${recentlyChangedHeroIds.has(hero.id) ? ' · recently changed owner' : ''}`}
 							aria-label={`${hero.name}, owned by ${rect.username}`}
 						>
-							<img src={hero.img} alt="" class="h-full w-full object-cover" />
+							<img
+								src={hero.img}
+								alt=""
+								draggable="false"
+								class="pointer-events-none h-full w-full select-none object-cover"
+							/>
 							{#if recentlyChangedHeroIds.has(hero.id)}
 								<span
-									class="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-sm border border-sky-300/70 bg-sky-950/90 text-sky-200 shadow-sm shadow-black/40"
+									class="pointer-events-none absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-sm border border-sky-300/70 bg-sky-950/90 text-sky-200 shadow-sm shadow-black/40"
 									aria-hidden="true"
 								>
 									<Shuffle class="h-2.5 w-2.5" />
 								</span>
 							{/if}
-						</button>
+						</a>
 					{/each}
 				</div>
 			{/each}

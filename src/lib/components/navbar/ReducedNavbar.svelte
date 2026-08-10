@@ -62,7 +62,11 @@
 					<div>whos-playing</div>
 				</button>
 				<div class="grow"></div>
-				<button onclick={() => (open = !open)}>
+				<button
+					onclick={() => (open = !open)}
+					aria-label="Toggle menu"
+					aria-expanded={open}
+				>
 					<HamburgerIcon width={50} {open} />
 				</button>
 			</div>

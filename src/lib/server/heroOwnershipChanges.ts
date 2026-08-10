@@ -24,6 +24,13 @@ export type OwnershipChange = {
 	changeType: 'changed' | 'new';
 };
 
+export type OwnershipChanges = {
+	best: OwnershipChange[];
+	worst: OwnershipChange[];
+};
+
+type OwnershipMode = keyof OwnershipChanges;
+
 const visiblePlayerFilter = () =>
 	hiddenFromAggregatePlayerIds.length > 0
 		? not(inArray(players.id, hiddenFromAggregatePlayerIds))
@@ -54,12 +61,19 @@ const getRecentMatchIds = (rows: HeroMatchRow[], limit: number) => {
 const getChangesFromRows = (
 	heroList: { id: number; name: string; img: string }[],
 	rowsByHero: Map<number, HeroMatchRow[]>,
-	previousRowsByHero: Map<number, HeroMatchRow[]>
+	previousRowsByHero: Map<number, HeroMatchRow[]>,
+	mode: OwnershipMode
 ): OwnershipChange[] =>
 	heroList
 		.flatMap((hero): OwnershipChange[] => {
-			const currentOwner = getHeroPlayerRankings(rowsByHero.get(hero.id) ?? [])[0] ?? null;
-			const previousOwner = getHeroPlayerRankings(previousRowsByHero.get(hero.id) ?? [])[0] ?? null;
+			const currentRankings = getHeroPlayerRankings(rowsByHero.get(hero.id) ?? []);
+			const previousRankings = getHeroPlayerRankings(previousRowsByHero.get(hero.id) ?? []);
+			const currentOwner =
+				(mode === 'worst' ? currentRankings[currentRankings.length - 1] : currentRankings[0]) ??
+				null;
+			const previousOwner =
+				(mode === 'worst' ? previousRankings[previousRankings.length - 1] : previousRankings[0]) ??
+				null;
 
 			if (!currentOwner) return [];
 			if (currentOwner.playerId === previousOwner?.playerId) return [];
@@ -77,7 +91,7 @@ const getChangesFromRows = (
 			if (a.changeType !== b.changeType) return a.changeType === 'changed' ? -1 : 1;
 			const scoreDeltaA = a.currentOwner.score - (a.previousOwner?.score ?? 0);
 			const scoreDeltaB = b.currentOwner.score - (b.previousOwner?.score ?? 0);
-			return scoreDeltaB - scoreDeltaA;
+			return mode === 'worst' ? scoreDeltaA - scoreDeltaB : scoreDeltaB - scoreDeltaA;
 		});
 
 export const getHeroOwnershipChanges = async (matchLimit = 5) => {
@@ -120,7 +134,12 @@ export const getHeroOwnershipChanges = async (matchLimit = 5) => {
 
 	const rowsByHero = groupRowsByHero(rows);
 	const recentMatchIds = getRecentMatchIds(rows, matchLimit);
-	const previousRowsByHero = groupRowsByHero(rows.filter((row) => !recentMatchIds.has(row.matchId)));
+	const previousRowsByHero = groupRowsByHero(
+		rows.filter((row) => !recentMatchIds.has(row.matchId))
+	);
 
-	return getChangesFromRows(heroList, rowsByHero, previousRowsByHero);
+	return {
+		best: getChangesFromRows(heroList, rowsByHero, previousRowsByHero, 'best'),
+		worst: getChangesFromRows(heroList, rowsByHero, previousRowsByHero, 'worst')
+	} satisfies OwnershipChanges;
 };

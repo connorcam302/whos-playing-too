@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArrowRight, BadgeCheck, Shuffle } from 'lucide-svelte';
+	import { ArrowRight, BadgeCheck, Shuffle, TrendingDown, Trophy } from 'lucide-svelte';
 	import * as Card from '$lib/components/ui/card';
 
 	type Owner = {
@@ -23,9 +23,30 @@
 
 	type Props = {
 		changes: OwnershipChange[];
+		worstChanges?: OwnershipChange[];
 	};
 
-	const { changes }: Props = $props();
+	const { changes, worstChanges }: Props = $props();
+	type OwnershipType = 'best' | 'worst';
+	type LabelledOwnershipChange = OwnershipChange & { ownershipType: OwnershipType };
+
+	const labelledChanges = $derived<LabelledOwnershipChange[]>(
+		changes
+			.map((change) => ({ ...change, ownershipType: 'best' as const }))
+			.concat(
+				(worstChanges ?? []).map((change) => ({ ...change, ownershipType: 'worst' as const }))
+			)
+	);
+
+	const getChangeClass = (ownershipType: OwnershipType) =>
+		ownershipType === 'worst'
+			? 'border-red-500/35 bg-red-950/20'
+			: 'border-green-500/35 bg-green-950/20';
+
+	const getOwnershipBadgeClass = (ownershipType: OwnershipType) =>
+		ownershipType === 'worst'
+			? 'border-red-500/35 bg-red-500/10 text-red-300'
+			: 'border-green-500/35 bg-green-500/10 text-green-300';
 
 	const formatNumber = (value: number | null | undefined, decimals = 0) =>
 		new Intl.NumberFormat('en-GB', {
@@ -36,7 +57,7 @@
 	const formatPercent = (value: number | null | undefined) => `${formatNumber(value, 1)}%`;
 </script>
 
-{#if changes.length > 0}
+{#if labelledChanges.length > 0}
 	<Card.Root>
 		<Card.Header class="p-4 pb-0">
 			<div class="flex items-center justify-between gap-3">
@@ -55,15 +76,19 @@
 						</div>
 					</div>
 				</div>
-				<div class="shrink-0 text-xs tabular-nums text-zinc-500">{changes.length} changed</div>
+				<div class="shrink-0 text-xs tabular-nums text-zinc-500">
+					{labelledChanges.length} changed
+				</div>
 			</div>
 		</Card.Header>
 
 		<Card.Content class="p-4 pt-3">
 			<div class="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-0.5">
-				{#each changes as change}
+				{#each labelledChanges as change}
 					<div
-						class="flex min-w-[260px] items-center gap-2 rounded-md border border-zinc-800 bg-zinc-950/35 px-2 py-1.5"
+						class="flex min-w-[310px] items-center gap-2 rounded-md border px-2 py-1.5 {getChangeClass(
+							change.ownershipType
+						)}"
 					>
 						<a href={`/heroes/${change.hero.id}`} class="shrink-0">
 							<img
@@ -101,16 +126,25 @@
 								{/if}
 							</div>
 						</div>
-						<span class="inline-flex shrink-0 items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-medium {change.changeType === 'new'
-							? 'border-sky-500/30 bg-sky-500/10 text-sky-200'
-							: 'border-zinc-700 bg-zinc-900/80 text-zinc-300'}">
-							{#if change.changeType === 'new'}
-								<BadgeCheck class="h-2.5 w-2.5" />
-								New
-							{:else}
-								{formatPercent(change.currentOwner?.winRate)}
-							{/if}
-						</span>
+						<div class="flex shrink-0 items-center gap-1">
+							<span class="inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] font-medium {getOwnershipBadgeClass(change.ownershipType)}">
+								{#if change.ownershipType === 'best'}
+									<Trophy class="h-2.5 w-2.5" />
+									Best
+								{:else}
+									<TrendingDown class="h-2.5 w-2.5" />
+									Worst
+								{/if}
+							</span>
+							<span class="inline-flex items-center gap-1 rounded-sm border border-zinc-700 bg-zinc-900/80 px-1.5 py-0.5 text-[10px] font-medium text-zinc-300">
+								{#if change.changeType === 'new'}
+									<BadgeCheck class="h-2.5 w-2.5" />
+									New
+								{:else}
+									{formatPercent(change.currentOwner?.winRate)}
+								{/if}
+							</span>
+						</div>
 					</div>
 				{/each}
 			</div>

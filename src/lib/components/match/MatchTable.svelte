@@ -520,7 +520,7 @@
 											{#each player.items as item}
 												<Tooltip.Root>
 													<Tooltip.Trigger>
-														<img src={item?.img || 'https://sshuvscqhguullfguoct.supabase.co/storage/v1/object/public/images/empty-slot.webp'} class="h-6 max-w-none" alt={item?.name || 'Empty'} />
+														<img src={item?.img || '/empty-slot.webp'} class="h-6 max-w-none" alt={item?.name || 'Empty'} />
 													</Tooltip.Trigger>
 													<Tooltip.Content class="text-xs">{item?.name || 'Empty'}</Tooltip.Content>
 												</Tooltip.Root>

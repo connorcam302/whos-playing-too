@@ -22,6 +22,7 @@ type HeroSummary = {
 	wins: number;
 	losses: number;
 	winRate: number;
+	scoreChange: number | null;
 	topPlayers: HeroPlayerRanking[];
 };
 
@@ -29,6 +30,19 @@ const visiblePlayerFilter = () =>
 	hiddenFromAggregatePlayerIds.length > 0
 		? not(inArray(players.id, hiddenFromAggregatePlayerIds))
 		: sql`true`;
+
+const getScoreChangeFromLastGame = (heroRows: HeroMatchRow[], topPlayers: HeroPlayerRanking[]) => {
+	const currentTopScore = topPlayers[0]?.score;
+	const latestMatchId = heroRows[0]?.matchId;
+	if (currentTopScore === undefined || latestMatchId === undefined) return null;
+
+	const previousTopScore = getHeroPlayerRankings(
+		heroRows.filter((row) => row.matchId !== latestMatchId)
+	)[0]?.score;
+
+	if (previousTopScore === undefined) return null;
+	return currentTopScore - previousTopScore;
+};
 
 export const load = async () => {
 	const heroList = await db
@@ -74,12 +88,13 @@ export const load = async () => {
 		map.set(row.heroId, current);
 		return map;
 	}, new Map<number, HeroMatchRow[]>());
-	const ownershipChanges: OwnershipChange[] = await getHeroOwnershipChanges();
+	const ownershipChanges: OwnershipChange[] = (await getHeroOwnershipChanges()).best;
 
 	const heroSummaries: HeroSummary[] = heroList
 		.map((hero) => {
 			const heroRows = rowsByHero.get(hero.id) ?? [];
 			const wins = heroRows.filter((row) => row.team === row.winner).length;
+			const topPlayers = getHeroPlayerRankings(heroRows);
 
 			return {
 				...hero,
@@ -87,7 +102,8 @@ export const load = async () => {
 				wins,
 				losses: heroRows.length - wins,
 				winRate: heroRows.length > 0 ? (wins / heroRows.length) * 100 : 0,
-				topPlayers: getHeroPlayerRankings(heroRows)
+				scoreChange: getScoreChangeFromLastGame(heroRows, topPlayers),
+				topPlayers
 			};
 		})
 		.sort((a, b) => {

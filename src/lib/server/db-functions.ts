@@ -34,6 +34,11 @@ import timezone from 'dayjs/plugin/timezone';
 import { heroMap } from '$lib/data/heroMap';
 import type { DateRangeBounds } from '$lib/data/dotaPatchRanges';
 import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
+import {
+	getHeroPlayerRankings,
+	type HeroPlayerRanking,
+	type HeroStatsRow
+} from '$lib/server/heroStats';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -461,6 +466,88 @@ export const getRecentHeroPoolStats = async (player: number, limit: number = 50)
 					: 0
 		}))
 		.sort((a, b) => b.matches - a.matches);
+};
+
+export type PlayerHeroRanking = {
+	heroId: number;
+	rank: number | null;
+	totalRankedPlayers: number;
+	player: HeroPlayerRanking | null;
+	rankings: Pick<
+		HeroPlayerRanking,
+		'playerId' | 'username' | 'matches' | 'wins' | 'losses' | 'winRate' | 'score'
+	>[];
+};
+
+export const getPlayerHeroRankings = async (player: number): Promise<PlayerHeroRanking[]> => {
+	const playerHeroes = await db
+		.selectDistinct({ heroId: matchData.heroId })
+		.from(matchData)
+		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+		.where(eq(accounts.owner, player));
+
+	const heroIds = playerHeroes.map(({ heroId }) => heroId);
+	if (heroIds.length === 0) return [];
+
+	const rows = await db
+		.select({
+			heroId: matchData.heroId,
+			playerId: players.id,
+			username: players.username,
+			smurf: accounts.smurf,
+			startTime: matches.startTime,
+			duration: matches.duration,
+			winner: matches.winner,
+			team: matchData.team,
+			role: matchData.role,
+			kills: matchData.kills,
+			deaths: matchData.deaths,
+			assists: matchData.assists,
+			impact: matchData.impact,
+			gpm: matchData.goldPerMin,
+			xpm: matchData.xpPerMin,
+			lastHits: matchData.lastHits,
+			heroDamage: matchData.heroDamage,
+			towerDamage: matchData.towerDamage
+		})
+		.from(matchData)
+		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(players, eq(players.id, accounts.owner))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(inArray(matchData.heroId, heroIds), gt(matches.duration, 900), visiblePlayerFilter())
+		)
+		.orderBy(desc(matches.startTime));
+
+	const rowsByHero = new Map<number, HeroStatsRow[]>();
+	for (const { heroId, ...row } of rows) {
+		const heroRows = rowsByHero.get(heroId) ?? [];
+		heroRows.push(row);
+		rowsByHero.set(heroId, heroRows);
+	}
+
+	return heroIds.map((heroId) => {
+		const heroRows = rowsByHero.get(heroId) ?? [];
+		const allPlayers = getHeroPlayerRankings(heroRows, true);
+		const rankings = getHeroPlayerRankings(heroRows);
+		const rankIndex = rankings.findIndex(({ playerId }) => playerId === player);
+
+		return {
+			heroId,
+			rank: rankIndex >= 0 ? rankIndex + 1 : null,
+			totalRankedPlayers: rankings.length,
+			player: allPlayers.find(({ playerId }) => playerId === player) ?? null,
+			rankings: rankings.map(({ playerId, username, matches, wins, losses, winRate, score }) => ({
+				playerId,
+				username,
+				matches,
+				wins,
+				losses,
+				winRate,
+				score
+			}))
+		};
+	});
 };
 
 export const getAllPlayerStats = async (

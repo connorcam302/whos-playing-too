@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Loading from '$lib/components/Loading.svelte';
 	import MatchTable from './MatchTable.svelte';
+	import MatchAnalysisBanner from '$lib/components/stack-analysis/MatchAnalysisBanner.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import type { PlayerWeightGroup } from '$lib/stack-analysis';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -139,10 +141,37 @@
 		  };
 
 	let matchDetails: MatchDetails | undefined = $state();
+	let playerWeightGroups: PlayerWeightGroup[] | undefined = $state();
+	let playerWeightsLoading = $state(false);
+
+	const fetchPlayerWeights = async (loadedMatchId: number) => {
+		if (playerWeightsLoading || playerWeightGroups) return;
+		playerWeightsLoading = true;
+
+		try {
+			const response = await fetch(`/api/matches/${loadedMatchId}/player-weights`);
+			if (!response.ok) {
+				playerWeightGroups = [];
+				return;
+			}
+			const data: { playerWeightGroups: PlayerWeightGroup[] } = await response.json();
+			playerWeightGroups = data.playerWeightGroups;
+		} catch {
+			playerWeightGroups = [];
+		} finally {
+			playerWeightsLoading = false;
+		}
+	};
 
 	const handleOpenChange = async (isOpen: boolean) => {
 		if (isOpen && !matchDetails) {
-			matchDetails = await fetchMatchData();
+			const loadedMatchDetails: MatchDetails = await fetchMatchData();
+			matchDetails = loadedMatchDetails;
+			if (loadedMatchDetails.matchData) {
+				void fetchPlayerWeights(loadedMatchDetails.matchData.match_id);
+			}
+		} else if (isOpen && matchDetails?.matchData) {
+			void fetchPlayerWeights(matchDetails.matchData.match_id);
 		}
 	};
 </script>
@@ -182,6 +211,18 @@
 					</div>
 				{:else if matchDetails.matchData}
 					<MatchTable {matchDetails} />
+					{#if playerWeightGroups && playerWeightGroups.length > 0}
+						<div class="mt-6">
+							<MatchAnalysisBanner groups={playerWeightGroups} />
+						</div>
+					{:else if playerWeightsLoading}
+						<div class="mt-6 rounded-md border border-border bg-card px-4 py-3" aria-live="polite">
+							<div class="text-sm font-medium text-zinc-200">Match Analysis</div>
+							<div class="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-900">
+								<div class="h-full w-1/3 animate-pulse rounded-full bg-zinc-700"></div>
+							</div>
+						</div>
+					{/if}
 				{/if}
 			{:else}
 				<div class="flex min-h-40 items-center justify-center">

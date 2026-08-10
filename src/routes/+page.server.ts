@@ -37,5 +37,13 @@ export const load = async ({ url, params }) => {
 	const features = getFeatures();
 	const ownershipChanges = await getHeroOwnershipChanges();
 
-	return { heroStats, playerStats, totw, features, fotw, ownershipChanges };
+	return {
+		heroStats,
+		playerStats,
+		totw,
+		features,
+		fotw,
+		ownershipChanges: ownershipChanges.best,
+		worstOwnershipChanges: ownershipChanges.worst
+	};
 };

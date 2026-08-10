@@ -45,7 +45,7 @@ ${items},
     {
         id: 0,
         name: "Empty",
-        img: "https://sshuvscqhguullfguoct.supabase.co/storage/v1/object/public/images/empty-slot.webp?t=2024-01-05T22%3A27%3A45.243Z"
+        img: "/empty-slot.webp"
     }
 ];
 

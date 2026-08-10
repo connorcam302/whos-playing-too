@@ -14,7 +14,8 @@ import {
 	getPlayerRecords,
 	getPlayerTeammateStats,
 	getPlayers,
-	getRecentHeroPoolStats
+	getRecentHeroPoolStats,
+	getPlayerHeroRankings
 } from '$lib/server/db-functions';
 import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
@@ -130,6 +131,7 @@ export const load = async ({ params, url }) => {
 		getRecentHeroPoolStats(playerId, RECENT_HERO_POOL_MATCH_LIMIT),
 		[]
 	);
+	const playerHeroRankings = withTimeout(getPlayerHeroRankings(playerId), [], 5000);
 	const [
 		recentStats,
 		allTimeStats,
@@ -201,6 +203,7 @@ export const load = async ({ params, url }) => {
 		heroStats,
 		allTimeHeroStats,
 		recentHeroPoolStats,
+		playerHeroRankings,
 		recentHeroPoolMatchLimit: RECENT_HERO_POOL_MATCH_LIMIT,
 		heroPoolMatchLimitOptions: HERO_POOL_MATCH_LIMIT_OPTIONS,
 		winGraph,

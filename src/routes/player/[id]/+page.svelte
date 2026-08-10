@@ -34,7 +34,11 @@
 		id: number;
 		name: string;
 		localized_name: string;
+		img: string;
 		icon: string;
+		primary_attr?: string;
+		attack_type?: string;
+		roles?: string[];
 	};
 
 	import ProfileHome from './ProfileHome.svelte';
@@ -44,10 +48,9 @@
 	import ProfileMatches from './ProfileMatches.svelte';
 	import ProfileRecords from './ProfileRecords.svelte';
 	import ProfileTeammates from './ProfileTeammates.svelte';
-	import ProfileHeroPool from './ProfileHeroPool.svelte';
-	import { replaceState } from '$app/navigation';
+	import ProfileHeroes from './ProfileHeroes.svelte';
+	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
 
 	interface Props {
 		data: {
@@ -59,7 +62,9 @@
 			heroStats: any;
 			allTimeHeroStats: any;
 			recentHeroPoolStats: any;
+			playerHeroRankings: any;
 			recentHeroPoolMatchLimit: number;
+			heroPoolMatchLimitOptions: number[];
 			winGraph: { resultsArray: number[]; daysArray: number[] };
 			heroList: Hero[];
 			playerList: any[];
@@ -94,34 +99,36 @@
 		playerList
 	} = $derived(data);
 
-	type ProfileTab = 'home' | 'stats' | 'hero-pool' | 'matches' | 'records' | 'teammates';
+	type ProfileTab = 'home' | 'stats' | 'heroes' | 'matches' | 'records' | 'teammates';
 
-	const profileTabs: ProfileTab[] = ['home', 'stats', 'hero-pool', 'matches', 'records', 'teammates'];
+	const profileTabs: ProfileTab[] = ['home', 'matches', 'stats', 'heroes', 'records', 'teammates'];
 
-	const getUrlTab = () => {
-		const tab = page.url.searchParams.get('tab');
+	const getUrlTab = (url: URL) => {
+		const tab = url.searchParams.get('tab');
+		if (tab === 'hero-pool') return 'heroes';
 		return profileTabs.includes(tab as ProfileTab) ? (tab as ProfileTab) : 'home';
 	};
 
-	let selectedTab = $state<ProfileTab>(getUrlTab());
-	let mounted = $state(false);
-
-	onMount(() => {
-		mounted = true;
-	});
+	let selectedTab = $state<ProfileTab>(getUrlTab(page.url));
 
 	$effect(() => {
-		const tab = selectedTab;
-		if (!mounted) return;
+		selectedTab = getUrlTab(page.url);
+	});
+
+	const navigateToTab = (value: string) => {
+		if (!profileTabs.includes(value as ProfileTab)) return;
+
+		const tab = value as ProfileTab;
+		if (tab === getUrlTab(page.url)) return;
+
 		const nextUrl = new URL(page.url);
 		if (tab === 'home') {
 			nextUrl.searchParams.delete('tab');
 		} else {
 			nextUrl.searchParams.set('tab', tab);
 		}
-		replaceState(`${nextUrl.pathname}${nextUrl.search}`, page.state);
-	});
-
+		pushState(`${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`, page.state);
+	};
 </script>
 
 <svelte:head>
@@ -142,20 +149,21 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 	<ProfileBanner {data} />
 	<Tabs.Root
 		bind:value={selectedTab}
+		onValueChange={navigateToTab}
 		class="flex w-full max-w-6xl flex-col items-stretch gap-3"
 	>
 		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1  rounded-lg border border-zinc-700 bg-card sm:inline-grid sm:w-fit sm:grid-cols-6">
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="home">Home</Tabs.Trigger>
-			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="stats">Stats</Tabs.Trigger>
-			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="hero-pool">Hero Pool</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="matches">Matches</Tabs.Trigger>
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="stats">Stats</Tabs.Trigger>
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="heroes">Heroes</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="records">Records</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="teammates">Teammates</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="home" class="w-full"><ProfileHome {data} /></Tabs.Content>
-		<Tabs.Content value="stats" class="w-full"><ProfileStats {data} /></Tabs.Content>
-		<Tabs.Content value="hero-pool" class="w-full"><ProfileHeroPool {data} /></Tabs.Content>
 		<Tabs.Content value="matches" class="w-full"><ProfileMatches {data} /></Tabs.Content>
+		<Tabs.Content value="stats" class="w-full"><ProfileStats {data} /></Tabs.Content>
+		<Tabs.Content value="heroes" class="w-full"><ProfileHeroes {data} /></Tabs.Content>
 		<Tabs.Content value="records" class="w-full min-w-0"><ProfileRecords {data} /></Tabs.Content>
 		<Tabs.Content value="teammates" class="w-full"><ProfileTeammates {data} /></Tabs.Content>
 	</Tabs.Root>

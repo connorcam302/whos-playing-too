@@ -39,6 +39,7 @@
 		wins: number;
 		losses: number;
 		winRate: number;
+		scoreChange: number | null;
 		topPlayers: TopPlayer[];
 	};
 
@@ -95,6 +96,7 @@
 		if (columnId === 'hero') return hero.name;
 		if (columnId === 'player') return bestPlayer?.username ?? '';
 		if (columnId === 'score') return bestPlayer?.score ?? -1;
+		if (columnId === 'scoreChange') return hero.scoreChange ?? -999;
 		if (columnId === 'wl') return bestPlayer?.winRate ?? -1;
 		if (columnId === 'winRate') return bestPlayer?.winRate ?? -1;
 		if (columnId === 'matches') return bestPlayer?.matches ?? -1;
@@ -107,6 +109,7 @@
 			{ id: 'hero', header: 'Hero' },
 			{ id: 'player', header: 'Best Player' },
 			{ id: 'score', header: 'Score' },
+			{ id: 'scoreChange', header: 'Δ Score' },
 			{ id: 'wl', header: 'W/L' },
 			{ id: 'winRate', header: 'WR' },
 			{ id: 'matches', header: 'Matches' },
@@ -145,15 +148,30 @@
 	);
 
 	const getHeaderClass = (columnId: string) =>
-		['score', 'wl', 'winRate', 'matches', 'top3'].includes(columnId) ? 'text-right' : '';
+		['score', 'scoreChange', 'wl', 'winRate', 'matches', 'top3'].includes(columnId)
+			? 'text-right'
+			: '';
 
 	const getHeaderButtonClass = (columnId: string) =>
-		['score', 'wl', 'winRate', 'matches', 'top3'].includes(columnId) ? 'ml-auto' : '';
+		['score', 'scoreChange', 'wl', 'winRate', 'matches', 'top3'].includes(columnId)
+			? 'ml-auto'
+			: '';
 
 	const getHiddenPlayers = (hero: HeroSummary) => hero.topPlayers.slice(1);
 
 	const getFormClass = (result: string) =>
 		result === 'W' ? 'text-green-400' : 'text-red-400';
+
+	const getScoreChangeClass = (scoreChange: number | null) => {
+		if (scoreChange === null || scoreChange === 0) return 'text-zinc-500';
+		return scoreChange > 0 ? 'text-green-400' : 'text-red-400';
+	};
+
+	const formatScoreChange = (scoreChange: number | null) => {
+		if (scoreChange === null) return '-';
+		if (scoreChange === 0) return '0';
+		return scoreChange > 0 ? `+${scoreChange}` : `${scoreChange}`;
+	};
 </script>
 
 <svelte:head>
@@ -321,6 +339,13 @@
 									<span class="text-zinc-600">-</span>
 								{/if}
 							</Table.Cell>
+							<Table.Cell
+								class="px-2 py-2 text-right text-sm font-medium tabular-nums {getScoreChangeClass(
+									hero.scoreChange
+								)}"
+							>
+								{formatScoreChange(hero.scoreChange)}
+							</Table.Cell>
 							<Table.Cell class="px-2 py-2 text-right tabular-nums">
 								{#if bestPlayer}
 									<span class="text-green-400">{bestPlayer.wins}</span>
@@ -416,6 +441,7 @@
 											</Tooltip.Content>
 										</Tooltip.Root>
 									</Table.Cell>
+									<Table.Cell class="px-2 py-2 text-right text-zinc-600">-</Table.Cell>
 									<Table.Cell class="px-2 py-2 text-right tabular-nums">
 										<span class="text-green-400">{player.wins}</span>
 										<span class="text-zinc-600">/</span>
@@ -433,7 +459,7 @@
 						{/if}
 					{:else}
 						<Table.Row class="border-zinc-900">
-							<Table.Cell colspan={7} class="h-40 text-center text-sm text-zinc-500">
+							<Table.Cell colspan={8} class="h-40 text-center text-sm text-zinc-500">
 								No heroes match that search.
 							</Table.Cell>
 						</Table.Row>

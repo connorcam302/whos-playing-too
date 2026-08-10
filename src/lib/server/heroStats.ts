@@ -110,7 +110,10 @@ export const getRoleLeader = (roles: Map<number, number>) => {
 	return role ?? 0;
 };
 
-export const getHeroPlayerRankings = (rows: HeroStatsRow[]): HeroPlayerRanking[] => {
+export const getHeroPlayerRankings = (
+	rows: HeroStatsRow[],
+	includeUncalibrated = false
+): HeroPlayerRanking[] => {
 	const buckets = new Map<number, PlayerBucket>();
 
 	for (const row of rows) {
@@ -159,7 +162,7 @@ export const getHeroPlayerRankings = (rows: HeroStatsRow[]): HeroPlayerRanking[]
 	}
 
 	return Array.from(buckets.values())
-		.filter((bucket) => bucket.matches >= HERO_CALIBRATION_MATCHES)
+		.filter((bucket) => includeUncalibrated || bucket.matches >= HERO_CALIBRATION_MATCHES)
 		.map((bucket) => {
 			const score = getPlayerScore(bucket);
 			const wins = bucket.wins;

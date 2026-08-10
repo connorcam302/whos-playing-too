@@ -15,6 +15,13 @@
 		if (!name) return '';
 		return name.length > maxLength ? `${name.substring(0, maxLength)}...` : name;
 	};
+
+	const getDotaAccountId = (profile: { accountId?: number; steamid?: string }) => {
+		if (profile.accountId !== undefined) return profile.accountId.toString();
+		if (!profile.steamid) return '';
+
+		return (BigInt(profile.steamid) - BigInt('76561197960265728')).toString();
+	};
 </script>
 
 <div class="w-full max-w-6xl">
@@ -122,7 +129,7 @@
 								<img src={'/steam.png'} alt="" class="h-5 w-5" />
 						</a>
 						<a
-							href={`https://dotabuff.com/players/${player.accountId}`}
+							href={`https://dotabuff.com/players/${getDotaAccountId(profile)}`}
 							target="_blank"
 							rel="noopener noreferrer"
 								class="rounded-md p-1.5 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -131,7 +138,7 @@
 								<img src={'/dotabuff.png'} alt="" class="h-5 w-5" />
 						</a>
 						<a
-							href={`https://www.opendota.com/players/${player.accountId}`}
+							href={`https://www.opendota.com/players/${getDotaAccountId(profile)}`}
 							target="_blank"
 							rel="noopener noreferrer"
 								class="hidden rounded-md p-1.5 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:inline-flex"
@@ -140,7 +147,7 @@
 								<img src={'/opendota.png'} alt="" class="h-5 w-5" />
 						</a>
 						<a
-							href={`https://stratz.com/en-us/player/${player.accountId}`}
+							href={`https://stratz.com/en-us/player/${getDotaAccountId(profile)}`}
 							target="_blank"
 							rel="noopener noreferrer"
 								class="hidden rounded-md p-1.5 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:inline-flex"
