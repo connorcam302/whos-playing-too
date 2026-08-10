@@ -299,8 +299,17 @@
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-center">
 									<HoverCard.Root openDelay={150} closeDelay={100}>
-										<HoverCard.Trigger class="inline-flex rounded-sm border border-zinc-700 bg-zinc-950/70 px-2 py-1 text-xs font-semibold tabular-nums text-zinc-200 underline decoration-zinc-600 decoration-dotted underline-offset-4 outline-none hover:border-zinc-500 hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring" aria-label={`Show overall rankings on ${hero.hero.name}`}>
-											{hero.ranking?.rank ? `#${hero.ranking.rank} of ${hero.ranking.totalRankedPlayers}` : 'Unranked'}
+										<HoverCard.Trigger>
+											{#snippet child({ props })}
+												<button
+													{...props}
+													type="button"
+													class="inline-flex rounded-sm border border-zinc-700 bg-zinc-950/70 px-2 py-1 text-xs font-semibold tabular-nums text-zinc-200 underline decoration-zinc-600 decoration-dotted underline-offset-4 outline-none hover:border-zinc-500 hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
+													aria-label={`Show overall rankings on ${hero.hero.name}`}
+												>
+													{hero.ranking?.rank ? `#${hero.ranking.rank} of ${hero.ranking.totalRankedPlayers}` : 'Unranked'}
+												</button>
+											{/snippet}
 										</HoverCard.Trigger>
 										<HoverCard.Content class="w-[min(26rem,calc(100vw-2rem))] p-0" align="center">
 											<div class="border-b border-zinc-800 px-3 py-2.5"><div class="font-medium text-zinc-100">Overall {hero.hero.name} rankings</div><div class="mt-0.5 text-xs text-zinc-400">Qualified players, 10 or more matches</div></div>

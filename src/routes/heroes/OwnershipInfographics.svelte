@@ -69,6 +69,7 @@
 	const getOwnershipMode = (): OwnershipMode =>
 		page.url.searchParams.get('ownership') === 'worst' ? 'worst' : 'best';
 	let ownershipMode = $state<OwnershipMode>(getOwnershipMode());
+	let showAllMobileTerritories = $state(false);
 
 	const palette = [
 		'#34a85a',
@@ -309,7 +310,7 @@
 	};
 </script>
 
-<section class="rounded-md border border-border bg-card p-4">
+<section class="rounded-md border border-border bg-card p-3 sm:p-4">
 	<div class="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
 		<div>
 			<div class="text-sm text-zinc-400">{modeCopy.eyebrow}</div>
@@ -317,10 +318,10 @@
 				{modeCopy.title}
 			</h2>
 		</div>
-		<div class="inline-flex rounded-md border border-zinc-800 bg-zinc-950/50 p-0.5">
+		<div class="inline-flex w-full rounded-md border border-zinc-800 bg-zinc-950/50 p-0.5 sm:w-auto">
 			{#each ownershipModes as mode}
 				<button
-					class={getModeButtonClass(mode.id)}
+					class={`${getModeButtonClass(mode.id)} min-h-11 flex-1 justify-center sm:min-h-0 sm:flex-none`}
 					type="button"
 					aria-pressed={ownershipMode === mode.id}
 					onclick={() => setOwnershipMode(mode.id)}
@@ -338,10 +339,16 @@
 
 	<article class="overflow-hidden rounded-md border border-zinc-800 bg-zinc-950/35">
 		<div class="border-b border-zinc-800 px-3 py-2">
-			<h3 class="text-sm font-semibold text-zinc-100">Treemap Territories</h3>
+			<h3 class="text-sm font-semibold text-zinc-100">
+				<span class="sm:hidden">Hero Territories</span>
+				<span class="hidden sm:inline">Treemap Territories</span>
+			</h3>
 			<p class="mt-0.5 text-xs text-zinc-500">{modeCopy.description}</p>
 		</div>
-		<div class="ownership-stage">
+		<div
+			class="ownership-stage"
+			class:show-all-mobile-territories={showAllMobileTerritories}
+		>
 			{#each treemapRects as rect}
 				<div
 					class="territory absolute overflow-hidden rounded-md border"
@@ -381,6 +388,20 @@
 				</div>
 			{/each}
 		</div>
+		{#if ownedPlayers.length > 6}
+			<div class="border-t border-zinc-800 p-2 sm:hidden">
+				<button
+					type="button"
+					class="flex min-h-11 w-full items-center justify-center rounded-md text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+					onclick={() => (showAllMobileTerritories = !showAllMobileTerritories)}
+					aria-expanded={showAllMobileTerritories}
+				>
+					{showAllMobileTerritories
+						? 'Show fewer players'
+						: `Show ${ownedPlayers.length - 6} more players`}
+				</button>
+			</div>
+		{/if}
 	</article>
 </section>
 
@@ -400,5 +421,59 @@
 		background-color: color-mix(in srgb, var(--owner-color) 13%, transparent);
 		border-color: color-mix(in srgb, var(--owner-color) 55%, transparent);
 		box-sizing: border-box;
+	}
+
+	@media (max-width: 639px) {
+		.ownership-stage {
+			display: flex;
+			height: auto;
+			flex-direction: column;
+			gap: 8px;
+			overflow: visible;
+			padding: 8px;
+			background-size: 24px 24px;
+		}
+
+		.territory {
+			position: relative !important;
+			left: auto !important;
+			top: auto !important;
+			display: flex;
+			height: auto !important;
+			min-height: 100px;
+			width: 100% !important;
+			align-items: flex-end;
+			gap: 6px;
+			overflow-x: auto;
+			padding: 42px 8px 8px;
+			scroll-snap-type: x proximity;
+			scrollbar-width: none;
+		}
+
+		.territory::-webkit-scrollbar {
+			display: none;
+		}
+
+		.territory > div {
+			font-size: 14px !important;
+		}
+
+		.territory:nth-child(n + 7) {
+			display: none;
+		}
+
+		.show-all-mobile-territories .territory:nth-child(n + 7) {
+			display: flex;
+		}
+
+		.territory > a {
+			position: relative !important;
+			left: auto !important;
+			top: auto !important;
+			height: 44px !important;
+			width: 72px !important;
+			flex: 0 0 72px;
+			scroll-snap-align: start;
+		}
 	}
 </style>

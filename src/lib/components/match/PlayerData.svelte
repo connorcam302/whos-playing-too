@@ -55,7 +55,6 @@
 	import { goto } from '$app/navigation';
 	import PlayerData from './PlayerData.svelte';
 	import MatchBlock from './MatchBlock.svelte';
-	import MatchModal from './MatchModal.svelte';
 	import RatingChip from '../RatingChip.svelte';
 	import { Item } from '../ui/select';
 	import DotaItem from '../DotaItem.svelte';
@@ -217,8 +216,7 @@
 </script>
 
 <div class={'flex w-full min-w-0 items-center overflow-hidden duration-200'}>
-	<MatchModal matchId={matchData.id} sequenceNum={matchData.sequenceNumber}>
-		<div class={'flex w-full min-w-0 items-center gap-2 px-2 py-1 md:gap-4'}>
+	<div class={'flex w-full min-w-0 items-center gap-2 px-2 py-1 md:gap-4'}>
 			<div class="w-12 md:w-16">
 				<div class="relative">
 					<img src={player.hero.img} alt={player.hero.name} class="w-12 md:w-16" />
@@ -301,8 +299,7 @@
 					/>
 				</div>
 			</div>
-		</div>
-	</MatchModal>
+	</div>
 </div>
 
 <style>
