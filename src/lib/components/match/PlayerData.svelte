@@ -62,6 +62,7 @@
 	import Facet from '../Facet.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { VenetianMask } from 'lucide-svelte';
+	import HeroScoreBadge from './HeroScoreBadge.svelte';
 	interface Props {
 		match: {
 			player: PlayerData;
@@ -220,6 +221,9 @@
 			<div class="w-12 md:w-16">
 				<div class="relative">
 					<img src={player.hero.img} alt={player.hero.name} class="w-12 md:w-16" />
+					{#if player.heroScore}
+						<HeroScoreBadge score={player.heroScore} heroName={player.hero.name} />
+					{/if}
 					{#if player.facet}
 						<div
 							class={`absolute right-0 bottom-0 color_${

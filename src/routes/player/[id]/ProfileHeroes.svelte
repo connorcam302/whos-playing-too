@@ -1,6 +1,7 @@
 <script lang="ts">
 	import dayjs from 'dayjs';
 	import { calcImpact, getRoleIcon, getRoleName } from '$lib/functions';
+	import { formatHeroScore } from '$lib/heroScores';
 	import * as HoverCard from '$lib/components/ui/hover-card';
 	import * as Table from '$lib/components/ui/table';
 	import * as Tooltip from '$lib/components/ui/tooltip';
@@ -45,6 +46,9 @@
 		avgTowerDamage: number;
 		primaryRole: number;
 		score: number;
+		scoreWinRate: number;
+		scoreKda: number;
+		scoreAvgImpact: number;
 		confidence: string;
 		lastPlayed: number;
 	};
@@ -116,20 +120,37 @@
 			})[0] ?? null;
 
 	const getHeroRows = (heroStats: HeroStat[], rankingData: HeroRanking[]) => {
-		const metadataById = new Map(data.heroList.map((hero) => [hero.id, hero]));
+		const statsById = new Map(
+			heroStats.filter((hero) => hero.hero).map((hero) => [hero.hero.id, hero])
+		);
 		const rankingById = new Map(rankingData.map((ranking) => [ranking.heroId, ranking]));
 
-		return heroStats
-			.filter((hero) => hero.hero && hero.matches > 0)
-			.map((hero): HeroRow => ({
+		return data.heroList.map((metadata): HeroRow => {
+			const hero = statsById.get(metadata.id) ?? {
+				hero: {
+					id: metadata.id,
+					name: metadata.localized_name ?? metadata.name,
+					img: metadata.img
+				},
+				matches: 0,
+				radiantWins: 0,
+				direWins: 0,
+				avgImpact: 0,
+				avgKills: 0,
+				avgDeaths: 0,
+				avgAssists: 0
+			};
+
+			return {
 				...hero,
-				metadata: metadataById.get(hero.hero.id) ?? hero.hero,
-				ranking: rankingById.get(hero.hero.id) ?? null,
+				metadata,
+				ranking: rankingById.get(metadata.id) ?? null,
 				wins: getWins(hero),
 				losses: getLosses(hero),
 				winRate: getWinRate(hero),
 				kda: getKda(hero)
-			}));
+			};
+		});
 	};
 
 	const getSortValue = (hero: HeroRow, key: SortKey) => {
@@ -181,7 +202,7 @@
 		})[calcImpact(impact).charAt(0)] ?? 'bg-zinc-800 text-zinc-300';
 
 	const formatDate = (timestamp?: number) =>
-		timestamp ? dayjs(timestamp * 1000).format('D MMM YYYY') : 'Not available';
+		timestamp ? dayjs(timestamp * 1000).format('D MMM YYYY') : 'Never';
 </script>
 
 <div class="flex w-full min-w-0 flex-col gap-4">
@@ -298,6 +319,7 @@
 									</a>
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-center">
+									{#if hero.matches > 0}
 									<HoverCard.Root openDelay={150} closeDelay={100}>
 										<HoverCard.Trigger>
 											{#snippet child({ props })}
@@ -317,7 +339,7 @@
 											<div class="max-h-72 overflow-y-auto p-1.5">
 												{#each hero.ranking?.rankings ?? [] as rankedPlayer, index}
 													<a href={`/player/${rankedPlayer.playerId}?tab=heroes`} class="grid grid-cols-[1.75rem_minmax(0,1fr)_auto_auto] items-center gap-2 rounded-sm px-2 py-1.5 text-xs transition-colors hover:bg-zinc-800 {rankedPlayer.playerId === data.player.id ? 'bg-sky-500/10' : ''}">
-														<span class="text-center font-medium tabular-nums text-zinc-500">{index + 1}</span><span class="truncate font-medium text-zinc-100">{rankedPlayer.username}</span><span class="tabular-nums text-zinc-400">{rankedPlayer.matches}g</span><span class="w-12 text-right font-semibold tabular-nums text-zinc-200">{rankedPlayer.score}</span>
+														<span class="text-center font-medium tabular-nums text-zinc-500">{index + 1}</span><span class="truncate font-medium text-zinc-100">{rankedPlayer.username}</span><span class="tabular-nums text-zinc-400">{rankedPlayer.matches}g</span><span class="w-12 text-right font-semibold tabular-nums text-zinc-200">{formatHeroScore(rankedPlayer.score)}</span>
 													</a>
 												{:else}
 													<div class="px-3 py-6 text-center text-sm text-zinc-500">No tracked player has qualified on this hero yet.</div>
@@ -326,6 +348,9 @@
 											<div class="border-t border-zinc-800 px-3 py-2 text-xs text-zinc-500"><a href={`/heroes/${hero.hero.id}`} class="text-sky-300 hover:text-sky-200">Open full hero analysis</a></div>
 										</HoverCard.Content>
 									</HoverCard.Root>
+									{:else}
+										<span class="text-xs text-zinc-600">Unplayed</span>
+									{/if}
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-center">
 									{#if hero.ranking?.player?.primaryRole}
@@ -334,10 +359,14 @@
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right font-medium tabular-nums text-zinc-200">{hero.matches}</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right tabular-nums"><span class="text-green-400">{hero.wins}</span><span class="text-zinc-600">/</span><span class="text-red-400">{hero.losses}</span></Table.Cell>
-								<Table.Cell class="px-2 py-2 text-right tabular-nums text-zinc-300">{formatNumber(hero.winRate, 1)}%</Table.Cell>
-								<Table.Cell class="px-2 py-2 text-right tabular-nums text-zinc-300">{formatNumber(hero.kda, 2)}</Table.Cell>
-								<Table.Cell class="px-2 py-2 text-right text-xs tabular-nums"><span class="text-green-400">{formatNumber(hero.avgKills, 1)}</span><span class="text-zinc-600"> / </span><span class="text-red-400">{formatNumber(hero.avgDeaths, 1)}</span><span class="text-zinc-600"> / </span><span class="text-sky-300">{formatNumber(hero.avgAssists, 1)}</span></Table.Cell>
-								<Table.Cell class="px-2 py-2 text-right"><span class="inline-flex min-w-10 justify-center rounded-md px-2 py-1 font-semibold tabular-nums {getImpactClass(hero.avgImpact)}" title={`${formatNumber(hero.avgImpact)} average impact`}>{calcImpact(hero.avgImpact)}</span></Table.Cell>
+								<Table.Cell class="px-2 py-2 text-right tabular-nums text-zinc-300">{hero.matches > 0 ? `${formatNumber(hero.winRate, 1)}%` : 'N/A'}</Table.Cell>
+								<Table.Cell class="px-2 py-2 text-right tabular-nums text-zinc-300">{hero.matches > 0 ? formatNumber(hero.kda, 2) : 'N/A'}</Table.Cell>
+								<Table.Cell class="px-2 py-2 text-right text-xs tabular-nums">
+									{#if hero.matches > 0}<span class="text-green-400">{formatNumber(hero.avgKills, 1)}</span><span class="text-zinc-600"> / </span><span class="text-red-400">{formatNumber(hero.avgDeaths, 1)}</span><span class="text-zinc-600"> / </span><span class="text-sky-300">{formatNumber(hero.avgAssists, 1)}</span>{:else}<span class="text-zinc-600">N/A</span>{/if}
+								</Table.Cell>
+								<Table.Cell class="px-2 py-2 text-right">
+									{#if hero.matches > 0}<span class="inline-flex min-w-10 justify-center rounded-md px-2 py-1 font-semibold tabular-nums {getImpactClass(hero.avgImpact)}" title={`${formatNumber(hero.avgImpact)} average impact`}>{calcImpact(hero.avgImpact)}</span>{:else}<span class="text-zinc-600">N/A</span>{/if}
+								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right tabular-nums text-zinc-300">{hero.ranking?.player ? formatNumber(hero.ranking.player.avgGpm) : 'N/A'}</Table.Cell>
 								<Table.Cell class="px-3 py-2 text-right text-xs text-zinc-400">{formatDate(hero.ranking?.player?.lastPlayed)}</Table.Cell>
 							</Table.Row>

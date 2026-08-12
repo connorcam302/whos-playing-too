@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/state';
+	import { formatHeroScore } from '$lib/heroScores';
 	import { Shuffle, TrendingDown, Trophy } from 'lucide-svelte';
 
 	type TopPlayer = {
@@ -366,7 +367,7 @@
 							href={`/heroes/${hero.id}`}
 							class="absolute overflow-hidden rounded-sm border border-zinc-950/70 bg-zinc-900 transition-transform hover:z-20 hover:scale-105 focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							style={getHeroStyle(rect, index)}
-							title={`${hero.name}: ${rect.username}, score ${hero.score}${recentlyChangedHeroIds.has(hero.id) ? ' · recently changed owner' : ''}`}
+							title={`${hero.name}: ${rect.username}, score ${formatHeroScore(hero.score)}${recentlyChangedHeroIds.has(hero.id) ? ' · recently changed owner' : ''}`}
 							aria-label={`${hero.name}, owned by ${rect.username}`}
 						>
 							<img

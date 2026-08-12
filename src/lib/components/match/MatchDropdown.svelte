@@ -63,18 +63,27 @@
 	import Facet from '../Facet.svelte';
 	import { twMerge } from 'tailwind-merge';
 	import { VenetianMask } from 'lucide-svelte';
+	import HeroScoreBadge from './HeroScoreBadge.svelte';
+	type HeroScoreChange = {
+		matchNumber: number | null;
+		scoreBefore: number | null;
+		scoreAfter: number | null;
+		scoreChange: number | null;
+		becameCalibrated: boolean;
+	};
 	interface Props {
 		match: {
 			player: PlayerData;
 			radiant: PlayerData[];
 			dire: PlayerData[];
 			matchData: MatchData;
+			heroScore: HeroScoreChange | null;
 		};
 	}
 
 	let { match }: Props = $props();
 
-	const { player, matchData, dire, radiant } = match;
+	const { player, matchData, dire, radiant, heroScore } = match;
 
 	let viewport = $derived(getContext('viewport'));
 
@@ -249,6 +258,9 @@
 			<div class="w-12 md:w-16">
 				<div class="relative">
 					<img src={player.hero.img} alt={player.hero.name} class="object-fit w-12 md:w-16" />
+					{#if heroScore}
+						<HeroScoreBadge score={heroScore} heroName={player.hero.name} />
+					{/if}
 					{#if player.facet}
 						<div
 							class={`absolute right-0 bottom-0 color_${

@@ -1,13 +1,17 @@
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players } from '$lib/server/schema';
-import { desc, eq, sql, type InferSelectModel, and, inArray } from 'drizzle-orm';
+import { desc, eq, sql, type InferSelectModel, and, gt, inArray } from 'drizzle-orm';
 import { getPlayers } from '$lib/server/db-functions';
 import { json } from '@sveltejs/kit';
 import { heroData } from '$lib/data/heroData';
 import { heroAbilities } from '$lib/data/heroAbilities';
 import { itemMap } from '$lib/data/itemMap';
 import { heroMap } from '$lib/data/heroMap';
+import {
+	getPlayerHeroScoreHistory,
+	type HeroScoreHistoryEntry
+} from '$lib/server/heroStats';
 
 type DotaAsset = { id: number; name: string; img: string };
 
@@ -164,6 +168,56 @@ export const GET: RequestHandler = async ({ url, params }) => {
 	});
 
 	const matchBlocksCombined = await Promise.all(matchBlockPromises);
+	const scorePlayerIds = Array.from(
+		new Set(
+			matchBlocksCombined
+				.flatMap((block) => block.map((player) => player.owner))
+				.filter((playerId): playerId is number => typeof playerId === 'number')
+		)
+	);
+	const scoreHeroIds = Array.from(
+		new Set(matchBlocksCombined.flatMap((block) => block.map((player) => player.heroId)))
+	);
+	const heroScoreRows =
+		scorePlayerIds.length > 0 && scoreHeroIds.length > 0
+			? await db
+					.select({
+						playerId: players.id,
+						heroId: matchData.heroId,
+						matchId: matchData.matchId,
+						startTime: matches.startTime,
+						winner: matches.winner,
+						team: matchData.team,
+						kills: matchData.kills,
+						deaths: matchData.deaths,
+						assists: matchData.assists,
+						impact: matchData.impact
+					})
+					.from(matchData)
+					.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+					.innerJoin(players, eq(players.id, accounts.owner))
+					.innerJoin(matches, eq(matches.id, matchData.matchId))
+					.where(
+						and(
+							inArray(players.id, scorePlayerIds),
+							inArray(matchData.heroId, scoreHeroIds),
+							gt(matches.duration, 900)
+						)
+					)
+			: [];
+	const scoreRowsByPlayer = new Map<number, typeof heroScoreRows>();
+	for (const row of heroScoreRows) {
+		const playerRows = scoreRowsByPlayer.get(row.playerId) ?? [];
+		playerRows.push(row);
+		scoreRowsByPlayer.set(row.playerId, playerRows);
+	}
+
+	const heroScoreByPlayerMatch = new Map<string, HeroScoreHistoryEntry>();
+	for (const [playerId, playerRows] of scoreRowsByPlayer) {
+		for (const [matchId, score] of getPlayerHeroScoreHistory(playerRows)) {
+			heroScoreByPlayerMatch.set(`${playerId}:${matchId}`, score);
+		}
+	}
 
 	const splitByTeam = (players: PlayerMatchData[]) => {
 		const radiant: PlayerMatchData[] = [];
@@ -179,10 +233,23 @@ export const GET: RequestHandler = async ({ url, params }) => {
 	};
 
 	const matchBlocks = matchBlocksCombined.map((match) => {
-		const { radiant, dire } = splitByTeam(match);
 		const matchData: MatchInfer = matchArray.find(
-			(data) => data.id === radiant[0]?.matchId || data.id === dire[0]?.matchId
+			(data) => data.id === match[0]?.matchId
 		)!;
+		const scoredPlayers = match.map((player) => ({
+			...player,
+			heroScore:
+				matchData.duration > 900
+					? (heroScoreByPlayerMatch.get(`${player.owner}:${matchData.id}`) ?? null)
+					: {
+							matchNumber: null,
+							scoreBefore: null,
+							scoreAfter: null,
+							scoreChange: null,
+							becameCalibrated: false
+						}
+		}));
+		const { radiant, dire } = splitByTeam(scoredPlayers);
 		return { radiant, dire, matchData };
 	});
 

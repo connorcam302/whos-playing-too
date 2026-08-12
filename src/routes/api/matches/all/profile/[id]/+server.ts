@@ -1,7 +1,7 @@
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players } from '$lib/server/schema';
-import { desc, eq, sql, type InferSelectModel, and, inArray, gte, lte } from 'drizzle-orm';
+import { desc, eq, sql, type InferSelectModel, and, inArray, gte, gt, lte } from 'drizzle-orm';
 import { getPlayers } from '$lib/server/db-functions';
 import { json } from '@sveltejs/kit';
 import { heroData } from '$lib/data/heroData';
@@ -14,6 +14,7 @@ import {
 	type DateRangeBounds
 } from '$lib/data/dotaPatchRanges';
 import dayjs from 'dayjs';
+import { getPlayerHeroScoreHistory } from '$lib/server/heroStats';
 
 type DotaAsset = { id: number; name: string; img: string };
 
@@ -348,6 +349,41 @@ export const GET: RequestHandler = async ({ url, params }) => {
 					filteredMatchIds.map((m) => m.id)
 				)
 			);
+		const profilePlayerId = Number(params.id);
+		const pageHeroIds = Array.from(
+			new Set(
+				allMatchData
+					.filter((row) => row.players.id === profilePlayerId)
+					.map((row) => row.match_data.heroId)
+			)
+		);
+		const heroScoreRows =
+			pageHeroIds.length > 0
+				? await db
+						.select({
+							heroId: matchData.heroId,
+							matchId: matchData.matchId,
+							startTime: matches.startTime,
+							winner: matches.winner,
+							team: matchData.team,
+							kills: matchData.kills,
+							deaths: matchData.deaths,
+							assists: matchData.assists,
+							impact: matchData.impact
+						})
+						.from(matchData)
+						.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+						.innerJoin(players, eq(players.id, accounts.owner))
+						.innerJoin(matches, eq(matches.id, matchData.matchId))
+						.where(
+							and(
+								eq(players.id, profilePlayerId),
+								inArray(matchData.heroId, pageHeroIds),
+								gt(matches.duration, 900)
+							)
+						)
+				: [];
+		const heroScoreHistory = getPlayerHeroScoreHistory(heroScoreRows);
 
 		const processingStartTime = Date.now();
 
@@ -406,7 +442,17 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				radiant,
 				dire,
 				matchData: match,
-				player
+				player,
+				heroScore:
+					match.duration > 900
+						? (heroScoreHistory.get(match.id) ?? null)
+						: {
+								matchNumber: null,
+								scoreBefore: null,
+								scoreAfter: null,
+								scoreChange: null,
+								becameCalibrated: false
+							}
 			};
 		});
 

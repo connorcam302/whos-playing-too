@@ -3,11 +3,13 @@
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import RatingChip from '$lib/components/RatingChip.svelte';
+	import HeroScoreComparisonDialog from '$lib/components/heroes/HeroScoreComparisonDialog.svelte';
 	import MatchModal from '$lib/components/match/MatchModal.svelte';
 	import * as Card from '$lib/components/ui/card';
 	import * as Table from '$lib/components/ui/table';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { getGameMode, getLobbyType, getRoleIcon, getRoleName, toTime } from '$lib/functions';
+	import { formatHeroScore } from '$lib/heroScores';
 	import { ArrowLeft, ArrowRight, HelpCircle, VenetianMask } from 'lucide-svelte';
 
 	dayjs.extend(relativeTime);
@@ -41,6 +43,9 @@
 		avgTowerDamage: number;
 		primaryRole: number;
 		score: number;
+		scoreWinRate: number;
+		scoreKda: number;
+		scoreAvgImpact: number;
 		volumeScore: number;
 		sampleWeight: number;
 		confidence: string;
@@ -131,6 +136,8 @@
 	let { data }: Props = $props();
 	const MATCHES_PER_PAGE = 20;
 	let matchPage = $state(1);
+	let scoreComparisonPlayerId = $state<number | null>(null);
+	let scoreComparisonOpen = $state(false);
 
 	const totalMatchPages = $derived(Math.max(1, Math.ceil(data.matches.length / MATCHES_PER_PAGE)));
 	const paginatedMatches = $derived(
@@ -151,6 +158,11 @@
 		if (matchPage > 1) {
 			matchPage -= 1;
 		}
+	};
+
+	const openScoreComparison = (playerId: number) => {
+		scoreComparisonPlayerId = playerId;
+		scoreComparisonOpen = true;
 	};
 
 	const formatNumber = (value: number | null | undefined, decimals = 0) =>
@@ -208,6 +220,14 @@
 	<title>whos-playing | {data.hero.name}</title>
 </svelte:head>
 
+<HeroScoreComparisonDialog
+	heroName={data.hero.name}
+	heroImg={data.hero.img}
+	players={data.playerRankings}
+	selectedPlayerId={scoreComparisonPlayerId}
+	bind:open={scoreComparisonOpen}
+/>
+
 <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 px-3 pb-4 pt-16 sm:px-4">
 	<section class="overflow-hidden rounded-md border border-border bg-card">
 		<div class="grid gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_18rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
@@ -251,14 +271,27 @@
 						{data.summary.bestPlayer?.username ?? 'Uncalibrated'}
 					</div>
 					<div class="mt-1 flex items-center gap-2 text-xs text-zinc-400">
-						<span>{data.summary.bestPlayer ? `${data.summary.bestPlayer.score} score` : 'Needs 10 games'}</span>
+						{#if data.summary.bestPlayer}
+							<button
+								type="button"
+								onclick={() => openScoreComparison(data.summary.bestPlayer!.playerId)}
+								class="rounded-sm underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
+								aria-label={`Compare all player scores for ${data.hero.name}`}
+							>
+								{formatHeroScore(data.summary.bestPlayer.score)} score
+							</button>
+						{:else}
+							<span>Needs 10 games</span>
+						{/if}
 						<Tooltip.Root>
 							<Tooltip.Trigger class="inline-flex text-zinc-500 outline-none hover:text-zinc-200 focus-visible:ring-2 focus-visible:ring-ring">
 								<HelpCircle class="h-3.5 w-3.5" />
 							</Tooltip.Trigger>
 							<Tooltip.Content class="max-w-72 text-xs">
-								Server-side score from win rate, recent form, role-adjusted impact, KDA, sample
-								weight, and capped match volume. Players need 10 games on a hero before they receive a score.
+								Server-side score blends 70% time-weighted history with 30% from the latest 20 games
+								for win rate, impact, and KDA. Recent form, sample weight, and match volume also contribute.
+								Every match counts fully toward experience and confidence.
+								Players need 10 games on a hero before they receive a score.
 							</Tooltip.Content>
 						</Tooltip.Root>
 					</div>
@@ -323,8 +356,9 @@
 						<HelpCircle class="h-4 w-4" />
 					</Tooltip.Trigger>
 					<Tooltip.Content class="max-w-80 text-xs">
-						Score is calculated on the server for players with at least 10 games on this hero. Match volume now contributes directly, but with a
-						capped curve so experience matters without making this a games-played leaderboard.
+						Score is calculated for players with at least 10 games on this hero. Performance blends
+						70% time-weighted history with 30% from the latest 20 games, making improvement visible
+						without discarding older matches.
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</div>
@@ -356,47 +390,14 @@
 									</button>
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right tabular-nums">
-									<Tooltip.Root>
-										<Tooltip.Trigger class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring">
-											{player.score}
-										</Tooltip.Trigger>
-										<Tooltip.Content class="w-96 p-0 text-xs">
-											<div class="border-b border-zinc-800 px-3 py-2">
-												<div class="font-medium text-zinc-100">{player.username} score: {player.score}</div>
-												<div class="mt-0.5 text-zinc-400">
-													{player.confidence} sample · {player.matches} matches on {data.hero.name}
-												</div>
-											</div>
-											<div class="grid gap-2 p-3">
-												<div class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
-													<span class="text-zinc-400">Win rate</span>
-													<span class="text-right text-zinc-100">{formatPercent(player.winRate)}</span>
-													<span class="text-zinc-400">Recent form</span>
-													<span class="flex justify-end gap-1 text-right text-zinc-100">
-														{#each player.recentForm.split('') as result}
-															<span class={result === 'W' ? 'text-green-400' : 'text-red-400'}>
-																{result}
-															</span>
-														{:else}
-															<span>No recent games</span>
-														{/each}
-													</span>
-													<span class="text-zinc-400">KDA</span>
-													<span class="text-right text-zinc-100">{formatNumber(player.kda, 2)}</span>
-													<span class="text-zinc-400">Avg impact</span>
-													<span class="text-right text-zinc-100">{formatNumber(player.avgImpact)}</span>
-													<span class="text-zinc-400">Volume score</span>
-													<span class="text-right text-zinc-100">{formatNumber(player.volumeScore)}</span>
-													<span class="text-zinc-400">Sample weight</span>
-													<span class="text-right text-zinc-100">{formatPercent(player.sampleWeight * 100)}</span>
-												</div>
-												<div class="rounded-sm border border-zinc-800 bg-zinc-950/60 p-2 text-zinc-400">
-													Performance uses win rate, recent form, impact, and KDA. That performance is
-													weighted by sample size, then capped match volume adds up to 20 points.
-												</div>
-											</div>
-										</Tooltip.Content>
-									</Tooltip.Root>
+									<button
+										type="button"
+										onclick={() => openScoreComparison(player.playerId)}
+										class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
+										aria-label={`Compare all player scores for ${data.hero.name}`}
+									>
+										{formatHeroScore(player.score)}
+									</button>
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right tabular-nums">
 									<span class="text-green-400">{player.wins}</span>

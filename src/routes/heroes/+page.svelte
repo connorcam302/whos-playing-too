@@ -7,8 +7,9 @@
 		type SortingState
 	} from '@tanstack/table-core';
 	import { FlexRender, createSvelteTable } from '$lib/components/ui/data-table/index.js';
+	import HeroScoreComparisonDialog from '$lib/components/heroes/HeroScoreComparisonDialog.svelte';
 	import * as Table from '$lib/components/ui/table';
-	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { formatHeroScore } from '$lib/heroScores';
 	import { ArrowUpDown, ChevronDown, ChevronRight, Search } from 'lucide-svelte';
 	import OwnershipInfographics from './OwnershipInfographics.svelte';
 	import OwnershipChanges from './OwnershipChanges.svelte';
@@ -28,6 +29,9 @@
 		sampleWeight: number;
 		primaryRole: number;
 		score: number;
+		scoreWinRate: number;
+		scoreKda: number;
+		scoreAvgImpact: number;
 		confidence: string;
 	};
 
@@ -68,6 +72,9 @@
 	let searchValue = $state('');
 	let expandedHeroes = $state<Record<number, boolean>>({});
 	let sorting = $state<SortingState>([{ id: 'score', desc: true }]);
+	let scoreComparisonHero = $state<HeroSummary | null>(null);
+	let scoreComparisonPlayerId = $state<number | null>(null);
+	let scoreComparisonOpen = $state(false);
 
 	const formatNumber = (value: number | null | undefined, decimals = 0) =>
 		new Intl.NumberFormat('en-GB', {
@@ -82,6 +89,12 @@
 			...expandedHeroes,
 			[heroId]: !expandedHeroes[heroId]
 		};
+	};
+
+	const openScoreComparison = (hero: HeroSummary, playerId: number) => {
+		scoreComparisonHero = hero;
+		scoreComparisonPlayerId = playerId;
+		scoreComparisonOpen = true;
 	};
 
 	const filteredHeroes = $derived(
@@ -159,9 +172,6 @@
 
 	const getHiddenPlayers = (hero: HeroSummary) => hero.topPlayers.slice(1);
 
-	const getFormClass = (result: string) =>
-		result === 'W' ? 'text-green-400' : 'text-red-400';
-
 	const getScoreChangeClass = (scoreChange: number | null) => {
 		if (scoreChange === null || scoreChange === 0) return 'text-zinc-500';
 		return scoreChange > 0 ? 'text-green-400' : 'text-red-400';
@@ -170,13 +180,23 @@
 	const formatScoreChange = (scoreChange: number | null) => {
 		if (scoreChange === null) return '-';
 		if (scoreChange === 0) return '0';
-		return scoreChange > 0 ? `+${scoreChange}` : `${scoreChange}`;
+		return scoreChange > 0 ? `+${formatHeroScore(scoreChange)}` : formatHeroScore(scoreChange);
 	};
 </script>
 
 <svelte:head>
 	<title>whos-playing | Heroes</title>
 </svelte:head>
+
+{#if scoreComparisonHero}
+	<HeroScoreComparisonDialog
+		heroName={scoreComparisonHero.name}
+		heroImg={scoreComparisonHero.img}
+		players={scoreComparisonHero.topPlayers}
+		selectedPlayerId={scoreComparisonPlayerId}
+		bind:open={scoreComparisonOpen}
+	/>
+{/if}
 
 <div class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-3 pb-4 pt-16 sm:px-4">
 	<section class="rounded-md border border-border bg-card p-4">
@@ -195,7 +215,7 @@
 					</span>
 					{#if topHero?.topPlayers[0]}
 						<span class="rounded-sm border border-zinc-700 bg-zinc-950/40 px-2 py-1">
-							Top calibrated score: {topHero.topPlayers[0].username} on {topHero.name}, {topHero.topPlayers[0].score}
+							Top calibrated score: {topHero.topPlayers[0].username} on {topHero.name}, {formatHeroScore(topHero.topPlayers[0].score)}
 						</span>
 					{/if}
 				</div>
@@ -294,47 +314,14 @@
 							</Table.Cell>
 							<Table.Cell class="px-2 py-2 text-right tabular-nums">
 								{#if bestPlayer}
-									<Tooltip.Root>
-										<Tooltip.Trigger class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring">
-											{bestPlayer.score}
-										</Tooltip.Trigger>
-										<Tooltip.Content class="w-96 p-0 text-xs">
-											<div class="border-b border-zinc-800 px-3 py-2">
-												<div class="font-medium text-zinc-100">
-													{bestPlayer.username} score: {bestPlayer.score}
-												</div>
-												<div class="mt-0.5 text-zinc-400">
-													{bestPlayer.confidence} sample · {bestPlayer.matches} matches on {hero.name}
-												</div>
-											</div>
-											<div class="grid gap-2 p-3">
-												<div class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
-													<span class="text-zinc-400">Win rate</span>
-													<span class="text-right text-zinc-100">{formatPercent(bestPlayer.winRate)}</span>
-													<span class="text-zinc-400">Recent form</span>
-													<span class="flex justify-end gap-1 text-right text-zinc-100">
-														{#each bestPlayer.recentForm.split('') as result}
-															<span class={getFormClass(result)}>{result}</span>
-														{:else}
-															<span>No recent games</span>
-														{/each}
-													</span>
-													<span class="text-zinc-400">KDA</span>
-													<span class="text-right text-zinc-100">{formatNumber(bestPlayer.kda, 2)}</span>
-													<span class="text-zinc-400">Avg impact</span>
-													<span class="text-right text-zinc-100">{formatNumber(bestPlayer.avgImpact)}</span>
-													<span class="text-zinc-400">Volume score</span>
-													<span class="text-right text-zinc-100">{formatNumber(bestPlayer.volumeScore)}</span>
-													<span class="text-zinc-400">Sample weight</span>
-													<span class="text-right text-zinc-100">{formatPercent(bestPlayer.sampleWeight * 100)}</span>
-												</div>
-												<div class="rounded-sm border border-zinc-800 bg-zinc-950/60 p-2 text-zinc-400">
-													Performance uses win rate, recent form, impact, and KDA. That performance is
-													weighted by sample size, then capped match volume adds up to 20 points.
-												</div>
-											</div>
-										</Tooltip.Content>
-									</Tooltip.Root>
+									<button
+										type="button"
+										onclick={() => openScoreComparison(hero, bestPlayer.playerId)}
+										class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
+										aria-label={`Compare all player scores for ${hero.name}`}
+									>
+										{formatHeroScore(bestPlayer.score)}
+									</button>
 								{:else}
 									<span class="text-zinc-600">-</span>
 								{/if}
@@ -399,47 +386,14 @@
 										</button>
 									</Table.Cell>
 									<Table.Cell class="px-2 py-2 text-right tabular-nums">
-										<Tooltip.Root>
-											<Tooltip.Trigger class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring">
-												{player.score}
-											</Tooltip.Trigger>
-											<Tooltip.Content class="w-96 p-0 text-xs">
-												<div class="border-b border-zinc-800 px-3 py-2">
-													<div class="font-medium text-zinc-100">
-														{player.username} score: {player.score}
-													</div>
-													<div class="mt-0.5 text-zinc-400">
-														{player.confidence} sample · {player.matches} matches on {hero.name}
-													</div>
-												</div>
-												<div class="grid gap-2 p-3">
-													<div class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
-														<span class="text-zinc-400">Win rate</span>
-														<span class="text-right text-zinc-100">{formatPercent(player.winRate)}</span>
-														<span class="text-zinc-400">Recent form</span>
-														<span class="flex justify-end gap-1 text-right text-zinc-100">
-															{#each player.recentForm.split('') as result}
-																<span class={getFormClass(result)}>{result}</span>
-															{:else}
-																<span>No recent games</span>
-															{/each}
-														</span>
-														<span class="text-zinc-400">KDA</span>
-														<span class="text-right text-zinc-100">{formatNumber(player.kda, 2)}</span>
-														<span class="text-zinc-400">Avg impact</span>
-														<span class="text-right text-zinc-100">{formatNumber(player.avgImpact)}</span>
-														<span class="text-zinc-400">Volume score</span>
-														<span class="text-right text-zinc-100">{formatNumber(player.volumeScore)}</span>
-														<span class="text-zinc-400">Sample weight</span>
-														<span class="text-right text-zinc-100">{formatPercent(player.sampleWeight * 100)}</span>
-													</div>
-													<div class="rounded-sm border border-zinc-800 bg-zinc-950/60 p-2 text-zinc-400">
-														Performance uses win rate, recent form, impact, and KDA. That performance is
-														weighted by sample size, then capped match volume adds up to 20 points.
-													</div>
-												</div>
-											</Tooltip.Content>
-										</Tooltip.Root>
+										<button
+											type="button"
+											onclick={() => openScoreComparison(hero, player.playerId)}
+											class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
+											aria-label={`Compare all player scores for ${hero.name}`}
+										>
+											{formatHeroScore(player.score)}
+										</button>
 									</Table.Cell>
 									<Table.Cell class="px-2 py-2 text-right text-zinc-600">-</Table.Cell>
 									<Table.Cell class="px-2 py-2 text-right tabular-nums">

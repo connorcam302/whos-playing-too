@@ -4,6 +4,7 @@
 	import MatchAnalysisBanner from '$lib/components/stack-analysis/MatchAnalysisBanner.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { PlayerWeightGroup } from '$lib/stack-analysis';
+	import { ExternalLink } from 'lucide-svelte';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -190,17 +191,27 @@
 	<Dialog.Content
 		class="w-[min(96vw,1400px)] max-w-none gap-0 overflow-hidden rounded-md border-border bg-card p-0 shadow-2xl shadow-black/60"
 	>
-		<Dialog.Header class="border-b border-border px-4 py-3">
-			<Dialog.Title class="text-sm font-medium text-zinc-100">Match Details</Dialog.Title>
-			<Dialog.Description class="text-xs text-zinc-500">
-				{#if matchId}
-					Match {matchId}
-				{:else if sequenceNum}
-					Sequence {sequenceNum}
-				{:else}
-					Loading match
-				{/if}
-			</Dialog.Description>
+		<Dialog.Header class="flex-row items-center justify-between space-y-0 border-b border-border px-4 py-3 pr-12 text-left">
+			<div class="min-w-0">
+				<Dialog.Title class="text-sm font-medium text-zinc-100">Match Details</Dialog.Title>
+				<Dialog.Description class="mt-1 text-xs text-zinc-500">
+					{#if matchId}
+						Match {matchId}
+					{:else if sequenceNum}
+						Sequence {sequenceNum}
+					{:else}
+						Loading match
+					{/if}
+				</Dialog.Description>
+			</div>
+			{#if matchId}
+				<a
+					href={`/match/${matchId}`}
+					class="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md border border-zinc-700 px-2.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-900 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+				>
+					Full match <ExternalLink class="h-3.5 w-3.5" />
+				</a>
+			{/if}
 		</Dialog.Header>
 		<div class="max-h-[calc(88vh-4rem)] overflow-auto p-3">
 			{#if matchDetails}

@@ -6,7 +6,7 @@
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { goto } from '$app/navigation';
-	import { Settings, ExternalLink, Trophy } from 'lucide-svelte';
+	import { Settings, Trophy } from 'lucide-svelte';
 	import { calcImpact, getRoleIcon, getRoleName } from '$lib/functions';
 	import RatingChip from '$lib/components/RatingChip.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -122,10 +122,9 @@
 			error?: any;
 		};
 		pickOrder?: boolean;
-		modal?: boolean;
 	}
 
-	let { matchDetails, pickOrder = true, modal = true }: Props = $props();
+	let { matchDetails, pickOrder = true }: Props = $props();
 
 	const toTime = (time: number) => {
 		return `${(time / 60) | 0}:${time % 60 < 10 ? 0 : ''}${time % 60}`;
@@ -288,15 +287,6 @@
 			</div>
 
 			<div class="flex items-center gap-1.5">
-				{#if modal}
-					<button
-						onclick={() => goto(`/match/${matchDetails.matchData.match_id}`)}
-						class="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
-						aria-label="Open full match page"
-					>
-						<ExternalLink class="h-4 w-4" />
-					</button>
-				{/if}
 				<a
 					href={`https://www.dotabuff.com/matches/${matchDetails.matchData.match_id}`}
 					target="_blank"

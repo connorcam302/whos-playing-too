@@ -26,9 +26,10 @@
 
 	type Props = {
 		data: RatingChipData;
+		comfortable?: boolean;
 	};
 
-	let { data }: Props = $props();
+	let { data, comfortable = false }: Props = $props();
 	const player = $derived(data.player);
 	const matchData = $derived(data.matchData);
 	const impactDetails = $derived(getImpactDetails(player, player.role, matchData.duration));
@@ -61,7 +62,11 @@
 </script>
 
 <Tooltip.Root>
-	<Tooltip.Trigger>
+	<Tooltip.Trigger
+		class={comfortable
+			? 'inline-flex min-h-11 min-w-11 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:min-h-8 md:min-w-12'
+			: 'inline-flex min-h-6 min-w-8 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'}
+	>
 		{#if isPoo}
 			<div class="flex w-8 justify-center md:w-12">
 				<div class="text-xl">
@@ -77,7 +82,7 @@
 			</div>
 		{/if}
 	</Tooltip.Trigger>
-	<Tooltip.Content class="w-96">
+	<Tooltip.Content class="w-[min(24rem,calc(100vw-2rem))]">
 		<div class="text-center">Rating: {player.impact}</div>
 		<Table.Root>
 			<Table.Caption>

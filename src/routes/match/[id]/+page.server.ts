@@ -1,32 +1,27 @@
-import { env } from '$env/dynamic/private';
-//import matchDetails from '$lib/data/match-details.json';
-import { type MatchDetails } from './matchDetails.type';
+import { getStratzMatchOverview, toMatchPageError } from '$lib/server/stratz';
+import type { PageServerLoad } from './$types';
 
-export const load = async ({ params }) => {
-	const fetchMatchData = async () => {
-		const res = await fetch(env.BASE_URL + `/api/matches/${params.id}`);
-		return await res.json();
-	};
+export const load: PageServerLoad = async ({ params, setHeaders }) => {
+	const matchId = Number(params.id);
+	if (!Number.isSafeInteger(matchId) || matchId <= 0) {
+		return {
+			match: null,
+			error: {
+				status: 400,
+				title: 'Invalid match ID',
+				message: 'Use a numeric Dota match ID to open match analysis.',
+				canRetry: false
+			}
+		};
+	}
 
-	const matchDetails: MatchDetails = await fetch(
-		`https://api.stratz.com/api/v1/match/${params.id}/breakdown`,
-		{
-			headers: { Authorization: `Bearer ${env.STRATZ_KEY}` }
-		}
-	).then((res) => res.json());
-
-	const matchData = await fetchMatchData();
-
-	const abilityId = await fetch(
-		`https://raw.githubusercontent.com/odota/dotaconstants/master/build/ability_ids.json`
-	).then((res) => res.json());
-
-	const abilityData = await fetch(
-		`https://raw.githubusercontent.com/odota/dotaconstants/master/build/abilities.json`
-	).then((res) => res.json());
-
-	return {
-		matchData,
-		matchDetails
-	};
+	try {
+		const match = await getStratzMatchOverview(matchId);
+		setHeaders({
+			'cache-control': match.status === 'ready' ? 'public, max-age=300' : 'public, max-age=30'
+		});
+		return { match, error: null };
+	} catch (error) {
+		return { match: null, error: toMatchPageError(error) };
+	}
 };

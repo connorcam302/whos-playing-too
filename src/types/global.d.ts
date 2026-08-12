@@ -46,4 +46,11 @@ declare interface PlayerData {
 	impact: number;
 	hero: DotaAsset;
 	facet: number;
+	heroScore?: {
+		matchNumber: number | null;
+		scoreBefore: number | null;
+		scoreAfter: number | null;
+		scoreChange: number | null;
+		becameCalibrated: boolean;
+	};
 }

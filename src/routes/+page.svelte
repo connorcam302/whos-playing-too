@@ -4,24 +4,20 @@
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
 	import HeroStatbox from '$lib/components/stats/HeroStatbox.svelte';
 	import PlayerStatbox from '$lib/components/stats/PlayerStatbox.svelte';
-	import FeatureBox from '$lib/components/feature/FeatureBox.svelte';
 	import Loading from '$lib/components/Loading.svelte';
 	import TeamOfTheWeek from '$lib/components/otw/TeamOfTheWeek.svelte';
 	import FlopOfTheWeek from '$lib/components/otw/FlopOfTheWeek.svelte';
+	import WeeklyDigest from '$lib/components/digest/WeeklyDigest.svelte';
+	import WeeklyDigestSkeleton from '$lib/components/digest/WeeklyDigestSkeleton.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import OwnershipChanges from './heroes/OwnershipChanges.svelte';
 
 	let { data } = $props();
 
-	const {
-		heroStats,
-		playerStats,
-		totw,
-		features,
-		fotw,
-		ownershipChanges,
-		worstOwnershipChanges
-	} = data;
+	let heroStats = $derived(data.heroStats);
+	let playerStats = $derived(data.playerStats);
+	let totw = $derived(data.totw);
+	let fotw = $derived(data.fotw);
+	let digest = $derived(data.digest);
 	let matchBlocks: any[] = $state([]);
 
 	onMount(() => {
@@ -34,21 +30,6 @@
 
 	const headers = ['totw', 'flop'];
 	let header = $state('totw');
-
-	const makeFeatureItems = (f: any) => [
-		{ data: f.mostKills, title: 'Most Kills', type: 'kills' },
-		{ data: f.mostDeaths, title: 'Most Deaths', type: 'deaths' },
-		{ data: f.mostAssists, title: 'Most Assists', type: 'assists' },
-		{ data: f.mostGPM, title: 'Most GPM', type: 'gpm' },
-		{ data: f.mostXPM, title: 'Most XPM', type: 'xpm' },
-		{ data: f.mostImpact, title: 'Most Impact', type: 'impact' },
-		{ data: f.leastImpact, title: 'Least Impact', type: 'impact' },
-		{ data: f.mostLastHits, title: 'Most Last Hits', type: 'lastHits' },
-		{ data: f.mostHeroDamage, title: 'Most Hero Damage', type: 'heroDamage' },
-		{ data: f.leastHeroDamage, title: 'Least Hero Damage', type: 'heroDamage' },
-		{ data: f.mostGained, title: 'Most MMR Gained', type: 'winLoss' },
-		{ data: f.mostLost, title: 'Most MMR Lost', type: 'winLoss' }
-	];
 </script>
 
 <svelte:head>
@@ -87,30 +68,8 @@
 
 	<!-- Main Content -->
 	<div class="mx-auto w-full max-w-7xl px-4">
-		{#if ownershipChanges.length > 0 || worstOwnershipChanges.length > 0}
-			<section class="mt-10">
-				<OwnershipChanges changes={ownershipChanges} worstChanges={worstOwnershipChanges} />
-			</section>
-		{/if}
-
-		<!-- 7-Day Records -->
-		<section class="mt-10 mb-8">
-			<div class="mb-2 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-				7-Day Records
-			</div>
-			{#await features then resolvedFeatures}
-				<div class="records-grid">
-					{#each makeFeatureItems(resolvedFeatures) as item}
-						{#if item.data && item.data.length >= 3}
-							<FeatureBox data={item.data} title={item.title} type={item.type} />
-						{/if}
-					{/each}
-				</div>
-			{/await}
-		</section>
-
 		<!-- Matches & Stats -->
-		<section class="mb-12">
+		<section class="mt-6 mb-12">
 			<div class="flex flex-col gap-6 xl:flex-row xl:gap-4">
 				<!-- Recent Matches (left on large screens) -->
 				<div class="min-w-0 xl:flex-1">
@@ -137,6 +96,21 @@
 
 				<!-- Stats (right on large screens) -->
 				<div class="flex w-full flex-col gap-4 xl:w-[480px] xl:shrink-0">
+					{#await digest}
+						<WeeklyDigestSkeleton />
+					{:then resolvedDigest}
+						<WeeklyDigest digest={resolvedDigest} />
+					{:catch}
+						<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
+							<Card.Header class="px-4 pt-4 pb-0">
+								<Card.Title class="text-base">Weekly Digest</Card.Title>
+								<Card.Description class="text-xs text-zinc-400">Last seven days.</Card.Description>
+							</Card.Header>
+							<Card.Content class="px-4 pt-3 pb-4 text-xs text-zinc-400">
+								Digest unavailable. Try refreshing.
+							</Card.Content>
+						</Card.Root>
+					{/await}
 					<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
 						<Card.Header class="px-4 pt-4 pb-0">
 							<Card.Title class="text-base">Hero Stats</Card.Title>
@@ -190,11 +164,5 @@
 	.hero-backdrop > * {
 		position: relative;
 		z-index: 1;
-	}
-
-	.records-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-		gap: 0.75rem;
 	}
 </style>
