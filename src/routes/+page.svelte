@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import MatchBlock from '$lib/components/match/MatchBlock.svelte';
@@ -19,13 +20,73 @@
 	let fotw = $derived(data.fotw);
 	let digest = $derived(data.digest);
 	let matchBlocks: any[] = $state([]);
+	let visibleMatchBlocks = $derived(Array.isArray(matchBlocks) ? matchBlocks : []);
+	let refreshInProgress = false;
+
+	const getMatchBlocks = (payload: unknown): any[] | null => {
+		if (Array.isArray(payload)) return payload;
+		if (
+			typeof payload === 'object' &&
+			payload !== null &&
+			'matches' in payload &&
+			Array.isArray(payload.matches)
+		) {
+			return payload.matches;
+		}
+		return null;
+	};
+
+	const refreshMatches = async (checkForNewMatch = false) => {
+		if (refreshInProgress || document.hidden) return;
+
+		refreshInProgress = true;
+		try {
+			if (checkForNewMatch && visibleMatchBlocks.length > 0) {
+				const latestResponse = await fetch('/api/matches/latest', { cache: 'no-store' });
+				if (!latestResponse.ok) return;
+
+				const { id: latestMatchId } = await latestResponse.json();
+				if (latestMatchId === visibleMatchBlocks[0]?.matchData?.id) return;
+			}
+
+			const response = await fetch('/api/matches/recent');
+			if (!response.ok) return;
+
+			const payload: unknown = await response.json();
+			const nextMatchBlocks = getMatchBlocks(payload);
+			if (!nextMatchBlocks) return;
+
+			const currentLatestMatchId = visibleMatchBlocks[0]?.matchData?.id;
+			const nextLatestMatchId = nextMatchBlocks[0]?.matchData?.id;
+
+			matchBlocks = nextMatchBlocks;
+
+			if (currentLatestMatchId && nextLatestMatchId !== currentLatestMatchId) {
+				await invalidateAll();
+			}
+		} catch {
+			// Keep the existing matches visible and try again on the next poll.
+		} finally {
+			refreshInProgress = false;
+		}
+	};
 
 	onMount(() => {
-		fetch(`/api/matches/all?smurf=true`)
-			.then((res) => res.json())
-			.then((res) => {
-				matchBlocks = res;
-			});
+		void refreshMatches();
+
+		const refreshInterval = window.setInterval(() => {
+			void refreshMatches(true);
+		}, 60_000);
+		const refreshWhenVisible = () => {
+			if (!document.hidden) void refreshMatches(true);
+		};
+
+		document.addEventListener('visibilitychange', refreshWhenVisible);
+
+		return () => {
+			window.clearInterval(refreshInterval);
+			document.removeEventListener('visibilitychange', refreshWhenVisible);
+		};
 	});
 
 	const headers = ['totw', 'flop'];
@@ -73,15 +134,15 @@
 			<div class="flex flex-col gap-6 xl:flex-row xl:gap-4">
 				<!-- Recent Matches (left on large screens) -->
 				<div class="min-w-0 xl:flex-1">
-					{#key matchBlocks}
+					{#key visibleMatchBlocks}
 						<div in:fade={{ duration: 400 }}>
-							{#if matchBlocks.length === 0}
+							{#if visibleMatchBlocks.length === 0}
 								<div class="flex min-h-48 items-center justify-center">
 									<Loading />
 								</div>
 							{:else}
 								<div class="flex min-w-0 flex-col gap-2">
-									{#each matchBlocks.slice(0, 10) as match}
+									{#each visibleMatchBlocks.slice(0, 10) as match}
 										<Card.Root class="min-w-0 overflow-hidden">
 											<Card.Content class="p-0">
 												<MatchBlock {match} />
@@ -103,11 +164,11 @@
 					{:catch}
 						<Card.Root class="min-w-0 rounded-md border-border bg-card shadow-none">
 							<Card.Header class="px-4 pt-4 pb-0">
-								<Card.Title class="text-base">Weekly Digest</Card.Title>
+								<Card.Title class="text-base">Weekly Timeline</Card.Title>
 								<Card.Description class="text-xs text-zinc-400">Last seven days.</Card.Description>
 							</Card.Header>
 							<Card.Content class="px-4 pt-3 pb-4 text-xs text-zinc-400">
-								Digest unavailable. Try refreshing.
+								Timeline unavailable. Try refreshing.
 							</Card.Content>
 						</Card.Root>
 					{/await}

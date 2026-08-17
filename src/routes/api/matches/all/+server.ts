@@ -1,17 +1,20 @@
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players } from '$lib/server/schema';
-import { desc, eq, sql, type InferSelectModel, and, gt, inArray } from 'drizzle-orm';
+import { desc, eq, type InferSelectModel, and, gt, gte, inArray, lte, ne } from 'drizzle-orm';
 import { getPlayers } from '$lib/server/db-functions';
 import { json } from '@sveltejs/kit';
 import { heroData } from '$lib/data/heroData';
 import { heroAbilities } from '$lib/data/heroAbilities';
 import { itemMap } from '$lib/data/itemMap';
 import { heroMap } from '$lib/data/heroMap';
+import { getPlayerHeroScoreHistory, type HeroScoreHistoryEntry } from '$lib/server/heroStats';
 import {
-	getPlayerHeroScoreHistory,
-	type HeroScoreHistoryEntry
-} from '$lib/server/heroStats';
+	DATE_RANGE_PRESETS,
+	getDotaPatchRangeBounds,
+	type DateRangeBounds
+} from '$lib/data/dotaPatchRanges';
+import dayjs from 'dayjs';
 
 type DotaAsset = { id: number; name: string; img: string };
 
@@ -40,11 +43,91 @@ type MatchData = {
 
 type PlayerMatchData = MatchData & AccountInfer & PlayerInfer;
 
-export const GET: RequestHandler = async ({ url, params }) => {
+const getDateRangeBounds = (dateRange: string | null): DateRangeBounds => {
+	if (!dateRange || dateRange === 'all') return { start: null, end: null };
+	if (dateRange.startsWith('patch-')) {
+		return getDotaPatchRangeBounds(dateRange.replace('patch-', ''));
+	}
+
+	const preset = DATE_RANGE_PRESETS.find((range) => range.value === dateRange);
+	if (!preset?.amount || !preset.unit) return { start: null, end: null };
+
+	return {
+		start: dayjs().subtract(preset.amount, preset.unit).startOf('day').unix(),
+		end: null
+	};
+};
+
+const getDateFilters = (bounds: DateRangeBounds) => {
+	const filters = [];
+	if (bounds.start !== null) filters.push(gte(matches.startTime, bounds.start));
+	if (bounds.end !== null) filters.push(lte(matches.startTime, bounds.end));
+	return filters;
+};
+
+const emptyStats = () => ({
+	matchCount: 0,
+	appearances: 0,
+	wins: 0,
+	losses: 0,
+	winRate: 0,
+	rankedMatches: 0,
+	rankedRate: 0,
+	averages: { kills: 0, deaths: 0, assists: 0, impact: 0, duration: 0 }
+});
+
+const calculateMatchStats = (
+	rows: { match_data: MatchDataInfer; matches: MatchInfer }[],
+	matchCount: number
+) => {
+	if (rows.length === 0) return emptyStats();
+
+	const wins = rows.filter((row) => row.match_data.team === row.matches.winner).length;
+	const rankedMatchIds = new Set(
+		rows
+			.filter((row) => row.matches.gameMode === 22 && row.matches.lobby === 7)
+			.map((row) => row.matches.id)
+	);
+	const totals = rows.reduce(
+		(acc, row) => {
+			acc.kills += row.match_data.kills ?? 0;
+			acc.deaths += row.match_data.deaths ?? 0;
+			acc.assists += row.match_data.assists ?? 0;
+			acc.impact += row.match_data.impact ?? 0;
+			return acc;
+		},
+		{ kills: 0, deaths: 0, assists: 0, impact: 0 }
+	);
+	const durationsByMatch = new Map(rows.map((row) => [row.matches.id, row.matches.duration]));
+	const average = (value: number) => value / rows.length;
+	const averageDuration =
+		Array.from(durationsByMatch.values()).reduce((sum, duration) => sum + duration, 0) /
+		durationsByMatch.size;
+
+	return {
+		matchCount,
+		appearances: rows.length,
+		wins,
+		losses: rows.length - wins,
+		winRate: (wins / rows.length) * 100,
+		rankedMatches: rankedMatchIds.size,
+		rankedRate: matchCount > 0 ? (rankedMatchIds.size / matchCount) * 100 : 0,
+		averages: {
+			kills: average(totals.kills),
+			deaths: average(totals.deaths),
+			assists: average(totals.assists),
+			impact: average(totals.impact),
+			duration: averageDuration
+		}
+	};
+};
+
+export const GET: RequestHandler = async ({ url }) => {
 	const allPlayers = await getPlayers({ includeHiddenFromAggregates: true });
 	const allPlayerIds = allPlayers.map((player) => player.id);
+	const hasPlayerFilter = url.searchParams.has('players');
 	let playerFilter: number[] = allPlayerIds;
-	if (url.searchParams.has('players')) {
+	if (hasPlayerFilter) {
 		playerFilter = JSON.parse(url.searchParams.get('players')!);
 	}
 
@@ -103,21 +186,26 @@ export const GET: RequestHandler = async ({ url, params }) => {
 	if (url.searchParams.has('smurf')) {
 		smurfFilter.push(Boolean(JSON.parse(url.searchParams.get('smurf')!)));
 	}
+	const dateFilters = getDateFilters(getDateRangeBounds(url.searchParams.get('dateRange')));
+	const resultFilter: string[] = url.searchParams.has('results')
+		? JSON.parse(url.searchParams.get('results')!)
+		: ['wins', 'losses'];
+	const resultConditions = [
+		...(resultFilter.includes('wins') ? [eq(matchData.team, matches.winner)] : []),
+		...(resultFilter.includes('losses') ? [ne(matchData.team, matches.winner)] : [])
+	];
+	const versusFilter = url.searchParams.get('versus') === 'true';
 
-	const matchArray = await db
+	const matchingPlayerRows = await db
 		.select({
-			id: matches.id,
-			winner: matches.winner,
-			duration: matches.duration,
-			startTime: matches.startTime,
-			gameMode: matches.gameMode,
-			lobby: matches.lobby,
-			sequenceNumber: matches.sequenceNumber
+			playerId: players.id,
+			match_data: matchData,
+			matches
 		})
 		.from(matches)
-		.leftJoin(matchData, eq(matches.id, matchData.matchId))
-		.leftJoin(accounts, eq(matchData.playerId, accounts.accountId))
-		.leftJoin(players, eq(accounts.owner, players.id))
+		.innerJoin(matchData, eq(matches.id, matchData.matchId))
+		.innerJoin(accounts, eq(matchData.playerId, accounts.accountId))
+		.innerJoin(players, eq(accounts.owner, players.id))
 		.where(
 			and(
 				inArray(players.id, playerFilter),
@@ -125,12 +213,77 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				inArray(matches.gameMode, gameModeFilter),
 				inArray(matches.lobby, lobbyFilter),
 				inArray(matchData.role, roleFilter),
-				inArray(accounts.smurf, smurfFilter)
+				inArray(accounts.smurf, smurfFilter),
+				...dateFilters,
+				...(resultConditions.length === 1 ? resultConditions : [])
 			)
 		)
-		.limit((pageNumber + 1) * 10 + 1)
-		.groupBy(matches.id)
 		.orderBy(desc(matches.id));
+
+	const rowsByMatch = matchingPlayerRows.reduce((map, row) => {
+		const rows = map.get(row.matches.id) ?? [];
+		rows.push(row);
+		map.set(row.matches.id, rows);
+		return map;
+	}, new Map<number, typeof matchingPlayerRows>());
+	const playerCompleteRowsByMatch = Array.from(rowsByMatch.values()).filter((rows) => {
+			if (!hasPlayerFilter) return true;
+			return new Set(rows.map((row) => row.playerId)).size === playerFilter.length;
+		});
+	const singlePlayerOpponentMatchIds = new Set<number>();
+	if (versusFilter && hasPlayerFilter && playerFilter.length === 1) {
+		const candidateMatchIds = playerCompleteRowsByMatch.map((rows) => rows[0].matches.id);
+		const selectedTeamByMatch = new Map(
+			playerCompleteRowsByMatch.map((rows) => [rows[0].matches.id, rows[0].match_data.team])
+		);
+		const opponentRows =
+			candidateMatchIds.length > 0
+				? await db
+						.select({
+							playerId: players.id,
+							matchId: matchData.matchId,
+							team: matchData.team
+						})
+						.from(matchData)
+						.innerJoin(accounts, eq(matchData.playerId, accounts.accountId))
+						.innerJoin(players, eq(accounts.owner, players.id))
+						.where(
+							and(
+								inArray(matchData.matchId, candidateMatchIds),
+								inArray(players.id, allPlayerIds),
+								inArray(accounts.smurf, smurfFilter)
+							)
+						)
+				: [];
+
+		for (const row of opponentRows) {
+			if (
+				row.playerId !== playerFilter[0] &&
+				row.team !== selectedTeamByMatch.get(row.matchId)
+			) {
+				singlePlayerOpponentMatchIds.add(row.matchId);
+			}
+		}
+	}
+	const qualifyingPlayerRows = playerCompleteRowsByMatch
+		.filter((rows) => {
+			if (!versusFilter) return true;
+			if (hasPlayerFilter && playerFilter.length === 1) {
+				return singlePlayerOpponentMatchIds.has(rows[0].matches.id);
+			}
+			return new Set(rows.map((row) => row.match_data.team)).size > 1;
+		})
+		.flat();
+	const uniqueMatches = Array.from(
+		new Map(qualifyingPlayerRows.map((row) => [row.matches.id, row.matches])).values()
+	);
+	const totalMatches = uniqueMatches.length;
+	const matchArray = uniqueMatches.slice(pageNumber * 10, pageNumber * 10 + 10);
+	const stats = calculateMatchStats(qualifyingPlayerRows, totalMatches);
+
+	if (matchArray.length === 0) {
+		return json({ matches: [], stats, totalMatches });
+	}
 
 	const matchBlockPromises = matchArray.map(async (match) => {
 		const data = await db
@@ -141,9 +294,10 @@ export const GET: RequestHandler = async ({ url, params }) => {
 			.where(eq(matchData.matchId, match.id));
 
 		const block: PlayerMatchData[] = data.map((player) => {
-			const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name;
-
-			const facets = heroAbilities[`${heroName}`].facets || [];
+			const heroName = heroData.find((hero) => hero.id === player.match_data.heroId)?.name as
+				| keyof typeof heroAbilities
+				| undefined;
+			const facets = heroName ? heroAbilities[heroName]?.facets || [] : [];
 
 			return {
 				...player.players,
@@ -233,9 +387,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 	};
 
 	const matchBlocks = matchBlocksCombined.map((match) => {
-		const matchData: MatchInfer = matchArray.find(
-			(data) => data.id === match[0]?.matchId
-		)!;
+		const matchData: MatchInfer = matchArray.find((data) => data.id === match[0]?.matchId)!;
 		const scoredPlayers = match.map((player) => ({
 			...player,
 			heroScore:
@@ -258,5 +410,5 @@ export const GET: RequestHandler = async ({ url, params }) => {
 			b.matchData.startTime + b.matchData.duration - (a.matchData.startTime + a.matchData.duration)
 	);
 
-	return json(matchBlocksSorted.slice(-11));
+	return json({ matches: matchBlocksSorted, stats, totalMatches });
 };

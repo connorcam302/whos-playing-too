@@ -58,6 +58,7 @@ type CacheEntry = {
 
 type RawSteamAccount = {
 	avatar?: string | null;
+	seasonRank?: number | null;
 };
 
 type RawMatchPlayer = {
@@ -492,6 +493,7 @@ const normalisePlayer = (
 		hero: getHeroAsset(player.heroId),
 		name: user?.username ?? 'Anonymous',
 		avatar: user ? (player.steamAccount?.avatar ?? null) : null,
+		rankTier: player.steamAccount?.seasonRank ?? null,
 		isAnonymous: !user,
 		user,
 		role: formatEnumLabel(player.role),
@@ -570,7 +572,10 @@ const MATCH_OVERVIEW_QUERY = `
 			players {
 				playerSlot
 				steamAccountId
-				steamAccount { avatar }
+				steamAccount {
+					avatar
+					seasonRank
+				}
 				isRadiant
 				isVictory
 				heroId

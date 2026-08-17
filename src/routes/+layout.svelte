@@ -11,14 +11,10 @@
 	import { onMount, setContext } from 'svelte';
 	import Navbar from '$lib/components/navbar/Navbar.svelte';
 	import Loading from '$lib/components/Loading.svelte';
-	import { dev } from '$app/environment';
-	import { inject } from '@vercel/analytics';
 	import BiGithub from 'virtual:icons/bi/github';
 	import BiTwitterX from 'virtual:icons/bi/twitter-x';
 	import BiLinkedin from 'virtual:icons/bi/linkedin';
 	import * as Tooltip from '$lib/components/ui/tooltip';
-
-	inject({ mode: dev ? 'development' : 'production' });
 
 	let { data, children } = $props();
 	const { playerList, heroList } = data;

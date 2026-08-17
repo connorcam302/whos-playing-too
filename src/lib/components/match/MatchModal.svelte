@@ -106,10 +106,20 @@
 	interface Props {
 		matchId: number | undefined;
 		sequenceNum: number | undefined;
+		buttonTrigger?: boolean;
+		triggerLabel?: string;
+		triggerClass?: string;
 		children?: import('svelte').Snippet;
 	}
 
-	let { matchId, sequenceNum, children }: Props = $props();
+	let {
+		matchId,
+		sequenceNum,
+		buttonTrigger = false,
+		triggerLabel,
+		triggerClass = '',
+		children
+	}: Props = $props();
 
 	const fetchMatchData = async () => {
 		let res = await fetch(`/api/matches/${matchId}`);
@@ -180,12 +190,23 @@
 <Dialog.Root bind:open onOpenChange={handleOpenChange}>
 	<Dialog.Trigger>
 		{#snippet child({ props })}
-			<div
-				{...props}
-				class="h-full w-full cursor-pointer transition-colors duration-150"
-			>
-				{@render children?.()}
-			</div>
+			{#if buttonTrigger}
+				<button
+					type="button"
+					{...props}
+					aria-label={triggerLabel}
+					class={`cursor-pointer transition-colors duration-150 ${triggerClass}`}
+				>
+					{@render children?.()}
+				</button>
+			{:else}
+				<div
+					{...props}
+					class={`h-full w-full cursor-pointer transition-colors duration-150 ${triggerClass}`}
+				>
+					{@render children?.()}
+				</div>
+			{/if}
 		{/snippet}
 	</Dialog.Trigger>
 	<Dialog.Content

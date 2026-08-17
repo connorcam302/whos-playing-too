@@ -25,6 +25,7 @@ export type MatchPlayerOverview = {
 	hero: MatchAsset;
 	name: string;
 	avatar: string | null;
+	rankTier: number | null;
 	isAnonymous: boolean;
 	user: TrackedMatchUser | null;
 	role: string;

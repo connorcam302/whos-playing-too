@@ -9,6 +9,7 @@
 	} from '$lib/match-page';
 	import { getRoleIcon } from '$lib/functions';
 	import RatingChip from '$lib/components/RatingChip.svelte';
+	import RankMedal from '$lib/components/match/RankMedal.svelte';
 
 	interface Props {
 		match: MatchOverview;
@@ -103,17 +104,24 @@
 											>
 												<img src={player.hero.img} alt="" class="h-8 w-12 rounded-sm object-cover" />
 											</button>
-											<div class="min-w-0">
-												{#if getPlayerHref(player)}
-													<a
-														href={getPlayerHref(player) ?? undefined}
-														class="block max-w-32 truncate font-medium text-zinc-100 hover:text-zinc-300"
-													>
-														{getPlayerLabel(player)}
-													</a>
-											{:else}
-												<span class="block max-w-32 truncate font-medium text-zinc-400">{getPlayerLabel(player)}</span>
-											{/if}
+											<div class="min-w-0 flex-1">
+												<div class="flex min-w-0 items-center gap-1">
+													{#if getPlayerHref(player)}
+														<a
+															href={getPlayerHref(player) ?? undefined}
+															class="block min-w-0 truncate font-medium text-zinc-100 hover:text-zinc-300"
+														>
+															{getPlayerLabel(player)}
+														</a>
+													{:else}
+														<span class="block min-w-0 truncate font-medium text-zinc-400"
+															>{getPlayerLabel(player)}</span
+														>
+													{/if}
+													{#if player.rankTier}
+														<RankMedal rankTier={player.rankTier} />
+													{/if}
+												</div>
 												<div class="mt-0.5 flex items-center gap-1 text-xs text-zinc-400">
 													{#if player.positionNumber}
 														<img src={getRoleIcon(player.positionNumber)} alt="" class="h-3.5 w-3.5 shrink-0" />

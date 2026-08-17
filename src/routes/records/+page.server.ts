@@ -1,91 +1,23 @@
-import {
-	getHighestImpact,
-	getLeastHeroDamage,
-	getLowestImpact,
-	getMostAssists,
-	getMostDeaths,
-	getMostHeroDamage,
-	getMostKills,
-	getMostLastHits,
-	getMostBuildingDamage,
-	getMostGPM,
-	getMostXPM
-} from '$lib/server/db-functions';
+import { parseRecordsSearchParams } from '$lib/records';
 import { db } from '$lib/server/database';
+import { getRecordSets } from '$lib/server/records';
 import { heroes } from '$lib/server/schema';
+import type { PageServerLoad } from './$types';
 
-interface Record {
-	id: number;
-	username: string;
-	smurf: boolean;
-	kills: number;
-	matchId: number;
-	hero: {
-		id: number;
-		name: string;
-		img: string;
-	};
-}
+export const load: PageServerLoad = async ({ url }) => {
+	const filters = parseRecordsSearchParams(url.searchParams);
+	const [recordsResponse, heroList] = await Promise.all([
+		getRecordSets(filters),
+		db
+			.select({
+				id: heroes.id,
+				name: heroes.name,
+				img: heroes.img
+			})
+			.from(heroes)
+	]);
 
-interface Record {
-	title: string;
-	record: Record;
-}
-
-const createRecord = (title: string, recordTitle: string, records: any) => {
-	return { title, recordTitle, records };
-};
-
-export const load = async ({ url, params }) => {
-	const mostKills = createRecord('Most Kills', 'Kills', await getMostKills());
-	const mostDeaths = createRecord('Most Deaths', 'Deaths', await getMostDeaths());
-	const mostAssists = createRecord('Most Assists', 'Assists', await getMostAssists());
-	const highestImpact = createRecord('Highest Impact', 'Impact', await getHighestImpact());
-	const lowestImpact = createRecord('Lowest Impact', 'Impact', await getLowestImpact());
-	const mostLastHits = createRecord('Most Last Hits', 'Last Hits', await getMostLastHits());
-	const highestGPM = createRecord('Highest GPM', 'GPM', await getMostGPM());
-	const highestXPM = createRecord('Highest XPM', 'XPM', await getMostXPM());
-	const mostHeroDamage = createRecord('Most Hero Damage', 'Hero Damage', await getMostHeroDamage());
-	const leastHeroDamage = createRecord(
-		'Least Hero Damage',
-		'Hero Damage',
-		await getLeastHeroDamage()
-	);
-	const mostBuildingDamage = createRecord(
-		'Most Building Damage',
-		'Building Damage',
-		await getMostBuildingDamage()
-	);
-
-	const recordsRaw = [
-		mostKills,
-		mostDeaths,
-		mostAssists,
-		highestImpact,
-		lowestImpact,
-		mostLastHits,
-		highestGPM,
-		highestXPM,
-		mostHeroDamage,
-		leastHeroDamage,
-		mostBuildingDamage
-	];
-
-	const records = recordsRaw.map((record) => {
-		return {
-			...record,
-			length: 3
-		};
-	});
-
-	const heroList: DotaAsset[] = await db
-		.select({
-			id: heroes.id,
-			name: heroes.name,
-			img: heroes.img
-		})
-		.from(heroes);
 	heroList.sort((a, b) => a.name.localeCompare(b.name));
 
-	return { records, heroList };
+	return { ...recordsResponse, filters, heroList };
 };

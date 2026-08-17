@@ -89,7 +89,6 @@ const loadRecentRows = async (previousStart: number, end: number): Promise<Diges
 				gte(matches.startTime, previousStart),
 				lt(matches.startTime, end),
 				gt(matches.duration, 900),
-				eq(accounts.smurf, false),
 				visiblePlayerFilter()
 			)
 		)
@@ -115,6 +114,8 @@ const formatPeriod = (start: number, end: number) => {
 		? `${startDate.format('D')}–${endDate.format('D MMM')}`
 		: `${startDate.format('D MMM')}–${endDate.format('D MMM')}`;
 };
+
+const getAccountLabel = (row: DigestRow) => row.username;
 
 const getWinRate = (period: PlayerPeriod) =>
 	period.matches > 0 ? (period.wins / period.matches) * 100 : 0;
@@ -143,7 +144,7 @@ const recordDefinitions: RecordDefinition[] = [
 		key: 'impact-high',
 		badge: 'Record',
 		label: 'impact',
-		title: (row) => `${row.username}: top impact`,
+		title: (row) => `${getAccountLabel(row)}: top impact`,
 		tone: 'positive',
 		direction: 'high',
 		scale: 25,
@@ -154,7 +155,7 @@ const recordDefinitions: RecordDefinition[] = [
 		key: 'kills',
 		badge: 'Record',
 		label: 'kills',
-		title: (row) => `${row.username}: most kills`,
+		title: (row) => `${getAccountLabel(row)}: most kills`,
 		tone: 'positive',
 		direction: 'high',
 		scale: 5,
@@ -165,7 +166,7 @@ const recordDefinitions: RecordDefinition[] = [
 		key: 'assists',
 		badge: 'Record',
 		label: 'assists',
-		title: (row) => `${row.username}: most assists`,
+		title: (row) => `${getAccountLabel(row)}: most assists`,
 		tone: 'positive',
 		direction: 'high',
 		scale: 10,
@@ -176,7 +177,7 @@ const recordDefinitions: RecordDefinition[] = [
 		key: 'gpm',
 		badge: 'Record',
 		label: 'GPM',
-		title: (row) => `${row.username}: top GPM`,
+		title: (row) => `${getAccountLabel(row)}: top GPM`,
 		tone: 'positive',
 		direction: 'high',
 		scale: 100,
@@ -188,7 +189,7 @@ const recordDefinitions: RecordDefinition[] = [
 		key: 'hero-damage',
 		badge: 'Record',
 		label: 'hero damage',
-		title: (row) => `${row.username}: most hero damage`,
+		title: (row) => `${getAccountLabel(row)}: most hero damage`,
 		tone: 'positive',
 		direction: 'high',
 		scale: 10000,
@@ -200,23 +201,12 @@ const recordDefinitions: RecordDefinition[] = [
 		key: 'deaths',
 		badge: 'Most deaths',
 		label: 'deaths',
-		title: (row) => `${row.username}: most deaths`,
+		title: (row) => `${getAccountLabel(row)}: most deaths`,
 		tone: 'negative',
 		direction: 'high',
 		scale: 5,
 		basePriority: 53,
 		getValue: (row) => row.deaths
-	},
-	{
-		key: 'impact-low',
-		badge: 'Low impact',
-		label: 'impact',
-		title: (row) => `${row.username}: lowest impact`,
-		tone: 'negative',
-		direction: 'low',
-		scale: 15,
-		basePriority: 51,
-		getValue: (row) => row.impact
 	}
 ];
 
@@ -236,13 +226,17 @@ const makeRecordItems = (currentRows: DigestRow[], previousRows: DigestRow[]) =>
 		const previous = getExtremeRow(previousRows, definition);
 		const currentValue = definition.getValue(current);
 		const previousValue = previous ? definition.getValue(previous) : null;
-		const comparisonUnit = definition.key.startsWith('impact') ? 'impact points' : definition.label;
 		const improvement =
 			previousValue === null
 				? 0
 				: definition.direction === 'high'
 					? currentValue - previousValue
 					: previousValue - currentValue;
+		const comparisonUnit = definition.key.startsWith('impact')
+			? 'impact points'
+			: Math.abs(improvement) === 1 && ['kills', 'assists', 'deaths'].includes(definition.label)
+				? definition.label.slice(0, -1)
+				: definition.label;
 		const comparison =
 			previousValue === null
 				? `The strongest ${definition.label} mark in the current seven-day window.`
@@ -353,7 +347,7 @@ const makeStreakItems = (currentRows: DigestRow[]) => {
 				category: 'streak',
 				tone: bestWon ? 'positive' : 'negative',
 				badge: bestWon ? 'Win streak' : 'Losing streak',
-				title: `${player.username} ${bestWon ? 'won' : 'lost'} ${bestLength} straight`,
+				title: `${getAccountLabel(player)} ${bestWon ? 'won' : 'lost'} ${bestLength} straight`,
 				summary: `The longest ${bestWon ? 'winning' : 'losing'} run recorded during the current seven-day window.`,
 				href: `/player/${player.playerId}?tab=matches`,
 				image: player.playerImage,
@@ -388,7 +382,7 @@ const makeMatchItems = (currentRows: DigestRow[]) => {
 
 	if (!bestSide) return [];
 	const representative = bestSide.side.slice().sort((a, b) => b.impact - a.impact)[0];
-	const names = bestSide.side.map((row) => row.username);
+	const names = bestSide.side.map(getAccountLabel);
 	const stackName =
 		names.length > 2 ? `${names[0]}, ${names[1]} +${names.length - 2}` : names.join(' + ');
 
@@ -414,6 +408,30 @@ const makeMatchItems = (currentRows: DigestRow[]) => {
 	];
 };
 
+const makePooItems = (currentRows: DigestRow[]) =>
+	currentRows
+		.filter((row) => row.impact <= 25)
+		.map(
+			(row): WeeklyDigestItem => ({
+				id: `poo-${row.matchId}-${row.playerId}`,
+				category: 'poo',
+				tone: 'negative',
+				badge: 'Poo rating',
+				title: `${getAccountLabel(row)} earned a poo on ${row.heroName}`,
+				summary: `${row.kills}/${row.deaths}/${row.assists} with ${formatNumber(row.impact)} impact.`,
+				href: `/match/${row.matchId}`,
+				image: row.heroImg,
+				imageAlt: row.heroName,
+				primaryMetric: { label: 'Rating', value: 'F-' },
+				secondaryMetric: { label: 'Impact', value: formatNumber(row.impact) },
+				sampleSize: 1,
+				occurredAt: row.startTime,
+				priority: 100,
+				evidenceKey: `poo:${row.matchId}:player:${row.playerId}`,
+				entityKey: `player:${row.playerId}`
+			})
+		);
+
 const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 	const rowsByHero = historyRows.reduce((map, row) => {
 		const rows = map.get(row.heroId) ?? [];
@@ -424,109 +442,118 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 	const items: WeeklyDigestItem[] = [];
 
 	for (const [heroId, rows] of rowsByHero) {
-		const recentRows = rows.filter((row) => row.startTime >= periodStart);
-		if (recentRows.length === 0) continue;
-		const currentRankings = getHeroPlayerRankings(rows);
-		const previousRankings = getHeroPlayerRankings(
-			rows.filter((row) => row.startTime < periodStart)
-		);
-		if (currentRankings.length === 0) continue;
 		const hero = rows[0];
-		const currentOwner = currentRankings[0];
-		const previousOwner = previousRankings[0] ?? null;
+		const precedingRows = rows.filter((row) => row.startTime < periodStart);
+		const matchRows = Array.from(
+			rows
+				.filter((row) => row.startTime >= periodStart)
+				.slice()
+				.sort((a, b) => a.startTime - b.startTime || a.matchId - b.matchId)
+				.reduce((map, row) => {
+					const groupedRows = map.get(row.matchId) ?? [];
+					groupedRows.push(row);
+					map.set(row.matchId, groupedRows);
+					return map;
+				}, new Map<number, DigestRow[]>())
+				.values()
+		);
 
-		if (currentOwner.playerId !== previousOwner?.playerId) {
-			items.push({
-				id: `ownership-best-${heroId}-${currentOwner.playerId}`,
-				category: 'ownership',
-				tone: 'positive',
-				badge: previousOwner ? 'New owner' : 'Newly claimed',
-				title: `${currentOwner.username} claimed ${hero.heroName}`,
-				summary: previousOwner
-					? `${currentOwner.username} moved ahead of ${previousOwner.username} with a ${formatNumber(currentOwner.score)} hero score.`
-					: `${currentOwner.username} is the first calibrated owner with ${currentOwner.matches} recorded matches.`,
-				href: `/heroes/${heroId}`,
-				image: hero.heroImg,
-				imageAlt: hero.heroName,
-				primaryMetric: { label: 'Hero score', value: formatNumber(currentOwner.score) },
-				secondaryMetric: { label: 'Win rate', value: `${formatNumber(currentOwner.winRate, 1)}%` },
-				sampleSize: currentOwner.matches,
-				lowSample: currentOwner.matches < 15,
-				occurredAt:
-					recentRows.find((row) => row.playerId === currentOwner.playerId)?.startTime ??
-					recentRows[0].startTime,
-				priority: previousOwner ? 78 : 66,
-				evidenceKey: `hero:${heroId}:player:${currentOwner.playerId}`,
-				entityKey: `player:${currentOwner.playerId}`
-			});
-		}
+		for (const playedRows of matchRows) {
+			const beforeRankings = getHeroPlayerRankings(precedingRows);
+			precedingRows.push(...playedRows);
+			const afterRankings = getHeroPlayerRankings(precedingRows);
+			const occurredAt = playedRows[0].startTime;
+			const beforePositions = new Map(
+				beforeRankings.map((ranking, index) => [ranking.playerId, index + 1])
+			);
+			const afterPositions = new Map(
+				afterRankings.map((ranking, index) => [ranking.playerId, index + 1])
+			);
+			const seenPlayers = new Set<number>();
 
-		if (currentRankings.length > 1 && previousRankings.length > 1) {
-			const currentWorst = currentRankings[currentRankings.length - 1];
-			const previousWorst = previousRankings[previousRankings.length - 1];
-			if (currentWorst.playerId !== previousWorst.playerId) {
+			for (const playedRow of playedRows) {
+				if (seenPlayers.has(playedRow.playerId)) continue;
+				seenPlayers.add(playedRow.playerId);
+				const previousPosition = beforePositions.get(playedRow.playerId);
+				const currentPosition = afterPositions.get(playedRow.playerId);
+				const currentRanking = afterRankings.find(
+					(ranking) => ranking.playerId === playedRow.playerId
+				);
+				if (!currentRanking || currentPosition === undefined) continue;
+
+				if (previousPosition === undefined && currentRanking.matches === 10) {
+					items.push({
+						id: `calibration-${heroId}-${playedRow.playerId}-${playedRow.matchId}`,
+						category: 'calibration',
+						tone: 'neutral',
+						badge: 'Calibrated',
+						title: `${getAccountLabel(playedRow)} calibrated on ${hero.heroName}`,
+						summary: `Entered the calibrated table at #${currentPosition} after match 10, with a ${formatNumber(currentRanking.score)} hero score.`,
+						href: `/heroes/${heroId}`,
+						image: hero.heroImg,
+						imageAlt: hero.heroName,
+						primaryMetric: { label: 'Position', value: `#${currentPosition}` },
+						secondaryMetric: { label: 'Hero score', value: formatNumber(currentRanking.score) },
+						sampleSize: currentRanking.matches,
+						occurredAt,
+						priority: 90,
+						evidenceKey: `calibration:${heroId}:player:${playedRow.playerId}`,
+						entityKey: `player:${playedRow.playerId}`
+					});
+					continue;
+				}
+
+				if (previousPosition === undefined || currentPosition >= previousPosition) continue;
+				const overtaken = beforeRankings
+					.slice(currentPosition - 1, previousPosition - 1)
+					.filter((ranking) => {
+						const nextPosition = afterPositions.get(ranking.playerId);
+						const oldPosition = beforePositions.get(ranking.playerId);
+						return (
+							ranking.playerId !== playedRow.playerId &&
+							nextPosition !== undefined &&
+							oldPosition !== undefined &&
+							nextPosition > oldPosition
+						);
+					});
+				if (overtaken.length === 0) continue;
+				const overtakenNames = overtaken.map((ranking) => ranking.username);
+				const overtakenPositions = overtaken
+					.map((ranking) => {
+						const oldPosition = beforePositions.get(ranking.playerId);
+						const nextPosition = afterPositions.get(ranking.playerId);
+						return `${ranking.username} #${oldPosition} → #${nextPosition}`;
+					})
+					.join(', ');
+				const overtakenLabel =
+					overtakenNames.length === 1
+						? overtakenNames[0]
+						: `${overtakenNames[0]} +${overtakenNames.length - 1}`;
+				const previousOwner = beforeRankings[0];
+				const claimedHero = currentPosition === 1 && previousOwner !== undefined;
+				const previousOwnerLabel = previousOwner?.username ?? '';
+
 				items.push({
-					id: `ownership-worst-${heroId}-${currentWorst.playerId}`,
-					category: 'ownership',
-					tone: 'negative',
-					badge: 'Hero score',
-					title: `${currentWorst.username}: lowest ${hero.heroName} score`,
-					summary: `${formatNumber(currentWorst.score)} hero score across ${currentWorst.matches} matches, replacing ${previousWorst.username} at the bottom of the calibrated table.`,
+					id: `overtake-${heroId}-${playedRow.playerId}-${playedRow.matchId}`,
+					category: 'overtake',
+					tone: 'positive',
+					badge: claimedHero ? 'Hero claimed' : 'Hero overtake',
+					title: claimedHero
+						? `${getAccountLabel(playedRow)} claimed ${hero.heroName} from ${previousOwnerLabel}`
+						: `${getAccountLabel(playedRow)} overtook ${overtakenLabel} on ${hero.heroName}`,
+					summary: `${getAccountLabel(playedRow)} #${previousPosition} → #${currentPosition}; ${overtakenPositions}.`,
 					href: `/heroes/${heroId}`,
 					image: hero.heroImg,
 					imageAlt: hero.heroName,
-					primaryMetric: { label: 'Hero score', value: formatNumber(currentWorst.score) },
-					secondaryMetric: {
-						label: 'Win rate',
-						value: `${formatNumber(currentWorst.winRate, 1)}%`
-					},
-					sampleSize: currentWorst.matches,
-					lowSample: currentWorst.matches < 15,
-					occurredAt:
-						recentRows.find((row) => row.playerId === currentWorst.playerId)?.startTime ??
-						recentRows[0].startTime,
-					priority: 65,
-					evidenceKey: `hero:${heroId}:player:${currentWorst.playerId}`,
-					entityKey: `player:${currentWorst.playerId}`
+					primaryMetric: { label: 'Position', value: `#${currentPosition}` },
+					secondaryMetric: { label: 'Previous position', value: `#${previousPosition}` },
+					sampleSize: currentRanking.matches,
+					occurredAt,
+					priority: 94 + Math.min(overtaken.length, 5),
+					evidenceKey: `overtake:${heroId}:player:${playedRow.playerId}:match:${playedRow.matchId}`,
+					entityKey: `player:${playedRow.playerId}`
 				});
 			}
-		}
-
-		const previousByPlayer = new Map(
-			previousRankings.map((ranking) => [ranking.playerId, ranking])
-		);
-		const recentPlayerIds = new Set(recentRows.map((row) => row.playerId));
-		for (const ranking of currentRankings) {
-			const previous = previousByPlayer.get(ranking.playerId);
-			if (!previous || !recentPlayerIds.has(ranking.playerId)) continue;
-			const delta = ranking.score - previous.score;
-			if (Math.abs(delta) < 8) continue;
-			const improved = delta > 0;
-			const rank = currentRankings.findIndex((entry) => entry.playerId === ranking.playerId) + 1;
-			items.push({
-				id: `hero-score-${heroId}-${ranking.playerId}`,
-				category: 'hero-score',
-				tone: improved ? 'positive' : 'negative',
-				badge: 'Hero score',
-				title: `${ranking.username}: ${hero.heroName} score ${improved ? 'up' : 'down'}`,
-				summary: `Now ranked #${rank} with a ${formatNumber(ranking.score)} score across ${ranking.matches} matches.`,
-				href: `/heroes/${heroId}`,
-				image: hero.heroImg,
-				imageAlt: hero.heroName,
-				primaryMetric: { label: 'Hero score', value: formatNumber(ranking.score) },
-				secondaryMetric: {
-					label: 'Score change',
-					value: `${improved ? '+' : '−'}${formatNumber(Math.abs(delta))}`
-				},
-				sampleSize: ranking.matches,
-				lowSample: ranking.matches < 15,
-				occurredAt:
-					recentRows.find((row) => row.playerId === ranking.playerId)?.startTime ??
-					recentRows[0].startTime,
-				priority: 57 + clamp(Math.abs(delta) / 30, 0, 1) * 25,
-				evidenceKey: `hero:${heroId}:player:${ranking.playerId}`,
-				entityKey: `player:${ranking.playerId}`
-			});
 		}
 	}
 
@@ -551,6 +578,7 @@ const buildWeeklyDigest = async (): Promise<WeeklyDigest> => {
 		const previousRows = recentResult.value.filter((row) => row.startTime < periodStart);
 		matchCount = new Set(currentRows.map((row) => row.matchId)).size;
 		candidates.push(
+			...makePooItems(currentRows),
 			...makeRecordItems(currentRows, previousRows),
 			...makeFormItems(currentRows, previousRows),
 			...makeStreakItems(currentRows),

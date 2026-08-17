@@ -11,7 +11,6 @@ FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV ADAPTER=node
 RUN bun run build
 
 # --- Production ---

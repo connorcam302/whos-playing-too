@@ -1568,6 +1568,38 @@ export const getMatchesByDay = async (id: number, offset: number = 12) => {
 	return daysArray;
 };
 
+export const getRecordsPlayerMatchCount = async (
+	smurfFilter: boolean = false,
+	dateFilter: RecordsDateFilter = 31,
+	roleFilter: number[] = [1, 2, 3, 4, 5],
+	lobbyFilter: number[] = [0, 7],
+	hero: number = -1
+) => {
+	const heroFilter = hero === -1 ? sql`true` : eq(matchData.heroId, hero);
+	const result = await db
+		.select({
+			count: sql<number>`cast(count(*) as int)`
+		})
+		.from(matchData)
+		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
+		.innerJoin(players, eq(accounts.owner, players.id))
+		.innerJoin(matches, eq(matches.id, matchData.matchId))
+		.where(
+			and(
+				getRecordsDateFilter(dateFilter),
+				eq(matches.gameMode, 22),
+				inArray(matchData.role, roleFilter),
+				inArray(matches.lobby, lobbyFilter),
+				heroFilter,
+				inArray(accounts.smurf, [false, smurfFilter]),
+				visiblePlayerFilter(),
+				gt(matches.duration, 900)
+			)
+		);
+
+	return result[0]?.count ?? 0;
+};
+
 export const getMostKills = async (
 	games: number = 10,
 	smurfFilter: boolean = false,

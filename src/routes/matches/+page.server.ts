@@ -1,12 +1,13 @@
-import { getHeroStats, getAllPlayerStats, getPlayers } from '$lib/server/db-functions';
-import dayjs from 'dayjs';
+import { heroData } from '$lib/data/heroData';
+import { getPlayers } from '$lib/server/db-functions';
 
-export const load = async ({ url, params }) => {
+export const load = async () => {
 	const playerList = await getPlayers({ includeHiddenFromAggregates: true });
-	const heroJson = await fetch(
-		`https://raw.githubusercontent.com/connorcam302/whos-playing-constants/main/HEROES.json`
-	);
-	const heroList: DotaAsset[] = await heroJson.json();
+	const heroList: DotaAsset[] = heroData.map((hero) => ({
+		id: hero.id,
+		name: hero.localized_name,
+		img: hero.img
+	}));
 	heroList.sort((a, b) => a.name.localeCompare(b.name));
 
 	return { playerList, heroList };
