@@ -5,6 +5,7 @@ import { accounts, heroes, matchData, matches, players } from '$lib/server/schem
 import { getHeroIdSting } from '$lib/functions';
 import {
 	getHeroPlayerRankings,
+	getHeroScoreGroupRankings,
 	getRoleLeader,
 	toAverage,
 	type HeroStatsRow
@@ -127,6 +128,7 @@ export const load = async ({ params }) => {
 		.orderBy(desc(matches.startTime));
 
 	const playerRankings = getHeroPlayerRankings(rows);
+	const roleRankings = getHeroScoreGroupRankings(rows);
 
 	const roleBreakdown = [1, 2, 3, 4, 5].map((role) => {
 		const roleRows = rows.filter((row) => row.role === role);
@@ -168,7 +170,10 @@ export const load = async ({ params }) => {
 	const wins = rows.filter((row) => row.team === row.winner).length;
 	const recentRows = rows.slice(0, 10);
 	const recentWins = recentRows.filter((row) => row.team === row.winner).length;
-	const bestPlayer = playerRankings[0] ?? null;
+	const bestPlayer =
+		Object.values(roleRankings)
+			.flat()
+			.sort((a, b) => b.score - a.score || b.matches - a.matches)[0] ?? null;
 	const mostPlayedBy = playerRankings.slice().sort((a, b) => b.matches - a.matches)[0] ?? null;
 	const primaryRole = roleBreakdown.slice().sort((a, b) => b.matches - a.matches)[0]?.role ?? 0;
 
@@ -223,6 +228,7 @@ export const load = async ({ params }) => {
 			mostPlayedBy
 		},
 		playerRankings,
+		roleRankings,
 		roleBreakdown,
 		durationBands: makeDurationBands(rows),
 		records,

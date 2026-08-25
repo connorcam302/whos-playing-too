@@ -47,9 +47,11 @@
 		primaryRole: number;
 		score: number;
 		scoreWinRate: number;
+		scoreRecentRate: number;
 		scoreKda: number;
 		scoreAvgImpact: number;
 		confidence: string;
+		mastery: number;
 		lastPlayed: number;
 	};
 

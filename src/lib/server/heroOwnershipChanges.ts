@@ -2,7 +2,7 @@ import { and, desc, eq, gt, inArray, not, sql } from 'drizzle-orm';
 import { accounts, heroes, matchData, matches, players } from '$lib/server/schema';
 import { db } from '$lib/server/database';
 import {
-	getHeroPlayerRankings,
+	getHeroScoreGroupRankings,
 	type HeroPlayerRanking,
 	type HeroStatsRow
 } from '$lib/server/heroStats';
@@ -66,8 +66,12 @@ const getChangesFromRows = (
 ): OwnershipChange[] =>
 	heroList
 		.flatMap((hero): OwnershipChange[] => {
-			const currentRankings = getHeroPlayerRankings(rowsByHero.get(hero.id) ?? []);
-			const previousRankings = getHeroPlayerRankings(previousRowsByHero.get(hero.id) ?? []);
+			const getRankings = (rows: HeroMatchRow[]) =>
+				Object.values(getHeroScoreGroupRankings(rows))
+					.flat()
+					.sort((a, b) => b.score - a.score || b.matches - a.matches);
+			const currentRankings = getRankings(rowsByHero.get(hero.id) ?? []);
+			const previousRankings = getRankings(previousRowsByHero.get(hero.id) ?? []);
 			const currentOwner =
 				(mode === 'worst' ? currentRankings[currentRankings.length - 1] : currentRankings[0]) ??
 				null;
@@ -76,7 +80,12 @@ const getChangesFromRows = (
 				null;
 
 			if (!currentOwner) return [];
-			if (currentOwner.playerId === previousOwner?.playerId) return [];
+			if (
+				currentOwner.playerId === previousOwner?.playerId &&
+				currentOwner.scoreGroup === previousOwner.scoreGroup
+			) {
+				return [];
+			}
 
 			return [
 				{

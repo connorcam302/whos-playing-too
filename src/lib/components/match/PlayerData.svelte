@@ -51,7 +51,7 @@
 
 	import { getGameMode } from '$lib/functions';
 
-	import { calcImpact, getRoleIcon } from '$lib/functions';
+	import { calcImpact, getRoleIcon, getRoleName } from '$lib/functions';
 	import { goto } from '$app/navigation';
 	import PlayerData from './PlayerData.svelte';
 	import MatchBlock from './MatchBlock.svelte';
@@ -222,7 +222,7 @@
 				<div class="relative">
 					<img src={player.hero.img} alt={player.hero.name} class="w-12 md:w-16" />
 					{#if player.heroScore}
-						<HeroScoreBadge score={player.heroScore} heroName={player.hero.name} />
+						<HeroScoreBadge score={player.heroScore} heroName={player.hero.name} roleName={getRoleName(player.role)} />
 					{/if}
 					{#if player.facet}
 						<div

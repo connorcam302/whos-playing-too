@@ -21,6 +21,7 @@ import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
 import dayjs from 'dayjs';
 import { heroData } from '$lib/data/heroData';
+import { getHeroOwnershipChanges } from '$lib/server/heroOwnershipChanges';
 
 const getSteamData = async (steamIds: number[]) => {
 	const validSteamIds = steamIds.filter((id) => Number.isFinite(id) && id > 0);
@@ -132,6 +133,16 @@ export const load = async ({ params, url }) => {
 		[]
 	);
 	const playerHeroRankings = withTimeout(getPlayerHeroRankings(playerId), [], 5000);
+	const playerOwnershipChanges = withTimeout(
+		getHeroOwnershipChanges(20).then(({ best }) =>
+			best.filter(
+				(change) =>
+					change.currentOwner.playerId === playerId || change.previousOwner?.playerId === playerId
+			)
+		),
+		[],
+		5000
+	);
 	const [
 		recentStats,
 		allTimeStats,
@@ -204,6 +215,7 @@ export const load = async ({ params, url }) => {
 		allTimeHeroStats,
 		recentHeroPoolStats,
 		playerHeroRankings,
+		playerOwnershipChanges,
 		recentHeroPoolMatchLimit: RECENT_HERO_POOL_MATCH_LIMIT,
 		heroPoolMatchLimitOptions: HERO_POOL_MATCH_LIMIT_OPTIONS,
 		winGraph,

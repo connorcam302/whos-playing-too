@@ -22,6 +22,7 @@
 	const links: { link: string; title: string }[] = [
 		{ link: '/matches', title: 'Matches' },
 		{ link: '/heroes', title: 'Heroes' },
+		{ link: '/roles', title: 'Roles' },
 		{ link: '/records', title: 'Records' },
 		{ link: '/stats', title: 'Stats' },
 		{ link: '/stack-analysis', title: 'Stacks' },

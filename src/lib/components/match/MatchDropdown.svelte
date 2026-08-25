@@ -51,7 +51,7 @@
 
 	import { getGameMode } from '$lib/functions';
 
-	import { calcImpact, getRoleIcon } from '$lib/functions';
+	import { calcImpact, getRoleIcon, getRoleName } from '$lib/functions';
 	import { goto } from '$app/navigation';
 	import PlayerData from './PlayerData.svelte';
 	import MatchBlock from './MatchBlock.svelte';
@@ -66,9 +66,11 @@
 	import HeroScoreBadge from './HeroScoreBadge.svelte';
 	type HeroScoreChange = {
 		matchNumber: number | null;
+		scoreAtPreviousMatch?: number | null;
 		scoreBefore: number | null;
 		scoreAfter: number | null;
 		scoreChange: number | null;
+		inactivityChange?: number | null;
 		becameCalibrated: boolean;
 	};
 	interface Props {
@@ -259,7 +261,7 @@
 				<div class="relative">
 					<img src={player.hero.img} alt={player.hero.name} class="object-fit w-12 md:w-16" />
 					{#if heroScore}
-						<HeroScoreBadge score={heroScore} heroName={player.hero.name} />
+						<HeroScoreBadge score={heroScore} heroName={player.hero.name} roleName={getRoleName(player.role)} />
 					{/if}
 					{#if player.facet}
 						<div

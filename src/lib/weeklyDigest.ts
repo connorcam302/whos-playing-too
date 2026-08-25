@@ -5,9 +5,12 @@ export type WeeklyDigestCategory =
 	| 'match'
 	| 'poo'
 	| 'calibration'
-	| 'overtake';
+	| 'overtake'
+	| 'role';
 
 export type WeeklyDigestTone = 'positive' | 'negative' | 'neutral';
+
+export type WeeklyDigestHighlight = 'hero-claimed' | 'role-claimed';
 
 export type WeeklyDigestMetric = {
 	label: string;
@@ -18,6 +21,7 @@ export type WeeklyDigestItem = {
 	id: string;
 	category: WeeklyDigestCategory;
 	tone: WeeklyDigestTone;
+	highlight?: WeeklyDigestHighlight;
 	badge: string;
 	title: string;
 	summary: string;

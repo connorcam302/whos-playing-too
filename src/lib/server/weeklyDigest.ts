@@ -3,7 +3,13 @@ import { and, desc, eq, gt, gte, inArray, lt, not, sql } from 'drizzle-orm';
 import { db } from '$lib/server/database';
 import { accounts, heroes, matchData, matches, players } from '$lib/server/schema';
 import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
-import { getHeroPlayerRankings, type HeroStatsRow } from '$lib/server/heroStats';
+import {
+	getHeroPlayerRankings,
+	getHeroScoreGroupRankings,
+	type HeroStatsRow
+} from '$lib/server/heroStats';
+import { getHeroScoreGroup, getHeroScoreGroupName } from '$lib/heroScores';
+import { getRoleIcon, getRoleName } from '$lib/functions';
 import {
 	rankWeeklyDigestItems,
 	type WeeklyDigest,
@@ -41,6 +47,7 @@ type PlayerPeriod = {
 };
 
 const weekSeconds = 7 * 24 * 60 * 60;
+const roleIds = [1, 2, 3, 4, 5];
 const cacheDuration = 5 * 60 * 1000;
 let digestCache: { expiresAt: number; value: WeeklyDigest } | undefined;
 let digestRequest: Promise<WeeklyDigest> | undefined;
@@ -321,43 +328,34 @@ const makeStreakItems = (currentRows: DigestRow[]) => {
 
 	return Array.from(rowsByPlayer.values()).flatMap((rows): WeeklyDigestItem[] => {
 		const ordered = rows.slice().sort((a, b) => a.startTime - b.startTime);
-		let bestLength = 0;
-		let bestWon = false;
-		let runLength = 0;
-		let runWon: boolean | null = null;
+		const player = ordered[ordered.length - 1];
+		const streakWon = player.team === player.winner;
+		let streakLength = 0;
 
-		for (const row of ordered) {
-			const won = row.team === row.winner;
-			if (won === runWon) runLength += 1;
-			else {
-				runWon = won;
-				runLength = 1;
-			}
-			if (runLength > bestLength) {
-				bestLength = runLength;
-				bestWon = won;
-			}
+		for (let index = ordered.length - 1; index >= 0; index -= 1) {
+			const won = ordered[index].team === ordered[index].winner;
+			if (won !== streakWon) break;
+			streakLength += 1;
 		}
 
-		if (bestLength < 4) return [];
-		const player = ordered[ordered.length - 1];
+		if (streakLength < 4) return [];
 		return [
 			{
-				id: `streak-${player.playerId}-${bestWon ? 'wins' : 'losses'}`,
+				id: `streak-${player.playerId}-${streakWon ? 'wins' : 'losses'}`,
 				category: 'streak',
-				tone: bestWon ? 'positive' : 'negative',
-				badge: bestWon ? 'Win streak' : 'Losing streak',
-				title: `${getAccountLabel(player)} ${bestWon ? 'won' : 'lost'} ${bestLength} straight`,
-				summary: `The longest ${bestWon ? 'winning' : 'losing'} run recorded during the current seven-day window.`,
+				tone: streakWon ? 'positive' : 'negative',
+				badge: streakWon ? 'Win streak' : 'Losing streak',
+				title: `${getAccountLabel(player)} ${streakWon ? 'won' : 'lost'} ${streakLength} straight`,
+				summary: `The current ${streakWon ? 'winning' : 'losing'} run through their latest game.`,
 				href: `/player/${player.playerId}?tab=matches`,
 				image: player.playerImage,
 				imageAlt: player.username,
-				primaryMetric: { label: 'Streak', value: `${bestLength} games` },
+				primaryMetric: { label: 'Streak', value: `${streakLength} games` },
 				secondaryMetric: { label: 'Weekly matches', value: formatNumber(rows.length) },
 				sampleSize: rows.length,
 				occurredAt: player.startTime,
-				priority: 60 + clamp(bestLength / 8, 0, 1) * 24,
-				evidenceKey: `streak:${player.playerId}:${bestWon}`,
+				priority: 60 + clamp(streakLength / 8, 0, 1) * 24,
+				evidenceKey: `streak:${player.playerId}:${streakWon}`,
 				entityKey: `player:${player.playerId}`
 			}
 		];
@@ -459,35 +457,49 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 		);
 
 		for (const playedRows of matchRows) {
-			const beforeRankings = getHeroPlayerRankings(precedingRows);
+			const getRankings = (rankingRows: DigestRow[]) =>
+				Object.values(getHeroScoreGroupRankings(rankingRows))
+					.flat()
+					.sort((a, b) => b.score - a.score || b.matches - a.matches);
+			const getRankingIdentity = (playerId: number, scoreGroup: string) =>
+				`${playerId}:${scoreGroup}`;
+			const beforeRankings = getRankings(precedingRows);
 			precedingRows.push(...playedRows);
-			const afterRankings = getHeroPlayerRankings(precedingRows);
+			const afterRankings = getRankings(precedingRows);
 			const occurredAt = playedRows[0].startTime;
 			const beforePositions = new Map(
-				beforeRankings.map((ranking, index) => [ranking.playerId, index + 1])
+				beforeRankings.map((ranking, index) => [
+					getRankingIdentity(ranking.playerId, ranking.scoreGroup),
+					index + 1
+				])
 			);
 			const afterPositions = new Map(
-				afterRankings.map((ranking, index) => [ranking.playerId, index + 1])
+				afterRankings.map((ranking, index) => [
+					getRankingIdentity(ranking.playerId, ranking.scoreGroup),
+					index + 1
+				])
 			);
-			const seenPlayers = new Set<number>();
+			const seenPlayers = new Set<string>();
 
 			for (const playedRow of playedRows) {
-				if (seenPlayers.has(playedRow.playerId)) continue;
-				seenPlayers.add(playedRow.playerId);
-				const previousPosition = beforePositions.get(playedRow.playerId);
-				const currentPosition = afterPositions.get(playedRow.playerId);
+				const scoreGroup = getHeroScoreGroup(playedRow.role);
+				const playedIdentity = getRankingIdentity(playedRow.playerId, scoreGroup);
+				if (seenPlayers.has(playedIdentity)) continue;
+				seenPlayers.add(playedIdentity);
+				const previousPosition = beforePositions.get(playedIdentity);
+				const currentPosition = afterPositions.get(playedIdentity);
 				const currentRanking = afterRankings.find(
-					(ranking) => ranking.playerId === playedRow.playerId
+					(ranking) => ranking.playerId === playedRow.playerId && ranking.scoreGroup === scoreGroup
 				);
 				if (!currentRanking || currentPosition === undefined) continue;
 
 				if (previousPosition === undefined && currentRanking.matches === 10) {
 					items.push({
-						id: `calibration-${heroId}-${playedRow.playerId}-${playedRow.matchId}`,
+						id: `calibration-${heroId}-${playedRow.playerId}-${scoreGroup}-${playedRow.matchId}`,
 						category: 'calibration',
 						tone: 'neutral',
 						badge: 'Calibrated',
-						title: `${getAccountLabel(playedRow)} calibrated on ${hero.heroName}`,
+						title: `${getAccountLabel(playedRow)} calibrated ${getHeroScoreGroupName(scoreGroup)} on ${hero.heroName}`,
 						summary: `Entered the calibrated table at #${currentPosition} after match 10, with a ${formatNumber(currentRanking.score)} hero score.`,
 						href: `/heroes/${heroId}`,
 						image: hero.heroImg,
@@ -497,7 +509,7 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 						sampleSize: currentRanking.matches,
 						occurredAt,
 						priority: 90,
-						evidenceKey: `calibration:${heroId}:player:${playedRow.playerId}`,
+						evidenceKey: `calibration:${heroId}:player:${playedRow.playerId}:${scoreGroup}`,
 						entityKey: `player:${playedRow.playerId}`
 					});
 					continue;
@@ -507,10 +519,11 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 				const overtaken = beforeRankings
 					.slice(currentPosition - 1, previousPosition - 1)
 					.filter((ranking) => {
-						const nextPosition = afterPositions.get(ranking.playerId);
-						const oldPosition = beforePositions.get(ranking.playerId);
+						const rankingIdentity = getRankingIdentity(ranking.playerId, ranking.scoreGroup);
+						const nextPosition = afterPositions.get(rankingIdentity);
+						const oldPosition = beforePositions.get(rankingIdentity);
 						return (
-							ranking.playerId !== playedRow.playerId &&
+							rankingIdentity !== playedIdentity &&
 							nextPosition !== undefined &&
 							oldPosition !== undefined &&
 							nextPosition > oldPosition
@@ -520,8 +533,9 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 				const overtakenNames = overtaken.map((ranking) => ranking.username);
 				const overtakenPositions = overtaken
 					.map((ranking) => {
-						const oldPosition = beforePositions.get(ranking.playerId);
-						const nextPosition = afterPositions.get(ranking.playerId);
+						const rankingIdentity = getRankingIdentity(ranking.playerId, ranking.scoreGroup);
+						const oldPosition = beforePositions.get(rankingIdentity);
+						const nextPosition = afterPositions.get(rankingIdentity);
 						return `${ranking.username} #${oldPosition} → #${nextPosition}`;
 					})
 					.join(', ');
@@ -534,9 +548,10 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 				const previousOwnerLabel = previousOwner?.username ?? '';
 
 				items.push({
-					id: `overtake-${heroId}-${playedRow.playerId}-${playedRow.matchId}`,
+					id: `overtake-${heroId}-${playedRow.playerId}-${scoreGroup}-${playedRow.matchId}`,
 					category: 'overtake',
 					tone: 'positive',
+					highlight: claimedHero ? 'hero-claimed' : undefined,
 					badge: claimedHero ? 'Hero claimed' : 'Hero overtake',
 					title: claimedHero
 						? `${getAccountLabel(playedRow)} claimed ${hero.heroName} from ${previousOwnerLabel}`
@@ -550,8 +565,111 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 					sampleSize: currentRanking.matches,
 					occurredAt,
 					priority: 94 + Math.min(overtaken.length, 5),
-					evidenceKey: `overtake:${heroId}:player:${playedRow.playerId}:match:${playedRow.matchId}`,
+					evidenceKey: `overtake:${heroId}:player:${playedRow.playerId}:${scoreGroup}:match:${playedRow.matchId}`,
 					entityKey: `player:${playedRow.playerId}`
+				});
+			}
+		}
+	}
+
+	return items;
+};
+
+const getUtcMonthKey = (timestamp: number) => {
+	const date = new Date(timestamp * 1000);
+	return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
+};
+
+const makeRoleItems = (historyRows: DigestRow[], periodStart: number) => {
+	const relevantMonthKeys = new Set(
+		historyRows
+			.filter((row) => row.startTime >= periodStart && roleIds.includes(row.role))
+			.map((row) => getUtcMonthKey(row.startTime))
+	);
+	const items: WeeklyDigestItem[] = [];
+
+	for (const monthKey of relevantMonthKeys) {
+		const monthRows = historyRows
+			.filter((row) => roleIds.includes(row.role) && getUtcMonthKey(row.startTime) === monthKey)
+			.sort((a, b) => a.startTime - b.startTime || a.matchId - b.matchId);
+		const matchRows = Array.from(
+			monthRows
+				.reduce((map, row) => {
+					const groupedRows = map.get(row.matchId) ?? [];
+					groupedRows.push(row);
+					map.set(row.matchId, groupedRows);
+					return map;
+				}, new Map<number, DigestRow[]>())
+				.values()
+		);
+		const precedingRows: DigestRow[] = [];
+
+		for (const playedRows of matchRows) {
+			const occurredAt = playedRows[0].startTime;
+			if (occurredAt < periodStart) {
+				precedingRows.push(...playedRows);
+				continue;
+			}
+
+			const playedRoles = Array.from(new Set(playedRows.map((row) => row.role)));
+			const beforeRankings = new Map(
+				playedRoles.map((role) => [
+					role,
+					getHeroPlayerRankings(
+						precedingRows.filter((row) => row.role === role),
+						true
+					)
+				])
+			);
+			precedingRows.push(...playedRows);
+
+			for (const role of playedRoles) {
+				const before = beforeRankings.get(role) ?? [];
+				const after = getHeroPlayerRankings(
+					precedingRows.filter((row) => row.role === role),
+					true
+				);
+				const previousLeader = before[0];
+				const currentLeader = after[0];
+				if (
+					!previousLeader ||
+					!currentLeader ||
+					previousLeader.playerId === currentLeader.playerId
+				) {
+					continue;
+				}
+
+				const leaderRow = playedRows.find(
+					(row) => row.role === role && row.playerId === currentLeader.playerId
+				);
+				if (!leaderRow) continue;
+				const previousRank = before.findIndex(
+					(ranking) => ranking.playerId === currentLeader.playerId
+				);
+				const roleName = getRoleName(role) ?? `Position ${role}`;
+				const roleIcon = getRoleIcon(role);
+
+				items.push({
+					id: `role-claim-${role}-${currentLeader.playerId}-${leaderRow.matchId}`,
+					category: 'role',
+					tone: 'positive',
+					highlight: 'role-claimed',
+					badge: 'Role leader',
+					title: `${currentLeader.username} claimed ${roleName} #1 from ${previousLeader.username}`,
+					summary: `${currentLeader.username} took the lead in the current month's ${roleName} rankings after this match.`,
+					href: `/roles?role=${role}&month=${monthKey}`,
+					image: roleIcon,
+					imageAlt: `${roleName} role`,
+					primaryMetric: { label: 'Position', value: '#1' },
+					secondaryMetric: {
+						label: 'Previous position',
+						value: previousRank === -1 ? 'New' : `#${previousRank + 1}`
+					},
+					sampleSize: currentLeader.matches,
+					occurredAt,
+					priority: 99,
+					evidenceKey: `role-claim:${role}:match:${leaderRow.matchId}`,
+					entityKey: `player:${currentLeader.playerId}`
 				});
 			}
 		}
@@ -589,9 +707,12 @@ const buildWeeklyDigest = async (): Promise<WeeklyDigest> => {
 	}
 
 	if (historyResult.status === 'fulfilled') {
-		candidates.push(...makeHeroItems(historyResult.value, periodStart));
+		candidates.push(
+			...makeHeroItems(historyResult.value, periodStart),
+			...makeRoleItems(historyResult.value, periodStart)
+		);
 	} else {
-		sourceErrors.push('Hero score and ownership changes could not be loaded.');
+		sourceErrors.push('Hero and role ranking changes could not be loaded.');
 	}
 
 	const items = rankWeeklyDigestItems(candidates);

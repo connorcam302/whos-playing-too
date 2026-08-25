@@ -1,17 +1,18 @@
 # whos-playing-too
 
-A Dota 2 game logger designed to scrape and show all of the matches played by set accounts. A remake of the original whos-playing.
+A Dota 2 game logger designed to scrape and show all of the matches played by tracked accounts. A remake of the original whos-playing.
 
 ## How does it work?
-Matches are pulled from the Steam Web API then combined with the OpenDota API for added detail. This scraper is written in NodeJS, once a minute the scraper is automatically ran by a AWS LightSail container cron. Once the matches have been scraped they are then written to a Supabase Postgres DB. These can then be read by the app, which is self-hosted with Dokploy.
+
+Matches are pulled from the Steam Web API, with OpenDota available as an alternative provider. The Bun scraper reads tracked accounts from the PostgreSQL database and is run on a schedule by Dokploy. Scraped matches are written back to the same database and displayed by the app.
 
 ## Tech Stack
 
 - **Hosting**: Dokploy
-- **Data Scraping**: [AWS Lightsail](https://aws.amazon.com/lightsail/)
+- **Data Scraping**: Bun scraper scheduled by Dokploy
 - **Frontend Framework**: [SvelteKit](https://kit.svelte.dev/)
 - **CSS Framework**: [Tailwind CSS](https://tailwindcss.com/)
-- **Database**: [Supabase](https://supabase.io/)
+- **Database**: Self-hosted PostgreSQL
 
 ## Installation and Setup
 
@@ -26,5 +27,4 @@ To run this project locally, follow these steps:
 
 ## Links
 
-- **Data Repository**: [whos-playing-constants](https://github.com/connorcam302/whos-playing-constants)
 - **Data Scraper**: [whos-playing-scraper](https://github.com/connorcam302/whos-playing-scraper/)

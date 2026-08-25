@@ -1,22 +1,15 @@
 import { and, desc, eq, gt, inArray, not, sql } from 'drizzle-orm';
 import { db } from '$lib/server/database';
 import { accounts, heroes, matchData, matches, players } from '$lib/server/schema';
-import {
-	getHeroPlayerRankings,
-	getHeroScoreGroupRankings,
-	type HeroPlayerRanking,
-	type HeroStatsRow
-} from '$lib/server/heroStats';
-import { getHeroOwnershipChanges, type OwnershipChange } from '$lib/server/heroOwnershipChanges';
-import { HERO_SCORE_GROUPS, getHeroScoreGroup, type HeroScoreGroup } from '$lib/heroScores';
+import { getHeroMmrRoleRankings, type HeroMmrPlayerRanking } from '$lib/server/heroMmr';
+import type { HeroStatsRow } from '$lib/server/heroStats';
 import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
 
 type HeroMatchRow = HeroStatsRow & {
 	heroId: number;
-	matchId: number;
 };
 
-type HeroSummary = {
+type HeroMmrSummary = {
 	id: number;
 	name: string;
 	img: string;
@@ -24,32 +17,13 @@ type HeroSummary = {
 	wins: number;
 	losses: number;
 	winRate: number;
-	scoreChange: number | null;
-	roleRankings: Record<HeroScoreGroup, HeroPlayerRanking[]>;
-	roleScoreChanges: Record<HeroScoreGroup, number | null>;
-	topPlayers: HeroPlayerRanking[];
+	roleRankings: Record<number, HeroMmrPlayerRanking[]>;
 };
 
 const visiblePlayerFilter = () =>
 	hiddenFromAggregatePlayerIds.length > 0
 		? not(inArray(players.id, hiddenFromAggregatePlayerIds))
 		: sql`true`;
-
-const getScoreChangeFromLastGame = (
-	heroRows: HeroMatchRow[],
-	currentPlayer: HeroPlayerRanking | undefined
-) => {
-	const currentTopScore = currentPlayer?.score;
-	const latestMatchId = heroRows[0]?.matchId;
-	if (!currentPlayer || currentTopScore === undefined || latestMatchId === undefined) return null;
-
-	const previousTopScore = getHeroPlayerRankings(
-		heroRows.filter((row) => row.matchId !== latestMatchId)
-	).find((ranking) => ranking.playerId === currentPlayer.playerId)?.score;
-
-	if (previousTopScore === undefined) return null;
-	return currentTopScore - previousTopScore;
-};
 
 export const load = async () => {
 	const heroList = await db
@@ -63,7 +37,6 @@ export const load = async () => {
 	const rows: HeroMatchRow[] = await db
 		.select({
 			heroId: matchData.heroId,
-			matchId: matches.id,
 			playerId: players.id,
 			username: players.username,
 			smurf: accounts.smurf,
@@ -95,25 +68,11 @@ export const load = async () => {
 		map.set(row.heroId, current);
 		return map;
 	}, new Map<number, HeroMatchRow[]>());
-	const ownershipChanges: OwnershipChange[] = (await getHeroOwnershipChanges()).best;
 
-	const heroSummaries: HeroSummary[] = heroList
+	const heroSummaries: HeroMmrSummary[] = heroList
 		.map((hero) => {
 			const heroRows = rowsByHero.get(hero.id) ?? [];
 			const wins = heroRows.filter((row) => row.team === row.winner).length;
-			const roleRankings = getHeroScoreGroupRankings(heroRows);
-			const topPlayers = Object.values(roleRankings)
-				.flat()
-				.sort((a, b) => b.score - a.score || b.matches - a.matches);
-			const roleScoreChanges = Object.fromEntries(
-				HERO_SCORE_GROUPS.map((scoreGroup) => [
-					scoreGroup,
-					getScoreChangeFromLastGame(
-						heroRows.filter((row) => getHeroScoreGroup(row.role) === scoreGroup),
-						roleRankings[scoreGroup]?.[0]
-					)
-				])
-			) as Record<HeroScoreGroup, number | null>;
 
 			return {
 				...hero,
@@ -121,24 +80,36 @@ export const load = async () => {
 				wins,
 				losses: heroRows.length - wins,
 				winRate: heroRows.length > 0 ? (wins / heroRows.length) * 100 : 0,
-				scoreChange: topPlayers[0] ? roleScoreChanges[topPlayers[0].scoreGroup] : null,
-				topPlayers,
-				roleRankings,
-				roleScoreChanges
+				roleRankings: getHeroMmrRoleRankings(heroRows)
 			};
 		})
 		.sort((a, b) => {
-			const bestScoreA = a.topPlayers[0]?.score ?? -1;
-			const bestScoreB = b.topPlayers[0]?.score ?? -1;
-			if (bestScoreB !== bestScoreA) return bestScoreB - bestScoreA;
+			const bestMmrA = Math.max(
+				...Object.values(a.roleRankings)
+					.flat()
+					.map((ranking) => ranking.mmr),
+				Number.NEGATIVE_INFINITY
+			);
+			const bestMmrB = Math.max(
+				...Object.values(b.roleRankings)
+					.flat()
+					.map((ranking) => ranking.mmr),
+				Number.NEGATIVE_INFINITY
+			);
+			if (bestMmrB !== bestMmrA) return bestMmrB - bestMmrA;
 			if (b.matches !== a.matches) return b.matches - a.matches;
 			return a.name.localeCompare(b.name);
 		});
 
 	return {
 		heroes: heroSummaries,
-		ownershipChanges,
 		totalMatches: rows.length,
-		trackedHeroes: heroSummaries.filter((hero) => hero.matches > 0).length
+		trackedHeroes: heroSummaries.filter((hero) => hero.matches > 0).length,
+		ratedCombinations: heroSummaries.reduce(
+			(total, hero) =>
+				total +
+				Object.values(hero.roleRankings).reduce((count, rankings) => count + rankings.length, 0),
+			0
+		)
 	};
 };

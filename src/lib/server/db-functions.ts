@@ -35,7 +35,7 @@ import { heroMap } from '$lib/data/heroMap';
 import type { DateRangeBounds } from '$lib/data/dotaPatchRanges';
 import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
 import {
-	getHeroPlayerRankings,
+	getHeroScoreGroupRankings,
 	type HeroPlayerRanking,
 	type HeroStatsRow
 } from '$lib/server/heroStats';
@@ -477,6 +477,15 @@ export type PlayerHeroRanking = {
 		HeroPlayerRanking,
 		'playerId' | 'username' | 'matches' | 'wins' | 'losses' | 'winRate' | 'score'
 	>[];
+	ownership: {
+		rank: number | null;
+		totalRankedPlayers: number;
+		player: HeroPlayerRanking | null;
+		owner: HeroPlayerRanking | null;
+		challenger: HeroPlayerRanking | null;
+		nextPosition: HeroPlayerRanking | null;
+		scoreChange: number | null;
+	};
 };
 
 export const getPlayerHeroRankings = async (player: number): Promise<PlayerHeroRanking[]> => {
@@ -528,9 +537,70 @@ export const getPlayerHeroRankings = async (player: number): Promise<PlayerHeroR
 
 	return heroIds.map((heroId) => {
 		const heroRows = rowsByHero.get(heroId) ?? [];
-		const allPlayers = getHeroPlayerRankings(heroRows, true);
-		const rankings = getHeroPlayerRankings(heroRows);
+		const qualifiedRoleRankings = Object.values(getHeroScoreGroupRankings(heroRows))
+			.flat()
+			.sort((a, b) => b.score - a.score || b.matches - a.matches);
+		const allRoleRankings = Object.values(getHeroScoreGroupRankings(heroRows, true))
+			.flat()
+			.sort((a, b) => b.score - a.score || b.matches - a.matches);
+		const getBestPlayerEntries = (entries: HeroPlayerRanking[]) =>
+			Array.from(
+				entries
+					.reduce((playersById, ranking) => {
+						if (!playersById.has(ranking.playerId)) playersById.set(ranking.playerId, ranking);
+						return playersById;
+					}, new Map<number, HeroPlayerRanking>())
+					.values()
+			);
+		const allPlayers = getBestPlayerEntries(allRoleRankings);
+		const rankings = getBestPlayerEntries(qualifiedRoleRankings);
 		const rankIndex = rankings.findIndex(({ playerId }) => playerId === player);
+		const qualifiedOwnershipPlayers = Array.from(
+			qualifiedRoleRankings
+				.reduce((playersById, ranking) => {
+					if (!playersById.has(ranking.playerId)) playersById.set(ranking.playerId, ranking);
+					return playersById;
+				}, new Map<number, HeroPlayerRanking>())
+				.values()
+		);
+		const ownershipRankIndex = qualifiedOwnershipPlayers.findIndex(
+			({ playerId }) => playerId === player
+		);
+		const playerOwnershipEntry =
+			qualifiedOwnershipPlayers[ownershipRankIndex] ??
+			allRoleRankings.find(({ playerId }) => playerId === player) ??
+			null;
+		const owner = qualifiedOwnershipPlayers[0] ?? null;
+		const challenger =
+			owner?.playerId === player
+				? (qualifiedOwnershipPlayers.find(({ playerId }) => playerId !== player) ?? null)
+				: owner;
+		const nextPosition =
+			ownershipRankIndex === 0
+				? (qualifiedOwnershipPlayers[1] ?? null)
+				: ownershipRankIndex > 0
+					? (qualifiedOwnershipPlayers[ownershipRankIndex - 1] ?? null)
+					: null;
+		const latestPlayerStartTime = heroRows
+			.filter((row) => row.playerId === player)
+			.reduce((latest, row) => Math.max(latest, row.startTime), 0);
+		const previousPlayerEntry = Object.values(
+			getHeroScoreGroupRankings(
+				heroRows.filter(
+					(row) => row.playerId !== player || row.startTime !== latestPlayerStartTime
+				),
+				true
+			)
+		)
+			.flat()
+			.find(
+				({ playerId, scoreGroup }) =>
+					playerId === player && scoreGroup === playerOwnershipEntry?.scoreGroup
+			);
+		const scoreChange =
+			playerOwnershipEntry && previousPlayerEntry
+				? playerOwnershipEntry.score - previousPlayerEntry.score
+				: null;
 
 		return {
 			heroId,
@@ -545,7 +615,16 @@ export const getPlayerHeroRankings = async (player: number): Promise<PlayerHeroR
 				losses,
 				winRate,
 				score
-			}))
+			})),
+			ownership: {
+				rank: ownershipRankIndex >= 0 ? ownershipRankIndex + 1 : null,
+				totalRankedPlayers: qualifiedOwnershipPlayers.length,
+				player: playerOwnershipEntry,
+				owner,
+				challenger,
+				nextPosition,
+				scoreChange
+			}
 		};
 	});
 };

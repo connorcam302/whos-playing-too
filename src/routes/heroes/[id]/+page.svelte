@@ -9,7 +9,11 @@
 	import * as Table from '$lib/components/ui/table';
 	import * as Tooltip from '$lib/components/ui/tooltip';
 	import { getGameMode, getLobbyType, getRoleIcon, getRoleName, toTime } from '$lib/functions';
-	import { formatHeroScore } from '$lib/heroScores';
+	import {
+		formatHeroScore,
+		getHeroScoreGroupName,
+		type HeroScoreGroup
+	} from '$lib/heroScores';
 	import { ArrowLeft, ArrowRight, HelpCircle, VenetianMask } from 'lucide-svelte';
 
 	dayjs.extend(relativeTime);
@@ -42,13 +46,18 @@
 		avgHeroDamage: number;
 		avgTowerDamage: number;
 		primaryRole: number;
+		scoreGroup: HeroScoreGroup;
 		score: number;
 		scoreWinRate: number;
+		scoreRecentRate: number;
 		scoreKda: number;
 		scoreAvgImpact: number;
+		performancePulse: number;
 		volumeScore: number;
 		sampleWeight: number;
+		effectiveMatches: number;
 		confidence: string;
+		mastery: number;
 		lastPlayed: number;
 	};
 
@@ -126,6 +135,7 @@
 				mostPlayedBy: PlayerRanking | null;
 			};
 			playerRankings: PlayerRanking[];
+			roleRankings: Record<HeroScoreGroup, PlayerRanking[]>;
 			roleBreakdown: RoleBreakdown[];
 			durationBands: DurationBand[];
 			records: HeroRecord[];
@@ -138,6 +148,12 @@
 	let matchPage = $state(1);
 	let scoreComparisonPlayerId = $state<number | null>(null);
 	let scoreComparisonOpen = $state(false);
+	let scoreComparisonRole = $state<HeroScoreGroup>('core');
+	const allRoleRankings = $derived(
+		Object.values(data.roleRankings)
+			.flat()
+			.sort((a, b) => b.score - a.score || b.matches - a.matches)
+	);
 
 	const totalMatchPages = $derived(Math.max(1, Math.ceil(data.matches.length / MATCHES_PER_PAGE)));
 	const paginatedMatches = $derived(
@@ -160,8 +176,14 @@
 		}
 	};
 
-	const openScoreComparison = (playerId: number) => {
-		scoreComparisonPlayerId = playerId;
+	const comparisonRankings = $derived(
+		Object.values(data.roleRankings)
+			.flat()
+			.sort((a, b) => b.score - a.score || b.matches - a.matches)
+	);
+	const openScoreComparison = (player: PlayerRanking) => {
+		scoreComparisonPlayerId = player.playerId;
+		scoreComparisonRole = player.scoreGroup;
 		scoreComparisonOpen = true;
 	};
 
@@ -223,8 +245,9 @@
 <HeroScoreComparisonDialog
 	heroName={data.hero.name}
 	heroImg={data.hero.img}
-	players={data.playerRankings}
+	players={comparisonRankings}
 	selectedPlayerId={scoreComparisonPlayerId}
+	selectedScoreGroup={scoreComparisonRole}
 	bind:open={scoreComparisonOpen}
 />
 
@@ -268,30 +291,31 @@
 				<div class="rounded-md border border-zinc-800 bg-zinc-950/35 p-3">
 					<div class="text-xs font-medium text-zinc-400">Best Player</div>
 					<div class="mt-1 truncate text-lg font-semibold text-zinc-100">
-						{data.summary.bestPlayer?.username ?? 'Uncalibrated'}
+							{allRoleRankings[0]?.username ?? 'Unclaimed'}
 					</div>
 					<div class="mt-1 flex items-center gap-2 text-xs text-zinc-400">
-						{#if data.summary.bestPlayer}
+						{#if allRoleRankings[0]}
 							<button
 								type="button"
-								onclick={() => openScoreComparison(data.summary.bestPlayer!.playerId)}
+								onclick={() => openScoreComparison(allRoleRankings[0])}
 								class="rounded-sm underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
 								aria-label={`Compare all player scores for ${data.hero.name}`}
 							>
-								{formatHeroScore(data.summary.bestPlayer.score)} score
+								{formatHeroScore(allRoleRankings[0].score)} score · {getHeroScoreGroupName(allRoleRankings[0].scoreGroup)}
 							</button>
 						{:else}
-							<span>Needs 10 games</span>
+							<span>No calibrated score</span>
 						{/if}
 						<Tooltip.Root>
 							<Tooltip.Trigger class="inline-flex text-zinc-500 outline-none hover:text-zinc-200 focus-visible:ring-2 focus-visible:ring-ring">
 								<HelpCircle class="h-3.5 w-3.5" />
 							</Tooltip.Trigger>
 							<Tooltip.Content class="max-w-72 text-xs">
-								Server-side score blends 70% time-weighted history with 30% from the latest 20 games
-								for win rate, impact, and KDA. Recent form, sample weight, and match volume also contribute.
-								Every match counts fully toward experience and confidence.
-								Players need 10 games on a hero before they receive a score.
+								Historical win rate and recent form are scored separately. Impact and KDA blend time-weighted
+								history with recent performance. A Core- or Support-specific 20-match prior steadies small samples, while
+								confidence builds on a faster 10-effective-match curve. Older matches still count less, and
+								inactive form returns to its group baseline.
+								Players need 10 games as Core or Support to receive a calibrated score.
 							</Tooltip.Content>
 						</Tooltip.Root>
 					</div>
@@ -356,9 +380,9 @@
 						<HelpCircle class="h-4 w-4" />
 					</Tooltip.Trigger>
 					<Tooltip.Content class="max-w-80 text-xs">
-						Score is calculated for players with at least 10 games on this hero. Performance blends
-						70% time-weighted history with 30% from the latest 20 games, making improvement visible
-						without discarding older matches.
+						Core and Support scores each require 10 games in that group and maintain separate form and match
+						histories. Performance confidence reaches full weight at 24 games; volume remains a separate score
+						component.
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</div>
@@ -369,16 +393,17 @@
 							<Table.Head class="h-9 w-10 px-2 text-center text-[11px] uppercase tracking-wide text-zinc-400">#</Table.Head>
 							<Table.Head class="h-9 min-w-32 px-2 text-[11px] uppercase tracking-wide text-zinc-400">Player</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Score</Table.Head>
+							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Mastery</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">W/L</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">WR</Table.Head>
-							<Table.Head class="h-9 px-2 text-center text-[11px] uppercase tracking-wide text-zinc-400">Role</Table.Head>
+							<Table.Head class="h-9 px-2 text-center text-[11px] uppercase tracking-wide text-zinc-400">Group</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">KDA</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Impact</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Last Played</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each data.playerRankings as player, index}
+						{#each allRoleRankings as player, index}
 							<Table.Row class="border-zinc-900 transition-colors hover:bg-zinc-900/70">
 								<Table.Cell class="px-2 py-2 text-center font-medium text-zinc-100">{index + 1}</Table.Cell>
 								<Table.Cell class="px-2 py-2">
@@ -392,12 +417,15 @@
 								<Table.Cell class="px-2 py-2 text-right tabular-nums">
 									<button
 										type="button"
-										onclick={() => openScoreComparison(player.playerId)}
+									onclick={() => openScoreComparison(player)}
 										class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
 										aria-label={`Compare all player scores for ${data.hero.name}`}
 									>
 										{formatHeroScore(player.score)}
 									</button>
+							</Table.Cell>
+							<Table.Cell class="px-2 py-2 text-right tabular-nums text-zinc-400" title={`${player.matches} matches`}>
+									{formatHeroScore(player.mastery)}
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right tabular-nums">
 									<span class="text-green-400">{player.wins}</span>
@@ -408,12 +436,7 @@
 									{formatPercent(player.winRate)}
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-center">
-									<Tooltip.Root>
-										<Tooltip.Trigger class="inline-flex rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
-											<img src={getRoleIcon(player.primaryRole)} alt="" class="h-7 w-7" />
-										</Tooltip.Trigger>
-										<Tooltip.Content class="text-xs">{getRoleName(player.primaryRole)}</Tooltip.Content>
-									</Tooltip.Root>
+									<span class="text-xs font-medium text-zinc-400">{getHeroScoreGroupName(player.scoreGroup)}</span>
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right tabular-nums text-zinc-300">
 									{formatNumber(player.kda, 2)}
@@ -435,6 +458,12 @@
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2 text-right text-xs text-zinc-400">
 									{dayjs(player.lastPlayed * 1000).from(dayjs())}
+								</Table.Cell>
+							</Table.Row>
+						{:else}
+							<Table.Row class="border-zinc-900">
+								<Table.Cell colspan={11} class="h-24 text-center text-sm text-zinc-500">
+									No player has 10 matches on {data.hero.name} in a single role yet.
 								</Table.Cell>
 							</Table.Row>
 						{/each}

@@ -124,6 +124,7 @@ export const GET: RequestHandler = async () => {
 		.select({
 			playerId: players.id,
 			heroId: matchData.heroId,
+			role: matchData.role,
 			matchId: matchData.matchId,
 			startTime: matches.startTime,
 			winner: matches.winner,

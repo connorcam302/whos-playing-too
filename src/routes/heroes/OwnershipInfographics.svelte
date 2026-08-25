@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { formatHeroScore } from '$lib/heroScores';
+	import {
+		formatHeroScore,
+		getHeroScoreGroupName,
+		type HeroScoreGroup
+	} from '$lib/heroScores';
 	import { Shuffle, TrendingDown, Trophy } from 'lucide-svelte';
 
 	type TopPlayer = {
@@ -13,13 +17,15 @@
 		losses: number;
 		winRate: number;
 		score: number;
+		primaryRole: number;
+		scoreGroup: HeroScoreGroup;
 	};
 
 	type HeroSummary = {
 		id: number;
 		name: string;
 		img: string;
-		topPlayers: TopPlayer[];
+		roleRankings: Record<HeroScoreGroup, TopPlayer[]>;
 	};
 
 	type OwnershipChange = {
@@ -40,6 +46,7 @@
 		score: number;
 		matches: number;
 		winRate: number;
+		scoreGroup: HeroScoreGroup;
 	};
 
 	type OwnershipPlayer = {
@@ -64,12 +71,16 @@
 	type Props = {
 		heroes: HeroSummary[];
 		ownershipChanges?: OwnershipChange[];
+		ownershipMode?: OwnershipMode;
 	};
 
-	const { heroes, ownershipChanges = [] }: Props = $props();
 	const getOwnershipMode = (): OwnershipMode =>
 		page.url.searchParams.get('ownership') === 'worst' ? 'worst' : 'best';
-	let ownershipMode = $state<OwnershipMode>(getOwnershipMode());
+	let {
+		heroes,
+		ownershipChanges = [],
+		ownershipMode = $bindable(getOwnershipMode())
+	}: Props = $props();
 	let showAllMobileTerritories = $state(false);
 
 	const palette = [
@@ -95,8 +106,11 @@
 	];
 
 	const getHeroOwner = (hero: HeroSummary) => {
-		if (ownershipMode === 'worst') return hero.topPlayers[hero.topPlayers.length - 1];
-		return hero.topPlayers[0];
+		const roleScores = Object.values(hero.roleRankings)
+			.flat()
+			.sort((a, b) => b.score - a.score || b.matches - a.matches);
+		if (ownershipMode === 'worst') return roleScores[roleScores.length - 1];
+		return roleScores[0];
 	};
 
 	const getModeButtonClass = (mode: OwnershipMode) =>
@@ -124,7 +138,8 @@
 				img: hero.img,
 				score: owner.score,
 				matches: owner.matches,
-				winRate: owner.winRate
+				winRate: owner.winRate,
+				scoreGroup: owner.scoreGroup
 			});
 			playerMap.set(owner.playerId, current);
 		}
@@ -367,8 +382,8 @@
 							href={`/heroes/${hero.id}`}
 							class="absolute overflow-hidden rounded-sm border border-zinc-950/70 bg-zinc-900 transition-transform hover:z-20 hover:scale-105 focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							style={getHeroStyle(rect, index)}
-							title={`${hero.name}: ${rect.username}, score ${formatHeroScore(hero.score)}${recentlyChangedHeroIds.has(hero.id) ? ' · recently changed owner' : ''}`}
-							aria-label={`${hero.name}, owned by ${rect.username}`}
+							title={`${hero.name}: ${rect.username}, ${getHeroScoreGroupName(hero.scoreGroup)}, score ${formatHeroScore(hero.score)}${recentlyChangedHeroIds.has(hero.id) ? ' · recently changed owner' : ''}`}
+							aria-label={`${hero.name}, ${ownershipMode === 'worst' ? 'lowest rated' : 'owned'} by ${rect.username} as ${getHeroScoreGroupName(hero.scoreGroup)}`}
 						>
 							<img
 								src={hero.img}

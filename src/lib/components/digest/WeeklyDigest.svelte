@@ -4,6 +4,7 @@
 		ArrowRight,
 		ArrowUpRight,
 		BadgeCheck,
+		Crown,
 		Flame,
 		Swords,
 		TrendingUp,
@@ -45,12 +46,46 @@
 	};
 
 	const hasHeroThumbnail = (category: WeeklyDigestCategory) =>
-		['record', 'calibration', 'overtake'].includes(category);
+		['record', 'calibration', 'overtake', 'role'].includes(category);
 
 	const getMetricValue = (item: WeeklyDigestItem) =>
-		item.category === 'overtake' && item.secondaryMetric
+		['overtake', 'role'].includes(item.category) && item.secondaryMetric
 			? `${item.secondaryMetric.value} → ${item.primaryMetric.value}`
 			: item.primaryMetric.value;
+
+	const getMetricClasses = (item: WeeklyDigestItem) => {
+		if (item.highlight) {
+			return 'text-base font-black leading-none tabular-nums text-amber-200';
+		}
+		if (item.tone === 'positive') return 'text-[13px] font-black leading-none tabular-nums text-emerald-300';
+		if (item.tone === 'negative') return 'text-[13px] font-black leading-none tabular-nums text-rose-300';
+		return 'text-[13px] font-black leading-none tabular-nums text-sky-300';
+	};
+
+	const getRowClasses = (item: WeeklyDigestItem) =>
+		item.highlight
+			? 'group relative my-1 grid min-h-14 grid-cols-[3.25rem_minmax(0,1fr)_auto] items-center gap-2 rounded-sm border border-amber-400/40 bg-amber-500/[0.06] px-2 outline-none transition-colors hover:border-amber-300/60 hover:bg-amber-500/[0.1] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring'
+			: 'group relative grid h-11 grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-1.5 rounded-sm px-0.5 outline-none transition-colors hover:bg-zinc-900/45 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring';
+
+	const getImageContainerClasses = (item: WeeklyDigestItem) =>
+		item.highlight
+			? 'relative z-10 flex h-9 w-12 items-center justify-center'
+			: 'relative z-10 flex h-7 w-9 items-center justify-center';
+
+	const getHeroImageClasses = (item: WeeklyDigestItem) =>
+		item.highlight
+			? `h-8 w-12 rounded-sm ring-1 ring-amber-300/60 ${item.category === 'role' ? 'object-contain p-1' : 'object-cover'}`
+			: 'h-6 w-9 rounded-sm object-cover ring-1 ring-zinc-800';
+
+	const getTitleClasses = (item: WeeklyDigestItem) =>
+		item.highlight
+			? 'block truncate text-sm font-semibold text-amber-100 group-hover:text-amber-50'
+			: 'block truncate text-xs font-semibold text-zinc-200 group-hover:text-sky-200';
+
+	const getMetaClasses = (item: WeeklyDigestItem) =>
+		item.highlight
+			? 'mt-0.5 flex items-center gap-1 text-[10px] font-medium leading-none uppercase tracking-wide text-amber-300/80'
+			: 'mt-0.5 flex items-center gap-1 text-[9px] font-medium leading-none uppercase tracking-wide text-zinc-600';
 </script>
 
 {#snippet categoryIcon(category: WeeklyDigestCategory)}
@@ -66,6 +101,8 @@
 		<PooIcon class="h-4 w-4" aria-hidden="true" />
 	{:else if category === 'calibration'}
 		<BadgeCheck class="h-3.5 w-3.5" aria-hidden="true" />
+	{:else if category === 'role'}
+		<Crown class="h-3.5 w-3.5" aria-hidden="true" />
 	{:else}
 		<ArrowUpRight class="h-3.5 w-3.5" aria-hidden="true" />
 	{/if}
@@ -101,7 +138,7 @@
 				</div>
 			{/if}
 
-			<!-- svelte-ignore a11y_no_noninteractive_tabindex (the scrollable timeline needs a keyboard focus target) -->
+			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 			<div
 				class="relative max-h-[34rem] overflow-y-auto pr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 				role="region"
@@ -110,26 +147,29 @@
 			>
 				<div class="pointer-events-none absolute top-4 bottom-4 left-[1.05rem] w-px bg-zinc-800" aria-hidden="true"></div>
 				{#each digest.items as item}
-					{@const toneClasses = getToneClasses(item.tone)}
 					<a
 						href={item.href}
 						title={`${item.title}. ${item.summary}`}
 						aria-label={`${item.title}. ${item.summary}`}
-						class="group relative grid h-11 grid-cols-[2.25rem_minmax(0,1fr)_auto] items-center gap-1.5 rounded-sm px-0.5 outline-none transition-colors hover:bg-zinc-900/45 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+						class={getRowClasses(item)}
 					>
-						<span class="relative z-10 flex h-7 w-9 items-center justify-center">
+						<span class={getImageContainerClasses(item)}>
 							{#if item.image && hasHeroThumbnail(item.category)}
-								<img src={item.image} alt={item.imageAlt ?? ''} class="h-6 w-9 rounded-sm object-cover ring-1 ring-zinc-800" />
+								<img
+									src={item.image}
+									alt={item.imageAlt ?? ''}
+									class={getHeroImageClasses(item)}
+								/>
 							{:else}
-								<span class={`flex h-6 w-6 items-center justify-center rounded-full ring-1 ring-zinc-800 ${toneClasses}`}>
+								<span class={`flex h-6 w-6 items-center justify-center rounded-full ring-1 ring-zinc-800 ${getToneClasses(item.tone)}`}>
 									{@render categoryIcon(item.category)}
 								</span>
 							{/if}
 						</span>
 
 						<span class="min-w-0">
-							<span class="block truncate text-xs font-semibold text-zinc-200 group-hover:text-sky-200">{item.title}</span>
-							<span class="mt-0.5 flex items-center gap-1 text-[9px] font-medium leading-none uppercase tracking-wide text-zinc-600">
+							<span class={getTitleClasses(item)}>{item.title}</span>
+							<span class={getMetaClasses(item)}>
 								<span>{item.badge}</span>
 								<span aria-hidden="true">·</span>
 								<time datetime={getDateValue(item.occurredAt)} class="normal-case tracking-normal text-zinc-500">
@@ -139,7 +179,7 @@
 						</span>
 
 						<span class="min-w-14 whitespace-nowrap pl-1 text-right">
-							<span class={`text-[13px] font-black leading-none tabular-nums ${item.tone === 'positive' ? 'text-emerald-300' : item.tone === 'negative' ? 'text-rose-300' : 'text-sky-300'}`}>
+							<span class={getMetricClasses(item)}>
 								{getMetricValue(item)}
 							</span>
 						</span>

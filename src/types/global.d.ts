@@ -48,9 +48,21 @@ declare interface PlayerData {
 	facet: number;
 	heroScore?: {
 		matchNumber: number | null;
+		scoreAtPreviousMatch?: number | null;
 		scoreBefore: number | null;
 		scoreAfter: number | null;
 		scoreChange: number | null;
+		inactivityChange?: number | null;
 		becameCalibrated: boolean;
+		confidence?: string;
+		confidencePercent?: number;
+		mastery?: number;
+		componentChanges?: {
+			winRate: number;
+			recentForm: number;
+			impact: number;
+			kda: number;
+			volume: number;
+		} | null;
 	};
 }

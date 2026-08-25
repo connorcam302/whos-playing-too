@@ -362,6 +362,7 @@ export const GET: RequestHandler = async ({ url, params }) => {
 				? await db
 						.select({
 							heroId: matchData.heroId,
+							role: matchData.role,
 							matchId: matchData.matchId,
 							startTime: matches.startTime,
 							winner: matches.winner,

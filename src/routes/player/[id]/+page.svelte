@@ -49,6 +49,7 @@
 	import ProfileRecords from './ProfileRecords.svelte';
 	import ProfileTeammates from './ProfileTeammates.svelte';
 	import ProfileHeroes from './ProfileHeroes.svelte';
+	import ProfileOwnership from './ProfileOwnership.svelte';
 	import { pushState } from '$app/navigation';
 	import { page } from '$app/state';
 
@@ -63,6 +64,7 @@
 			allTimeHeroStats: any;
 			recentHeroPoolStats: any;
 			playerHeroRankings: any;
+			playerOwnershipChanges: any;
 			recentHeroPoolMatchLimit: number;
 			heroPoolMatchLimitOptions: number[];
 			winGraph: { resultsArray: number[]; daysArray: number[] };
@@ -99,9 +101,24 @@
 		playerList
 	} = $derived(data);
 
-	type ProfileTab = 'home' | 'stats' | 'heroes' | 'matches' | 'records' | 'teammates';
+	type ProfileTab =
+		| 'home'
+		| 'stats'
+		| 'heroes'
+		| 'ownership'
+		| 'matches'
+		| 'records'
+		| 'teammates';
 
-	const profileTabs: ProfileTab[] = ['home', 'matches', 'stats', 'heroes', 'records', 'teammates'];
+	const profileTabs: ProfileTab[] = [
+		'home',
+		'matches',
+		'stats',
+		'heroes',
+		'ownership',
+		'records',
+		'teammates'
+	];
 
 	const getUrlTab = (url: URL) => {
 		const tab = url.searchParams.get('tab');
@@ -152,18 +169,20 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 		onValueChange={navigateToTab}
 		class="flex w-full max-w-6xl flex-col items-stretch gap-3"
 	>
-		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1  rounded-lg border border-zinc-700 bg-card sm:inline-grid sm:w-fit sm:grid-cols-6">
+		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1 rounded-lg border border-zinc-700 bg-card sm:inline-grid sm:w-fit sm:grid-cols-7">
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="home">Home</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="matches">Matches</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="stats">Stats</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="heroes">Heroes</Tabs.Trigger>
+			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="ownership">Ownership</Tabs.Trigger>
 			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="records">Records</Tabs.Trigger>
-			<Tabs.Trigger class="min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none" value="teammates">Teammates</Tabs.Trigger>
+			<Tabs.Trigger class="col-span-2 min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none sm:col-span-1" value="teammates">Teammates</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="home" class="w-full"><ProfileHome {data} /></Tabs.Content>
 		<Tabs.Content value="matches" class="w-full"><ProfileMatches {data} /></Tabs.Content>
 		<Tabs.Content value="stats" class="w-full"><ProfileStats {data} /></Tabs.Content>
 		<Tabs.Content value="heroes" class="w-full"><ProfileHeroes {data} /></Tabs.Content>
+		<Tabs.Content value="ownership" class="w-full"><ProfileOwnership {data} /></Tabs.Content>
 		<Tabs.Content value="records" class="w-full min-w-0"><ProfileRecords {data} /></Tabs.Content>
 		<Tabs.Content value="teammates" class="w-full"><ProfileTeammates {data} /></Tabs.Content>
 	</Tabs.Root>

@@ -4,13 +4,33 @@
 	import * as Table from '$lib/components/ui/table';
 	import {
 		HERO_SCORE_MAX,
+		HERO_SCORE_BAYESIAN_PRIOR_MATCHES,
+		HERO_SCORE_CENTERING_OFFSET,
+		HERO_SCORE_CONFIDENCE_PRIOR_MATCHES,
 		HERO_SCORE_HISTORICAL_PERFORMANCE_WEIGHT,
-		HERO_SCORE_RECENT_PERFORMANCE_MATCHES,
+		HERO_SCORE_HISTORICAL_EVIDENCE_CAP,
+		HERO_SCORE_IMPACT_WEIGHT,
+		HERO_SCORE_KDA_WEIGHT,
+		HERO_SCORE_NEUTRAL,
+		HERO_SCORE_PERFORMANCE_PULSE_HALF_LIFE_MATCHES,
+		HERO_SCORE_PERFORMANCE_PULSE_MAX,
+		HERO_SCORE_RECENT_HALF_LIFE_MATCHES,
+		HERO_SCORE_RECENT_INACTIVITY_HALF_LIFE_DAYS,
+		HERO_SCORE_RECENT_FORM_WEIGHT,
+		HERO_SCORE_RECENT_FORM_REGRESSION_FACTOR,
 		HERO_SCORE_RECENT_PERFORMANCE_WEIGHT,
 		HERO_SCORE_RECENCY_HALF_LIFE_DAYS,
+		HERO_SCORE_SPREAD_FACTOR,
+		HERO_SCORE_UNCERTAINTY_PENALTY_MAX,
+		HERO_SCORE_VOLUME_WEIGHT,
+		HERO_SCORE_VOLUME_FULL_MATCHES,
+		HERO_SCORE_WIN_RATE_WEIGHT,
 		formatHeroScore,
 		getHeroScoreBreakdown,
-		type HeroScoreBreakdown
+		getHeroScoreGroupName,
+		getHeroScoreGroupPrior,
+		type HeroScoreBreakdown,
+		type HeroScoreGroup
 	} from '$lib/heroScores';
 	import { ArrowLeftRight, ChevronDown } from 'lucide-svelte';
 
@@ -25,19 +45,27 @@
 		kda: number;
 		avgImpact: number;
 		scoreWinRate: number;
+		scoreRecentRate: number;
 		scoreKda: number;
 		scoreAvgImpact: number;
+		performancePulse: number;
 		volumeScore: number;
 		sampleWeight: number;
+		effectiveMatches: number;
 		score: number;
 		confidence: string;
+		primaryRole: number;
+		scoreGroup: HeroScoreGroup;
 	};
 
 	type Props = {
 		heroName: string;
 		heroImg: string;
 		players: PlayerRanking[];
+		scopeLabel?: string;
+		subjectLabel?: string;
 		selectedPlayerId?: number | null;
+		selectedScoreGroup?: HeroScoreGroup | null;
 		open?: boolean;
 	};
 
@@ -68,12 +96,18 @@
 		heroName,
 		heroImg,
 		players,
+		scopeLabel = 'Overall',
+		subjectLabel = 'hero',
 		selectedPlayerId = null,
+		selectedScoreGroup = null,
 		open = $bindable(false)
 	}: Props = $props();
 	let primaryPlayerId = $state('');
 	let comparisonPlayerId = $state('');
 	let highlightedMetricKey = $state<string | null>(null);
+	const subjectLabelTitle = $derived(
+		`${subjectLabel.charAt(0).toUpperCase()}${subjectLabel.slice(1)}`
+	);
 
 	const formatNumber = (value: number | null | undefined, decimals = 0) =>
 		new Intl.NumberFormat('en-GB', {
@@ -84,7 +118,18 @@
 	const formatPercent = (value: number | null | undefined) => `${formatNumber(value, 1)}%`;
 	const historicalPerformancePercent = Math.round(HERO_SCORE_HISTORICAL_PERFORMANCE_WEIGHT * 100);
 	const recentPerformancePercent = Math.round(HERO_SCORE_RECENT_PERFORMANCE_WEIGHT * 100);
+	const winRateWeightPercent = HERO_SCORE_WIN_RATE_WEIGHT * 100;
+	const recentFormWeightPercent = HERO_SCORE_RECENT_FORM_WEIGHT * 100;
+	const impactWeightPercent = HERO_SCORE_IMPACT_WEIGHT * 100;
+	const kdaWeightPercent = HERO_SCORE_KDA_WEIGHT * 100;
+	const volumeWeightPercent = HERO_SCORE_VOLUME_WEIGHT * 100;
+	const winRateMaxPoints = HERO_SCORE_WIN_RATE_WEIGHT * HERO_SCORE_MAX;
+	const recentFormMaxPoints = HERO_SCORE_RECENT_FORM_WEIGHT * HERO_SCORE_MAX;
+	const impactMaxPoints = HERO_SCORE_IMPACT_WEIGHT * HERO_SCORE_MAX;
+	const kdaMaxPoints = HERO_SCORE_KDA_WEIGHT * HERO_SCORE_MAX;
+	const volumeMaxPoints = HERO_SCORE_VOLUME_WEIGHT * HERO_SCORE_MAX;
 	const recencyHalfLifeYears = HERO_SCORE_RECENCY_HALF_LIFE_DAYS / 365;
+	const recentInactivityHalfLifeYears = HERO_SCORE_RECENT_INACTIVITY_HALF_LIFE_DAYS / 365;
 	const recencyExamples = [
 		{ label: 'Now', years: 0 },
 		{ label: '1 year', years: 1 },
@@ -96,11 +141,7 @@
 		weight: 0.5 ** (example.years / recencyHalfLifeYears) * 100
 	}));
 
-	const getRecentWinRate = (player: PlayerRanking) => {
-		if (!player.recentForm.length) return player.winRate;
-		const wins = player.recentForm.split('').filter((result) => result === 'W').length;
-		return (wins / player.recentForm.length) * 100;
-	};
+	const getRecentWinRate = (player: PlayerRanking) => player.scoreRecentRate;
 
 	const getBestValue = (accessor: (player: PlayerRanking) => number) =>
 		Math.max(0, ...players.map(accessor));
@@ -114,8 +155,13 @@
 			recentRate: getRecentWinRate(player),
 			avgImpact: player.scoreAvgImpact,
 			kda: player.scoreKda,
-			matches: player.matches
+			matches: player.matches,
+			effectiveMatches: player.effectiveMatches,
+			performancePulse: player.performancePulse,
+			prior: getHeroScoreGroupPrior(player.scoreGroup)
 		});
+	const getRatedRecentWinRate = (player: PlayerRanking) =>
+		getPlayerBreakdown(player).adjustedMetrics.recentRate;
 
 	const capPercent = (value: number) => Math.min(100, Math.max(0, value));
 
@@ -124,11 +170,19 @@
 		if (Math.abs(delta) < 0.05) return 'Even';
 		return `${delta > 0 ? '+' : '−'}${formatNumber(Math.abs(delta), 1)} pts`;
 	};
+	const formatSignedPoints = (value: number) =>
+		`${value > 0 ? '+' : value < 0 ? '−' : '±'}${formatNumber(Math.abs(value), 1)}`;
 
-	const getPlayerSelectLabel = (playerId: string) => {
-		const index = players.findIndex((player) => player.playerId.toString() === playerId);
+	const getPlayerKey = (player: PlayerRanking) => `${player.playerId}:${player.scoreGroup}`;
+	const getPlayerByKey = (playerKey: string) =>
+		players.find((player) => getPlayerKey(player) === playerKey);
+
+	const getPlayerSelectLabel = (playerKey: string) => {
+		const index = players.findIndex((player) => getPlayerKey(player) === playerKey);
 		const player = players[index];
-		return player ? `#${index + 1} ${player.username}` : 'Select player';
+		return player
+			? `#${index + 1} ${player.username} · ${getHeroScoreGroupName(player.scoreGroup)}`
+			: 'Select player';
 	};
 
 	const swapPlayers = () => {
@@ -153,40 +207,47 @@
 		comparisonPlayerId = nextPlayerId;
 	};
 
-	const getDefaultComparisonPlayer = (playerId: number) =>
-		players.find((player) => player.playerId !== playerId);
+	const getDefaultComparisonPlayer = (playerKey: string) =>
+		players.find((player) => getPlayerKey(player) !== playerKey);
 
-	const selectPrimaryPlayer = (playerId: number) => {
-		const selectedPlayer = players.find((player) => player.playerId === playerId);
-		const defaultComparisonPlayer = getDefaultComparisonPlayer(playerId);
+	const selectPrimaryPlayer = (playerKey: string) => {
+		const selectedPlayer = getPlayerByKey(playerKey);
+		const defaultComparisonPlayer = getDefaultComparisonPlayer(playerKey);
 
-		primaryPlayerId = selectedPlayer?.playerId.toString() ?? '';
-		comparisonPlayerId = defaultComparisonPlayer?.playerId.toString() ?? primaryPlayerId;
+		primaryPlayerId = selectedPlayer ? getPlayerKey(selectedPlayer) : '';
+		comparisonPlayerId = defaultComparisonPlayer
+			? getPlayerKey(defaultComparisonPlayer)
+			: primaryPlayerId;
 		highlightedMetricKey = null;
 	};
 
 	$effect(() => {
 		if (open) {
 			const initialPrimaryPlayer =
-				players.find((player) => player.playerId === selectedPlayerId) ?? players[0];
-			selectPrimaryPlayer(initialPrimaryPlayer?.playerId ?? 0);
+				players.find(
+					(player) =>
+						player.playerId === selectedPlayerId &&
+						(selectedScoreGroup === null || player.scoreGroup === selectedScoreGroup)
+				) ?? players[0];
+			selectPrimaryPlayer(initialPrimaryPlayer ? getPlayerKey(initialPrimaryPlayer) : '');
 		}
 	});
 
 	const leader = $derived(players[0] ?? null);
 	const selectedPlayer = $derived(
-		players.find((player) => player.playerId.toString() === primaryPlayerId) ?? leader
+		getPlayerByKey(primaryPlayerId) ?? leader
 	);
 	const comparisonPlayer = $derived(
-		players.find((player) => player.playerId.toString() === comparisonPlayerId) ??
-		(players[1] ?? leader)
+		getPlayerByKey(comparisonPlayerId) ?? (players[1] ?? leader)
 	);
 	const selectedRank = $derived(
-		selectedPlayer ? players.findIndex((player) => player.playerId === selectedPlayer.playerId) + 1 : 0
+		selectedPlayer
+			? players.findIndex((player) => getPlayerKey(player) === getPlayerKey(selectedPlayer)) + 1
+			: 0
 	);
 	const comparisonRank = $derived(
 		comparisonPlayer
-			? players.findIndex((player) => player.playerId === comparisonPlayer.playerId) + 1
+			? players.findIndex((player) => getPlayerKey(player) === getPlayerKey(comparisonPlayer)) + 1
 			: 0
 	);
 	const scoreDifference = $derived(
@@ -201,12 +262,12 @@
 	const contributionSegments = $derived.by((): ContributionSegment[] => {
 		if (!selectedBreakdown || !comparisonBreakdown) return [];
 		return [
-			{ key: 'winRate', label: 'Win rate', selectedPoints: selectedBreakdown.contributions.winRate, comparisonPoints: comparisonBreakdown.contributions.winRate, max: 300, barClass: 'bg-chart-1' },
-			{ key: 'recentForm', label: 'Recent form', selectedPoints: selectedBreakdown.contributions.recentForm, comparisonPoints: comparisonBreakdown.contributions.recentForm, max: 100, barClass: 'bg-chart-5' },
-			{ key: 'impact', label: 'Impact', selectedPoints: selectedBreakdown.contributions.impact, comparisonPoints: comparisonBreakdown.contributions.impact, max: 250, barClass: 'bg-purple-600' },
-			{ key: 'kda', label: 'KDA', selectedPoints: selectedBreakdown.contributions.kda, comparisonPoints: comparisonBreakdown.contributions.kda, max: 150, barClass: 'bg-chart-2' },
-			{ key: 'volume', label: 'Volume', selectedPoints: selectedBreakdown.contributions.volume, comparisonPoints: comparisonBreakdown.contributions.volume, max: 200, barClass: 'bg-chart-4' }
-		];
+			{ key: 'winRate', label: 'Win rate', selectedPoints: selectedBreakdown.contributions.winRate, comparisonPoints: comparisonBreakdown.contributions.winRate, max: winRateMaxPoints, barClass: 'bg-chart-1' },
+			{ key: 'recentForm', label: 'Recent form', selectedPoints: selectedBreakdown.contributions.recentForm, comparisonPoints: comparisonBreakdown.contributions.recentForm, max: recentFormMaxPoints, barClass: 'bg-chart-5' },
+			{ key: 'impact', label: 'Impact', selectedPoints: selectedBreakdown.contributions.impact, comparisonPoints: comparisonBreakdown.contributions.impact, max: impactMaxPoints, barClass: 'bg-purple-600' },
+			{ key: 'kda', label: 'KDA', selectedPoints: selectedBreakdown.contributions.kda, comparisonPoints: comparisonBreakdown.contributions.kda, max: kdaMaxPoints, barClass: 'bg-chart-2' },
+			{ key: 'volume', label: 'Match volume', selectedPoints: selectedBreakdown.contributions.volume, comparisonPoints: comparisonBreakdown.contributions.volume, max: volumeMaxPoints, barClass: 'bg-chart-4' }
+		].filter(({ max }) => max > 0);
 	});
 
 	const getSegmentHighlightClass = (metricKey: string) => {
@@ -225,15 +286,15 @@
 			return [];
 		}
 
-		const selectedRecentRate = getRecentWinRate(selectedPlayer);
-		const comparisonRecentRate = getRecentWinRate(comparisonPlayer);
+		const selectedRecentRate = selectedBreakdown.adjustedMetrics.recentRate;
+		const comparisonRecentRate = comparisonBreakdown.adjustedMetrics.recentRate;
 
 		return [
 			{
 				key: 'winRate',
 				label: 'Scoring win rate',
-				weight: '30% · 300 max points',
-				description: `${historicalPerformancePercent}% time-weighted history plus ${recentPerformancePercent}% from the latest ${HERO_SCORE_RECENT_PERFORMANCE_MATCHES} games.`,
+				weight: `${formatNumber(winRateWeightPercent, 1)}% · ${formatNumber(winRateMaxPoints)} max points`,
+				description: `${historicalPerformancePercent}% time-weighted history plus ${recentPerformancePercent}% from the latest 20 games.`,
 				selectedValue: formatPercent(selectedPlayer.scoreWinRate),
 				comparisonValue: formatPercent(comparisonPlayer.scoreWinRate),
 				selectedPercent: selectedPlayer.scoreWinRate,
@@ -244,9 +305,9 @@
 			},
 			{
 				key: 'recentForm',
-				label: 'Recent form',
-				weight: '10% · 100 max points',
-				description: 'Win rate across the latest 10 matches.',
+				label: 'Rated recent form',
+				weight: `${formatNumber(recentFormWeightPercent, 1)}% · ${formatNumber(recentFormMaxPoints)} max points`,
+				description: `Latest-10 win rate, with ${formatNumber((1 - HERO_SCORE_RECENT_FORM_REGRESSION_FACTOR) * 100)}% of its deviation regressed toward 50% to reduce small-window noise.`,
 				selectedValue: formatPercent(selectedRecentRate),
 				comparisonValue: formatPercent(comparisonRecentRate),
 				selectedPercent: selectedRecentRate,
@@ -258,10 +319,10 @@
 			{
 				key: 'impact',
 				label: 'Average impact',
-				weight: '25% · 250 max points',
-				description: `${historicalPerformancePercent}% time-weighted history plus ${recentPerformancePercent}% recent impact, capped at 150.`,
-				selectedValue: `${formatNumber(selectedPlayer.scoreAvgImpact)} / 150`,
-				comparisonValue: `${formatNumber(comparisonPlayer.scoreAvgImpact)} / 150`,
+				weight: `${formatNumber(impactWeightPercent, 1)}% · ${formatNumber(impactMaxPoints)} max points`,
+				description: `${historicalPerformancePercent}% time-weighted history plus ${recentPerformancePercent}% from the latest 20 games, then adjusted against the Core or Support baseline.`,
+				selectedValue: `${formatNumber(selectedPlayer.scoreAvgImpact)} raw · ${formatNumber(selectedBreakdown.adjustedMetrics.normalizedImpact)} rated`,
+				comparisonValue: `${formatNumber(comparisonPlayer.scoreAvgImpact)} raw · ${formatNumber(comparisonBreakdown.adjustedMetrics.normalizedImpact)} rated`,
 				selectedPercent: selectedBreakdown.impactScore,
 				comparisonPercent: comparisonBreakdown.impactScore,
 				selectedPoints: selectedBreakdown.contributions.impact,
@@ -271,10 +332,10 @@
 			{
 				key: 'kda',
 				label: 'KDA',
-				weight: '15% · 150 max points',
-				description: `${historicalPerformancePercent}% time-weighted history plus ${recentPerformancePercent}% recent KDA, capped at 6.`,
-				selectedValue: `${formatNumber(selectedPlayer.scoreKda, 2)} / 6`,
-				comparisonValue: `${formatNumber(comparisonPlayer.scoreKda, 2)} / 6`,
+				weight: `${formatNumber(kdaWeightPercent, 1)}% · ${formatNumber(kdaMaxPoints)} max points`,
+				description: `${historicalPerformancePercent}% time-weighted history plus ${recentPerformancePercent}% recent KDA, then adjusted against the Core or Support baseline.`,
+				selectedValue: `${formatNumber(selectedPlayer.scoreKda, 2)} raw · ${formatNumber(selectedBreakdown.adjustedMetrics.kda, 2)} rated`,
+				comparisonValue: `${formatNumber(comparisonPlayer.scoreKda, 2)} raw · ${formatNumber(comparisonBreakdown.adjustedMetrics.kda, 2)} rated`,
 				selectedPercent: selectedBreakdown.kdaScore,
 				comparisonPercent: comparisonBreakdown.kdaScore,
 				selectedPoints: selectedBreakdown.contributions.kda,
@@ -284,8 +345,8 @@
 			{
 				key: 'volume',
 				label: 'Match volume',
-				weight: '20% · 200 max points',
-				description: 'A logarithmic curve rewards total experience without letting games played dominate.',
+				weight: `${formatNumber(volumeWeightPercent, 1)}% · ${formatNumber(volumeMaxPoints)} max points`,
+				description: `A logarithmic experience curve reaches its maximum at ${HERO_SCORE_VOLUME_FULL_MATCHES} matches.`,
 				selectedValue: `${selectedPlayer.matches} matches`,
 				comparisonValue: `${comparisonPlayer.matches} matches`,
 				selectedPercent: selectedBreakdown.volumeScore,
@@ -297,7 +358,7 @@
 		];
 	});
 	const bestWinRate = $derived(getBestValue((player) => player.scoreWinRate));
-	const bestRecentWinRate = $derived(getBestValue(getRecentWinRate));
+	const bestRecentWinRate = $derived(getBestValue(getRatedRecentWinRate));
 	const bestImpact = $derived(getBestValue((player) => player.scoreAvgImpact));
 	const bestKda = $derived(getBestValue((player) => player.scoreKda));
 	const mostMatches = $derived(getBestValue((player) => player.matches));
@@ -316,7 +377,7 @@
 				/>
 				<div class="min-w-0">
 					<Dialog.Title class="truncate text-base font-semibold text-zinc-100">
-						{heroName} hero scores
+						{heroName} {scopeLabel === 'Overall' ? '' : `${scopeLabel} `}{subjectLabel} scores
 					</Dialog.Title>
 					<Dialog.Description class="mt-0.5 text-xs text-zinc-400">
 						Compare players and see where each score comes from.
@@ -337,10 +398,10 @@
 										{getPlayerSelectLabel(primaryPlayerId)}
 									</Select.Trigger>
 									<Select.Content class="border-zinc-700 bg-popover">
-										{#each players as player, index}
-											<Select.Item value={player.playerId.toString()} label={player.username}>
-												<div class="flex w-full items-center justify-between gap-5">
-													<span>#{index + 1} {player.username}</span>
+									{#each players as player, index (getPlayerKey(player))}
+										<Select.Item value={getPlayerKey(player)} label={`${player.username} ${getHeroScoreGroupName(player.scoreGroup)}`}>
+											<div class="flex w-full items-center justify-between gap-5">
+												<span>#{index + 1} {player.username} <span class="text-zinc-500">· {getHeroScoreGroupName(player.scoreGroup)}</span></span>
 													<span class="tabular-nums text-zinc-500">{formatHeroScore(player.score)}</span>
 												</div>
 											</Select.Item>
@@ -366,10 +427,10 @@
 										{getPlayerSelectLabel(comparisonPlayerId)}
 									</Select.Trigger>
 									<Select.Content class="border-zinc-700 bg-popover">
-										{#each players as player, index}
-											<Select.Item value={player.playerId.toString()} label={player.username}>
-												<div class="flex w-full items-center justify-between gap-5">
-													<span>#{index + 1} {player.username}</span>
+									{#each players as player, index (getPlayerKey(player))}
+										<Select.Item value={getPlayerKey(player)} label={`${player.username} ${getHeroScoreGroupName(player.scoreGroup)}`}>
+											<div class="flex w-full items-center justify-between gap-5">
+												<span>#{index + 1} {player.username} <span class="text-zinc-500">· {getHeroScoreGroupName(player.scoreGroup)}</span></span>
 													<span class="tabular-nums text-zinc-500">{formatHeroScore(player.score)}</span>
 												</div>
 											</Select.Item>
@@ -382,7 +443,7 @@
 
 					<div class="mt-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-t border-zinc-800 pt-3 sm:mt-4 sm:gap-6 sm:pt-4">
 						<div class="min-w-0">
-							<div class="truncate text-xs font-medium text-zinc-300">{selectedPlayer.username}</div>
+							<div class="truncate text-xs font-medium text-zinc-300">{selectedPlayer.username} · {getHeroScoreGroupName(selectedPlayer.scoreGroup)}</div>
 							<div class="mt-0.5 text-2xl font-semibold tabular-nums text-zinc-100">{formatHeroScore(selectedPlayer.score)}</div>
 							<div class="text-[11px] text-zinc-500">Rank #{selectedRank} · {selectedPlayer.matches} matches</div>
 						</div>
@@ -395,7 +456,7 @@
 							{/if}
 						</div>
 						<div class="min-w-0 text-right">
-							<div class="truncate text-xs font-medium text-zinc-400">{comparisonPlayer.username}</div>
+							<div class="truncate text-xs font-medium text-zinc-400">{comparisonPlayer.username} · {getHeroScoreGroupName(comparisonPlayer.scoreGroup)}</div>
 							<div class="mt-0.5 text-2xl font-semibold tabular-nums text-zinc-300">{formatHeroScore(comparisonPlayer.score)}</div>
 							<div class="text-[11px] text-zinc-500">Rank #{comparisonRank} · {comparisonPlayer.matches} matches</div>
 						</div>
@@ -408,19 +469,19 @@
 					<div class="px-4 py-4 sm:px-5 lg:border-r lg:border-zinc-800">
 						<div>
 							<h3 class="text-sm font-semibold text-zinc-100">Score composition</h3>
-							<p class="mt-0.5 text-xs text-zinc-500">Hover or focus a segment to trace it across the comparison.</p>
+							<p class="mt-0.5 text-xs text-zinc-500">Each component’s contribution to the 1,000-point score.</p>
 						</div>
 
 						<div class="mt-4 grid gap-3">
 							<div>
 								<div class="mb-1.5 flex items-baseline justify-between gap-3">
-									<span class="truncate text-xs font-medium text-zinc-200">{selectedPlayer.username}</span>
-									<span class="shrink-0 text-sm font-semibold tabular-nums text-zinc-100">{formatHeroScore(selectedBreakdown.score)} <span class="text-[10px] font-normal text-zinc-600">/ {formatHeroScore(HERO_SCORE_MAX)}</span></span>
+									<span class="truncate text-xs font-medium text-zinc-200">{selectedPlayer.username} · {getHeroScoreGroupName(selectedPlayer.scoreGroup)}</span>
+									<span class="shrink-0 text-sm font-semibold tabular-nums text-zinc-100">{formatHeroScore(selectedBreakdown.score)} <span class="text-[10px] font-normal text-zinc-600">/ 1,000</span></span>
 								</div>
 								<div
 									class="flex h-3 overflow-hidden rounded-sm bg-zinc-900"
 									role="group"
-									aria-label={`${selectedPlayer.username} score composition`}
+									aria-label={`${selectedPlayer.username} ${getHeroScoreGroupName(selectedPlayer.scoreGroup)} score composition`}
 								>
 									{#each contributionSegments as segment}
 										<button
@@ -431,7 +492,7 @@
 											onmouseleave={() => (highlightedMetricKey = null)}
 											onfocus={() => (highlightedMetricKey = segment.key)}
 											onblur={() => (highlightedMetricKey = null)}
-											aria-label={`${segment.label}: ${formatNumber(segment.selectedPoints, 1)} points for ${selectedPlayer.username}`}
+											aria-label={`${segment.label}: ${formatNumber(segment.selectedPoints, 1)} points for ${selectedPlayer.username} ${getHeroScoreGroupName(selectedPlayer.scoreGroup)}`}
 											title={`${segment.label}: ${formatNumber(segment.selectedPoints, 1)} points`}
 										></button>
 									{/each}
@@ -440,13 +501,13 @@
 
 							<div>
 								<div class="mb-1.5 flex items-baseline justify-between gap-3">
-									<span class="truncate text-xs font-medium text-zinc-400">{comparisonPlayer.username}</span>
-									<span class="shrink-0 text-sm font-semibold tabular-nums text-zinc-300">{formatHeroScore(comparisonBreakdown.score)} <span class="text-[10px] font-normal text-zinc-600">/ {formatHeroScore(HERO_SCORE_MAX)}</span></span>
+									<span class="truncate text-xs font-medium text-zinc-400">{comparisonPlayer.username} · {getHeroScoreGroupName(comparisonPlayer.scoreGroup)}</span>
+									<span class="shrink-0 text-sm font-semibold tabular-nums text-zinc-300">{formatHeroScore(comparisonBreakdown.score)} <span class="text-[10px] font-normal text-zinc-600">/ 1,000</span></span>
 								</div>
 								<div
 									class="flex h-3 overflow-hidden rounded-sm bg-zinc-900"
 									role="group"
-									aria-label={`${comparisonPlayer.username} score composition`}
+									aria-label={`${comparisonPlayer.username} ${getHeroScoreGroupName(comparisonPlayer.scoreGroup)} score composition`}
 								>
 									{#each contributionSegments as segment}
 										<button
@@ -457,7 +518,7 @@
 											onmouseleave={() => (highlightedMetricKey = null)}
 											onfocus={() => (highlightedMetricKey = segment.key)}
 											onblur={() => (highlightedMetricKey = null)}
-											aria-label={`${segment.label}: ${formatNumber(segment.comparisonPoints, 1)} points for ${comparisonPlayer.username}`}
+											aria-label={`${segment.label}: ${formatNumber(segment.comparisonPoints, 1)} points for ${comparisonPlayer.username} ${getHeroScoreGroupName(comparisonPlayer.scoreGroup)}`}
 											title={`${segment.label}: ${formatNumber(segment.comparisonPoints, 1)} points`}
 										></button>
 									{/each}
@@ -467,8 +528,8 @@
 
 						<div class="mt-4 grid grid-cols-[minmax(0,1fr)_4.5rem_4.5rem] border-y border-zinc-800 text-xs">
 							<div class="py-1.5 text-[10px] font-medium uppercase tracking-wide text-zinc-600">Metric</div>
-							<div class="truncate px-1 py-1.5 text-right text-[10px] font-medium uppercase tracking-wide text-zinc-600" title={selectedPlayer.username}>{selectedPlayer.username}</div>
-							<div class="truncate py-1.5 text-right text-[10px] font-medium uppercase tracking-wide text-zinc-600" title={comparisonPlayer.username}>{comparisonPlayer.username}</div>
+							<div class="truncate px-1 py-1.5 text-right text-[10px] font-medium uppercase tracking-wide text-zinc-600" title={`${selectedPlayer.username} · ${getHeroScoreGroupName(selectedPlayer.scoreGroup)}`}>{selectedPlayer.username} · {getHeroScoreGroupName(selectedPlayer.scoreGroup)}</div>
+							<div class="truncate py-1.5 text-right text-[10px] font-medium uppercase tracking-wide text-zinc-600" title={`${comparisonPlayer.username} · ${getHeroScoreGroupName(comparisonPlayer.scoreGroup)}`}>{comparisonPlayer.username} · {getHeroScoreGroupName(comparisonPlayer.scoreGroup)}</div>
 							{#each contributionSegments as segment}
 								<div class="flex min-w-0 items-center gap-2 border-t border-zinc-800 py-1.5 text-zinc-400 {highlightedMetricKey === segment.key ? 'font-medium text-zinc-100' : ''}">
 									<span class="h-2 w-2 shrink-0 rounded-sm {segment.barClass}"></span>
@@ -478,35 +539,17 @@
 								<div class="border-t border-zinc-800 px-1 py-1.5 text-right font-medium tabular-nums {highlightedMetricKey === segment.key ? 'text-zinc-100' : 'text-zinc-300'}">{formatNumber(segment.selectedPoints, 1)}</div>
 								<div class="border-t border-zinc-800 py-1.5 text-right font-medium tabular-nums {highlightedMetricKey === segment.key ? 'text-zinc-100' : 'text-zinc-400'}">{formatNumber(segment.comparisonPoints, 1)}</div>
 							{/each}
+							<div class="border-t border-zinc-700 py-2 text-xs font-semibold text-zinc-200">{subjectLabelTitle} score</div>
+							<div class="border-t border-zinc-700 px-1 py-2 text-right text-sm font-semibold tabular-nums text-zinc-100">{formatHeroScore(selectedBreakdown.score)}</div>
+							<div class="border-t border-zinc-700 py-2 text-right text-sm font-semibold tabular-nums text-zinc-300">{formatHeroScore(comparisonBreakdown.score)}</div>
 						</div>
 
-						<div class="mt-4 border-t border-zinc-800 pt-3">
-							<div class="flex items-start justify-between gap-4">
-								<div>
-									<h4 class="text-xs font-semibold text-zinc-200">Sample confidence</h4>
-									<p class="mt-0.5 text-[11px] leading-4 text-zinc-500">Scales performance until 24 matches.</p>
-								</div>
-								<div class="text-xs font-medium tabular-nums text-zinc-300">{formatPercent(selectedBreakdown.sampleWeight * 100)}</div>
-							</div>
-							<div class="mt-2 grid gap-2">
-								<div class="grid grid-cols-[minmax(4rem,1fr)_minmax(5rem,1.5fr)_3rem] items-center gap-2 text-[11px]">
-									<span class="truncate text-zinc-400">{selectedPlayer.username}</span>
-									<div class="h-1.5 overflow-hidden rounded-full bg-zinc-900"><div class="h-full rounded-full bg-chart-3" style:width={`${selectedBreakdown.sampleWeight * 100}%`}></div></div>
-									<span class="text-right tabular-nums text-zinc-400">{formatPercent(selectedBreakdown.sampleWeight * 100)}</span>
-								</div>
-								<div class="grid grid-cols-[minmax(4rem,1fr)_minmax(5rem,1.5fr)_3rem] items-center gap-2 text-[11px]">
-									<span class="truncate text-zinc-500">{comparisonPlayer.username}</span>
-									<div class="h-1.5 overflow-hidden rounded-full bg-zinc-900"><div class="h-full rounded-full bg-zinc-600" style:width={`${comparisonBreakdown.sampleWeight * 100}%`}></div></div>
-									<span class="text-right tabular-nums text-zinc-500">{formatPercent(comparisonBreakdown.sampleWeight * 100)}</span>
-								</div>
-							</div>
-						</div>
 					</div>
 
 					<div class="border-t border-zinc-800 px-4 py-4 sm:px-5 lg:border-t-0">
 						<div>
 							<h3 class="text-sm font-semibold text-zinc-100">Metric comparison</h3>
-							<p class="mt-0.5 text-xs text-zinc-500">Points include sample confidence, except match volume.</p>
+							<p class="mt-0.5 text-xs text-zinc-500">Performance is confidence-weighted; match volume uses its own logarithmic curve.</p>
 						</div>
 
 						<div class="mt-2 border-y border-zinc-800">
@@ -523,12 +566,12 @@
 									</div>
 									<div class="mt-1.5 grid gap-1.5">
 										<div class="grid grid-cols-[minmax(5.5rem,1fr)_minmax(4rem,1.25fr)_4rem] items-center gap-2 text-[11px]">
-											<span class="truncate {metric.selectedPoints >= metric.comparisonPoints ? 'font-medium text-zinc-200' : 'text-zinc-500'}">{selectedPlayer.username} · {metric.selectedValue}</span>
+											<span class="truncate {metric.selectedPoints >= metric.comparisonPoints ? 'font-medium text-zinc-200' : 'text-zinc-500'}">{selectedPlayer.username} · {getHeroScoreGroupName(selectedPlayer.scoreGroup)} · {metric.selectedValue}</span>
 											<div class="h-2 overflow-hidden rounded-full bg-zinc-900"><div class="h-full rounded-full {metric.selectedPoints >= metric.comparisonPoints ? metric.barClass : 'bg-zinc-600'}" style:width={`${capPercent(metric.selectedPercent)}%`}></div></div>
 											<span class="text-right tabular-nums {metric.selectedPoints >= metric.comparisonPoints ? 'font-medium text-zinc-200' : 'text-zinc-500'}">{formatNumber(metric.selectedPoints, 1)}</span>
 										</div>
 										<div class="grid grid-cols-[minmax(5.5rem,1fr)_minmax(4rem,1.25fr)_4rem] items-center gap-2 text-[11px]">
-											<span class="truncate {metric.comparisonPoints >= metric.selectedPoints ? 'font-medium text-zinc-200' : 'text-zinc-500'}">{comparisonPlayer.username} · {metric.comparisonValue}</span>
+											<span class="truncate {metric.comparisonPoints >= metric.selectedPoints ? 'font-medium text-zinc-200' : 'text-zinc-500'}">{comparisonPlayer.username} · {getHeroScoreGroupName(comparisonPlayer.scoreGroup)} · {metric.comparisonValue}</span>
 											<div class="h-2 overflow-hidden rounded-full bg-zinc-900"><div class="h-full rounded-full {metric.comparisonPoints >= metric.selectedPoints ? metric.barClass : 'bg-zinc-600'}" style:width={`${capPercent(metric.comparisonPercent)}%`}></div></div>
 											<span class="text-right tabular-nums {metric.comparisonPoints >= metric.selectedPoints ? 'font-medium text-zinc-200' : 'text-zinc-500'}">{formatNumber(metric.comparisonPoints, 1)}</span>
 										</div>
@@ -542,7 +585,7 @@
 				<details class="group border-b border-zinc-800 bg-zinc-950/25">
 					<summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 outline-none transition-colors hover:bg-zinc-900/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-5 [&::-webkit-details-marker]:hidden">
 						<div>
-							<div class="text-xs font-semibold text-zinc-200">How hero scores are calculated</div>
+							<div class="text-xs font-semibold text-zinc-200">How {subjectLabel} scores are calculated</div>
 							<div class="mt-0.5 text-[11px] text-zinc-500">Formula, performance blend, and recency weighting</div>
 						</div>
 						<ChevronDown class="h-4 w-4 shrink-0 text-zinc-500 transition-transform duration-200 group-open:rotate-180" />
@@ -551,16 +594,17 @@
 						<div>
 							<div class="text-[10px] font-medium uppercase tracking-wide text-zinc-500">Exact formula</div>
 							<p class="mt-1.5 font-mono text-[11px] leading-5 text-zinc-300">
-								(Blended win rate × 300 + Recent form × 100 + Blended impact ÷ 150 × 250 + Blended KDA ÷ 6 × 150) × Sample + Volume × 200
+								<span class="block">Performance = confidence × (30% win rate + 10% form + 25% impact + 15% KDA)</span>
+								<span class="block">{subjectLabelTitle} score = performance + 20% match volume</span>
 							</p>
-							<p class="mt-2 text-[11px] leading-4 text-zinc-500">Win rate, impact, and KDA blend time-weighted history with current form. Recent form uses the latest 10 games. Impact and KDA stop gaining points at their displayed caps.</p>
+							<p class="mt-2 text-[11px] leading-4 text-zinc-500">Confidence reaches 100% at 24 matches. Volume reaches its 200-point maximum at {HERO_SCORE_VOLUME_FULL_MATCHES} matches. Latest-10 form is regressed halfway toward 50%, while impact and KDA are normalised for Core and Support.</p>
 						</div>
 						<div>
 							<div class="flex items-baseline justify-between gap-2">
-								<div class="text-[10px] font-medium uppercase tracking-wide text-zinc-500">Performance blend</div>
-								<div class="text-[10px] tabular-nums text-zinc-500">Latest {HERO_SCORE_RECENT_PERFORMANCE_MATCHES} games</div>
+							<div class="text-[10px] font-medium uppercase tracking-wide text-zinc-500">Performance blend</div>
+								<div class="text-[10px] tabular-nums text-zinc-500">Latest 20 matches</div>
 							</div>
-							<div class="mt-2 flex h-2 overflow-hidden rounded-full bg-zinc-900" role="img" aria-label={`${historicalPerformancePercent}% time-weighted history and ${recentPerformancePercent}% latest ${HERO_SCORE_RECENT_PERFORMANCE_MATCHES} games`}>
+							<div class="mt-2 flex h-2 overflow-hidden rounded-full bg-zinc-900" role="img" aria-label={`${historicalPerformancePercent}% time-weighted history and ${recentPerformancePercent}% latest-20 performance`}>
 								<div class="h-full bg-zinc-500" style:width={`${historicalPerformancePercent}%`}></div>
 								<div class="h-full bg-chart-3" style:width={`${recentPerformancePercent}%`}></div>
 							</div>
@@ -569,7 +613,7 @@
 								<span class="text-right text-zinc-400">{recentPerformancePercent}% recent performance</span>
 							</div>
 							<div class="mt-4 text-[10px] font-medium uppercase tracking-wide text-zinc-500">Recency curve</div>
-							<p class="mt-1 text-[11px] leading-4 text-zinc-500">Performance influence halves every {recencyHalfLifeYears} years, with no hard cutoff.</p>
+							<p class="mt-1 text-[11px] leading-4 text-zinc-500">Performance influence halves every {recencyHalfLifeYears} years. Once history reaches {HERO_SCORE_HISTORICAL_EVIDENCE_CAP} effective games, each new match gradually replaces the oldest accumulated influence.</p>
 							<div class="mt-2.5 grid grid-cols-5 gap-2" aria-label="Example game weights by age">
 								{#each recencyExamples as example}
 									<div class="min-w-0">
@@ -596,6 +640,7 @@
 						<Table.Row class="border-zinc-800 hover:bg-transparent">
 							<Table.Head class="h-9 w-10 px-2 text-center text-[11px] uppercase tracking-wide text-zinc-400">#</Table.Head>
 							<Table.Head class="h-9 min-w-36 px-2 text-[11px] uppercase tracking-wide text-zinc-400">Player</Table.Head>
+							<Table.Head class="h-9 px-2 text-[11px] uppercase tracking-wide text-zinc-400">Group</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Score</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Gap</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Matches</Table.Head>
@@ -604,26 +649,26 @@
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Recent</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Impact</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">KDA</Table.Head>
-							<Table.Head class="h-9 px-3 text-right text-[11px] uppercase tracking-wide text-zinc-400">Sample</Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
-						{#each players as player, index}
-							{@const recentWinRate = getRecentWinRate(player)}
-							<Table.Row class="border-zinc-900 transition-colors hover:bg-zinc-900/70 {player.playerId === selectedPlayer?.playerId ? 'bg-zinc-800/60' : player.playerId === comparisonPlayer?.playerId ? 'bg-zinc-900/80' : ''}">
+					{#each players as player, index (getPlayerKey(player))}
+							{@const recentWinRate = getRatedRecentWinRate(player)}
+							<Table.Row class="border-zinc-900 transition-colors hover:bg-zinc-900/70 {getPlayerKey(player) === (selectedPlayer ? getPlayerKey(selectedPlayer) : '') ? 'bg-zinc-800/60' : getPlayerKey(player) === (comparisonPlayer ? getPlayerKey(comparisonPlayer) : '') ? 'bg-zinc-900/80' : ''}">
 								<Table.Cell class="px-2 py-2.5 text-center text-xs font-medium tabular-nums text-zinc-500">{index + 1}</Table.Cell>
 								<Table.Cell class="px-2 py-2.5 font-medium text-zinc-100">
-									<button type="button" onclick={() => selectPrimaryPlayer(player.playerId)} class="rounded-sm text-left outline-none transition-colors hover:text-zinc-300 focus-visible:ring-2 focus-visible:ring-ring" aria-pressed={player.playerId === selectedPlayer?.playerId}>
+									<button type="button" onclick={() => selectPrimaryPlayer(getPlayerKey(player))} class="rounded-sm text-left outline-none transition-colors hover:text-zinc-300 focus-visible:ring-2 focus-visible:ring-ring" aria-pressed={getPlayerKey(player) === (selectedPlayer ? getPlayerKey(selectedPlayer) : '')}>
 										{player.username}
-										{#if player.playerId === selectedPlayer?.playerId}<span class="ml-1 rounded-sm bg-zinc-700 px-1 py-0.5 text-[9px] font-semibold text-zinc-200">Focus</span>{:else if player.playerId === comparisonPlayer?.playerId}<span class="ml-1 rounded-sm border border-zinc-700 px-1 py-0.5 text-[9px] font-semibold text-zinc-500">Compare</span>{/if}
+										{#if getPlayerKey(player) === (selectedPlayer ? getPlayerKey(selectedPlayer) : '')}<span class="ml-1 rounded-sm bg-zinc-700 px-1 py-0.5 text-[9px] font-semibold text-zinc-200">Focus</span>{:else if getPlayerKey(player) === (comparisonPlayer ? getPlayerKey(comparisonPlayer) : '')}<span class="ml-1 rounded-sm border border-zinc-700 px-1 py-0.5 text-[9px] font-semibold text-zinc-500">Compare</span>{/if}
 									</button>
 								</Table.Cell>
+								<Table.Cell class="px-2 py-2.5 text-xs font-medium text-zinc-400">{getHeroScoreGroupName(player.scoreGroup)}</Table.Cell>
 								<Table.Cell class="px-2 py-2.5 text-right tabular-nums">
 									<button
 										type="button"
-										onclick={() => selectPrimaryPlayer(player.playerId)}
+									onclick={() => selectPrimaryPlayer(getPlayerKey(player))}
 										class="ml-auto block rounded-sm text-base font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
-										aria-label={`Compare ${player.username}'s score with ${getDefaultComparisonPlayer(player.playerId)?.username ?? player.username}`}
+									aria-label={`Compare ${player.username}'s ${getHeroScoreGroupName(player.scoreGroup)} score with ${getDefaultComparisonPlayer(getPlayerKey(player))?.username ?? player.username}`}
 									>
 										{formatHeroScore(player.score)}
 									</button>
@@ -635,7 +680,6 @@
 								<Table.Cell class="px-2 py-2.5 text-right tabular-nums {getMetricClass(recentWinRate, bestRecentWinRate)}">{formatPercent(recentWinRate)}</Table.Cell>
 								<Table.Cell class="px-2 py-2.5 text-right tabular-nums {getMetricClass(player.scoreAvgImpact, bestImpact)}">{formatNumber(player.scoreAvgImpact)}</Table.Cell>
 								<Table.Cell class="px-2 py-2.5 text-right tabular-nums {getMetricClass(player.scoreKda, bestKda)}">{formatNumber(player.scoreKda, 2)}</Table.Cell>
-								<Table.Cell class="px-3 py-2.5 text-right tabular-nums text-zinc-400" title={`${player.matches} total games`}>{formatPercent(player.sampleWeight * 100)}</Table.Cell>
 							</Table.Row>
 						{/each}
 					</Table.Body>
@@ -643,7 +687,7 @@
 			</div>
 
 			<div class="border-t border-zinc-800 px-4 py-3 text-[11px] leading-4 text-zinc-500 sm:px-5">
-				Players calibrate after 10 matches. Every match counts fully toward experience and confidence.
+				Players calibrate after 10 matches. Scores begin near neutral, confidence grows continuously, and mastery never decreases.
 			</div>
 		</div>
 	</Dialog.Content>

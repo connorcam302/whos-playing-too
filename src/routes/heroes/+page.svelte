@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import {
 		getCoreRowModel,
 		getSortedRowModel,
@@ -9,8 +10,19 @@
 	import { FlexRender, createSvelteTable } from '$lib/components/ui/data-table/index.js';
 	import HeroScoreComparisonDialog from '$lib/components/heroes/HeroScoreComparisonDialog.svelte';
 	import * as Table from '$lib/components/ui/table';
-	import { formatHeroScore } from '$lib/heroScores';
-	import { ArrowUpDown, ChevronDown, ChevronRight, Search } from 'lucide-svelte';
+	import {
+		formatHeroScore,
+		getHeroScoreGroupName,
+		type HeroScoreGroup
+	} from '$lib/heroScores';
+	import {
+		Activity,
+		ArrowUpDown,
+		ChevronDown,
+		ChevronRight,
+		FlaskConical,
+		Search
+	} from 'lucide-svelte';
 	import OwnershipInfographics from './OwnershipInfographics.svelte';
 	import OwnershipChanges from './OwnershipChanges.svelte';
 
@@ -25,14 +37,19 @@
 		recentForm: string;
 		kda: number;
 		avgImpact: number;
-		volumeScore: number;
 		sampleWeight: number;
+		effectiveMatches: number;
 		primaryRole: number;
+		scoreGroup: HeroScoreGroup;
 		score: number;
 		scoreWinRate: number;
+		scoreRecentRate: number;
 		scoreKda: number;
 		scoreAvgImpact: number;
+		performancePulse: number;
+		volumeScore: number;
 		confidence: string;
+		mastery: number;
 	};
 
 	type HeroSummary = {
@@ -45,6 +62,8 @@
 		winRate: number;
 		scoreChange: number | null;
 		topPlayers: TopPlayer[];
+		roleRankings: Record<HeroScoreGroup, TopPlayer[]>;
+		roleScoreChanges: Record<HeroScoreGroup, number | null>;
 	};
 
 	type OwnershipChange = {
@@ -74,7 +93,11 @@
 	let sorting = $state<SortingState>([{ id: 'score', desc: true }]);
 	let scoreComparisonHero = $state<HeroSummary | null>(null);
 	let scoreComparisonPlayerId = $state<number | null>(null);
+	let scoreComparisonScoreGroup = $state<HeroScoreGroup | null>(null);
 	let scoreComparisonOpen = $state(false);
+	let ownershipMode = $state<'best' | 'worst'>(
+		page.url.searchParams.get('ownership') === 'worst' ? 'worst' : 'best'
+	);
 
 	const formatNumber = (value: number | null | undefined, decimals = 0) =>
 		new Intl.NumberFormat('en-GB', {
@@ -91,24 +114,50 @@
 		};
 	};
 
-	const openScoreComparison = (hero: HeroSummary, playerId: number) => {
-		scoreComparisonHero = hero;
-		scoreComparisonPlayerId = playerId;
+	const openScoreComparison = (hero: HeroSummary, player: TopPlayer) => {
+		scoreComparisonHero = {
+			...hero,
+			topPlayers: Object.values(hero.roleRankings)
+				.flat()
+				.sort((a, b) => b.score - a.score || b.matches - a.matches)
+		};
+		scoreComparisonPlayerId = player.playerId;
+		scoreComparisonScoreGroup = player.scoreGroup;
 		scoreComparisonOpen = true;
 	};
 
+	const activeHeroes = $derived.by(() =>
+		data.heroes.map((hero) => {
+			const topPlayers = Object.values(hero.roleRankings)
+				.flat()
+				.sort((a, b) => b.score - a.score || b.matches - a.matches);
+			if (ownershipMode === 'worst') topPlayers.reverse();
+			const leadingGroup = topPlayers[0]?.scoreGroup;
+			return {
+				...hero,
+				topPlayers,
+				scoreChange:
+					ownershipMode === 'best' && leadingGroup
+						? (hero.roleScoreChanges[leadingGroup] ?? null)
+						: null
+			};
+		})
+	);
 	const filteredHeroes = $derived(
-		data.heroes.filter((hero) => hero.name.toLowerCase().includes(searchValue.toLowerCase()))
+		activeHeroes.filter((hero) => hero.name.toLowerCase().includes(searchValue.toLowerCase()))
 	);
 
-	const topHero = $derived(data.heroes.find((hero) => hero.topPlayers.length > 0));
+	const topHero = $derived(activeHeroes.find((hero) => hero.topPlayers.length > 0));
 
 	const getHeroSortValue = (hero: HeroSummary, columnId: string) => {
 		const bestPlayer = hero.topPlayers[0];
 
 		if (columnId === 'hero') return hero.name;
 		if (columnId === 'player') return bestPlayer?.username ?? '';
-		if (columnId === 'score') return bestPlayer?.score ?? -1;
+		if (columnId === 'role') return bestPlayer?.scoreGroup ?? '';
+		if (columnId === 'score') {
+			return bestPlayer?.score ?? (ownershipMode === 'worst' ? Number.POSITIVE_INFINITY : -1);
+		}
 		if (columnId === 'scoreChange') return hero.scoreChange ?? -999;
 		if (columnId === 'wl') return bestPlayer?.winRate ?? -1;
 		if (columnId === 'winRate') return bestPlayer?.winRate ?? -1;
@@ -120,7 +169,8 @@
 	const tableColumns = $derived<ColumnDef<HeroSummary>[]>(
 		[
 			{ id: 'hero', header: 'Hero' },
-			{ id: 'player', header: 'Best Player' },
+			{ id: 'player', header: ownershipMode === 'worst' ? 'Worst Player' : 'Best Player' },
+			{ id: 'role', header: 'Group' },
 			{ id: 'score', header: 'Score' },
 			{ id: 'scoreChange', header: 'Δ Score' },
 			{ id: 'wl', header: 'W/L' },
@@ -161,14 +211,18 @@
 	);
 
 	const getHeaderClass = (columnId: string) =>
-		['score', 'scoreChange', 'wl', 'winRate', 'matches', 'top3'].includes(columnId)
+		['role', 'score', 'scoreChange', 'wl', 'winRate', 'matches', 'top3'].includes(columnId)
 			? 'text-right'
 			: '';
 
 	const getHeaderButtonClass = (columnId: string) =>
-		['score', 'scoreChange', 'wl', 'winRate', 'matches', 'top3'].includes(columnId)
+		['role', 'score', 'scoreChange', 'wl', 'winRate', 'matches', 'top3'].includes(columnId)
 			? 'ml-auto'
 			: '';
+
+	$effect(() => {
+		sorting = [{ id: 'score', desc: ownershipMode !== 'worst' }];
+	});
 
 	const getHiddenPlayers = (hero: HeroSummary) => hero.topPlayers.slice(1);
 
@@ -194,6 +248,7 @@
 		heroImg={scoreComparisonHero.img}
 		players={scoreComparisonHero.topPlayers}
 		selectedPlayerId={scoreComparisonPlayerId}
+		selectedScoreGroup={scoreComparisonScoreGroup}
 		bind:open={scoreComparisonOpen}
 	/>
 {/if}
@@ -220,16 +275,38 @@
 					{/if}
 				</div>
 			</div>
+			<div class="flex flex-wrap items-center gap-2">
+				<a
+					href="/heroes/mmr"
+					class="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-violet-800/70 bg-violet-950/30 px-3 text-xs font-medium text-violet-200 transition-colors hover:border-violet-700 hover:bg-violet-950/50 hover:text-violet-100"
+				>
+					<FlaskConical class="h-3.5 w-3.5" />
+					MMR experiment
+				</a>
+				<a
+					href="/heroes/diagnostics"
+					class="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-zinc-700 bg-zinc-950 px-3 text-xs font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:bg-zinc-900 hover:text-zinc-100"
+				>
+					<Activity class="h-3.5 w-3.5" />
+					Score diagnostics
+				</a>
+			</div>
 		</div>
 	</section>
 
 	<OwnershipChanges changes={data.ownershipChanges} />
 
-	<OwnershipInfographics heroes={data.heroes} ownershipChanges={data.ownershipChanges} />
+	<OwnershipInfographics
+		heroes={data.heroes}
+		ownershipChanges={data.ownershipChanges}
+		bind:ownershipMode
+	/>
 
 	<section class="rounded-md border border-border bg-card p-4">
 		<div class="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-			<h2 class="text-base font-semibold text-zinc-100">Heroes</h2>
+			<h2 class="text-base font-semibold text-zinc-100">
+				{ownershipMode === 'worst' ? 'Worst Players By Hero' : 'Best Players By Hero'}
+			</h2>
 			<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
 				<label class="relative block w-full sm:w-64">
 					<span class="sr-only">Search heroes</span>
@@ -304,7 +381,7 @@
 								{#if bestPlayer}
 									<button
 										onclick={() => goto(`/player/${bestPlayer.playerId}`)}
-										class="inline-flex max-w-40 items-center gap-1 truncate text-left font-medium text-zinc-100 transition-colors hover:text-sky-300"
+										class="inline-flex max-w-40 truncate text-left font-medium text-zinc-100 transition-colors hover:text-sky-300"
 									>
 										<span class="truncate">{bestPlayer.username}</span>
 									</button>
@@ -312,11 +389,18 @@
 									<span class="text-sm text-zinc-500">Uncalibrated</span>
 								{/if}
 							</Table.Cell>
+							<Table.Cell class="px-2 py-2 text-right">
+								{#if bestPlayer}
+									<span class="text-xs font-medium text-zinc-400">{getHeroScoreGroupName(bestPlayer.scoreGroup)}</span>
+								{:else}
+									<span class="text-zinc-600">-</span>
+								{/if}
+							</Table.Cell>
 							<Table.Cell class="px-2 py-2 text-right tabular-nums">
 								{#if bestPlayer}
 									<button
 										type="button"
-										onclick={() => openScoreComparison(hero, bestPlayer.playerId)}
+									onclick={() => openScoreComparison(hero, bestPlayer)}
 										class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
 										aria-label={`Compare all player scores for ${hero.name}`}
 									>
@@ -380,15 +464,18 @@
 									<Table.Cell class="px-2 py-2">
 										<button
 											onclick={() => goto(`/player/${player.playerId}`)}
-											class="inline-flex max-w-40 items-center gap-1 truncate text-left font-medium text-zinc-200 transition-colors hover:text-sky-300"
+											class="inline-flex max-w-40 truncate text-left font-medium text-zinc-200 transition-colors hover:text-sky-300"
 										>
 											<span class="truncate">{player.username}</span>
 										</button>
 									</Table.Cell>
+									<Table.Cell class="px-2 py-2 text-right">
+										<span class="text-xs font-medium text-zinc-500">{getHeroScoreGroupName(player.scoreGroup)}</span>
+									</Table.Cell>
 									<Table.Cell class="px-2 py-2 text-right tabular-nums">
 										<button
 											type="button"
-											onclick={() => openScoreComparison(hero, player.playerId)}
+											onclick={() => openScoreComparison(hero, player)}
 											class="ml-auto block rounded-sm text-lg font-semibold text-zinc-100 underline decoration-zinc-700 decoration-dotted underline-offset-4 outline-none transition-colors hover:text-sky-300 focus-visible:ring-2 focus-visible:ring-ring"
 											aria-label={`Compare all player scores for ${hero.name}`}
 										>
@@ -413,7 +500,7 @@
 						{/if}
 					{:else}
 						<Table.Row class="border-zinc-900">
-							<Table.Cell colspan={8} class="h-40 text-center text-sm text-zinc-500">
+							<Table.Cell colspan={9} class="h-40 text-center text-sm text-zinc-500">
 								No heroes match that search.
 							</Table.Cell>
 						</Table.Row>
