@@ -74,9 +74,9 @@
 	};
 
 	import Loading from '$lib/components/Loading.svelte';
-	import { afterNavigate, replaceState } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { untrack } from 'svelte';
+	import { replaceState } from '$app/navigation';
+	import { page } from '$app/state';
+	import { onMount, untrack } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import MatchDropdown from '$lib/components/match/MatchDropdown.svelte';
 	import * as Select from '$lib/components/ui/select/index.js';
@@ -194,7 +194,7 @@
 
 	const readArrayParam = (name: string) => {
 		try {
-			const value = JSON.parse($page.url.searchParams.get(name) ?? '[]');
+			const value = JSON.parse(page.url.searchParams.get(name) ?? '[]');
 			return Array.isArray(value) ? value.map(String) : [];
 		} catch {
 			return [];
@@ -202,8 +202,9 @@
 	};
 
 	const syncUrl = () => {
-		const url = new URL($page.url);
+		const url = new URL(page.url);
 		const params = url.searchParams;
+		params.set('tab', 'matches');
 		const heroes = selectedHero.filter((id) => id !== '-1');
 		const teammates = selectedPlayers.filter(
 			(id) => id !== '-1' && id !== player.id.toString()
@@ -230,7 +231,7 @@
 		params.set('page', (pageNumber - 1).toString());
 		params.set('smurf', smurfs.toString());
 
-		replaceState(`${url.pathname}${url.search}${url.hash}`, $page.state);
+		replaceState(`${url.pathname}${url.search}${url.hash}`, page.state);
 	};
 
 	const fetchMatches = async (pageNumber: number, playerId: number) => {
@@ -447,14 +448,14 @@
 		const rolesFromUrl = readArrayParam('roles');
 		selectedRoles = rolesFromUrl.length > 0 ? rolesFromUrl : ['1', '2', '3', '4', '5'];
 
-		selectedDateRange = $page.url.searchParams.get('dateRange') ?? 'all';
-		const requestedPage = Number($page.url.searchParams.get('page') ?? 0);
+		selectedDateRange = page.url.searchParams.get('dateRange') ?? 'all';
+		const requestedPage = Number(page.url.searchParams.get('page') ?? 0);
 		pageNumber = Number.isFinite(requestedPage) ? Math.max(1, Math.floor(requestedPage) + 1) : 1;
 		nextPageFromUrl = pageNumber;
-		smurfs = $page.url.searchParams.get('smurf') !== 'false';
+		smurfs = page.url.searchParams.get('smurf') !== 'false';
 
 		const gameModes = readArrayParam('gameMode');
-		if ($page.url.searchParams.has('gameMode')) {
+		if (page.url.searchParams.has('gameMode')) {
 			ranked = gameModes.includes('ranked-all-pick');
 			unranked = gameModes.includes('unranked-all-pick') || gameModes.includes('other');
 		} else {
@@ -463,7 +464,7 @@
 		}
 
 		const results = readArrayParam('results');
-		if ($page.url.searchParams.has('results')) {
+		if (page.url.searchParams.has('results')) {
 			wins = results.includes('wins');
 			losses = results.includes('losses');
 		} else {
@@ -474,11 +475,11 @@
 		mounted = true;
 	};
 
-	afterNavigate(hydrateFromUrl);
+	onMount(hydrateFromUrl);
 
 	$effect(() => {
 		if (!mounted) return;
-		$page.params.id;
+		player.id;
 		selectedRoles;
 		selectedHero;
 		selectedPlayerIds;

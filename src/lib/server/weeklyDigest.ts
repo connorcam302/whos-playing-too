@@ -38,14 +38,6 @@ type RecordDefinition = {
 	isValid?: (value: number) => boolean;
 };
 
-type PlayerPeriod = {
-	id: number;
-	username: string;
-	image: string;
-	matches: number;
-	wins: number;
-};
-
 const weekSeconds = 7 * 24 * 60 * 60;
 const roleIds = [1, 2, 3, 4, 5];
 const cacheDuration = 5 * 60 * 1000;
@@ -123,28 +115,6 @@ const formatPeriod = (start: number, end: number) => {
 };
 
 const getAccountLabel = (row: DigestRow) => row.username;
-
-const getWinRate = (period: PlayerPeriod) =>
-	period.matches > 0 ? (period.wins / period.matches) * 100 : 0;
-
-const aggregatePlayers = (rows: DigestRow[]) => {
-	const periods = new Map<number, PlayerPeriod>();
-
-	for (const row of rows) {
-		const period = periods.get(row.playerId) ?? {
-			id: row.playerId,
-			username: row.username,
-			image: row.playerImage,
-			matches: 0,
-			wins: 0
-		};
-		period.matches += 1;
-		period.wins += row.team === row.winner ? 1 : 0;
-		periods.set(row.playerId, period);
-	}
-
-	return periods;
-};
 
 const recordDefinitions: RecordDefinition[] = [
 	{
@@ -276,47 +246,6 @@ const makeRecordItems = (currentRows: DigestRow[], previousRows: DigestRow[]) =>
 			}
 		];
 	});
-
-const makeFormItems = (currentRows: DigestRow[], previousRows: DigestRow[]) => {
-	const currentPlayers = aggregatePlayers(currentRows);
-	const previousPlayers = aggregatePlayers(previousRows);
-
-	return Array.from(currentPlayers.values()).flatMap((current): WeeklyDigestItem[] => {
-		const previous = previousPlayers.get(current.id);
-		if (!previous || current.matches < 5 || previous.matches < 5) return [];
-		const currentWinRate = getWinRate(current);
-		const previousWinRate = getWinRate(previous);
-		const delta = currentWinRate - previousWinRate;
-		if (Math.abs(delta) < 7) return [];
-		const improved = delta > 0;
-
-		return [
-			{
-				id: `form-${current.id}`,
-				category: 'form',
-				tone: improved ? 'positive' : 'negative',
-				badge: 'Form',
-				title: `${current.username}: win rate ${improved ? 'up' : 'down'}`,
-				summary: `${formatNumber(currentWinRate, 1)}% win rate across ${current.matches} matches, ${improved ? 'up' : 'down'} ${formatNumber(Math.abs(delta), 1)} points week over week.`,
-				href: `/player/${current.id}?tab=matches`,
-				image: current.image,
-				imageAlt: current.username,
-				primaryMetric: { label: 'Win rate', value: `${formatNumber(currentWinRate, 1)}%` },
-				secondaryMetric: {
-					label: 'Win rate change',
-					value: `${improved ? '+' : '−'}${formatNumber(Math.abs(delta), 1)}%`
-				},
-				sampleSize: current.matches,
-				lowSample: current.matches < 8 || previous.matches < 8,
-				occurredAt: currentRows.find((row) => row.playerId === current.id)?.startTime ?? 0,
-				priority:
-					58 + clamp(Math.abs(delta) / 25, 0, 1) * 24 + clamp(current.matches / 20, 0, 1) * 6,
-				evidenceKey: `form:${current.id}`,
-				entityKey: `player:${current.id}`
-			}
-		];
-	});
-};
 
 const makeStreakItems = (currentRows: DigestRow[]) => {
 	const rowsByPlayer = currentRows.reduce((map, row) => {
@@ -698,7 +627,6 @@ const buildWeeklyDigest = async (): Promise<WeeklyDigest> => {
 		candidates.push(
 			...makePooItems(currentRows),
 			...makeRecordItems(currentRows, previousRows),
-			...makeFormItems(currentRows, previousRows),
 			...makeStreakItems(currentRows),
 			...makeMatchItems(currentRows)
 		);

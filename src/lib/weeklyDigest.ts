@@ -1,6 +1,5 @@
 export type WeeklyDigestCategory =
 	| 'record'
-	| 'form'
 	| 'streak'
 	| 'match'
 	| 'poo'

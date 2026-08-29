@@ -7,7 +7,6 @@
 		Crown,
 		Flame,
 		Swords,
-		TrendingUp,
 		TriangleAlert,
 		Trophy
 	} from 'lucide-svelte';
@@ -91,8 +90,6 @@
 {#snippet categoryIcon(category: WeeklyDigestCategory)}
 	{#if category === 'record'}
 		<Trophy class="h-3.5 w-3.5" aria-hidden="true" />
-	{:else if category === 'form'}
-		<TrendingUp class="h-3.5 w-3.5" aria-hidden="true" />
 	{:else if category === 'streak'}
 		<Flame class="h-3.5 w-3.5" aria-hidden="true" />
 	{:else if category === 'match'}

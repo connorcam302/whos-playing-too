@@ -66,12 +66,14 @@
 		winLossByMinute
 	} = $derived(data);
 
+	const getImpactCounts = (ratingName: string) => data.impactCounts[ratingName] ?? [];
+
 	const getImpactTotal = (ratingName: string) => {
-		return data.impactCounts[ratingName].reduce((sum, item) => sum + Number(item.count), 0);
+		return getImpactCounts(ratingName).reduce((sum, item) => sum + Number(item.count), 0);
 	};
 
 	const getRoleImpactCount = (ratingName: string, role: number) => {
-		return Number(data.impactCounts[ratingName].find((item) => item.role === role)?.count || 0);
+		return Number(getImpactCounts(ratingName).find((item) => item.role === role)?.count || 0);
 	};
 
 	const getRoleImpactPercentage = (ratingName: string, role: number) => {
@@ -232,7 +234,9 @@
 					<div class="font-display flex min-w-0 flex-col justify-center gap-1 text-center text-sm tabular-nums">
 						{getImpactTotal(ratingName)}
 						<Bar
-							percentage={(getImpactTotal(ratingName) / mostCommonImpact.total) * 100}
+							percentage={mostCommonImpact.total > 0
+								? (getImpactTotal(ratingName) / mostCommonImpact.total) * 100
+								: 0}
 							colour="#9234ea"
 						/>
 					</div>

@@ -25,7 +25,7 @@
 		{ link: '/roles', title: 'Roles' },
 		{ link: '/records', title: 'Records' },
 		{ link: '/stats', title: 'Stats' },
-		{ link: '/stack-analysis', title: 'Stacks' },
+		{ link: '/stack-analysis', title: 'Draft' },
 		{ link: '/comparison', title: 'Comparison' }
 	];
 

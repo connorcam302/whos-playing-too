@@ -165,8 +165,11 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 <div class="flex w-full flex-col items-center gap-4 px-3 py-3 sm:px-4">
 	<ProfileBanner {data} />
 	<Tabs.Root
-		bind:value={selectedTab}
-		onValueChange={navigateToTab}
+		value={selectedTab}
+		onValueChange={(value) => {
+			selectedTab = value as ProfileTab;
+			navigateToTab(value);
+		}}
 		class="flex w-full max-w-6xl flex-col items-stretch gap-3"
 	>
 		<Tabs.List class="grid h-auto w-full grid-cols-2 gap-1 rounded-lg border border-zinc-700 bg-card sm:inline-grid sm:w-fit sm:grid-cols-7">
@@ -179,7 +182,11 @@ This Month: ${recentStats.wins} - ${recentStats.losses}`}
 			<Tabs.Trigger class="col-span-2 min-h-10 data-[state=active]:bg-zinc-900 data-[state=active]:text-zinc-100 data-[state=active]:shadow-none sm:col-span-1" value="teammates">Teammates</Tabs.Trigger>
 		</Tabs.List>
 		<Tabs.Content value="home" class="w-full"><ProfileHome {data} /></Tabs.Content>
-		<Tabs.Content value="matches" class="w-full"><ProfileMatches {data} /></Tabs.Content>
+		<Tabs.Content value="matches" class="w-full">
+			{#if selectedTab === 'matches'}
+				<ProfileMatches {data} />
+			{/if}
+		</Tabs.Content>
 		<Tabs.Content value="stats" class="w-full"><ProfileStats {data} /></Tabs.Content>
 		<Tabs.Content value="heroes" class="w-full"><ProfileHeroes {data} /></Tabs.Content>
 		<Tabs.Content value="ownership" class="w-full"><ProfileOwnership {data} /></Tabs.Content>

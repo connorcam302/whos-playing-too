@@ -11,6 +11,7 @@ export type StackAnalysisRow = {
 	heroId: number;
 	heroName: string;
 	heroImg?: string;
+	heroScore?: number;
 };
 
 export type StackSlot = {
@@ -54,6 +55,29 @@ export type StackEstimate = {
 	entries: StackEstimateEvidence[];
 };
 
+export type HeroRecommendation = {
+	heroId: number;
+	heroName: string;
+	heroIcon?: string;
+	score: number;
+	winRate: number;
+	matches: number;
+	roleMatches: number;
+	teamMatches: number;
+	alliedHeroMatches: number;
+	playerRoleScore: number;
+	teammateScore: number;
+	alliedHeroScore: number;
+	isWorstPick: boolean;
+	reason: string;
+};
+
+export const HERO_RECOMMENDATION_WEIGHTS = {
+	playerRole: 0.6,
+	teammates: 0.2,
+	alliedHeroes: 0.2
+} as const;
+
 export type PlayerWeightGroup = {
 	label?: string;
 	contributions: PlayerContribution[];
@@ -83,6 +107,11 @@ type MatchStackTeam = {
 	label: string;
 	players: MatchStackPlayer[];
 };
+
+const heroRecommendationCache = new WeakMap<
+	StackAnalysisRow[],
+	Map<string, HeroRecommendation[]>
+>();
 
 const sampleFromRows = (rows: StackAnalysisRow[]): Sample => {
 	const matches = rows.length;
@@ -126,6 +155,136 @@ const groupRowsBySide = (rows: StackAnalysisRow[]) => {
 		return map;
 	}, new Map<string, StackAnalysisRow[]>());
 	return Array.from(sideMap.values());
+};
+
+export const getHeroRecommendations = (
+	rows: StackAnalysisRow[],
+	playerId: number | null,
+	role: number,
+	teammateIds: number[],
+	alliedHeroIds: number[],
+	limit = 5
+): HeroRecommendation[] => {
+	if (playerId === null) return [];
+	const sortedTeammateIds = [...teammateIds].sort((a, b) => a - b);
+	const sortedAlliedHeroIds = [...alliedHeroIds].sort((a, b) => a - b);
+	const cacheKey = `${playerId}:${role}:${sortedTeammateIds.join(',')}:${sortedAlliedHeroIds.join(',')}:${limit}`;
+	const rowsCache = heroRecommendationCache.get(rows) ?? new Map<string, HeroRecommendation[]>();
+	const cached = rowsCache.get(cacheKey);
+	if (cached) return cached;
+	if (!heroRecommendationCache.has(rows)) heroRecommendationCache.set(rows, rowsCache);
+
+	const sides = groupRowsBySide(rows);
+	const baseline = sampleFromSides(sides);
+	const teammateSet = new Set(teammateIds.filter((id) => id !== playerId));
+	const alliedHeroSet = new Set(alliedHeroIds);
+	const playerRows = rows.filter((row) => row.playerId === playerId);
+	const candidateIds = uniqueNumbers(
+		playerRows.filter((row) => row.role === role).map((row) => row.heroId)
+	);
+	const fallbackCandidateIds = uniqueNumbers(playerRows.map((row) => row.heroId));
+	const heroIds = (
+		candidateIds.length >= limit
+			? candidateIds
+			: uniqueNumbers([...candidateIds, ...fallbackCandidateIds])
+	).filter((heroId) => !alliedHeroSet.has(heroId));
+
+	const recommendations = heroIds
+		.map((heroId): HeroRecommendation | null => {
+			const heroRows = playerRows.filter((row) => row.heroId === heroId);
+			const roleRows = heroRows.filter((row) => row.role === role);
+			const teamSides = sides.filter((side) => {
+				const candidate = side.find(
+					(row) => row.playerId === playerId && row.heroId === heroId && row.role === role
+				);
+				return candidate && side.some((row) => teammateSet.has(row.playerId));
+			});
+			const alliedHeroSamples = sortedAlliedHeroIds.map((alliedHeroId) =>
+				sampleFromSides(
+					sides.filter(
+						(side) =>
+							side.some((row) => row.heroId === heroId && row.role === role) &&
+							side.some((row) => row.heroId === alliedHeroId)
+					)
+				)
+			);
+			const alliedHeroSides = sides.filter(
+				(side) =>
+					side.some((row) => row.heroId === heroId && row.role === role) &&
+					side.some((row) => alliedHeroSet.has(row.heroId))
+			);
+			const heroSample = sampleFromRows(heroRows);
+			const roleSample = sampleFromRows(roleRows);
+			const hero = heroRows[0];
+			if (!hero) return null;
+			const scoredRoleRow = roleRows.find((row) => row.heroScore !== undefined);
+			const playerRoleScore = clamp(
+				(scoredRoleRow?.heroScore ?? weightedRate(roleSample, baseline.winRate, 8) * 10) / 10,
+				0,
+				100
+			);
+			const teammateSamples = sortedTeammateIds
+				.filter((teammateId) => teammateId !== playerId)
+				.map((teammateId) =>
+					sampleFromSides(
+						sides.filter(
+							(side) =>
+								side.some(
+									(row) =>
+										row.playerId === playerId && row.heroId === heroId && row.role === role
+								) && side.some((row) => row.playerId === teammateId)
+						)
+					)
+				);
+			const teammateScore = average(
+				teammateSamples.map((sample) => weightedRate(sample, baseline.winRate, 6)),
+				baseline.winRate
+			);
+			const alliedHeroScore = average(
+				alliedHeroSamples.map((sample) => weightedRate(sample, baseline.winRate, 8)),
+				baseline.winRate
+			);
+			const score =
+				playerRoleScore * HERO_RECOMMENDATION_WEIGHTS.playerRole +
+				teammateScore * HERO_RECOMMENDATION_WEIGHTS.teammates +
+				alliedHeroScore * HERO_RECOMMENDATION_WEIGHTS.alliedHeroes;
+			const reason =
+				alliedHeroSides.length > 0
+					? `${alliedHeroSides.length} game${alliedHeroSides.length === 1 ? '' : 's'} alongside current picks`
+					: teamSides.length >= 2
+					? `${teamSides.length} games with this lobby`
+					: roleRows.length >= 3
+						? `${roleRows.length} games in position ${role}`
+						: `${heroRows.length} comfort games`;
+
+			return {
+				heroId,
+				heroName: hero.heroName,
+				heroIcon: makeHeroIcon(hero.heroImg),
+				score,
+				winRate: roleRows.length > 0 ? roleSample.winRate : heroSample.winRate,
+				matches: heroRows.length,
+				roleMatches: roleRows.length,
+				teamMatches: teamSides.length,
+				alliedHeroMatches: alliedHeroSides.length,
+				playerRoleScore,
+				teammateScore,
+				alliedHeroScore,
+				isWorstPick: false,
+				reason
+			};
+		})
+		.filter((recommendation): recommendation is HeroRecommendation => recommendation !== null)
+		.sort((a, b) => b.score - a.score || b.roleMatches - a.roleMatches || b.matches - a.matches);
+	const bestPickCount = Math.min(limit, Math.max(0, recommendations.length - 1));
+	const bestPicks = recommendations.slice(0, bestPickCount);
+	const worstPick = recommendations.at(-1);
+	const displayedRecommendations =
+		worstPick && recommendations.length > 1
+			? [...bestPicks, { ...worstPick, isWorstPick: true }]
+			: recommendations;
+	rowsCache.set(cacheKey, displayedRecommendations);
+	return displayedRecommendations;
 };
 
 export const getPlayerContributions = (
@@ -302,7 +461,9 @@ export const getStackEstimate = (
 	const weightedTotal = entries.reduce((sum, entry) => sum + entry.value * entry.weight, 0);
 	const weightTotal = entries.reduce((sum, entry) => sum + entry.weight, 0);
 	const raw = weightTotal > 0 ? weightedTotal / weightTotal : baseline.winRate;
-	const completedSlots = slots.filter((slot) => slot.playerId !== null && slot.heroId !== null).length;
+	const completedSlots = slots.filter(
+		(slot) => slot.playerId !== null && slot.heroId !== null
+	).length;
 	const completedDraftRatio = completedSlots / 5;
 	const confidence =
 		(requiredPlayerIds.length >= 2 ? clamp(selectedStackSides.length / 12, 0, 0.3) : 0) +
