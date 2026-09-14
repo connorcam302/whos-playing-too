@@ -212,7 +212,9 @@
 		kills,
 		deaths,
 		assists,
-		lastHits
+		lastHits,
+		heroDamage,
+		towerDamage
 	}: {
 		impact: number;
 		role: number;
@@ -220,7 +222,9 @@
 		kills: number;
 		deaths: number;
 		assists: number;
-		lastHits: number;
+		lastHits: number | null;
+		heroDamage?: number | null;
+		towerDamage?: number | null;
 	}) => ({
 		player: {
 			impact,
@@ -229,6 +233,8 @@
 			deaths,
 			assists,
 			lastHits,
+			heroDamage,
+			towerDamage,
 			hero: data.hero,
 			hero_id: data.hero.id
 		},
@@ -345,7 +351,7 @@
 					<div class="text-xs font-medium text-zinc-400">Avg Impact</div>
 					<div class="mt-2">
 						{#if data.summary.primaryRole}
-							<RatingChip
+							<RatingChip aggregate
 								data={makeRatingChipData({
 									impact: Math.round(data.summary.avgImpact),
 									role: data.summary.primaryRole,
@@ -443,7 +449,7 @@
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2">
 									<div class="flex justify-end">
-										<RatingChip
+										<RatingChip aggregate
 											data={makeRatingChipData({
 												impact: Math.round(player.avgImpact),
 												role: player.primaryRole,
@@ -501,7 +507,7 @@
 									<Table.Cell class="px-2 py-2">
 										<div class="flex justify-end">
 											{#if role.matches > 0}
-												<RatingChip
+												<RatingChip aggregate
 													data={makeRatingChipData({
 														impact: Math.round(role.avgImpact),
 														role: role.role,
@@ -584,7 +590,9 @@
 													kills: record.match.kills,
 													deaths: record.match.deaths,
 													assists: record.match.assists,
-													lastHits: record.match.lastHits ?? 0
+													lastHits: record.match.lastHits,
+													heroDamage: record.match.heroDamage,
+													towerDamage: record.match.towerDamage
 												})}
 											/>
 										{:else}
@@ -697,7 +705,9 @@
 												kills: match.kills,
 												deaths: match.deaths,
 												assists: match.assists,
-												lastHits: match.lastHits ?? 0
+												lastHits: match.lastHits,
+												heroDamage: match.heroDamage,
+												towerDamage: match.towerDamage
 											})}
 										/>
 									</div>

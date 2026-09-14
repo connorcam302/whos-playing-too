@@ -11,6 +11,7 @@
 		Trophy
 	} from 'lucide-svelte';
 	import PooIcon from '$lib/components/PooIcon.svelte';
+	import { currentPlayer } from '$lib/current-player';
 	import * as Card from '$lib/components/ui/card';
 	import type {
 		WeeklyDigest,
@@ -148,7 +149,7 @@
 						href={item.href}
 						title={`${item.title}. ${item.summary}`}
 						aria-label={`${item.title}. ${item.summary}`}
-						class={getRowClasses(item)}
+						class={`${getRowClasses(item)} ${item.playerIds.includes($currentPlayer ?? -1) ? 'current-player-row' : ''}`}
 					>
 						<span class={getImageContainerClasses(item)}>
 							{#if item.image && hasHeroThumbnail(item.category)}

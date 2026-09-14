@@ -11,6 +11,7 @@
 	import RatingChip from '$lib/components/RatingChip.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { currentPlayer } from '$lib/current-player';
 
 	dayjs.extend(relativeTime);
 
@@ -348,7 +349,7 @@
 						</thead>
 						<tbody>
 							{#each matchDetails.radiantData as player}
-								<tr class="border-b border-zinc-900 transition-colors hover:bg-zinc-900/70">
+								<tr class="border-b border-zinc-900 transition-colors hover:bg-zinc-900/70 {player.user?.id === $currentPlayer ? 'current-player-row' : ''}">
 									<td class="px-2 py-1.5">
 										<div class="flex items-center gap-2">
 											<a
@@ -461,7 +462,7 @@
 						</thead>
 						<tbody>
 							{#each matchDetails.direData as player}
-								<tr class="border-b border-zinc-900 transition-colors hover:bg-zinc-900/70">
+								<tr class="border-b border-zinc-900 transition-colors hover:bg-zinc-900/70 {player.user?.id === $currentPlayer ? 'current-player-row' : ''}">
 									<td class="px-2 py-1.5">
 										<div class="flex items-center gap-2">
 											<a

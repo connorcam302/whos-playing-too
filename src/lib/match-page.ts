@@ -45,6 +45,7 @@ export type MatchPlayerOverview = {
 	heroDamage: number;
 	towerDamage: number;
 	heroHealing: number;
+	impactStats?: { heroDamage: number | null; towerDamage: number | null; heroHealing: number | null };
 	whosPlayingImpact: number | null;
 	whosPlayingImpactTimeline: MatchImpactPoint[];
 	stratzImpact: number | null;

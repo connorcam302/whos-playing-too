@@ -1,0 +1,14 @@
+{
+  "version": "beta-3.2",
+  "roleScales": [
+    0.931507,
+    1.152542,
+    1.387755,
+    2.344828,
+    2.344828
+  ],
+  "targetMedian": 68,
+  "trainingMatches": 2488,
+  "trainingRows": 4051,
+  "cutoff": "2026-07-08T00:09:07.000Z"
+}

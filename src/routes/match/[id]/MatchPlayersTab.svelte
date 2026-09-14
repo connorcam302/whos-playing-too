@@ -122,6 +122,8 @@
 										deaths: focusedPlayer.deaths,
 										assists: focusedPlayer.assists,
 										lastHits: focusedPlayer.lastHits,
+										...focusedPlayer.impactStats,
+										teamKills: focusedPlayer.isRadiant ? match.radiantScore : match.direScore,
 										hero: focusedPlayer.hero,
 										hero_id: focusedPlayer.hero.id
 									},
@@ -205,6 +207,8 @@
 								deaths: focusedPlayer.deaths,
 								assists: focusedPlayer.assists,
 								lastHits: focusedPlayer.lastHits,
+								...focusedPlayer.impactStats,
+								teamKills: focusedPlayer.isRadiant ? match.radiantScore : match.direScore,
 								hero: focusedPlayer.hero,
 								hero_id: focusedPlayer.hero.id
 							},

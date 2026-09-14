@@ -262,7 +262,7 @@
 		return {
 			player: {
 				...record.data,
-				lastHits: record.data.lastHits ?? 0,
+				lastHits: record.data.lastHits,
 				hero_id: record.data.hero.id
 			},
 			matchData: {

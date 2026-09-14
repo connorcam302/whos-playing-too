@@ -1,4 +1,7 @@
 <script lang="ts">
+	import FilterPanel from '$lib/components/filters/FilterPanel.svelte';
+	import MatchQueryBuilder from '$lib/components/match/MatchQueryBuilder.svelte';
+	import { emptyMatchQuery, parseMatchQuery, queryConditionCount } from '$lib/match-query';
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { DATE_RANGE_PRESETS, DOTA_MAJOR_PATCHES } from '$lib/data/dotaPatchRanges';
@@ -15,8 +18,6 @@
 		ArrowRight,
 		Clock,
 		Gauge,
-		ListFilter,
-		RotateCcw,
 		Swords,
 		VenetianMask
 	} from 'lucide-svelte';
@@ -74,6 +75,13 @@
 	let loading = $state(false);
 	let matchesError = $state('');
 	let fetchId = 0;
+	let query = $state(emptyMatchQuery());
+	let appliedQuery = $state(emptyMatchQuery());
+	let initialFetch = true;
+	let queryLoadError = $state('');
+	const runQuery = () => {
+		appliedQuery = parseMatchQuery(JSON.stringify(query));
+	};
 
 	const formatNumber = (value: number, decimals = 0) =>
 		new Intl.NumberFormat('en-GB', {
@@ -87,17 +95,18 @@
 	let totalPages = $derived(Math.max(1, Math.ceil(totalMatches / 10)));
 	let selectedPlayerIds = $derived(selectedPlayers.filter((id) => id !== '-1'));
 	let hasActiveFilters = $derived(
-		selectedPlayers.length > 0 ||
-		selectedHeroes.length > 0 ||
-		selectedRoles.length < 5 ||
-		selectedDateRange !== 'all' ||
-		!ranked ||
-		!unranked ||
-		!other ||
-		!wins ||
-		!losses ||
-		smurfs ||
-		versus
+		queryConditionCount(appliedQuery) > 0 ||
+			selectedPlayers.length > 0 ||
+			selectedHeroes.length > 0 ||
+			selectedRoles.length < 5 ||
+			selectedDateRange !== 'all' ||
+			!ranked ||
+			!unranked ||
+			!other ||
+			!wins ||
+			!losses ||
+			smurfs ||
+			versus
 	);
 
 	const makePlayerTrigger = () => {
@@ -145,11 +154,15 @@
 		if (unranked) gameModes.push('unranked-all-pick');
 		if (other) gameModes.push('other');
 		params.set('gameMode', JSON.stringify(gameModes));
-		params.set('results', JSON.stringify([...(wins ? ['wins'] : []), ...(losses ? ['losses'] : [])]));
+		params.set(
+			'results',
+			JSON.stringify([...(wins ? ['wins'] : []), ...(losses ? ['losses'] : [])])
+		);
 		params.set('dateRange', selectedDateRange);
 		params.set('page', (pageNumber - 1).toString());
 		params.set('smurf', smurfs.toString());
 		params.set('versus', versus.toString());
+		if (queryConditionCount(appliedQuery)) params.set('query', JSON.stringify(appliedQuery));
 		return params;
 	};
 
@@ -162,13 +175,18 @@
 
 		try {
 			const response = await fetch(`/api/matches/all?${params.toString()}`);
-			if (!response.ok) throw new Error(`Failed to load matches (${response.status})`);
+			if (!response.ok) {
+				const failure = await response.json().catch(() => null);
+				throw new Error(failure?.message ?? `Failed to load matches (${response.status})`);
+			}
 			const responseData = await response.json();
 			if (id !== fetchId) return;
 
 			matchBlocks = Array.isArray(responseData) ? responseData : (responseData.matches ?? []);
 			stats = Array.isArray(responseData) ? emptyStats() : (responseData.stats ?? emptyStats());
-			totalMatches = Array.isArray(responseData) ? responseData.length : (responseData.totalMatches ?? 0);
+			totalMatches = Array.isArray(responseData)
+				? responseData.length
+				: (responseData.totalMatches ?? 0);
 		} catch (error) {
 			if (id !== fetchId) return;
 			matchBlocks = [];
@@ -202,6 +220,9 @@
 	};
 
 	const clearFilters = () => {
+		queryLoadError = '';
+		query = emptyMatchQuery();
+		appliedQuery = emptyMatchQuery();
 		selectedPlayers = [];
 		selectedHeroes = [];
 		selectedRoles = ['1', '2', '3', '4', '5'];
@@ -217,19 +238,27 @@
 
 	const readArrayParam = (name: string) => {
 		try {
-			return JSON.parse($page.url.searchParams.get(name) ?? '[]').map(String);
+			const value = JSON.parse($page.url.searchParams.get(name) ?? '[]');
+			return Array.isArray(value) ? value.map(String) : [];
 		} catch {
 			return [];
 		}
 	};
 
 	onMount(() => {
+		try {
+			query = parseMatchQuery($page.url.searchParams.get('query'));
+			appliedQuery = parseMatchQuery(JSON.stringify(query));
+		} catch (cause) {
+			queryLoadError = cause instanceof Error ? cause.message : 'Invalid query.';
+		}
 		selectedPlayers = readArrayParam('players');
 		selectedHeroes = readArrayParam('heroes');
 		const rolesFromUrl = readArrayParam('roles');
 		if (rolesFromUrl.length > 0) selectedRoles = rolesFromUrl;
 		selectedDateRange = $page.url.searchParams.get('dateRange') ?? 'all';
-		pageNumber = Math.max(1, Number($page.url.searchParams.get('page') ?? 0) + 1);
+		const savedPage = Number($page.url.searchParams.get('page') ?? 0);
+		pageNumber = Number.isSafeInteger(savedPage) && savedPage >= 0 ? savedPage + 1 : 1;
 		smurfs = $page.url.searchParams.get('smurf') === 'true';
 		versus = $page.url.searchParams.get('versus') === 'true';
 
@@ -260,9 +289,11 @@
 		losses;
 		smurfs;
 		versus;
+		appliedQuery;
 
 		untrack(() => {
-			pageNumber = 1;
+			if (!initialFetch) pageNumber = 1;
+			initialFetch = false;
 			fetchMatches();
 		});
 	});
@@ -275,170 +306,226 @@
 <div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-3 sm:px-4">
 	<div>
 		<h1 class="text-2xl font-semibold tracking-tight text-zinc-100">Matches</h1>
-		<p class="mt-1 text-sm text-zinc-400">Filter the group history and compare the resulting form.</p>
+		<p class="mt-1 text-sm text-zinc-400">
+			Filter the group history and compare the resulting form.
+		</p>
 	</div>
 
-	<section class="rounded-lg border border-border bg-card p-3" aria-label="Match filters">
-		<div class="mb-3 flex items-center justify-between gap-3 border-b border-zinc-800 pb-2">
-			<div class="flex items-center gap-2 text-sm font-medium text-zinc-200">
-				<ListFilter class="h-4 w-4 text-zinc-400" /> Filters
-				{#if hasActiveFilters}
-					<span class="rounded bg-sky-950 px-1.5 py-0.5 text-[11px] font-medium text-sky-200">Active</span>
-				{/if}
-			</div>
-			<button
-				type="button"
-				class="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-sky-300 transition-colors hover:bg-sky-950/70 hover:text-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:text-zinc-600"
-				disabled={!hasActiveFilters}
-				onclick={clearFilters}
-			>
-				<RotateCcw class="h-3.5 w-3.5" /> Reset
-			</button>
-		</div>
-
-		<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-			<div class="flex min-w-0 flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Players</div>
-				<Select.Root type="multiple" bind:value={selectedPlayers}>
-					<Select.Trigger class="w-full">{makePlayerTrigger()}</Select.Trigger>
-					<Select.Content>
-						<Select.Item value="-1" label="All Players">All Players</Select.Item>
-						{#each playerList as player}
-							<Select.Item value={player.id.toString()} label={player.username}>{player.username}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-			<div class="flex min-w-0 flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Heroes</div>
-				<Select.Root type="multiple" bind:value={selectedHeroes}>
-					<Select.Trigger class="w-full">{makeHeroTrigger()}</Select.Trigger>
-					<Select.Content>
-						<Select.Item value="-1" label="All Heroes">All Heroes</Select.Item>
-						{#each heroList as hero}
-							<Select.Item value={hero.id.toString()} label={hero.name}>
-								<div class="flex items-center gap-2">
-									<img src={hero.img} alt="" class="h-6 w-8 rounded-sm object-cover" />
-									<span>{hero.name}</span>
-								</div>
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-			<div class="flex min-w-0 flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Roles</div>
-				<Select.Root type="multiple" bind:value={selectedRoles}>
-					<Select.Trigger class="w-full">{makeRolesTrigger()}</Select.Trigger>
-					<Select.Content>
-						{#each [1, 2, 3, 4, 5] as role}
-							<Select.Item value={role.toString()} label={getRoleName(role)}>
-								<div class="flex items-center gap-2">
-									<img class="h-6 w-6" src={`/roles/pos${role}.svg`} alt="" />
-									<span>{getRoleName(role)}</span>
-								</div>
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-			<div class="flex min-w-0 flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Date Range</div>
-				<Select.Root type="single" bind:value={selectedDateRange}>
-					<Select.Trigger class="w-full">{makeDateRangeTrigger()}</Select.Trigger>
-					<Select.Content>
-						{#each DATE_RANGE_PRESETS as range}
-							<Select.Item value={range.value} label={range.label}>{range.label}</Select.Item>
-						{/each}
-						{#each DOTA_MAJOR_PATCHES.slice().reverse() as patch}
-							<Select.Item value={`patch-${patch.version}`} label={patch.label}>{patch.label}</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-			<div class="flex flex-col gap-1 lg:col-span-2">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
-				<div class="flex flex-wrap gap-1">
-					{#each [
-						{ value: 'ranked', label: 'Ranked', pressed: ranked },
-						{ value: 'unranked', label: 'Unranked', pressed: unranked },
-						{ value: 'other', label: 'Other', pressed: other }
-					] as lobby}
-						<button
-							type="button"
-							aria-pressed={lobby.pressed}
-							class="inline-flex h-10 items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {lobby.pressed ? 'bg-sky-600 text-white' : 'bg-transparent text-zinc-300'}"
-							onclick={() => handleLobbyChange(lobby.value as 'ranked' | 'unranked' | 'other')}
-						>{lobby.label}</button
+	<FilterPanel label="Match filters" active={hasActiveFilters} onreset={clearFilters}>
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Players</div>
+			<Select.Root type="multiple" bind:value={selectedPlayers}>
+				<Select.Trigger class="w-full">{makePlayerTrigger()}</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="-1" label="All Players">All Players</Select.Item>
+					{#each playerList as player}
+						<Select.Item value={player.id.toString()} label={player.username}
+							>{player.username}</Select.Item
 						>
 					{/each}
-				</div>
-			</div>
-			<div class="flex flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Result</div>
-				<div class="flex gap-1">
-					<button type="button" aria-pressed={wins} class="inline-flex h-10 items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {wins ? 'bg-green-700 text-white' : 'bg-transparent text-zinc-300'}" onclick={() => handleResultChange('wins')}>Wins</button>
-					<button type="button" aria-pressed={losses} class="inline-flex h-10 items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {losses ? 'bg-red-700 text-white' : 'bg-transparent text-zinc-300'}" onclick={() => handleResultChange('losses')}>Losses</button>
-				</div>
-			</div>
-			<div class="flex flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Accounts</div>
-				<Toggle bind:pressed={smurfs} class="h-10 w-fit gap-2 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white">
-					<VenetianMask class="h-4 w-4" /> Include smurfs
-				</Toggle>
-			</div>
-			<div class="flex flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Matchup</div>
-				<button
-					type="button"
-					aria-pressed={versus}
-					title="Only show matches where tracked players opposed each other"
-					class="inline-flex h-10 w-fit items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {versus ? 'bg-sky-600 text-white' : 'bg-transparent text-zinc-300'}"
-					onclick={() => (versus = !versus)}
-				>
-					Versus
-				</button>
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Heroes</div>
+			<Select.Root type="multiple" bind:value={selectedHeroes}>
+				<Select.Trigger class="w-full">{makeHeroTrigger()}</Select.Trigger>
+				<Select.Content>
+					<Select.Item value="-1" label="All Heroes">All Heroes</Select.Item>
+					{#each heroList as hero}
+						<Select.Item value={hero.id.toString()} label={hero.name}>
+							<div class="flex items-center gap-2">
+								<img src={hero.img} alt="" class="h-6 w-8 rounded-sm object-cover" />
+								<span>{hero.name}</span>
+							</div>
+						</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Roles</div>
+			<Select.Root type="multiple" bind:value={selectedRoles}>
+				<Select.Trigger class="w-full">{makeRolesTrigger()}</Select.Trigger>
+				<Select.Content>
+					{#each [1, 2, 3, 4, 5] as role}
+						<Select.Item value={role.toString()} label={getRoleName(role)}>
+							<div class="flex items-center gap-2">
+								<img class="h-6 w-6" src={`/roles/pos${role}.svg`} alt="" />
+								<span>{getRoleName(role)}</span>
+							</div>
+						</Select.Item>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex min-w-0 flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Date Range</div>
+			<Select.Root type="single" bind:value={selectedDateRange}>
+				<Select.Trigger class="w-full">{makeDateRangeTrigger()}</Select.Trigger>
+				<Select.Content>
+					{#each DATE_RANGE_PRESETS as range}
+						<Select.Item value={range.value} label={range.label}>{range.label}</Select.Item>
+					{/each}
+					{#each DOTA_MAJOR_PATCHES.slice().reverse() as patch}
+						<Select.Item value={`patch-${patch.version}`} label={patch.label}
+							>{patch.label}</Select.Item
+						>
+					{/each}
+				</Select.Content>
+			</Select.Root>
+		</div>
+		<div class="flex flex-col gap-1 lg:col-span-2">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
+			<div class="flex flex-wrap gap-1">
+				{#each [{ value: 'ranked', label: 'Ranked', pressed: ranked }, { value: 'unranked', label: 'Unranked', pressed: unranked }, { value: 'other', label: 'Other', pressed: other }] as lobby}
+					<button
+						type="button"
+						aria-pressed={lobby.pressed}
+						class="inline-flex h-10 items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {lobby.pressed
+							? 'bg-sky-600 text-white'
+							: 'bg-transparent text-zinc-300'}"
+						onclick={() => handleLobbyChange(lobby.value as 'ranked' | 'unranked' | 'other')}
+						>{lobby.label}</button
+					>
+				{/each}
 			</div>
 		</div>
-	</section>
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Result</div>
+			<div class="flex gap-1">
+				<button
+					type="button"
+					aria-pressed={wins}
+					class="inline-flex h-10 items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {wins
+						? 'bg-green-700 text-white'
+						: 'bg-transparent text-zinc-300'}"
+					onclick={() => handleResultChange('wins')}>Wins</button
+				>
+				<button
+					type="button"
+					aria-pressed={losses}
+					class="inline-flex h-10 items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {losses
+						? 'bg-red-700 text-white'
+						: 'bg-transparent text-zinc-300'}"
+					onclick={() => handleResultChange('losses')}>Losses</button
+				>
+			</div>
+		</div>
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Accounts</div>
+			<Toggle
+				bind:pressed={smurfs}
+				class="h-10 w-fit gap-2 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white"
+			>
+				<VenetianMask class="h-4 w-4" /> Include smurfs
+			</Toggle>
+		</div>
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Matchup</div>
+			<button
+				type="button"
+				aria-pressed={versus}
+				title="Only show matches where tracked players opposed each other"
+				class="inline-flex h-10 w-fit items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {versus
+					? 'bg-sky-600 text-white'
+					: 'bg-transparent text-zinc-300'}"
+				onclick={() => (versus = !versus)}
+			>
+				Versus
+			</button>
+		</div>
+	</FilterPanel>
 
-	<section class="rounded-lg border border-border bg-card p-3 sm:p-4" aria-label="Filtered match summary" aria-busy={loading}>
+	{#if queryLoadError}<p role="alert" class="text-sm text-destructive">
+			Saved query could not be restored: {queryLoadError}
+		</p>{/if}
+	<MatchQueryBuilder bind:query onrun={runQuery} {loading} {playerList} />
+	{#if JSON.stringify(query) !== JSON.stringify(appliedQuery)}
+		<p class="text-xs text-sky-300" role="status">
+			Query changed. Run query to update the results.
+		</p>
+	{/if}
+
+	<section
+		class="rounded-lg border border-border bg-card p-3 sm:p-4"
+		aria-label="Filtered match summary"
+		aria-busy={loading}
+	>
 		<div class="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
 			<div class="rounded-md border border-zinc-800/70 bg-zinc-900/45 p-3">
-				<div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"><Activity class="h-3.5 w-3.5 text-zinc-500" /> Matches</div>
+				<div
+					class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
+				>
+					<Activity class="h-3.5 w-3.5 text-zinc-500" /> Matches
+				</div>
 				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">{totalMatches}</div>
 				<div class="text-xs text-zinc-400">filtered games</div>
 			</div>
 			<div class="rounded-md border border-zinc-800/70 bg-zinc-900/45 p-3">
-				<div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"><Swords class="h-3.5 w-3.5 text-zinc-500" /> Tracked Record</div>
-				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">{stats.wins}-{stats.losses}</div>
+				<div
+					class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
+				>
+					<Swords class="h-3.5 w-3.5 text-zinc-500" /> Tracked Record
+				</div>
+				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">
+					{stats.wins}-{stats.losses}
+				</div>
 				<Tooltip.Root>
-					<Tooltip.Trigger class="text-left text-xs tabular-nums text-zinc-400">{formatNumber(stats.winRate, 1)}% WR</Tooltip.Trigger>
-					<Tooltip.Content class="max-w-64 text-xs">Based on {stats.appearances} tracked player appearances in these matches.</Tooltip.Content>
+					<Tooltip.Trigger class="text-left text-xs tabular-nums text-zinc-400"
+						>{formatNumber(stats.winRate, 1)}% WR</Tooltip.Trigger
+					>
+					<Tooltip.Content class="max-w-64 text-xs"
+						>Based on {stats.appearances} tracked player appearances in these matches.</Tooltip.Content
+					>
 				</Tooltip.Root>
 			</div>
 			<div class="rounded-md border border-zinc-800/70 bg-zinc-900/45 p-3">
-				<div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"><Gauge class="h-3.5 w-3.5 text-zinc-500" /> Impact</div>
-				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">{formatNumber(stats.averages.impact)}</div>
+				<div
+					class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
+				>
+					<Gauge class="h-3.5 w-3.5 text-zinc-500" /> Impact
+				</div>
+				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">
+					{formatNumber(stats.averages.impact)}
+				</div>
 				<div class="text-xs text-zinc-400">average score</div>
 			</div>
 			<div class="rounded-md border border-zinc-800/70 bg-zinc-900/45 p-3">
 				<div class="text-[11px] font-medium uppercase tracking-wide text-zinc-400">K / D / A</div>
-				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">{formatNumber(stats.averages.kills, 1)} / {formatNumber(stats.averages.deaths, 1)} / {formatNumber(stats.averages.assists, 1)}</div>
+				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">
+					{formatNumber(stats.averages.kills, 1)} / {formatNumber(stats.averages.deaths, 1)} / {formatNumber(
+						stats.averages.assists,
+						1
+					)}
+				</div>
 				<div class="text-xs text-zinc-400">{formatNumber(filteredKda, 2)} KDA</div>
 			</div>
 			<div class="rounded-md border border-zinc-800/70 bg-zinc-900/45 p-3">
-				<div class="text-[11px] font-medium uppercase tracking-wide text-zinc-400">Ranked Share</div>
-				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">{formatNumber(stats.rankedRate, 1)}%</div>
+				<div class="text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+					Ranked Share
+				</div>
+				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">
+					{formatNumber(stats.rankedRate, 1)}%
+				</div>
 				<div class="text-xs text-zinc-400">{stats.rankedMatches} matches</div>
 			</div>
 			<div class="rounded-md border border-zinc-800/70 bg-zinc-900/45 p-3">
-				<div class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"><Clock class="h-3.5 w-3.5 text-zinc-500" /> Duration</div>
-				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">{toTime(Math.round(stats.averages.duration))}</div>
+				<div
+					class="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-zinc-400"
+				>
+					<Clock class="h-3.5 w-3.5 text-zinc-500" /> Duration
+				</div>
+				<div class="mt-1 text-xl font-semibold tabular-nums text-zinc-100">
+					{toTime(Math.round(stats.averages.duration))}
+				</div>
 				<div class="text-xs text-zinc-400">average length</div>
 			</div>
 		</div>
-		<div class="mt-3 flex h-2 overflow-hidden rounded-full bg-zinc-950" aria-label={`${formatNumber(stats.winRate, 1)}% tracked win rate`}>
+		<div
+			class="mt-3 flex h-2 overflow-hidden rounded-full bg-zinc-950"
+			aria-label={`${formatNumber(stats.winRate, 1)}% tracked win rate`}
+		>
 			<div class="bg-green-500/80" style={`width: ${stats.winRate}%`}></div>
 			<div class="bg-red-500/80" style={`width: ${100 - stats.winRate}%`}></div>
 		</div>
@@ -448,19 +535,31 @@
 		{#if loading}
 			<div class="flex min-h-64 items-center justify-center"><Loading /></div>
 		{:else if matchesError}
-			<div class="flex min-h-64 items-center justify-center rounded-md border border-red-900/60 bg-red-950/30 px-4 text-center">
+			<div
+				class="flex min-h-64 items-center justify-center rounded-md border border-red-900/60 bg-red-950/30 px-4 text-center"
+			>
 				<div>
 					<div class="text-sm font-medium text-red-100">Matches could not load</div>
 					<div class="mt-1 text-xs text-red-200/80">{matchesError}</div>
-					<button type="button" class="mt-4 rounded-md border border-red-800/80 px-3 py-2 text-sm text-red-100 hover:bg-red-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onclick={fetchMatches}>Try again</button>
+					<button
+						type="button"
+						class="mt-4 rounded-md border border-red-800/80 px-3 py-2 text-sm text-red-100 hover:bg-red-900/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						onclick={fetchMatches}>Try again</button
+					>
 				</div>
 			</div>
 		{:else if matchBlocks.length === 0}
-			<div class="flex min-h-64 items-center justify-center rounded-md border border-dashed border-zinc-700 bg-card px-4 text-center">
+			<div
+				class="flex min-h-64 items-center justify-center rounded-md border border-dashed border-zinc-700 bg-card px-4 text-center"
+			>
 				<div>
 					<div class="text-sm font-medium text-zinc-200">No matches fit these filters</div>
 					<div class="mt-1 text-xs text-zinc-400">Try a wider date range or reset the filters.</div>
-					<button type="button" class="mt-4 rounded-md bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onclick={clearFilters}>Reset filters</button>
+					<button
+						type="button"
+						class="mt-4 rounded-md bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+						onclick={clearFilters}>Reset filters</button
+					>
 				</div>
 			</div>
 		{:else}
@@ -471,9 +570,29 @@
 					</Card.Root>
 				{/each}
 				<div class="flex items-center justify-center gap-3 py-2">
-					<button type="button" aria-label="Previous page" class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600" disabled={pageNumber === 1} onclick={() => { pageNumber -= 1; fetchMatches(); }}><ArrowLeft class="h-4 w-4" /></button>
-					<div class="min-w-20 text-center text-sm tabular-nums text-zinc-300">{pageNumber} of {totalPages}</div>
-					<button type="button" aria-label="Next page" class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600" disabled={pageNumber >= totalPages} onclick={() => { pageNumber += 1; fetchMatches(); }}><ArrowRight class="h-4 w-4" /></button>
+					<button
+						type="button"
+						aria-label="Previous page"
+						class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
+						disabled={pageNumber === 1}
+						onclick={() => {
+							pageNumber -= 1;
+							fetchMatches();
+						}}><ArrowLeft class="h-4 w-4" /></button
+					>
+					<div class="min-w-20 text-center text-sm tabular-nums text-zinc-300">
+						{pageNumber} of {totalPages}
+					</div>
+					<button
+						type="button"
+						aria-label="Next page"
+						class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-700 bg-zinc-900 text-zinc-100 transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:border-zinc-800 disabled:bg-zinc-900/50 disabled:text-zinc-600"
+						disabled={pageNumber >= totalPages}
+						onclick={() => {
+							pageNumber += 1;
+							fetchMatches();
+						}}><ArrowRight class="h-4 w-4" /></button
+					>
 				</div>
 			</div>
 		{/if}

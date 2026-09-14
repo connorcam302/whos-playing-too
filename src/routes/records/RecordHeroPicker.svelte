@@ -22,7 +22,7 @@
 
 <Popover.Root bind:open>
 	<Popover.Trigger
-		class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm text-zinc-200 ring-offset-background transition-colors hover:bg-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+		class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 		aria-label="Choose hero"
 		aria-expanded={open}
 		{disabled}
@@ -33,7 +33,7 @@
 			{/if}
 			<span class="truncate">{selectedHero?.name ?? 'All Heroes'}</span>
 		</span>
-		<ChevronsUpDown class="h-4 w-4 shrink-0 text-zinc-500" aria-hidden="true" />
+		<ChevronsUpDown class="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
 	</Popover.Trigger>
 	<Popover.Content align="start" class="w-[min(22rem,calc(100vw-1.5rem))] p-0">
 		<Command.Root>
@@ -47,7 +47,9 @@
 					</Command.Item>
 					{#each heroes as hero}
 						<Command.Item value={hero.name} onclick={() => selectHero(hero.id.toString())}>
-							<Check class={`h-4 w-4 ${value === hero.id.toString() ? 'opacity-100' : 'opacity-0'}`} />
+							<Check
+								class={`h-4 w-4 ${value === hero.id.toString() ? 'opacity-100' : 'opacity-0'}`}
+							/>
 							<img src={hero.img} alt="" class="h-6 w-8 rounded-sm object-cover" />
 							<span>{hero.name}</span>
 						</Command.Item>

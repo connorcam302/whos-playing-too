@@ -153,6 +153,8 @@
 															deaths: player.deaths,
 															assists: player.assists,
 															lastHits: player.lastHits,
+															...player.impactStats,
+															teamKills: player.isRadiant ? match.radiantScore : match.direScore,
 															hero: player.hero,
 															hero_id: player.hero.id
 														},

@@ -10,6 +10,7 @@
 	import FlopOfTheWeek from '$lib/components/otw/FlopOfTheWeek.svelte';
 	import WeeklyDigest from '$lib/components/digest/WeeklyDigest.svelte';
 	import WeeklyDigestSkeleton from '$lib/components/digest/WeeklyDigestSkeleton.svelte';
+	import PlayerOverview from '$lib/components/player/PlayerOverview.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 
 	let { data } = $props();
@@ -129,6 +130,7 @@
 
 	<!-- Main Content -->
 	<div class="mx-auto w-full max-w-7xl px-4">
+		<PlayerOverview refreshKey={visibleMatchBlocks[0]?.matchData?.id} />
 		<!-- Matches & Stats -->
 		<section class="mt-6 mb-12">
 			<div class="flex flex-col gap-6 xl:flex-row xl:gap-4">

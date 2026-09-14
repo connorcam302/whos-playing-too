@@ -64,6 +64,7 @@
 	import { twMerge } from 'tailwind-merge';
 	import { VenetianMask } from 'lucide-svelte';
 	import HeroScoreBadge from './HeroScoreBadge.svelte';
+	import { currentPlayer } from '$lib/current-player';
 	type HeroScoreChange = {
 		matchNumber: number | null;
 		scoreAtPreviousMatch?: number | null;
@@ -252,6 +253,8 @@
 		event.stopPropagation();
 		expanded = !expanded;
 	};
+
+	const isCurrentPlayer = (matchPlayer: PlayerData) => matchPlayer.owner === $currentPlayer;
 </script>
 
 <div class="flex min-w-0 items-center overflow-hidden">
@@ -392,7 +395,7 @@
 						</div>
 						<div class="border-t-2 border-zinc-800">
 							{#each radiant as player}
-								<div class={radiantStyling}>
+								<div class={twMerge(radiantStyling, isCurrentPlayer(player) && 'current-player-row')}>
 									<PlayerData match={{ player, matchData }} />
 								</div>
 							{/each}
@@ -416,7 +419,7 @@
 						</div>
 						<div class="border-t-2 border-zinc-800">
 							{#each dire as player}
-								<div class={direStyling}>
+								<div class={twMerge(direStyling, isCurrentPlayer(player) && 'current-player-row')}>
 									<PlayerData match={{ player, matchData }} />
 								</div>
 							{/each}

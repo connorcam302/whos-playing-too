@@ -177,7 +177,9 @@ export const load = async ({ params, url }) => {
 			avgAssists: 0,
 			avgGpm: 0,
 			avgXpm: 0,
-			avgLastHits: 0
+			avgLastHits: 0,
+			avgHeroDamage: null,
+			avgTowerDamage: null
 		}),
 		withTimeout(getRoleCounts(playerId, 9999), []),
 		withTimeout(getPlayerWinLossByMinutes(playerId, 9999), []),

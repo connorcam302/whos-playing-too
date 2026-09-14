@@ -15,6 +15,8 @@
 	import BiTwitterX from 'virtual:icons/bi/twitter-x';
 	import BiLinkedin from 'virtual:icons/bi/linkedin';
 	import * as Tooltip from '$lib/components/ui/tooltip';
+	import { currentPlayer } from '$lib/current-player';
+	import { showBetaImpact } from '$lib/impact-preference';
 
 	let { data, children } = $props();
 	const { playerList, heroList } = data;
@@ -54,6 +56,8 @@
 	onMount(() => {
 		mounted = true;
 		handleViewport(innerWidth);
+		currentPlayer.initialise(playerList.map((player: { id: number }) => player.id));
+		return showBetaImpact.initialise();
 	});
 
 	const viewportStore = writable();

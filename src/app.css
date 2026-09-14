@@ -219,6 +219,15 @@ button {
 	cursor: pointer;
 }
 
+/* Selected identity is communicated with a quiet surface shift, not an outline. */
+.current-player-row {
+	background-color: oklch(0.15 0.008 235 / 0.82) !important;
+}
+
+.current-player-row:hover {
+	background-color: oklch(0.18 0.008 235 / 0.88) !important;
+}
+
 .color_Red_0 {
 	background: linear-gradient(to right, #9f3c3c, #4a2040);
 }

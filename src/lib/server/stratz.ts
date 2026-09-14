@@ -513,6 +513,7 @@ const normalisePlayer = (
 		heroDamage: Number(player.heroDamage ?? 0),
 		towerDamage: Number(player.towerDamage ?? 0),
 		heroHealing: Number(player.heroHealing ?? 0),
+		impactStats: { heroDamage: player.heroDamage ?? null, towerDamage: player.towerDamage ?? null, heroHealing: player.heroHealing ?? null },
 		whosPlayingImpact,
 		whosPlayingImpactTimeline: buildWhosPlayingImpactTimeline(
 			player,

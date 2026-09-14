@@ -2818,6 +2818,7 @@ export const getMatchData = async (id: number) => {
 			lastHits: matchData.lastHits,
 			matchId: matchData.matchId,
 			heroDamage: matchData.heroDamage,
+			towerDamage: matchData.towerDamage,
 			sequenceNumber: matches.sequenceNumber,
 			duration: matches.duration,
 			startTime: matches.startTime,
@@ -2854,7 +2855,9 @@ export const getPlayerAverageStats = async (id: number, offset: number) => {
 			avgAssists: sql<number>`cast(avg(${matchData.assists}) as int)`,
 			avgGpm: sql<number>`cast(avg(${matchData.goldPerMin}) as int)`,
 			avgXpm: sql<number>`cast(avg(${matchData.xpPerMin}) as int)`,
-			avgLastHits: sql<number>`cast(avg(${matchData.lastHits}) as int)`
+			avgLastHits: sql<number>`cast(avg(${matchData.lastHits}) as int)`,
+			avgHeroDamage: sql<number | null>`cast(avg(${matchData.heroDamage}) as int)`,
+			avgTowerDamage: sql<number | null>`cast(avg(${matchData.towerDamage}) as int)`
 		})
 		.from(matchData)
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))

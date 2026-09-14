@@ -242,7 +242,8 @@ const makeRecordItems = (currentRows: DigestRow[], previousRows: DigestRow[]) =>
 				priority:
 					definition.basePriority + clamp(Math.max(0, improvement) / definition.scale, 0, 1) * 20,
 				evidenceKey: `match:${current.matchId}`,
-				entityKey: `player:${current.playerId}`
+				entityKey: `player:${current.playerId}`,
+				playerIds: [current.playerId]
 			}
 		];
 	});
@@ -285,7 +286,8 @@ const makeStreakItems = (currentRows: DigestRow[]) => {
 				occurredAt: player.startTime,
 				priority: 60 + clamp(streakLength / 8, 0, 1) * 24,
 				evidenceKey: `streak:${player.playerId}:${streakWon}`,
-				entityKey: `player:${player.playerId}`
+				entityKey: `player:${player.playerId}`,
+				playerIds: [player.playerId]
 			}
 		];
 	});
@@ -330,7 +332,8 @@ const makeMatchItems = (currentRows: DigestRow[]) => {
 			occurredAt: representative.startTime,
 			priority: 60 + clamp(bestSide.averageImpact / 150, 0, 1) * 18 + bestSide.side.length * 2,
 			evidenceKey: `match:${representative.matchId}`,
-			entityKey: `match:${representative.matchId}`
+			entityKey: `match:${representative.matchId}`,
+			playerIds: bestSide.side.map((row) => row.playerId)
 		}
 	];
 };
@@ -355,7 +358,8 @@ const makePooItems = (currentRows: DigestRow[]) =>
 				occurredAt: row.startTime,
 				priority: 100,
 				evidenceKey: `poo:${row.matchId}:player:${row.playerId}`,
-				entityKey: `player:${row.playerId}`
+				entityKey: `player:${row.playerId}`,
+				playerIds: [row.playerId]
 			})
 		);
 
@@ -439,7 +443,8 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 						occurredAt,
 						priority: 90,
 						evidenceKey: `calibration:${heroId}:player:${playedRow.playerId}:${scoreGroup}`,
-						entityKey: `player:${playedRow.playerId}`
+						entityKey: `player:${playedRow.playerId}`,
+						playerIds: [playedRow.playerId]
 					});
 					continue;
 				}
@@ -495,7 +500,8 @@ const makeHeroItems = (historyRows: DigestRow[], periodStart: number) => {
 					occurredAt,
 					priority: 94 + Math.min(overtaken.length, 5),
 					evidenceKey: `overtake:${heroId}:player:${playedRow.playerId}:${scoreGroup}:match:${playedRow.matchId}`,
-					entityKey: `player:${playedRow.playerId}`
+					entityKey: `player:${playedRow.playerId}`,
+					playerIds: [playedRow.playerId, ...overtaken.map((ranking) => ranking.playerId)]
 				});
 			}
 		}
@@ -598,7 +604,8 @@ const makeRoleItems = (historyRows: DigestRow[], periodStart: number) => {
 					occurredAt,
 					priority: 99,
 					evidenceKey: `role-claim:${role}:match:${leaderRow.matchId}`,
-					entityKey: `player:${currentLeader.playerId}`
+					entityKey: `player:${currentLeader.playerId}`,
+					playerIds: [currentLeader.playerId, previousLeader.playerId]
 				});
 			}
 		}

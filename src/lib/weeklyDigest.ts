@@ -35,6 +35,7 @@ export type WeeklyDigestItem = {
 	priority: number;
 	evidenceKey: string;
 	entityKey?: string;
+	playerIds: number[];
 };
 
 export type WeeklyDigest = {

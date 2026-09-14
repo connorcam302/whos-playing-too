@@ -1,6 +1,6 @@
 import { DATE_RANGE_PRESETS, DOTA_MAJOR_PATCHES } from '$lib/data/dotaPatchRanges';
 
-export type RecordCategory = 'highlights' | 'economy' | 'damage' | 'notorious';
+export type RecordCategory = 'highlights' | 'economy' | 'damage' | 'notorious' | 'runs';
 
 export type RecordsFilters = {
 	roles: number[];
@@ -29,6 +29,8 @@ export type RecordMatchData = {
 export type RecordEntry = {
 	record: number;
 	data: RecordMatchData;
+	participants?: RecordMatchData[];
+	streak?: { startTime: number; startMatchId: number; endTime: number };
 };
 
 export type RecordSet = {
@@ -36,6 +38,8 @@ export type RecordSet = {
 	title: string;
 	recordTitle: string;
 	category: RecordCategory;
+	kind?: 'performance' | 'match' | 'streak';
+	format?: 'duration' | 'ratio' | 'rate' | 'count';
 	records: RecordEntry[];
 };
 

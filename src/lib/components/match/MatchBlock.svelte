@@ -9,6 +9,7 @@
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { twMerge } from 'tailwind-merge';
+	import { currentPlayer } from '$lib/current-player';
 	dayjs.extend(relativeTime);
 	interface Props {
 		match: any;
@@ -56,6 +57,8 @@
 			? 'bg-green-500/20 text-green-400 border-2 border-green-500/30'
 			: 'bg-red-500/20 text-red-400 border-2 border-red-500/30';
 	};
+
+	const isCurrentPlayer = (player: any) => player.owner === $currentPlayer;
 </script>
 
 <div class="min-w-0 w-full overflow-hidden">
@@ -123,7 +126,7 @@
 					{/if}
 					{#if radiant.length > 0}
 						{#each radiant as player}
-							<div class={radiantStyling}>
+							<div class={twMerge(radiantStyling, isCurrentPlayer(player) && 'current-player-row')}>
 								<PlayerData match={{ player, matchData }} />
 							</div>
 						{/each}
@@ -147,7 +150,7 @@
 							</div>
 						{/if}
 						{#each dire as player}
-							<div class={direStyling}>
+							<div class={twMerge(direStyling, isCurrentPlayer(player) && 'current-player-row')}>
 								<PlayerData match={{ player, matchData }} />
 							</div>
 						{/each}

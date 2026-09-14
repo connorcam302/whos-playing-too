@@ -6,6 +6,7 @@
 	import { quintOut } from 'svelte/easing';
 	import SearchBox from '../SearchBox.svelte';
 	import HamburgerIcon from '../HamburgerIcon.svelte';
+	import CurrentPlayerControl from './CurrentPlayerControl.svelte';
 
 	interface Props {
 		playerList?: any[];
@@ -23,7 +24,7 @@
 
 	const SCROLL_THRESHOLD = 10;
 
-	function handleScroll() {
+	const handleScroll = () => {
 		const currentY = window.scrollY;
 		const delta = currentY - lastScrollY;
 
@@ -37,7 +38,7 @@
 		}
 
 		lastScrollY = currentY;
-	}
+	};
 
 	onMount(() => {
 		lastScrollY = window.scrollY;
@@ -79,10 +80,10 @@
 		}
 	]);
 
-	function isActive(link: string): boolean {
+	const isActive = (link: string): boolean => {
 		if (link === '/') return page.url.pathname === '/';
 		return page.url.pathname.startsWith(link);
-	}
+	};
 </script>
 
 <svelte:window onscroll={handleScroll} />
@@ -98,7 +99,7 @@
 	class:-translate-y-full={!visible}
 >
 	<!-- Desktop navbar -->
-	<div class="hidden border-b border-zinc-800/60 bg-background/95 backdrop-blur-md md:block">
+	<div class="hidden border-b border-zinc-800/60 bg-background/95 backdrop-blur-md xl:block">
 		<div class="mx-auto flex h-12 max-w-7xl items-center gap-6 px-4">
 			<!-- Logo -->
 			<a href="/" class="flex shrink-0 items-center gap-2 font-display text-[15px] text-zinc-100">
@@ -128,37 +129,44 @@
 			<div class="grow"></div>
 
 			<!-- Search -->
-			<div class="w-64">
+			<div class="w-56">
 				<SearchBox groups={searchGroups} placeholder="Search players, pages..." />
 			</div>
+
+			<CurrentPlayerControl {playerList} />
 		</div>
 	</div>
 
 	<!-- Mobile navbar -->
-	<div class="border-b border-zinc-800/60 bg-background/95 backdrop-blur-md md:hidden">
+	<div class="border-b border-zinc-800/60 bg-background/95 backdrop-blur-md xl:hidden">
 		<div class="flex h-12 items-center justify-between px-3">
 			<a href="/" class="flex items-center gap-2 font-display text-[15px] text-zinc-100">
 				<img src="/logo.png" alt="whos-playing" class="h-6 w-6" />
 				<span>whos-playing</span>
 			</a>
 
-			<button
-				onclick={() => (mobileOpen = !mobileOpen)}
-				class="flex items-center justify-center rounded-md p-1 text-zinc-300 transition-colors hover:text-zinc-100"
-				aria-label="Toggle menu"
-				aria-expanded={mobileOpen}
-			>
-				<HamburgerIcon width={36} open={mobileOpen} />
-			</button>
+			<div class="flex items-center gap-1">
+				<CurrentPlayerControl {playerList} />
+				<button
+					onclick={() => (mobileOpen = !mobileOpen)}
+					class="flex items-center justify-center rounded-md p-1 text-zinc-300 transition-colors hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+					aria-label="Toggle menu"
+					aria-expanded={mobileOpen}
+				>
+					<HamburgerIcon width={36} open={mobileOpen} />
+				</button>
+			</div>
 		</div>
 	</div>
 
 	<!-- Mobile flyout -->
 	{#if mobileOpen}
 		<div
-			class="fixed inset-0 top-12 z-40 bg-background/60 backdrop-blur-sm md:hidden"
+			class="fixed inset-0 top-12 z-40 bg-background/60 backdrop-blur-sm xl:hidden"
 			transition:fade={{ duration: 150 }}
-			onclick={() => (mobileOpen = false)}
+			onclick={(event) => {
+				if (event.currentTarget === event.target) mobileOpen = false;
+			}}
 			onkeydown={(e) => e.key === 'Escape' && (mobileOpen = false)}
 			role="button"
 			tabindex="-1"
@@ -166,7 +174,6 @@
 			<div
 				class="border-b border-zinc-800/60 bg-background"
 				transition:fly={{ y: -200, duration: 250, easing: quintOut }}
-				onclick={(e) => e.stopPropagation()}
 			>
 				<div class="px-4 py-3">
 					<SearchBox groups={searchGroups} placeholder="Search players, pages..." />

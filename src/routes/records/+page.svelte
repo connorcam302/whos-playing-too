@@ -1,671 +1,1185 @@
 <script lang="ts">
-	import { goto, replaceState } from '$app/navigation';
+	import { afterNavigate, replaceState } from '$app/navigation';
 	import { page } from '$app/state';
-	import { onDestroy } from 'svelte';
-	import { fade } from 'svelte/transition';
-	import dayjs from 'dayjs';
-	import relativeTime from 'dayjs/plugin/relativeTime';
-	import MatchModal from '$lib/components/match/MatchModal.svelte';
-	import Loading from '$lib/components/Loading.svelte';
-	import { Button } from '$lib/components/ui/button';
-	import * as Card from '$lib/components/ui/card';
-	import * as Select from '$lib/components/ui/select';
-	import * as Table from '$lib/components/ui/table';
+	import { onDestroy, untrack } from 'svelte';
+	import FilterPanel from '$lib/components/filters/FilterPanel.svelte';
 	import { Toggle } from '$lib/components/ui/toggle';
-	import * as Tooltip from '$lib/components/ui/tooltip';
-	import { DATE_RANGE_PRESETS, DOTA_MAJOR_PATCHES } from '$lib/data/dotaPatchRanges';
 	import {
-		buildRecordsSearchParams,
-		type RecordCategory,
-		type RecordEntry,
-		type RecordSet,
-		type RecordsFilters,
-		type RecordsResponse
-	} from '$lib/records';
-	import {
-		calcImpact,
-		getImpactDetails,
-		getRoleIcon,
-		getRoleName,
-		roleDistribution,
-		toTime
-	} from '$lib/functions';
-	import {
-		ChevronDown,
-		ChevronUp,
-		Maximize2,
-		Minimize2,
-		RefreshCw,
+		ArrowUpRight,
+		ChevronRight,
+		ListFilter,
 		RotateCcw,
+		Trophy,
 		VenetianMask
 	} from 'lucide-svelte';
-	import RecordHeroPicker from './RecordHeroPicker.svelte';
+	import MatchModal from '$lib/components/match/MatchModal.svelte';
+	import * as Select from '$lib/components/ui/select';
+	import { DATE_RANGE_PRESETS, DOTA_MAJOR_PATCHES } from '$lib/data/dotaPatchRanges';
+	import { calcImpact, getRoleIcon, getRoleName, toTime } from '$lib/functions';
+	import {
+		buildRecordsSearchParams,
+		DEFAULT_RECORDS_FILTERS,
+		type RecordsFilters,
+		type RecordsResponse,
+		type RecordEntry,
+		type RecordSet
+	} from '$lib/records';
+	import type { PageData } from './$types';
 
-	dayjs.extend(relativeTime);
+	let { data }: { data: PageData } = $props();
+	// These editable values start from the server response and resync on route navigation below.
+	// svelte-ignore state_referenced_locally
+	let result = $state<RecordsResponse>(data);
+	// svelte-ignore state_referenced_locally
+	let applied = $state<RecordsFilters>(data.filters);
+	// svelte-ignore state_referenced_locally
+	let draft = $state<RecordsFilters>({ ...data.filters });
+	// svelte-ignore state_referenced_locally
+	let hero = $state(String(data.filters.hero));
+	// svelte-ignore state_referenced_locally
+	let roles = $state(data.filters.roles.map(String));
+	// svelte-ignore state_referenced_locally
+	let lobby = $state(data.filters.lobbies.length === 2 ? 'all' : String(data.filters.lobbies[0]));
+	let loading = $state(false);
+	let error = $state('');
+	let selectedKey = $state(page.url.searchParams.get('record') ?? 'most-kills');
+	let controller: AbortController | undefined;
+	let request = 0;
 
-	type CategoryDefinition = {
-		id: RecordCategory;
-		label: string;
-		description: string;
-	};
-
-	type Props = {
-		data: {
-			records: RecordSet[];
-			playerMatchCount: number;
-			filters: RecordsFilters;
-			heroList: DotaAsset[];
-		};
-	};
-
-	const RECORD_CATEGORIES: CategoryDefinition[] = [
+	const categories = [
 		{
 			id: 'highlights',
-			label: 'Highlights',
-			description: 'The standout combat and impact performances.'
+			label: 'Combat & impact',
+			keys: ['most-kills', 'most-assists', 'highest-kda', 'highest-impact']
 		},
+		{ id: 'damage', label: 'Damage', keys: ['most-hero-damage', 'highest-dpm'] },
 		{
 			id: 'economy',
-			label: 'Economy',
-			description: 'Farm, progression, and objective pressure.'
+			label: 'Economy & objectives',
+			keys: ['highest-gpm', 'highest-xpm', 'most-last-hits', 'most-building-damage']
 		},
 		{
-			id: 'damage',
-			label: 'Damage',
-			description: 'The biggest single-match damage output.'
+			id: 'runs',
+			label: 'Games & streaks',
+			keys: ['longest-games', 'longest-winning-streak', 'longest-losing-streak']
 		},
 		{
 			id: 'notorious',
 			label: 'Notorious',
-			description: 'The records nobody planned to set.'
+			keys: ['most-deaths', 'lowest-impact', 'least-hero-damage']
 		}
 	];
-
-	let { data }: Props = $props();
-	// This route intentionally hydrates its local filter and result state from the server snapshot.
-	// svelte-ignore state_referenced_locally
-	const {
-		records: initialRecords,
-		playerMatchCount: initialPlayerMatchCount,
-		filters: initialFilters,
-		heroList
-	} = data;
-
-	let records = $state<RecordSet[]>(initialRecords);
-	let playerMatchCount = $state(initialPlayerMatchCount);
-	let selectedRoles = $state(initialFilters.roles.map(String));
-	let selectedLobby = $state(
-		initialFilters.lobbies.map((lobby) => (lobby === 7 ? 'ranked' : 'unranked'))
+	const categoryRecords = (category: (typeof categories)[number]) =>
+		result.records
+			.filter((record) => record.category === category.id)
+			.sort((a, b) => category.keys.indexOf(a.key) - category.keys.indexOf(b.key));
+	const descriptions: Record<string, string> = {
+		'highest-dpm':
+			'Hero damage divided by match length in minutes. Matches without damage data are excluded.',
+		'highest-kda': 'Kills plus assists divided by deaths. Deathless games use a divisor of 1.',
+		'longest-games':
+			'Each qualifying match is listed once with its full tracked-player lineup, including smurf accounts.',
+		'longest-winning-streak':
+			'Consecutive logged wins on the same account, within the selected period.',
+		'longest-losing-streak':
+			'Consecutive logged losses on the same account, within the selected period.',
+		'most-kills': 'The biggest kill counts in a single match.',
+		'most-assists': 'The players who had a hand in everything.',
+		'highest-impact': 'The strongest performances by impact score.',
+		'most-last-hits': 'The most creeps claimed in a single match.',
+		'highest-gpm': 'The fastest gold earners, measured per minute.',
+		'highest-xpm': 'The fastest experience gain, measured per minute.',
+		'most-building-damage': 'The biggest contributions to tearing down the base.',
+		'most-hero-damage': 'The most damage dealt to enemy heroes.',
+		'most-deaths': 'Some games are harder to forget than others.',
+		'lowest-impact': 'The toughest outings by impact score, lowest first.',
+		'least-hero-damage': 'The smallest damage totals against enemy heroes, lowest first.'
+	};
+	const selected = $derived(
+		result.records.find((record) => record.key === selectedKey) ?? result.records[0]
 	);
-	let selectedHero = $state(initialFilters.hero.toString());
-	let selectedDateRange = $state(initialFilters.dateRange);
-	let includeSmurfs = $state(initialFilters.includeSmurfs);
-	let loading = $state(false);
-	let errorMessage = $state<string | null>(null);
-	let expandedRecords = $state<Set<string>>(new Set());
-	let effectReady = false;
-	let requestId = 0;
-	let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-	let abortController: AbortController | undefined;
-
-	const hasResults = $derived(records.some((recordSet) => recordSet.records.length > 0));
-	const allExpanded = $derived(
-		records.filter((recordSet) => recordSet.records.length > 3).every((recordSet) => expandedRecords.has(recordSet.key))
+	const filters = $derived<RecordsFilters>({
+		...draft,
+		hero: Number(hero),
+		roles: roles.length ? roles.map(Number) : [1, 2, 3, 4, 5],
+		lobbies: lobby === 'all' ? [0, 7] : [Number(lobby)]
+	});
+	const hasActiveFilters = $derived(
+		buildRecordsSearchParams(filters).toString() !==
+			buildRecordsSearchParams(DEFAULT_RECORDS_FILTERS).toString()
+	);
+	const number = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 2 });
+	const date = new Intl.DateTimeFormat('en-GB', {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+		timeZone: 'UTC'
+	});
+	const dateLabel = (value: string) =>
+		DATE_RANGE_PRESETS.find((preset) => preset.value === value)?.label ??
+		DOTA_MAJOR_PATCHES.find((patch) => `patch-${patch.version}` === value)?.label ??
+		'All Time';
+	const scope = $derived(
+		[
+			dateLabel(applied.dateRange),
+			data.heroList.find((item) => item.id === applied.hero)?.name ?? 'All heroes',
+			applied.roles.length === 5 ? 'All roles' : applied.roles.map(getRoleName).join(', '),
+			applied.lobbies.length === 2
+				? 'Ranked & unranked'
+				: applied.lobbies[0] === 7
+					? 'Ranked'
+					: 'Unranked',
+			applied.includeSmurfs ? 'Smurfs included' : 'Main accounts'
+		].join(' · ')
 	);
 
-	const getPodiumClass = (position: number) => {
-		if (position === 1) return 'bg-yellow-400/10';
-		if (position === 2) return 'bg-zinc-300/[0.07]';
-		if (position === 3) return 'bg-orange-700/10';
-		return '';
+	const setDraft = (value: RecordsFilters) => {
+		draft = { ...value };
+		hero = String(value.hero);
+		roles = value.roles.map(String);
+		lobby = value.lobbies.length === 2 ? 'all' : String(value.lobbies[0]);
 	};
-
-	const makeRolesTrigger = () => {
-		if (selectedRoles.length === 0 || selectedRoles.length === 5) return 'All Roles';
-		if (selectedRoles.length === 1) return getRoleName(Number(selectedRoles[0]));
-		return `${selectedRoles.length} Roles`;
-	};
-
-	const makeLobbyTrigger = () => {
-		if (selectedLobby.length === 0 || selectedLobby.length === 2) return 'All Lobbies';
-		return selectedLobby[0] === 'ranked' ? 'Ranked' : 'Unranked';
-	};
-
-	const makeDateTrigger = () => {
-		const preset = DATE_RANGE_PRESETS.find((range) => range.value === selectedDateRange);
-		if (preset) return preset.label;
-		return (
-			DOTA_MAJOR_PATCHES.find((patch) => `patch-${patch.version}` === selectedDateRange)?.label ??
-			'All Time'
-		);
-	};
-
-	const getRoleFilter = () =>
-		(selectedRoles.length === 0 ? ['1', '2', '3', '4', '5'] : selectedRoles).map(Number);
-
-	const getLobbyFilter = () =>
-		(selectedLobby.length === 0 ? ['ranked', 'unranked'] : selectedLobby).map((lobby) =>
-			lobby === 'ranked' ? 7 : 0
-		);
-
-	const getFilters = (): RecordsFilters => ({
-		roles: getRoleFilter(),
-		lobbies: getLobbyFilter(),
-		dateRange: selectedDateRange,
-		hero: Number(selectedHero),
-		includeSmurfs
+	$effect(() => {
+		result = data;
+		applied = data.filters;
+		setDraft(data.filters);
 	});
 
-	const syncUrl = (filters: RecordsFilters) => {
-		const url = new URL(page.url);
-		url.search = buildRecordsSearchParams(filters).toString();
-		replaceState(`${url.pathname}${url.search}${url.hash}`, page.state);
+	afterNavigate(() => {
+		selectedKey = new URL(window.location.href).searchParams.get('record') ?? 'most-kills';
+	});
+
+	const selectRecord = (key: string) => {
+		selectedKey = key;
+		const url = new URL(window.location.href);
+		url.searchParams.set('record', key);
+		replaceState(url, page.state);
 	};
-
-	const fetchRecordData = async (filters: RecordsFilters, signal: AbortSignal) => {
-		const params = buildRecordsSearchParams(filters);
-		const response = await fetch(`/api/records?${params.toString()}`, { signal });
-
-		if (!response.ok) {
-			const error = await response.json().catch(() => null);
-			throw new Error(error?.message ?? 'Records could not be loaded.');
-		}
-
-		return (await response.json()) as RecordsResponse;
-	};
-
-	const updateRecordData = async (filters: RecordsFilters) => {
-		const currentRequest = ++requestId;
-		abortController?.abort();
-		abortController = new AbortController();
+	const applyFilters = async (next: RecordsFilters = filters) => {
+		const current = ++request;
+		controller?.abort();
+		controller = new AbortController();
 		loading = true;
-		errorMessage = null;
-
+		error = '';
 		try {
-			const response = await fetchRecordData(filters, abortController.signal);
-			if (currentRequest === requestId) {
-				records = response.records;
-				playerMatchCount = response.playerMatchCount;
-			}
-		} catch (error) {
-			if (error instanceof DOMException && error.name === 'AbortError') return;
-			if (currentRequest === requestId) {
-				errorMessage = error instanceof Error ? error.message : 'Records could not be loaded.';
+			const params = buildRecordsSearchParams(next);
+			const response = await fetch(`/api/records?${params}`, { signal: controller.signal });
+			if (!response.ok) throw new Error('The records could not be updated. Try again in a moment.');
+			const updated: RecordsResponse = await response.json();
+			if (current !== request) return;
+			result = updated;
+			applied = next;
+			const url = new URL(window.location.href);
+			url.search = params.toString();
+			url.searchParams.set('record', selectedKey);
+			replaceState(url, page.state);
+		} catch (cause) {
+			if (current === request && !controller?.signal.aborted) {
+				error = cause instanceof Error ? cause.message : 'The records could not be updated.';
 			}
 		} finally {
-			if (currentRequest === requestId) loading = false;
+			if (current === request) loading = false;
 		}
 	};
-
-	const queueRecordUpdate = () => {
-		const filters = getFilters();
-		syncUrl(filters);
-		if (debounceTimer) clearTimeout(debounceTimer);
-		debounceTimer = setTimeout(() => void updateRecordData(filters), 180);
-	};
-
-	const resetFilters = () => {
-		selectedRoles = ['1', '2', '3', '4', '5'];
-		selectedLobby = ['ranked', 'unranked'];
-		selectedHero = '-1';
-		selectedDateRange = 'last-365-days';
-		includeSmurfs = false;
-	};
-
-	const retry = () => void updateRecordData(getFilters());
-
-	const isExpanded = (recordKey: string) => expandedRecords.has(recordKey);
-
-	const toggleExpanded = (recordKey: string) => {
-		const next = new Set(expandedRecords);
-		if (next.has(recordKey)) next.delete(recordKey);
-		else next.add(recordKey);
-		expandedRecords = next;
-	};
-
-	const toggleAllExpanded = () => {
-		expandedRecords = allExpanded
-			? new Set()
-			: new Set(records.filter((recordSet) => recordSet.records.length > 3).map((recordSet) => recordSet.key));
-	};
-
-	const getImpactClass = (impact: number) => {
-		const grade = calcImpact(impact).charAt(0);
-		return (
-			{
-				S: 'bg-yellow-400/30 text-yellow-300',
-				A: 'bg-green-500/30 text-green-400',
-				B: 'bg-blue-500/30 text-blue-400',
-				C: 'bg-purple-500/30 text-purple-400',
-				D: 'bg-orange-500/30 text-orange-400',
-				F: 'bg-red-500/30 text-red-400'
-			}[grade] ?? 'bg-zinc-700 text-zinc-200'
-		);
-	};
-
-	const getRecordColumnTitle = (recordTitle: string) =>
-		recordTitle === 'Impact' ? 'Score' : recordTitle;
-
-	const getRateLabel = (recordSet: RecordSet, record: RecordEntry) => {
-		if (['Impact', 'GPM', 'XPM'].includes(recordSet.recordTitle)) return null;
-		const minutes = record.data.duration / 60;
-		if (minutes <= 0) return null;
-
-		const rate = record.record / minutes;
-		const digits = rate >= 100 ? 0 : rate >= 10 ? 1 : 2;
-		return `${rate.toFixed(digits)}/min`;
-	};
-
-	const formatNumber = (value: number) => new Intl.NumberFormat('en-GB').format(value);
-
-	const getExactDate = (record: RecordEntry) =>
-		new Intl.DateTimeFormat('en-GB', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit'
-		}).format(new Date((record.data.startTime + record.data.duration) * 1000));
-
-	const getFilterSummary = () => {
-		const parts = [makeDateTrigger(), makeRolesTrigger(), makeLobbyTrigger()];
-		const selectedHeroName = heroList.find((hero) => hero.id.toString() === selectedHero)?.name;
-		if (selectedHeroName) parts.push(selectedHeroName);
-		if (includeSmurfs) parts.push('Smurfs included');
-		return parts.join(' · ');
-	};
-
 	$effect(() => {
-		const filterSignature = JSON.stringify([
-			selectedRoles,
-			selectedLobby,
-			selectedHero,
-			selectedDateRange,
-			includeSmurfs
-		]);
-
-		if (!effectReady) {
-			effectReady = true;
+		const next = filters;
+		controller?.abort();
+		request++;
+		if (
+			buildRecordsSearchParams(next).toString() ===
+			untrack(() => buildRecordsSearchParams(applied).toString())
+		) {
+			loading = false;
 			return;
 		}
-
-		filterSignature;
-		queueRecordUpdate();
+		loading = true;
+		const timer = setTimeout(() => void applyFilters(next), 180);
+		return () => clearTimeout(timer);
 	});
-
+	const reset = () => {
+		setDraft(DEFAULT_RECORDS_FILTERS);
+	};
+	const toggleLobby = (value: string) => {
+		lobby = lobby === 'all' ? (value === '7' ? '0' : '7') : lobby === value ? lobby : 'all';
+	};
+	const rank = (entry: RecordEntry) =>
+		(selected?.records.findIndex((item) => item.record === entry.record) ?? 0) + 1;
+	const formatRecord = (record: RecordSet, value: number) => {
+		if (record.format === 'duration') return toTime(value);
+		if (record.format === 'ratio') return value.toFixed(2);
+		return number.format(value);
+	};
+	const secondaryValue = (entry: RecordEntry) => {
+		if (!selected) return '';
+		if (selected.kind === 'streak') return 'consecutive games';
+		if (selected.format === 'duration') return 'minutes:seconds';
+		if (selected.format === 'ratio') return 'KDA ratio';
+		if (selected.format === 'rate' || ['GPM', 'XPM'].includes(selected.recordTitle))
+			return 'per minute';
+		if (selected.recordTitle === 'Impact') return `${calcImpact(entry.data.impact)} grade`;
+		return entry.data.duration > 0
+			? `${number.format(entry.record / (entry.data.duration / 60))}/min`
+			: '';
+	};
 	onDestroy(() => {
-		if (debounceTimer) clearTimeout(debounceTimer);
-		abortController?.abort();
+		request++;
+		controller?.abort();
 	});
 </script>
 
 <svelte:head>
-	<title>whos-playing | Records</title>
+	<title>Records | whos-playing</title>
+	<meta
+		name="description"
+		content="Explore the group's match records, streaks, record holders, and top ten performances."
+	/>
 </svelte:head>
 
-<div id="top" class="mx-auto flex w-full max-w-7xl flex-col gap-4 overflow-hidden px-3 py-4 sm:px-4">
-	<header class="flex flex-col gap-1">
-		<h1 class="text-2xl font-semibold tracking-tight text-zinc-100">Records</h1>
-		<p class="text-sm text-zinc-400">Best and worst single-match marks across the tracked group.</p>
-	</header>
-
-	<section class="grid gap-3 rounded-md border border-border bg-card p-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[repeat(5,minmax(0,1fr))_auto]" aria-label="Record filters">
-			<div class="flex min-w-0 flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Roles</div>
-				<Select.Root type="multiple" bind:value={selectedRoles}>
-					<Select.Trigger class="w-full">{makeRolesTrigger()}</Select.Trigger>
-					<Select.Content>
-						{#each [1, 2, 3, 4, 5] as role}
-							<Select.Item value={role.toString()} label={getRoleName(role)}>
-								<div class="flex items-center gap-2">
-									<img src={getRoleIcon(role)} alt="" class="h-6 w-6" />
-									<span>{getRoleName(role)}</span>
-								</div>
-							</Select.Item>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			</div>
-
-			<div class="flex min-w-0 flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Hero</div>
-				<RecordHeroPicker heroes={heroList} bind:value={selectedHero} />
-			</div>
-
-			<div class="flex min-w-0 flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Date Range</div>
-				<Select.Root type="single" bind:value={selectedDateRange}>
-					<Select.Trigger class="w-full">{makeDateTrigger()}</Select.Trigger>
-					<Select.Content>
-						<Select.Group>
-							<Select.GroupHeading class="pl-2 text-xs uppercase tracking-wide text-zinc-400">Recent</Select.GroupHeading>
-							{#each DATE_RANGE_PRESETS as range}
-								<Select.Item value={range.value} label={range.label}>{range.label}</Select.Item>
-							{/each}
-						</Select.Group>
-						<Select.Separator />
-						<Select.Group>
-							<Select.GroupHeading class="pl-2 text-xs uppercase tracking-wide text-zinc-400">Major patches</Select.GroupHeading>
-							{#each DOTA_MAJOR_PATCHES.slice().reverse() as patch}
-								<Select.Item value={`patch-${patch.version}`} label={patch.label}>{patch.label}</Select.Item>
-							{/each}
-						</Select.Group>
-					</Select.Content>
-				</Select.Root>
-			</div>
-
-			<div class="flex min-w-0 flex-col gap-1">
-				<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
-				<Select.Root type="multiple" bind:value={selectedLobby}>
-					<Select.Trigger class="w-full">{makeLobbyTrigger()}</Select.Trigger>
-					<Select.Content>
-						<Select.Item value="ranked" label="Ranked">Ranked</Select.Item>
-						<Select.Item value="unranked" label="Unranked">Unranked</Select.Item>
-					</Select.Content>
-				</Select.Root>
-			</div>
-
+<main class="records-page">
+	<header class="page-heading"><h1>Records</h1></header>
+	<FilterPanel label="Record filters" active={hasActiveFilters} onreset={reset}>
 		<div class="flex min-w-0 flex-col gap-1">
-			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Smurfs</div>
-			<Toggle
-				bind:pressed={includeSmurfs}
-				class="h-10 w-full border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white"
-				aria-label="Include smurf accounts"
+			<div
+				id="records-hero-label"
+				class="text-xs font-medium uppercase tracking-wide text-zinc-400"
 			>
-				<VenetianMask class="h-5 w-5" />
-			</Toggle>
+				Hero
+			</div>
+			<Select.Root type="single" bind:value={hero}>
+				<Select.Trigger aria-labelledby="records-hero-label" class="w-full"
+					>{data.heroList.find((item) => String(item.id) === hero)?.name ??
+						'All Heroes'}</Select.Trigger
+				>
+				<Select.Content
+					><Select.Item value="-1" label="All Heroes">All Heroes</Select.Item>
+					{#each data.heroList as item}<Select.Item value={String(item.id)} label={item.name}
+							><div class="flex items-center gap-2">
+								<img src={item.img} alt="" class="h-6 w-8 rounded-sm object-cover" /><span
+									>{item.name}</span
+								>
+							</div></Select.Item
+						>{/each}
+				</Select.Content>
+			</Select.Root>
 		</div>
-		<div class="flex items-end">
-			<button
-				type="button"
-				class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-sky-600 px-3 text-sm font-medium text-white transition-colors hover:bg-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring xl:w-auto"
-				onclick={resetFilters}
+		<div class="flex min-w-0 flex-col gap-1">
+			<div
+				id="records-role-label"
+				class="text-xs font-medium uppercase tracking-wide text-zinc-400"
 			>
-				<RotateCcw class="h-3.5 w-3.5" /> Reset
-			</button>
+				Roles
+			</div>
+			<Select.Root type="multiple" bind:value={roles}>
+				<Select.Trigger aria-labelledby="records-role-label" class="w-full"
+					>{roles.length === 0 || roles.length === 5
+						? 'All Roles'
+						: roles.length === 1
+							? getRoleName(Number(roles[0]))
+							: `${roles.length} Roles`}</Select.Trigger
+				>
+				<Select.Content
+					>{#each [1, 2, 3, 4, 5] as role}<Select.Item
+							value={String(role)}
+							label={getRoleName(role)}
+							><div class="flex items-center gap-2">
+								<img src={getRoleIcon(role)} alt="" class="h-6 w-6" /><span
+									>{getRoleName(role)}</span
+								>
+							</div></Select.Item
+						>{/each}</Select.Content
+				>
+			</Select.Root>
 		</div>
-	</section>
-
-	<div class="flex flex-col gap-2 rounded-md border border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-		<div class="min-w-0">
-			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Current scope</div>
-			<div class="mt-1 text-sm text-zinc-200">{getFilterSummary()}</div>
-			<div class="text-xs text-zinc-400">
-				{formatNumber(playerMatchCount)} player-{playerMatchCount === 1 ? 'match' : 'matches'} in scope
+		<div class="flex min-w-0 flex-col gap-1">
+			<div
+				id="records-date-label"
+				class="text-xs font-medium uppercase tracking-wide text-zinc-400"
+			>
+				Date Range
+			</div>
+			<Select.Root type="single" bind:value={draft.dateRange}>
+				<Select.Trigger aria-labelledby="records-date-label" class="w-full"
+					>{dateLabel(draft.dateRange)}</Select.Trigger
+				>
+				<Select.Content
+					>{#each DATE_RANGE_PRESETS as range}<Select.Item value={range.value} label={range.label}
+							>{range.label}</Select.Item
+						>{/each}{#each [...DOTA_MAJOR_PATCHES].reverse() as patch}<Select.Item
+							value={`patch-${patch.version}`}
+							label={patch.label}>{patch.label}</Select.Item
+						>{/each}</Select.Content
+				>
+			</Select.Root>
+		</div>
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Lobby</div>
+			<div class="flex flex-wrap gap-1">
+				{#each [{ value: '7', label: 'Ranked' }, { value: '0', label: 'Unranked' }] as item}<button
+						type="button"
+						aria-pressed={lobby === 'all' || lobby === item.value}
+						class="inline-flex h-10 items-center justify-center rounded-md border border-input px-3 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring {lobby ===
+							'all' || lobby === item.value
+							? 'bg-sky-600 text-white'
+							: 'bg-transparent text-zinc-300'}"
+						onclick={() => toggleLobby(item.value)}>{item.label}</button
+					>{/each}
 			</div>
 		</div>
-		<div class="flex items-center gap-2">
-			<Button
-				variant="ghost"
-				size="sm"
-				class="h-9 gap-1.5 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
-				onclick={toggleAllExpanded}
+		<div class="flex flex-col gap-1">
+			<div class="text-xs font-medium uppercase tracking-wide text-zinc-400">Accounts</div>
+			<Toggle
+				bind:pressed={draft.includeSmurfs}
+				class="h-10 w-fit gap-2 border px-3 data-[state=on]:bg-sky-600 data-[state=on]:text-white"
+				><VenetianMask class="h-4 w-4" /> Include smurfs</Toggle
 			>
-				{#if allExpanded}
-					<Minimize2 class="h-4 w-4" /> Collapse all
-				{:else}
-					<Maximize2 class="h-4 w-4" /> Expand all
-				{/if}
-			</Button>
 		</div>
+	</FilterPanel>
+
+	{#if error}<div class="error" role="alert">
+			<div>
+				<strong>Records did not update</strong>
+				<p>{error} Previous results are still shown.</p>
+			</div>
+			<button onclick={() => void applyFilters()}>Try again</button>
+		</div>{/if}
+	<div class="scope" aria-live="polite">
+		<p>{scope}</p>
+		<span
+			>{loading
+				? 'Updating records…'
+				: `${number.format(result.playerMatchCount)} player-matches`}</span
+		>
 	</div>
 
-	{#if loading}
-		<div class="flex items-center gap-2 text-xs text-zinc-400" aria-live="polite" aria-atomic="true">
-			<RefreshCw class="h-3.5 w-3.5 animate-spin text-sky-400" aria-hidden="true" />
-			Updating records…
-		</div>
-	{/if}
-
-	{#if errorMessage}
-		<div class="flex flex-col gap-3 rounded-md border border-red-900/60 bg-red-950/30 p-4 sm:flex-row sm:items-center sm:justify-between" role="alert">
-			<div>
-				<div class="font-medium text-red-100">Records did not update</div>
-				<p class="mt-1 text-sm text-red-200/80">{errorMessage} Your previous results are still shown.</p>
+	<div class="record-book" aria-busy={loading}>
+		<aside class="record-index" aria-label="Choose a record">
+			<div class="index-heading">
+				<h2>Record index</h2>
+				<span>{result.records.length}</span>
 			</div>
-			<Button variant="outline" class="min-h-11 shrink-0 border-red-800 text-red-100 hover:bg-red-950 sm:min-h-10" onclick={retry}>
-				Try again
-			</Button>
-		</div>
-	{/if}
-
-	{#if loading && records.length === 0}
-		<div class="flex min-h-80 items-center justify-center rounded-md border border-border bg-card">
-			<Loading />
-		</div>
-	{:else if !hasResults}
-		<div class="rounded-md border border-border bg-card px-4 py-10 text-center">
-			<h2 class="text-base font-semibold text-zinc-100">No qualifying records</h2>
-			<p class="mx-auto mt-1 max-w-md text-sm text-zinc-400">No matches meet this combination of hero, role, lobby, and date filters.</p>
-			<Button variant="outline" class="mt-4 min-h-11 gap-1.5 sm:min-h-10" onclick={resetFilters}>
-				<RotateCcw class="h-4 w-4" /> Reset filters
-			</Button>
-		</div>
-	{:else}
-		<main class="flex w-full flex-col gap-4" in:fade={{ duration: 180 }}>
-			{#each RECORD_CATEGORIES as category}
-				{@const categoryRecords = records.filter(
-					(recordSet) => recordSet.category === category.id && recordSet.records.length > 0
-				)}
-				{#if categoryRecords.length > 0}
-					<section id={category.id} class="scroll-mt-4" aria-labelledby={`${category.id}-heading`}>
-						<div class="mb-2 flex items-end justify-between gap-4 px-1">
-							<div>
-								<h2 id={`${category.id}-heading`} class="text-base font-semibold text-zinc-100">{category.label}</h2>
-								<p class="text-xs text-zinc-400">{category.description}</p>
-							</div>
-						</div>
-
-						<div class="flex flex-col gap-2">
-							{#each categoryRecords as recordSet}
-								<Card.Root class="rounded-md border-border bg-card shadow-none" id={recordSet.key}>
-									<Card.Header class="flex flex-row items-center justify-between gap-3 px-4 pt-3 pb-2">
-										<Card.Title class="text-base">{recordSet.title}</Card.Title>
-										{#if recordSet.records.length > 3}
-											<Button
-												variant="ghost"
-												size="icon"
-												class="h-11 w-11 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 sm:h-8 sm:w-8"
-												onclick={() => toggleExpanded(recordSet.key)}
-												aria-expanded={isExpanded(recordSet.key)}
-												aria-label={isExpanded(recordSet.key) ? `Show top 3 ${recordSet.title}` : `Show top 10 ${recordSet.title}`}
+			<div class="desktop-index">
+				{#each categories as category}
+					<div class="record-group">
+						<h3>{category.label}</h3>
+						{#each categoryRecords(category) as record}
+							{@const holder = record.records[0]}
+							<button
+								class="index-item"
+								class:selected={selected?.key === record.key}
+								aria-pressed={selected?.key === record.key}
+								onclick={() => selectRecord(record.key)}
+							>
+								<span class="index-copy"
+									><span class="record-title">{record.title}</span><span class="holder"
+										>{(holder?.participants
+											? `${holder.participants.length} tracked players`
+											: holder?.data.username) ??
+											'No qualifying matches'}{#if holder && record.records.filter((entry) => entry.record === holder.record).length > 1}<span
 											>
-												{#if isExpanded(recordSet.key)}
-													<ChevronUp class="h-4 w-4" />
-												{:else}
-													<ChevronDown class="h-4 w-4" />
-												{/if}
-											</Button>
-										{/if}
-									</Card.Header>
+												· tied</span
+											>{/if}</span
+									></span
+								>
+								<span class="index-mark">{holder ? formatRecord(record, holder.record) : '—'}</span
+								><ChevronRight size={14} aria-hidden="true" />
+							</button>
+						{/each}
+					</div>
+				{/each}
+			</div>
+			<label class="mobile-index"
+				><span class="sr-only">Choose a record</span><select
+					value={selected?.key}
+					onchange={(event) => selectRecord(event.currentTarget.value)}
+					>{#each categories as category}<optgroup label={category.label}
+							>{#each categoryRecords(category) as record}<option value={record.key}
+									>{record.title}</option
+								>{/each}</optgroup
+						>{/each}</select
+				></label
+			>
+		</aside>
 
-									<Card.Content class="px-4 pb-4">
-										<div class="hidden overflow-x-auto rounded-md border border-zinc-800/80 bg-zinc-950/35 md:block">
-											<Table.Root>
-												<Table.Header class="bg-zinc-950/70">
-													<Table.Row class="border-zinc-800 hover:bg-transparent">
-														<Table.Head class="h-9 w-10 px-2 text-center text-xs uppercase tracking-wide text-zinc-400">#</Table.Head>
-														<Table.Head class="h-9 min-w-28 px-2 text-xs uppercase tracking-wide text-zinc-400">Player</Table.Head>
-														<Table.Head class="h-9 px-2 text-right text-xs uppercase tracking-wide text-zinc-400">{getRecordColumnTitle(recordSet.recordTitle)}</Table.Head>
-														<Table.Head class="h-9 px-2 text-right text-xs uppercase tracking-wide text-zinc-400">Time</Table.Head>
-														<Table.Head class="h-9 min-w-24 px-2 text-xs uppercase tracking-wide text-zinc-400">Hero</Table.Head>
-														<Table.Head class="h-9 px-2 text-center text-xs uppercase tracking-wide text-zinc-400">Role</Table.Head>
-														<Table.Head class="h-9 px-2 text-right text-xs uppercase tracking-wide text-zinc-400">K</Table.Head>
-														<Table.Head class="h-9 px-2 text-right text-xs uppercase tracking-wide text-zinc-400">D</Table.Head>
-														<Table.Head class="h-9 px-2 text-right text-xs uppercase tracking-wide text-zinc-400">A</Table.Head>
-														<Table.Head class="h-9 px-2 text-center text-xs uppercase tracking-wide text-zinc-400">Grade</Table.Head>
-														<Table.Head class="h-9 px-2 text-right text-xs uppercase tracking-wide text-zinc-400">Date</Table.Head>
-													</Table.Row>
-												</Table.Header>
-												<Table.Body>
-													{#each recordSet.records.slice(0, isExpanded(recordSet.key) ? 10 : 3) as record, index}
-														{@const impactDetails = getImpactDetails(
-															{ ...record.data, hero_id: record.data.hero.id },
-															record.data.role,
-															record.data.duration
-														)}
-														{@const distribution = roleDistribution(record.data.role, record.data.hero.id)}
-														<Table.Row class={`group relative border-zinc-900 text-sm transition-colors hover:bg-zinc-900/70 ${getPodiumClass(index + 1)}`}>
-															<Table.Cell class="px-2 py-2 text-center font-medium text-zinc-100">
-																<MatchModal
-																	matchId={record.data.matchId}
-																	sequenceNum={record.data.sequenceNumber ?? undefined}
-																	buttonTrigger
-																	triggerLabel={`Open match ${record.data.matchId}`}
-																	triggerClass="absolute inset-0 z-10 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-																>
-																	<span class="sr-only">Open match {record.data.matchId}</span>
-																</MatchModal>
-																<span class="pointer-events-none relative z-20">{index + 1}</span>
-															</Table.Cell>
-															<Table.Cell class="px-2 py-2">
-																<button onclick={() => goto(`/player/${record.data.id}`)} class="relative z-20 max-w-28 truncate text-left font-medium text-zinc-100 transition-colors hover:text-sky-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-																	{record.data.username}
-																</button>
-																{#if record.data.smurf}
-																	<span class="pointer-events-none relative z-20 ml-1 inline-flex align-middle">
-																		<VenetianMask class="h-5 w-5" aria-hidden="true" />
-																		<span class="sr-only">Smurf account</span>
-																	</span>
-																{/if}
-															</Table.Cell>
-															<Table.Cell class="pointer-events-none relative z-20 px-2 py-2 text-right tabular-nums text-zinc-200">
-																<div class="text-lg">{formatNumber(record.record)}</div>
-																{#if getRateLabel(recordSet, record)}
-																	<div class="text-xs text-zinc-400">{getRateLabel(recordSet, record)}</div>
-																{/if}
-															</Table.Cell>
-															<Table.Cell class="pointer-events-none relative z-20 px-2 py-2 text-right tabular-nums text-zinc-300">{toTime(record.data.duration)}</Table.Cell>
-															<Table.Cell class="px-2 py-2">
-																<div class="pointer-events-none relative z-20 flex min-w-0 items-center gap-2">
-																	<img src={record.data.hero.img} alt="" class="h-7 w-10 rounded-sm object-cover" loading="lazy" />
-																	<span class="max-w-24 truncate font-medium text-zinc-100">{record.data.hero.name}</span>
-																</div>
-															</Table.Cell>
-															<Table.Cell class="px-2 py-2 text-center">
-																<Tooltip.Root>
-																	<Tooltip.Trigger aria-label={`Role: ${getRoleName(record.data.role)}`} class="relative z-20 inline-flex rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
-																		<img src={getRoleIcon(record.data.role)} alt="" class="h-7 w-7" />
-																	</Tooltip.Trigger>
-																	<Tooltip.Content class="text-xs">{getRoleName(record.data.role)}</Tooltip.Content>
-																</Tooltip.Root>
-															</Table.Cell>
-															<Table.Cell class="pointer-events-none relative z-20 px-2 py-2 text-right tabular-nums text-green-400">{record.data.kills}</Table.Cell>
-															<Table.Cell class="pointer-events-none relative z-20 px-2 py-2 text-right tabular-nums text-red-400">{record.data.deaths}</Table.Cell>
-															<Table.Cell class="pointer-events-none relative z-20 px-2 py-2 text-right tabular-nums text-cyan-300">{record.data.assists}</Table.Cell>
-															<Table.Cell class="px-2 py-2 text-center">
-																<Tooltip.Root>
-																	<Tooltip.Trigger aria-label={`Impact grade ${calcImpact(record.data.impact)}`} class={`relative z-20 inline-flex min-w-10 justify-center rounded-md px-2 py-0.5 font-display text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring ${getImpactClass(record.data.impact)}`}>
-																		{calcImpact(record.data.impact)}
-																	</Tooltip.Trigger>
-																	<Tooltip.Content class="w-72 text-xs">
-																		<div class="mb-2 text-center font-medium">Impact score: {record.data.impact}</div>
-																		<Table.Root>
-																			<Table.Header>
-																				<Table.Row>
-																					<Table.Head class="h-7 px-2">Stat</Table.Head>
-																					<Table.Head class="h-7 px-2 text-center">Weight</Table.Head>
-																					<Table.Head class="h-7 px-2 text-right">Rating</Table.Head>
-																				</Table.Row>
-																			</Table.Header>
-																			<Table.Body>
-																				<Table.Row>
-																					<Table.Cell class="px-2 py-1">K/A</Table.Cell>
-																					<Table.Cell class="px-2 py-1 text-center">{distribution?.kapm}%</Table.Cell>
-																					<Table.Cell class="px-2 py-1 text-right">{impactDetails.kapmRating}</Table.Cell>
-																				</Table.Row>
-																				<Table.Row>
-																					<Table.Cell class="px-2 py-1">Deaths</Table.Cell>
-																					<Table.Cell class="px-2 py-1 text-center">{distribution?.death}%</Table.Cell>
-																					<Table.Cell class="px-2 py-1 text-right">{impactDetails.deathRating}</Table.Cell>
-																				</Table.Row>
-																				{#if distribution?.csMin}
-																					<Table.Row>
-																						<Table.Cell class="px-2 py-1">CS</Table.Cell>
-																						<Table.Cell class="px-2 py-1 text-center">{distribution.csMin}%</Table.Cell>
-																						<Table.Cell class="px-2 py-1 text-right">{impactDetails.csMinRating}</Table.Cell>
-																					</Table.Row>
-																				{/if}
-																			</Table.Body>
-																		</Table.Root>
-																	</Tooltip.Content>
-																</Tooltip.Root>
-															</Table.Cell>
-															<Table.Cell class="pointer-events-none relative z-20 px-2 py-2 text-right text-xs text-zinc-400">
-																<time datetime={new Date((record.data.startTime + record.data.duration) * 1000).toISOString()} title={getExactDate(record)}>
-																	{dayjs((record.data.startTime + record.data.duration) * 1000).from(dayjs())}
-																</time>
-															</Table.Cell>
-														</Table.Row>
-													{/each}
-												</Table.Body>
-											</Table.Root>
-										</div>
-
-										<ol class="overflow-hidden rounded-md border border-zinc-800/80 bg-zinc-950/35 md:hidden">
-											{#each recordSet.records.slice(0, isExpanded(recordSet.key) ? 10 : 3) as record, index}
-												<li class={`relative border-b border-zinc-800/80 p-3 last:border-b-0 ${getPodiumClass(index + 1)}`}>
-													<MatchModal
-														matchId={record.data.matchId}
-														sequenceNum={record.data.sequenceNumber ?? undefined}
-														buttonTrigger
-														triggerLabel={`Open match ${record.data.matchId}`}
-														triggerClass="absolute inset-0 z-10 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-													>
-														<span class="sr-only">Open match {record.data.matchId}</span>
-													</MatchModal>
-
-													<div class="pointer-events-none relative z-20 flex items-start gap-3">
-														<div class="flex h-9 w-7 shrink-0 items-center justify-center text-sm font-semibold text-zinc-300">{index + 1}</div>
-														<div class="min-w-0 flex-1">
-															<div class="flex items-start justify-between gap-3">
-																<div class="min-w-0">
-																	<button onclick={() => goto(`/player/${record.data.id}`)} class="pointer-events-auto relative z-30 min-h-11 max-w-full truncate text-left text-base font-semibold text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-																		{record.data.username}
-																	</button>
-																	{#if record.data.smurf}
-																		<VenetianMask class="ml-1 inline h-4 w-4 text-zinc-400" aria-label="Smurf account" />
-																	{/if}
-																</div>
-																<div class="shrink-0 text-right">
-																	<div class="text-xl font-semibold tabular-nums text-zinc-100">{formatNumber(record.record)}</div>
-																	<div class="text-sm text-zinc-400">{getRecordColumnTitle(recordSet.recordTitle)}</div>
-																</div>
-															</div>
-
-															<div class="mt-1 flex min-w-0 items-center gap-2 text-sm text-zinc-300">
-																<img src={record.data.hero.img} alt="" class="h-7 w-10 shrink-0 rounded-sm object-cover" loading="lazy" />
-																<span class="truncate font-medium text-zinc-100">{record.data.hero.name}</span>
-																<img src={getRoleIcon(record.data.role)} alt={getRoleName(record.data.role)} class="h-6 w-6 shrink-0" />
-															</div>
-
-															<div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
-																<span class="tabular-nums"><span class="text-green-400">{record.data.kills}</span><span class="text-zinc-600"> / </span><span class="text-red-400">{record.data.deaths}</span><span class="text-zinc-600"> / </span><span class="text-cyan-300">{record.data.assists}</span></span>
-																<span class={`rounded-md px-2 py-1 font-display text-xs font-semibold ${getImpactClass(record.data.impact)}`}>{calcImpact(record.data.impact)} grade</span>
-																<span class="text-zinc-400">{toTime(record.data.duration)}</span>
-																{#if getRateLabel(recordSet, record)}
-																	<span class="text-zinc-400">{getRateLabel(recordSet, record)}</span>
-																{/if}
-															</div>
-
-															<div class="mt-2 text-sm text-zinc-400">
-																<time datetime={new Date((record.data.startTime + record.data.duration) * 1000).toISOString()} title={getExactDate(record)}>
-																	{dayjs((record.data.startTime + record.data.duration) * 1000).from(dayjs())}
-																</time>
-																<span aria-hidden="true"> · </span>Tap for match details
-															</div>
-														</div>
-													</div>
-												</li>
-											{/each}
-										</ol>
-									</Card.Content>
-								</Card.Root>
-							{/each}
+		<section class="leaderboard" aria-labelledby="leaderboard-heading">
+			{#if selected}
+				<header class="leaderboard-heading">
+					<div>
+						<div class="eyebrow">
+							{selected.kind === 'streak' ? 'Logged-match streaks' : 'Single-match leaderboard'}
 						</div>
-					</section>
+						<h2 id="leaderboard-heading">{selected.title}</h2>
+						<p>{descriptions[selected.key]}</p>
+						{#if selected.kind === 'streak'}<p class="streak-note">
+								At least 2 games. A logged game outside your hero, role, lobby, mode or duration
+								filters breaks the run. Missing games may affect streaks. Main and smurf accounts
+								are counted separately.
+							</p>{/if}
+					</div>
+					<span class="top-ten">Top {Math.min(10, selected.records.length)}</span>
+				</header>
+				{#if selected.records.length}
+					<div class="table-wrap">
+						<table>
+							<caption class="sr-only"
+								>{selected.title}, {scope}. Equal values share a rank.</caption
+							>
+							<thead
+								><tr>
+									<th scope="col" class="rank">#</th>
+									<th scope="col"
+										>{selected.kind === 'match'
+											? 'Tracked players'
+											: selected.kind === 'streak'
+												? 'Player / run'
+												: 'Player / hero'}</th
+									>
+									<th scope="col" class="value"
+										>{selected.recordTitle === 'Impact' ? 'Score' : selected.recordTitle}</th
+									>
+									<th scope="col" class="match-context"
+										>{selected.kind === 'streak'
+											? 'From'
+											: selected.kind === 'match'
+												? 'Match'
+												: 'K / D / A'}</th
+									>
+									<th scope="col" class="played"
+										>{selected.kind === 'streak' ? 'Through' : 'Played'}</th
+									>
+									<th scope="col"><span class="sr-only">Match details</span></th>
+								</tr></thead
+							>
+							<tbody>
+								{#each selected.records.slice(0, 10) as entry, index (`${selected.key}-${entry.data.matchId}-${entry.data.id}-${index}`)}
+									<tr class:record-holder={rank(entry) === 1}>
+										<td class="rank"
+											><span title={rank(entry) === 1 ? 'Record holder' : `Rank ${rank(entry)}`}>
+												{#if rank(entry) === 1}<Trophy
+														size={17}
+														aria-label="Record holder"
+													/>{:else}{rank(entry)}{/if}
+											</span></td
+										>
+										<td class="identity">
+											{#if entry.participants}
+												<div
+													class="participant-list"
+													style={`--participant-columns: ${Math.max(2, Math.ceil(entry.participants.length / 3))}`}
+													role="region"
+													aria-label="Tracked player lineup"
+												>
+													{#each [...entry.participants].sort((a, b) => a.role - b.role || a.username.localeCompare(b.username)) as participant}
+														<a
+															class="participant"
+															href={`/player/${participant.id}`}
+															title={`${participant.username} · ${participant.hero.name}`}
+														>
+															<img src={participant.hero.img} alt="" loading="lazy" />
+															<span class="participant-copy"
+																><span class="participant-name">{participant.username}</span><span
+																	class="participant-hero">{participant.hero.name}</span
+																></span
+															>
+														</a>
+													{/each}
+												</div>
+											{:else}
+												<div class="player">
+													{#if !entry.streak}<img
+															class="hero-portrait"
+															src={entry.data.hero.img}
+															alt=""
+															loading="lazy"
+														/>{/if}
+													<div class="player-copy">
+														<a href={`/player/${entry.data.id}`}>{entry.data.username}</a
+														>{#if entry.data.smurf}<VenetianMask
+																size={13}
+																aria-label="Smurf account"
+															/>{/if}
+														{#if entry.streak}<div class="hero-name">
+																{date.format(entry.streak.startTime * 1000)} to {date.format(
+																	entry.streak.endTime * 1000
+																)}
+															</div>
+														{:else}<div class="hero-name">
+																<span>{entry.data.hero.name}</span><img
+																	src={getRoleIcon(entry.data.role)}
+																	alt={getRoleName(entry.data.role)}
+																	title={getRoleName(entry.data.role)}
+																/>
+															</div>{/if}
+													</div>
+												</div>
+											{/if}
+											{#if !entry.streak}<div class="mobile-context">
+													{#if !entry.participants}{entry.data.kills} / {entry.data.deaths} / {entry
+															.data.assists}<span> · {toTime(entry.data.duration)}</span>{/if}
+													<time datetime={new Date(entry.data.startTime * 1000).toISOString()}
+														>{date.format(entry.data.startTime * 1000)}</time
+													>
+												</div>{/if}
+										</td>
+										<td class="value"
+											><strong>{formatRecord(selected, entry.record)}</strong><small
+												>{secondaryValue(entry)}</small
+											></td
+										>
+										<td class="match-context">
+											{#if entry.streak}<a href={`/match/${entry.streak.startMatchId}`}
+													>{date.format(entry.streak.startTime * 1000)}</a
+												><small>First match</small>
+											{:else if entry.participants}<a href={`/match/${entry.data.matchId}`}
+													>{entry.data.matchId}</a
+												>
+											{:else}<span class="kda"
+													>{entry.data.kills}<i> / </i>{entry.data.deaths}<i> / </i>{entry.data
+														.assists}</span
+												><small>{toTime(entry.data.duration)} duration</small>{/if}
+										</td>
+										<td class="played"
+											><time datetime={new Date(entry.data.startTime * 1000).toISOString()}
+												>{date.format(entry.data.startTime * 1000)}</time
+											><small
+												>{entry.streak
+													? 'Final match in run'
+													: entry.participants
+														? ''
+														: getRoleName(entry.data.role)}</small
+											></td
+										>
+										<td class="match-action"
+											><MatchModal
+												matchId={entry.data.matchId}
+												sequenceNum={entry.data.sequenceNumber ?? undefined}
+												buttonTrigger
+												triggerLabel={entry.streak
+													? `Open final match of ${entry.data.username}'s streak`
+													: `Open match ${entry.data.matchId}`}
+												triggerClass="inline-flex h-10 w-10 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+												><ArrowUpRight size={17} /></MatchModal
+											></td
+										>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+					<footer class="table-footer">
+						<span><Trophy size={13} /> Record holders share the top rank when tied.</span><span
+							>Up to 10 {selected.kind === 'streak'
+								? 'runs'
+								: selected.kind === 'match'
+									? 'matches'
+									: 'performances'} per record</span
+						>
+					</footer>
+				{:else}
+					<div class="empty">
+						<ListFilter size={28} />
+						<h3>No qualifying performances</h3>
+						<p>
+							Try a longer time period, another hero, or more roles to find records for this
+							leaderboard.
+						</p>
+						<button class="apply" onclick={reset} disabled={loading}
+							><RotateCcw size={15} /> Reset filters</button
+						>
+					</div>
 				{/if}
-			{/each}
-		</main>
-	{/if}
-</div>
+			{:else}
+				<div class="empty">
+					<h2 id="leaderboard-heading">No records available</h2>
+					<p>Try resetting the filters to see the group's records.</p>
+					<button class="apply" onclick={reset} disabled={loading}>Reset filters</button>
+				</div>
+			{/if}
+		</section>
+	</div>
+</main>
+
+<style>
+	.participant-list {
+		display: grid;
+		grid-template-columns: repeat(var(--participant-columns), minmax(104px, 1fr));
+		gap: 6px 10px;
+		width: clamp(120px, calc(100vw - 220px), 380px);
+		overflow-x: auto;
+		padding: 2px;
+	}
+	.participant {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		min-width: 0;
+		min-height: 30px;
+	}
+	.participant img {
+		width: 32px;
+		height: 24px;
+		object-fit: cover;
+		border-radius: 3px;
+		flex-shrink: 0;
+	}
+	.participant-copy {
+		min-width: 0;
+	}
+	.participant-name {
+		display: block;
+		font-size: 12px;
+		font-weight: 700;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.participant-hero {
+		display: block;
+		margin-top: 2px;
+		font-size: 11px;
+		color: var(--muted-foreground);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.participant:hover .participant-name,
+	.match-context a:hover {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.participant-list:focus-visible {
+		outline: 2px solid var(--record-accent);
+		outline-offset: 2px;
+	}
+	@media (max-width: 600px) {
+		.participant {
+			min-height: 36px;
+			gap: 6px;
+		}
+		.participant-hero {
+			font-size: 10px;
+		}
+	}
+	.leaderboard-heading .streak-note {
+		margin-top: 10px;
+		max-width: 65ch;
+		line-height: 1.6;
+	}
+
+	.records-page {
+		--record-accent: oklch(0.72 0.13 235);
+		width: 100%;
+		max-width: 1400px;
+		padding: 30px 28px 16px;
+		color: var(--foreground);
+	}
+	.page-heading {
+		display: flex;
+		justify-content: space-between;
+		align-items: end;
+		gap: 16px;
+		margin-bottom: 24px;
+	}
+	.eyebrow {
+		color: var(--muted-foreground);
+		font-size: 11px;
+		font-weight: 650;
+		letter-spacing: 0.09em;
+		text-transform: uppercase;
+	}
+	h1 {
+		font-size: 30px;
+		font-weight: 750;
+		line-height: 1.25;
+		letter-spacing: -0.035em;
+		margin-top: 5px;
+	}
+
+	select {
+		width: 100%;
+		height: 40px;
+		padding: 0 30px 0 11px;
+		border: 1px solid var(--input);
+		border-radius: 6px;
+		background: var(--background);
+		color: var(--foreground);
+		font-size: 13px;
+		font-weight: 400;
+	}
+
+	button {
+		transition:
+			background-color 160ms ease-out,
+			color 160ms ease-out;
+	}
+	button:focus-visible,
+	select:focus-visible,
+	a:focus-visible {
+		outline: 2px solid var(--record-accent);
+		outline-offset: 3px;
+	}
+	button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+	.apply {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 7px;
+		border-radius: 6px;
+		background: oklch(0.72 0.13 235);
+		color: oklch(0.2 0.035 235);
+		font-size: 12px;
+		font-weight: 750;
+		min-height: 40px;
+		padding: 0 14px;
+		white-space: nowrap;
+	}
+	.apply:hover:not(:disabled) {
+		background: oklch(0.8 0.1 235);
+	}
+
+	.scope {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 20px;
+		margin: 18px 0 12px;
+		font-size: 11px;
+		color: var(--muted-foreground);
+	}
+	.scope span {
+		white-space: nowrap;
+		font-variant-numeric: tabular-nums;
+	}
+	.record-book {
+		display: grid;
+		grid-template-columns: 285px minmax(0, 1fr);
+		gap: 20px;
+		align-items: start;
+	}
+	.record-index,
+	.leaderboard {
+		background: var(--card);
+		border: 1px solid var(--border);
+		border-radius: 8px;
+		overflow: hidden;
+	}
+	.index-heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 16px;
+		border-bottom: 1px solid var(--border);
+	}
+	.index-heading h2 {
+		font-size: 13px;
+		font-weight: 700;
+	}
+	.index-heading > span {
+		font-size: 11px;
+		color: var(--muted-foreground);
+	}
+	.record-group {
+		padding: 14px 7px 5px;
+	}
+	.record-group:last-child {
+		padding-bottom: 10px;
+	}
+	.record-group h3 {
+		font-size: 10px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.075em;
+		color: var(--muted-foreground);
+		margin: 0 9px 6px;
+	}
+	.index-item {
+		display: flex;
+		width: 100%;
+		align-items: center;
+		text-align: left;
+		gap: 8px;
+		padding: 10px 8px;
+		border: 1px solid transparent;
+		border-radius: 5px;
+	}
+	.index-item:hover {
+		background: var(--background);
+	}
+	.index-item.selected {
+		background: var(--background);
+		border-color: var(--border);
+	}
+	.index-item > :global(svg) {
+		color: var(--muted-foreground);
+		flex-shrink: 0;
+	}
+	.index-item.selected > :global(svg) {
+		color: var(--record-accent);
+	}
+	.index-copy {
+		flex: 1;
+		min-width: 0;
+	}
+	.record-title {
+		display: block;
+		font-size: 12px;
+		font-weight: 650;
+	}
+	.holder {
+		display: block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--muted-foreground);
+		font-size: 11px;
+		margin-top: 2px;
+	}
+	.index-mark {
+		font-size: 13px;
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+	}
+	.mobile-index {
+		display: none;
+	}
+	.leaderboard-heading {
+		padding: 24px;
+		display: flex;
+		justify-content: space-between;
+		align-items: start;
+		gap: 16px;
+	}
+	.leaderboard-heading h2 {
+		font-size: 24px;
+		line-height: 1.3;
+		letter-spacing: -0.025em;
+		font-weight: 750;
+		margin: 6px 0;
+	}
+	.leaderboard-heading p {
+		color: var(--muted-foreground);
+		font-size: 12px;
+	}
+	.top-ten {
+		font-size: 11px;
+		padding: 4px 8px;
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		white-space: nowrap;
+	}
+	.table-wrap {
+		width: 100%;
+	}
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 12px;
+	}
+	th {
+		color: var(--muted-foreground);
+		font-size: 10px;
+		font-weight: 650;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		text-align: left;
+		background: var(--background);
+		border-top: 1px solid var(--border);
+		border-bottom: 1px solid var(--border);
+		padding: 11px 10px;
+	}
+	td {
+		padding: 15px 10px;
+		border-bottom: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+		font-variant-numeric: tabular-nums;
+	}
+	tr:last-child td {
+		border-bottom: 0;
+	}
+	tbody tr:hover {
+		background: color-mix(in oklch, var(--background) 65%, transparent);
+	}
+	.record-holder {
+		background: color-mix(in oklch, var(--foreground) 4%, transparent);
+	}
+	.rank {
+		width: 47px;
+		text-align: center;
+		color: var(--muted-foreground);
+		padding-left: 14px;
+	}
+	.rank > span {
+		display: inline-flex;
+		justify-content: center;
+	}
+	.record-holder .rank {
+		color: var(--foreground);
+	}
+	.player {
+		display: flex;
+		gap: 10px;
+		align-items: center;
+	}
+	.hero-portrait {
+		width: 52px;
+		height: 32px;
+		object-fit: cover;
+		border-radius: 3px;
+		flex-shrink: 0;
+	}
+	.player-copy {
+		min-width: 0;
+	}
+	.player-copy a {
+		font-size: 13px;
+		font-weight: 700;
+		overflow-wrap: anywhere;
+	}
+	.player-copy a:hover {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.player-copy > :global(svg) {
+		display: inline;
+		margin-left: 4px;
+		color: var(--muted-foreground);
+	}
+	.hero-name {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		font-size: 11px;
+		color: var(--muted-foreground);
+		margin-top: 3px;
+	}
+	.hero-name img {
+		width: 15px;
+		height: 15px;
+	}
+	.value {
+		text-align: right;
+	}
+	.value strong {
+		display: block;
+		font-size: 18px;
+		font-weight: 750;
+		line-height: 1.3;
+	}
+	small {
+		display: block;
+		font-size: 10px;
+		color: var(--muted-foreground);
+		margin-top: 4px;
+		white-space: nowrap;
+	}
+	.kda,
+	time {
+		white-space: nowrap;
+	}
+	.kda i {
+		color: var(--muted-foreground);
+		font-style: normal;
+	}
+	.match-action {
+		width: 48px;
+		padding-left: 0;
+		padding-right: 8px;
+	}
+	.mobile-context {
+		display: none;
+	}
+	.mobile-context time {
+		display: block;
+		margin-top: 3px;
+	}
+	.holder > span {
+		margin-left: 4px;
+	}
+	.table-footer {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 14px 18px;
+		border-top: 1px solid var(--border);
+		font-size: 10px;
+		color: var(--muted-foreground);
+	}
+	.table-footer span:first-child {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+	}
+	.empty {
+		display: flex;
+		min-height: 390px;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 14px;
+		padding: 32px;
+		text-align: center;
+	}
+	.empty > :global(svg) {
+		color: var(--muted-foreground);
+	}
+	.empty h3,
+	.empty h2 {
+		font-size: 18px;
+		font-weight: 700;
+	}
+	.empty p {
+		max-width: 42ch;
+		color: var(--muted-foreground);
+		font-size: 13px;
+	}
+	.error {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 16px;
+		padding: 16px;
+		margin-top: 16px;
+		border: 1px solid oklch(0.62 0.16 25);
+		border-radius: 6px;
+		font-size: 13px;
+	}
+	.error p {
+		color: var(--muted-foreground);
+		margin-top: 4px;
+	}
+	.error button {
+		padding: 10px;
+		text-decoration: underline;
+		white-space: nowrap;
+	}
+	@media (max-width: 1150px) {
+		.record-book {
+			grid-template-columns: 245px minmax(0, 1fr);
+			gap: 14px;
+		}
+		.played {
+			display: none;
+		}
+		.table-footer {
+			flex-direction: column;
+		}
+	}
+	@media (max-width: 800px) {
+		.records-page {
+			padding: 22px 16px;
+		}
+		.page-heading {
+			align-items: start;
+			flex-direction: column;
+			gap: 8px;
+			margin-bottom: 18px;
+		}
+		.record-book {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.desktop-index {
+			display: none;
+		}
+		.record-index {
+			display: flex;
+			align-items: center;
+			padding: 12px;
+			gap: 16px;
+		}
+		.index-heading {
+			border: 0;
+			padding: 0;
+			flex-shrink: 0;
+		}
+		.index-heading > span {
+			display: none;
+		}
+		.mobile-index {
+			display: block;
+			flex: 1;
+			min-width: 0;
+		}
+		.scope {
+			align-items: start;
+			flex-direction: column;
+			gap: 6px;
+		}
+		.played {
+			display: table-cell;
+		}
+		.table-footer {
+			flex-direction: row;
+		}
+	}
+	@media (max-width: 600px) {
+		.records-page {
+			padding: 20px 12px;
+		}
+
+		.leaderboard-heading {
+			padding: 20px 16px;
+		}
+		.leaderboard-heading h2 {
+			font-size: 22px;
+		}
+		.match-context,
+		.played {
+			display: none;
+		}
+		.mobile-context {
+			display: block;
+			margin-top: 7px;
+			font-size: 10px;
+			color: var(--muted-foreground);
+		}
+		.rank {
+			width: 28px;
+			padding-left: 8px;
+			padding-right: 4px;
+		}
+		td {
+			padding: 13px 7px;
+		}
+		.hero-portrait {
+			width: 38px;
+			height: 27px;
+		}
+		.player {
+			gap: 7px;
+		}
+		.player-copy a {
+			font-size: 12px;
+		}
+		.hero-name {
+			font-size: 10px;
+		}
+		.value strong {
+			font-size: 16px;
+		}
+		th.value {
+			max-width: 90px;
+		}
+		.match-action {
+			width: 38px;
+			padding-right: 2px;
+		}
+		.match-action :global(button) {
+			width: 34px;
+			min-height: 44px;
+		}
+		.table-footer {
+			padding: 12px;
+			flex-direction: column;
+		}
+		.error {
+			align-items: start;
+			flex-direction: column;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		button {
+			transition: none;
+		}
+	}
+</style>

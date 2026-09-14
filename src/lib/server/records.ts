@@ -26,8 +26,9 @@ import {
 	getRecordsPlayerMatchCount
 } from '$lib/server/db-functions';
 import dayjs from 'dayjs';
+import { getAdditionalRecords } from './additional-records';
 
-type RecordsDateFilter = number | DateRangeBounds;
+type RecordsDateFilter = DateRangeBounds;
 
 type RecordDefinition = {
 	key: string;
@@ -146,7 +147,7 @@ export const getRecordSets = async (filters: RecordsFilters): Promise<RecordsRes
 		}
 	];
 
-	const [recordResults, playerMatchCount] = await Promise.all([
+	const [recordResults, playerMatchCount, additionalRecords] = await Promise.all([
 		Promise.all(definitions.map((definition) => definition.query())),
 		getRecordsPlayerMatchCount(
 			filters.includeSmurfs,
@@ -154,7 +155,8 @@ export const getRecordSets = async (filters: RecordsFilters): Promise<RecordsRes
 			filters.roles,
 			filters.lobbies,
 			filters.hero
-		)
+		),
+		getAdditionalRecords(filters, dateFilter)
 	]);
 
 	const records: RecordSet[] = definitions.map((definition, index) => ({
@@ -172,5 +174,5 @@ export const getRecordSets = async (filters: RecordsFilters): Promise<RecordsRes
 			)
 	}));
 
-	return { records, playerMatchCount };
+	return { records: [...records, ...additionalRecords], playerMatchCount };
 };

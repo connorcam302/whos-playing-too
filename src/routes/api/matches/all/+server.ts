@@ -1,9 +1,23 @@
 import type { RequestHandler } from './$types';
 import { db } from '$lib/server/database';
 import { accounts, matchData, matches, players } from '$lib/server/schema';
-import { desc, eq, type InferSelectModel, and, gt, gte, inArray, lte, ne } from 'drizzle-orm';
+import {
+	desc,
+	eq,
+	type InferSelectModel,
+	and,
+	or,
+	sql,
+	gt,
+	gte,
+	inArray,
+	lte,
+	ne
+} from 'drizzle-orm';
 import { getPlayers } from '$lib/server/db-functions';
-import { json } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
+import { parseMatchQuery } from '$lib/match-query';
+import { buildMatchQuery } from '$lib/server/match-query';
 import { heroData } from '$lib/data/heroData';
 import { heroAbilities } from '$lib/data/heroAbilities';
 import { itemMap } from '$lib/data/itemMap';
@@ -123,6 +137,15 @@ const calculateMatchStats = (
 };
 
 export const GET: RequestHandler = async ({ url }) => {
+	let advancedFilter;
+	try {
+		advancedFilter = buildMatchQuery(
+			parseMatchQuery(url.searchParams.get('query')),
+			url.searchParams.get('smurf') === 'true'
+		);
+	} catch (cause) {
+		error(400, cause instanceof Error ? cause.message : 'Invalid match query.');
+	}
 	const allPlayers = await getPlayers({ includeHiddenFromAggregates: true });
 	const allPlayerIds = allPlayers.map((player) => player.id);
 	const hasPlayerFilter = url.searchParams.has('players');
@@ -140,40 +163,24 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	let pageNumber = 0;
 	if (url.searchParams.has('page')) {
-		pageNumber = parseInt(url.searchParams.get('page')!);
+		pageNumber = Number(url.searchParams.get('page'));
+		if (!Number.isSafeInteger(pageNumber) || pageNumber < 0) error(400, 'Invalid page number.');
 	}
 
-	const allGameModes = [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22];
-	const allLobbies = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8];
-
-	let gameModeFilter: number[] = allGameModes;
-	let lobbyFilter: number[] = allLobbies;
-
-	if (url.searchParams.has('gameMode')) {
-		gameModeFilter = [];
-		lobbyFilter = [];
-
-		const gameModeSet = new Set<number>();
-		const lobbySet = new Set<number>();
-		const modes = JSON.parse(url.searchParams.get('gameMode')!);
-		if (modes.includes('ranked-all-pick')) {
-			gameModeSet.add(22);
-			lobbySet.add(7);
-		}
-		if (modes.includes('unranked-all-pick')) {
-			gameModeSet.add(22);
-			lobbySet.add(0);
-		}
-		if (modes.includes('other')) {
-			[0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21].forEach((mode) =>
-				gameModeSet.add(mode)
-			);
-			[-1, 1, 2, 3, 4, 5, 6, 8].forEach((lobby) => lobbySet.add(lobby));
-		}
-
-		gameModeFilter = Array.from(gameModeSet);
-		lobbyFilter = Array.from(lobbySet);
-	}
+	const modes: string[] = url.searchParams.has('gameMode')
+		? JSON.parse(url.searchParams.get('gameMode')!)
+		: ['ranked-all-pick', 'unranked-all-pick', 'other'];
+	const lobbyConditions = [
+		...(modes.includes('ranked-all-pick')
+			? [and(eq(matches.gameMode, 22), eq(matches.lobby, 7))!]
+			: []),
+		...(modes.includes('unranked-all-pick')
+			? [and(eq(matches.gameMode, 22), eq(matches.lobby, 0))!]
+			: []),
+		...(modes.includes('other')
+			? [or(ne(matches.gameMode, 22), and(ne(matches.lobby, 7), ne(matches.lobby, 0)))!]
+			: [])
+	];
 
 	let roleFilter: number[] = [];
 	if (url.searchParams.has('roles')) {
@@ -210,12 +217,12 @@ export const GET: RequestHandler = async ({ url }) => {
 			and(
 				inArray(players.id, playerFilter),
 				inArray(matchData.heroId, heroFilter),
-				inArray(matches.gameMode, gameModeFilter),
-				inArray(matches.lobby, lobbyFilter),
+				lobbyConditions.length ? or(...lobbyConditions) : sql`false`,
 				inArray(matchData.role, roleFilter),
 				inArray(accounts.smurf, smurfFilter),
 				...dateFilters,
-				...(resultConditions.length === 1 ? resultConditions : [])
+				advancedFilter,
+				resultConditions.length ? or(...resultConditions) : sql`false`
 			)
 		)
 		.orderBy(desc(matches.id));
@@ -227,9 +234,9 @@ export const GET: RequestHandler = async ({ url }) => {
 		return map;
 	}, new Map<number, typeof matchingPlayerRows>());
 	const playerCompleteRowsByMatch = Array.from(rowsByMatch.values()).filter((rows) => {
-			if (!hasPlayerFilter) return true;
-			return new Set(rows.map((row) => row.playerId)).size === playerFilter.length;
-		});
+		if (!hasPlayerFilter) return true;
+		return new Set(rows.map((row) => row.playerId)).size === playerFilter.length;
+	});
 	const singlePlayerOpponentMatchIds = new Set<number>();
 	if (versusFilter && hasPlayerFilter && playerFilter.length === 1) {
 		const candidateMatchIds = playerCompleteRowsByMatch.map((rows) => rows[0].matches.id);
@@ -257,10 +264,7 @@ export const GET: RequestHandler = async ({ url }) => {
 				: [];
 
 		for (const row of opponentRows) {
-			if (
-				row.playerId !== playerFilter[0] &&
-				row.team !== selectedTeamByMatch.get(row.matchId)
-			) {
+			if (row.playerId !== playerFilter[0] && row.team !== selectedTeamByMatch.get(row.matchId)) {
 				singlePlayerOpponentMatchIds.add(row.matchId);
 			}
 		}
