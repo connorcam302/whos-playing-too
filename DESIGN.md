@@ -18,7 +18,7 @@ colors:
   destructive-red: "#ef4444"
   impact-purple: "#9333ea"
   backdrop-deep: "#031018"
-  chart-green: "#34a85a"
+  chart-green: "#34a85b"
   chart-steel: "#4682b4"
   chart-cornflower: "#6495ed"
   chart-cyan: "#66d9ef"
