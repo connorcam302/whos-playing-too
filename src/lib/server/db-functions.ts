@@ -531,7 +531,7 @@ export const getPlayerHeroRankings = async (player: number): Promise<PlayerHeroR
 	const rowsByHero = new Map<number, HeroStatsRow[]>();
 	for (const { heroId, ...row } of rows) {
 		const heroRows = rowsByHero.get(heroId) ?? [];
-		heroRows.push(row);
+		heroRows.push({ ...row, heroId });
 		rowsByHero.set(heroId, heroRows);
 	}
 

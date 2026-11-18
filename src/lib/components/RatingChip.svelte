@@ -33,9 +33,10 @@
 		impact?: number;
 		comfortable?: boolean;
 		aggregate?: boolean;
+	betaAggregate?: boolean;
 	};
 
-	let { data, impact = 0, comfortable = false, aggregate = false }: Props = $props();
+	let { data, impact = 0, comfortable = false, aggregate = false, betaAggregate = false }: Props = $props();
 	const player = $derived(data?.player);
 	const originalImpact = $derived(player?.impact ?? impact);
 	const betaEnabled = $derived($showBetaImpact && !aggregate && !!player && !!data);
@@ -46,7 +47,7 @@
 	);
 	const ratingValue = $derived(betaEnabled ? (betaDetails?.impact ?? null) : originalImpact);
 	const impactDetails = $derived(
-		!betaEnabled && player && data
+		!betaEnabled && !betaAggregate && player && data
 			? getImpactDetails(player, player.role, data.matchData.duration)
 			: null
 	);
@@ -117,11 +118,13 @@
 				class="max-h-[min(calc(100vh-2rem),var(--bits-tooltip-content-available-height))] w-[min(24rem,calc(100vw-2rem))] overflow-y-auto"
 			>
 				<div class="text-center">
-					{betaEnabled
-						? 'Beta rating'
-						: player && !aggregate
-							? 'Rating'
-							: 'Original average impact'}: {ratingValue ?? 'Unavailable'}
+					{betaAggregate
+						? 'Beta average impact'
+						: betaEnabled
+							? 'Beta rating'
+							: player && !aggregate
+								? 'Rating'
+								: 'Original average impact'}: {ratingValue ?? 'Unavailable'}
 				</div>
 				{#if betaEnabled && betaDetails}
 					<Table.Root>

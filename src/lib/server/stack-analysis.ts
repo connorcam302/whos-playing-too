@@ -55,7 +55,7 @@ const loadStackAnalysisRows = async (): Promise<StackAnalysisRow[]> => {
 	}, new Map<string, typeof rows>());
 	const heroScores = new Map<string, number>();
 	for (const [heroRole, group] of rowsByHeroRole) {
-		const rankingRows: HeroStatsRow[] = group.map(({ heroId: _heroId, matchId: _matchId, heroName: _heroName, heroImg: _heroImg, ...row }) => row);
+		const rankingRows: HeroStatsRow[] = group.map(({ matchId: _matchId, heroName: _heroName, heroImg: _heroImg, ...row }) => row);
 		for (const ranking of getHeroPlayerRankings(rankingRows, true)) {
 			heroScores.set(`${ranking.playerId}:${heroRole}`, ranking.score);
 		}

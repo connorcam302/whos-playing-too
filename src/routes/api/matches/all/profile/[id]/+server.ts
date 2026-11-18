@@ -370,7 +370,11 @@ export const GET: RequestHandler = async ({ url, params }) => {
 							kills: matchData.kills,
 							deaths: matchData.deaths,
 							assists: matchData.assists,
-							impact: matchData.impact
+							impact: matchData.impact,
+							duration: matches.duration,
+							lastHits: matchData.lastHits,
+							heroDamage: matchData.heroDamage,
+							towerDamage: matchData.towerDamage
 						})
 						.from(matchData)
 						.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))

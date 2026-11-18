@@ -173,7 +173,7 @@
 		{ id: 'wl', header: 'W/L' },
 		{ id: 'winRate', header: 'WR' },
 		{ id: 'kda', header: 'KDA' },
-		{ id: 'impact', header: 'Impact' },
+		{ id: 'impact', header: 'Beta Impact' },
 		{ id: 'matches', header: 'Matches' }
 	].map((column) => ({
 		id: column.id,
@@ -381,7 +381,7 @@
 									<div class="benchmark-track"><span style={`--metric-scale:${getMetricScale(activeLeader.kda, leaderBenchmarks.kda)}`}></span></div>
 								</div>
 								<div class="benchmark-row">
-									<div><span>Impact</span><strong>{formatNumber(activeLeader.avgImpact, 1)}</strong></div>
+									<div><span>Beta Impact</span><strong>{formatNumber(activeLeader.avgImpact, 1)}</strong></div>
 									<div class="benchmark-track"><span style={`--metric-scale:${getMetricScale(activeLeader.avgImpact, leaderBenchmarks.impact)}`}></span></div>
 								</div>
 								<div class="mt-1 text-[10px] uppercase tracking-wider text-zinc-600">Compared with this month's role leaders</div>
