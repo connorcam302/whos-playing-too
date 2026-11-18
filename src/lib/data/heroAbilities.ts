@@ -4,17 +4,16 @@ export const heroAbilities = {
 			'antimage_mana_break',
 			'antimage_blink',
 			'antimage_counterspell',
-			'generic_hidden',
 			'antimage_persectur',
 			'antimage_mana_void'
 		],
 		talents: [
 			{
-				name: 'special_bonus_hp_regen_3',
+				name: 'special_bonus_unique_antimage_counterspell_reflect_duration',
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_antimage_manavoid_aoe',
+				name: 'special_bonus_unique_antimage_mana_break_damage',
 				level: 1
 			},
 			{
@@ -22,7 +21,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_antimage_6',
+				name: 'special_bonus_unique_antimage_4',
 				level: 2
 			},
 			{
@@ -71,8 +70,6 @@ export const heroAbilities = {
 			'axe_berserkers_call',
 			'axe_battle_hunger',
 			'axe_counter_helix',
-			'generic_hidden',
-			'generic_hidden',
 			'axe_culling_blade',
 			'axe_one_man_army'
 		],
@@ -139,10 +136,7 @@ export const heroAbilities = {
 			'bane_enfeeble',
 			'bane_brain_sap',
 			'bane_nightmare',
-			'generic_hidden',
-			'generic_hidden',
 			'bane_fiends_grip',
-			'bane_nightmare_end',
 			'bane_ichor_of_nyctasha'
 		],
 		talents: [
@@ -207,7 +201,6 @@ export const heroAbilities = {
 			'bloodseeker_bloodrage',
 			'bloodseeker_blood_bath',
 			'bloodseeker_thirst',
-			'generic_hidden',
 			'bloodseeker_sanguivore',
 			'bloodseeker_rupture'
 		],
@@ -286,8 +279,7 @@ export const heroAbilities = {
 			'crystal_maiden_brilliance_aura',
 			'crystal_maiden_crystal_clone',
 			'crystal_maiden_glacial_guard',
-			'crystal_maiden_freezing_field',
-			'crystal_maiden_freezing_field_stop'
+			'crystal_maiden_freezing_field'
 		],
 		talents: [
 			{
@@ -440,8 +432,6 @@ export const heroAbilities = {
 			'earthshaker_fissure',
 			'earthshaker_enchant_totem',
 			'earthshaker_aftershock',
-			'generic_hidden',
-			'generic_hidden',
 			'earthshaker_echo_slam',
 			'earthshaker_slugger'
 		],
@@ -520,7 +510,6 @@ export const heroAbilities = {
 			'juggernaut_blade_fury',
 			'juggernaut_healing_ward',
 			'juggernaut_blade_dance',
-			'juggernaut_swift_slash',
 			'juggernaut_bladeform',
 			'juggernaut_omni_slash'
 		],
@@ -546,7 +535,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_juggernaut',
+				name: 'special_bonus_unique_juggernaut_blade_fury_cooldown',
 				level: 3
 			},
 			{
@@ -589,7 +578,6 @@ export const heroAbilities = {
 			'mirana_arrow',
 			'mirana_leap',
 			'mirana_celestial_quiver',
-			'generic_hidden',
 			'mirana_invis'
 		],
 		talents: [
@@ -676,8 +664,6 @@ export const heroAbilities = {
 	npc_dota_hero_nevermore: {
 		abilities: [
 			'nevermore_shadowraze1',
-			'nevermore_shadowraze2',
-			'nevermore_shadowraze3',
 			'nevermore_frenzy',
 			'nevermore_dark_lord',
 			'nevermore_requiem',
@@ -689,7 +675,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_nevermore_4',
+				name: 'special_bonus_unique_nevermore_frenzy_max_collection_count',
 				level: 1
 			},
 			{
@@ -697,7 +683,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_nevermore_frenzy_max_collection_count',
+				name: 'special_bonus_unique_nevermore_frenzy_heal_per_soul',
 				level: 2
 			},
 			{
@@ -745,13 +731,10 @@ export const heroAbilities = {
 		abilities: [
 			'morphling_waveform',
 			'morphling_adaptive_strike_agi',
-			'morphling_ebb_and_flow',
 			'morphling_morph_agi',
 			'morphling_morph_str',
 			'morphling_replicate',
-			'morphling_morph_replicate',
-			'generic_hidden',
-			'generic_hidden'
+			'morphling_ebb_and_flow'
 		],
 		talents: [
 			{
@@ -820,7 +803,6 @@ export const heroAbilities = {
 			'phantom_lancer_doppelwalk',
 			'phantom_lancer_phantom_edge',
 			'phantom_lancer_illusory_armaments',
-			'generic_hidden',
 			'phantom_lancer_juxtapose'
 		],
 		talents: [
@@ -829,19 +811,19 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_phantom_lancer_juxtapose_illusio_proc_chance',
+				name: 'special_bonus_unique_phantom_lancer_doppelwalk_cast_range',
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_phantom_lancer_illusion_lances',
-				level: 2
-			},
-			{
-				name: 'special_bonus_unique_phantom_lancer_doppelwalk_cast_range',
-				level: 2
-			},
-			{
 				name: 'special_bonus_unique_phantom_lancer_lance_damage',
+				level: 2
+			},
+			{
+				name: 'special_bonus_unique_phantom_lancer_juxtapose_illusio_proc_chance',
+				level: 2
+			},
+			{
+				name: 'special_bonus_unique_phantom_lancer_illusion_lances',
 				level: 3
 			},
 			{
@@ -908,7 +890,6 @@ export const heroAbilities = {
 			'puck_illusory_orb',
 			'puck_waning_rift',
 			'puck_phase_shift',
-			'puck_ethereal_jaunt',
 			'puck_puckish',
 			'puck_dream_coil'
 		],
@@ -922,7 +903,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_puck',
+				name: 'special_bonus_unique_puck_5',
 				level: 2
 			},
 			{
@@ -938,7 +919,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_puck_5',
+				name: 'special_bonus_unique_puck',
 				level: 4
 			},
 			{
@@ -975,7 +956,6 @@ export const heroAbilities = {
 			'pudge_meat_hook',
 			'pudge_rot',
 			'pudge_flesh_heap',
-			'generic_hidden',
 			'pudge_innate_graft_flesh',
 			'pudge_dismember'
 		],
@@ -1053,7 +1033,6 @@ export const heroAbilities = {
 			'razor_static_link',
 			'razor_storm_surge',
 			'razor_unstable_current',
-			'generic_hidden',
 			'razor_eye_of_the_storm'
 		],
 		talents: [
@@ -1121,7 +1100,6 @@ export const heroAbilities = {
 			'sandking_sand_storm',
 			'sandking_scorpion_strike',
 			'sandking_caustic_finale',
-			'generic_hidden',
 			'sandking_epicenter'
 		],
 		talents: [
@@ -1209,14 +1187,12 @@ export const heroAbilities = {
 			'storm_spirit_static_remnant',
 			'storm_spirit_electric_vortex',
 			'storm_spirit_overload',
-			'generic_hidden',
-			'generic_hidden',
 			'storm_spirit_ball_lightning',
 			'storm_spirit_galvanized'
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_storm_spirit_overload_aspd',
+				name: 'special_bonus_hp_175',
 				level: 1
 			},
 			{
@@ -1224,7 +1200,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_hp_250',
+				name: 'special_bonus_unique_storm_spirit_overload_aspd',
 				level: 2
 			},
 			{
@@ -1277,8 +1253,6 @@ export const heroAbilities = {
 			'sven_storm_bolt',
 			'sven_great_cleave',
 			'sven_warcry',
-			'generic_hidden',
-			'generic_hidden',
 			'sven_gods_strength',
 			'sven_wrath_of_god'
 		],
@@ -1356,11 +1330,11 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_strength_8',
+				name: 'special_bonus_unique_tiny_6',
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_tiny_6',
+				name: 'special_bonus_strength_10',
 				level: 2
 			},
 			{
@@ -1416,7 +1390,6 @@ export const heroAbilities = {
 			'vengefulspirit_wave_of_terror',
 			'vengefulspirit_command_aura',
 			'vengefulspirit_retribution',
-			'generic_hidden',
 			'vengefulspirit_nether_swap'
 		],
 		talents: [
@@ -1483,7 +1456,6 @@ export const heroAbilities = {
 			'windrunner_powershot',
 			'windrunner_windrun',
 			'windrunner_gale_force',
-			'windrunner_focusfire_cancel',
 			'windrunner_focusfire',
 			'windrunner_tailwind'
 		],
@@ -1649,8 +1621,7 @@ export const heroAbilities = {
 			'kunkka_x_marks_the_spot',
 			'kunkka_admirals_rum',
 			'kunkka_tidal_wave',
-			'kunkka_ghostship',
-			'kunkka_return'
+			'kunkka_ghostship'
 		],
 		talents: [
 			{
@@ -1678,7 +1649,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_spell_aoe_100',
+				name: 'special_bonus_spell_aoe_75',
 				level: 4
 			},
 			{
@@ -1721,7 +1692,7 @@ export const heroAbilities = {
 		],
 		talents: [
 			{
-				name: 'special_bonus_attack_damage_25',
+				name: 'special_bonus_unique_lina_4',
 				level: 1
 			},
 			{
@@ -1729,7 +1700,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_lina_4',
+				name: 'special_bonus_attack_damage_30',
 				level: 2
 			},
 			{
@@ -1863,7 +1834,6 @@ export const heroAbilities = {
 			'lion_voodoo',
 			'lion_mana_drain',
 			'lion_to_hell_and_back',
-			'generic_hidden',
 			'lion_finger_of_death'
 		],
 		talents: [
@@ -2008,7 +1978,6 @@ export const heroAbilities = {
 			'slardar_slithereen_crush',
 			'slardar_bash',
 			'slardar_seaborn_sentinel',
-			'generic_hidden',
 			'slardar_amplify_damage'
 		],
 		talents: [
@@ -2017,11 +1986,11 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_slardar_2',
+				name: 'special_bonus_hp_175',
 				level: 1
 			},
 			{
-				name: 'special_bonus_hp_250',
+				name: 'special_bonus_unique_slardar_4',
 				level: 2
 			},
 			{
@@ -2037,7 +2006,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_slardar_4',
+				name: 'special_bonus_unique_slardar_2',
 				level: 4
 			},
 			{
@@ -2075,9 +2044,8 @@ export const heroAbilities = {
 			'tidehunter_kraken_shell',
 			'tidehunter_anchor_smash',
 			'tidehunter_dead_in_the_water',
-			'generic_hidden',
 			'tidehunter_ravage',
-			'tidehunter_krill_eater'
+			'tidehunter_leviathans_catch'
 		],
 		talents: [
 			{
@@ -2133,8 +2101,7 @@ export const heroAbilities = {
 				color: 'Green',
 				gradient_id: 0,
 				title: 'Krill Eater',
-				description: 'Tidehunter grows larger and gains extra bonuses per level.',
-				abilities: ['tidehunter_krill_eater']
+				description: 'Tidehunter grows larger and gains extra bonuses per level.'
 			}
 		]
 	},
@@ -2153,7 +2120,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_hp_200',
+				name: 'special_bonus_hp_175',
 				level: 1
 			},
 			{
@@ -2230,7 +2197,6 @@ export const heroAbilities = {
 			'riki_blink_strike',
 			'riki_tricks_of_the_trade',
 			'riki_innate_backstab',
-			'generic_hidden',
 			'riki_backstab'
 		],
 		talents: [
@@ -2308,7 +2274,6 @@ export const heroAbilities = {
 			'enigma_demonic_conversion',
 			'enigma_midnight_pulse',
 			'enigma_event_horizon',
-			'generic_hidden',
 			'enigma_black_hole'
 		],
 		talents: [
@@ -2376,7 +2341,6 @@ export const heroAbilities = {
 			'tinker_march_of_the_machines',
 			'tinker_deploy_turrets',
 			'tinker_warp_grenade',
-			'tinker_keen_teleport',
 			'tinker_rearm',
 			'tinker_eureka'
 		],
@@ -2532,7 +2496,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_spell_aoe_75',
+				name: 'special_bonus_spell_aoe_50',
 				level: 3
 			},
 			{
@@ -2578,7 +2542,6 @@ export const heroAbilities = {
 			'warlock_shadow_word',
 			'warlock_upheaval',
 			'warlock_eldritch_summoning',
-			'generic_hidden',
 			'warlock_rain_of_chaos'
 		],
 		talents: [
@@ -2587,7 +2550,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_warlock_upheaval_aoe',
+				name: 'special_bonus_unique_warlock_7',
 				level: 1
 			},
 			{
@@ -2595,7 +2558,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_warlock_7',
+				name: 'special_bonus_unique_warlock_shadow_word_damage',
 				level: 2
 			},
 			{
@@ -2647,13 +2610,12 @@ export const heroAbilities = {
 			'beastmaster_summon_razorback',
 			'beastmaster_summon_raptor',
 			'beastmaster_inner_beast',
-			'beastmaster_drums_of_slom',
-			'beastmaster_primal_roar',
-			'generic_hidden'
+			'beastmaster_summon_thunderhide',
+			'beastmaster_primal_roar'
 		],
 		talents: [
 			{
-				name: 'special_bonus_armor_5',
+				name: 'special_bonus_armor_4',
 				level: 1
 			},
 			{
@@ -2714,7 +2676,6 @@ export const heroAbilities = {
 			'queenofpain_blink',
 			'queenofpain_scream_of_pain',
 			'queenofpain_succubus',
-			'generic_hidden',
 			'queenofpain_sonic_wave'
 		],
 		talents: [
@@ -2731,7 +2692,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_attack_damage_30',
+				name: 'special_bonus_attack_damage_35',
 				level: 2
 			},
 			{
@@ -2796,7 +2757,6 @@ export const heroAbilities = {
 			'venomancer_snakebite',
 			'venomancer_plague_ward',
 			'venomancer_poison_sting',
-			'generic_hidden',
 			'venomancer_noxious_plague'
 		],
 		talents: [
@@ -2817,7 +2777,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_venomancer_4',
+				name: 'special_bonus_unique_venomancer_5',
 				level: 3
 			},
 			{
@@ -2825,7 +2785,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_venomancer_5',
+				name: 'special_bonus_unique_venomancer_plague_damage',
 				level: 4
 			},
 			{
@@ -2942,7 +2902,6 @@ export const heroAbilities = {
 			'skeleton_king_bone_guard',
 			'skeleton_king_mortal_strike',
 			'skeleton_king_vampiric_spirit',
-			'generic_hidden',
 			'skeleton_king_reincarnation'
 		],
 		talents: [
@@ -2959,11 +2918,11 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_hp_350',
+				name: 'special_bonus_hp_300',
 				level: 2
 			},
 			{
-				name: 'special_bonus_attack_speed_50',
+				name: 'special_bonus_attack_speed_40',
 				level: 3
 			},
 			{
@@ -3011,12 +2970,11 @@ export const heroAbilities = {
 			'death_prophet_silence',
 			'death_prophet_spirit_siphon',
 			'death_prophet_witchcraft',
-			'generic_hidden',
 			'death_prophet_exorcism'
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_death_prophet_silence_aoe',
+				name: 'special_bonus_attack_damage_20',
 				level: 1
 			},
 			{
@@ -3024,11 +2982,11 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_attack_speed_50',
+				name: 'special_bonus_unique_death_prophet_silence_aoe',
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_death_prophet_2',
+				name: 'special_bonus_unique_death_prophet_5',
 				level: 2
 			},
 			{
@@ -3036,15 +2994,15 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_death_prophet_3',
+				name: 'special_bonus_unique_death_prophet_crypt_swarm_damage',
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_death_prophet_5',
+				name: 'special_bonus_unique_death_prophet_4',
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_death_prophet_exorcism_duration_on_kill',
+				name: 'special_bonus_unique_death_prophet_2',
 				level: 4
 			}
 		],
@@ -3168,7 +3126,6 @@ export const heroAbilities = {
 			'pugna_decrepify',
 			'pugna_nether_ward',
 			'pugna_oblivion_savant',
-			'generic_hidden',
 			'pugna_life_drain'
 		],
 		talents: [
@@ -3177,7 +3134,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_pugna_6',
+				name: 'special_bonus_hp_200',
 				level: 1
 			},
 			{
@@ -3185,7 +3142,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_hp_250',
+				name: 'special_bonus_unique_pugna_6',
 				level: 2
 			},
 			{
@@ -3235,7 +3192,6 @@ export const heroAbilities = {
 			'templar_assassin_refraction',
 			'templar_assassin_meld',
 			'templar_assassin_psi_blades',
-			'templar_assassin_trap',
 			'templar_assassin_trap_teleport',
 			'templar_assassin_psionic_trap',
 			'templar_assassin_inner_peace'
@@ -3382,9 +3338,7 @@ export const heroAbilities = {
 			'luna_lunar_orbit',
 			'luna_moon_glaive',
 			'luna_lunar_blessing',
-			'generic_hidden',
-			'luna_eclipse',
-			'generic_hidden'
+			'luna_eclipse'
 		],
 		talents: [
 			{
@@ -3464,7 +3418,7 @@ export const heroAbilities = {
 		],
 		talents: [
 			{
-				name: 'special_bonus_attack_damage_15',
+				name: 'special_bonus_attack_damage_12',
 				level: 1
 			},
 			{
@@ -3537,26 +3491,25 @@ export const heroAbilities = {
 			'dazzle_poison_touch',
 			'dazzle_shallow_grave',
 			'dazzle_shadow_wave',
+			'dazzle_through_the_realm',
 			'dazzle_innate_weave',
-			'generic_hidden',
-			'dazzle_nothl_projection',
-			'dazzle_nothl_projection_end'
+			'dazzle_nothl_projection'
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_dazzle_poison_touch_attack_range_bonus',
+				name: 'special_bonus_unique_dazzle_1',
 				level: 1
 			},
 			{
-				name: 'special_bonus_mp_regen_175',
+				name: 'special_bonus_unique_dazzle_shadow_wave_cast_range',
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_dazzle_2',
+				name: 'special_bonus_unique_dazzle_3',
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_dazzle_nothl_projection_duration',
+				name: 'special_bonus_unique_dazzle_2',
 				level: 2
 			},
 			{
@@ -3564,15 +3517,15 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_dazzle_3',
+				name: 'special_bonus_unique_dazzle_nothl_projection_cooldown',
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_dazzle_1',
+				name: 'special_bonus_unique_dazzle_poison_touch_undispellable',
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_dazzle_4',
+				name: 'special_bonus_unique_dazzle_shallow_grave_duration',
 				level: 4
 			}
 		],
@@ -3610,12 +3563,11 @@ export const heroAbilities = {
 			'rattletrap_overclocking',
 			'rattletrap_jetpack',
 			'rattletrap_hookshot',
-			'rattletrap_armor_power',
-			'rattletrap_jetpack_toggle'
+			'rattletrap_armor_power'
 		],
 		talents: [
 			{
-				name: 'special_bonus_mp_regen_150',
+				name: 'special_bonus_unique_clockwerk_battery_assault_duration',
 				level: 1
 			},
 			{
@@ -3709,7 +3661,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_leshrac_7',
+				name: 'special_bonus_unique_leshrac_1',
 				level: 3
 			},
 			{
@@ -3717,7 +3669,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_leshrac_1',
+				name: 'special_bonus_unique_leshrac_7',
 				level: 4
 			},
 			{
@@ -3772,7 +3724,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_furion_teleportation_barrier',
+				name: 'special_bonus_hp_300',
 				level: 2
 			},
 			{
@@ -3780,7 +3732,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_furion_4',
+				name: 'special_bonus_unique_furion_force_of_nature_treants',
 				level: 3
 			},
 			{
@@ -3835,9 +3787,7 @@ export const heroAbilities = {
 			'life_stealer_open_wounds',
 			'life_stealer_feast',
 			'life_stealer_ghoul_frenzy',
-			'generic_hidden',
-			'life_stealer_infest',
-			'life_stealer_consume'
+			'life_stealer_infest'
 		],
 		talents: [
 			{
@@ -3845,7 +3795,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_movement_speed_20',
+				name: 'special_bonus_movement_speed_15',
 				level: 1
 			},
 			{
@@ -3948,7 +3898,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_dark_seer_5',
+				name: 'special_bonus_armor_4',
 				level: 1
 			},
 			{
@@ -4025,7 +3975,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_clinkz_9',
+				name: 'special_bonus_unique_clinkz_8',
 				level: 2
 			},
 			{
@@ -4033,7 +3983,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_clinkz_8',
+				name: 'special_bonus_unique_clinkz_skeletons',
 				level: 3
 			},
 			{
@@ -4084,7 +4034,6 @@ export const heroAbilities = {
 			'omniknight_martyr',
 			'omniknight_hammer_of_purity',
 			'omniknight_degen_aura',
-			'generic_hidden',
 			'omniknight_guardian_angel'
 		],
 		talents: [
@@ -4218,7 +4167,6 @@ export const heroAbilities = {
 			'huskar_burning_spear',
 			'huskar_berserkers_blood',
 			'huskar_blood_magic',
-			'generic_hidden',
 			'huskar_life_break'
 		],
 		talents: [
@@ -4306,9 +4254,7 @@ export const heroAbilities = {
 			'night_stalker_crippling_fear',
 			'night_stalker_midnight_feast',
 			'night_stalker_hunter_in_the_night',
-			'generic_hidden',
-			'night_stalker_darkness',
-			'generic_hidden'
+			'night_stalker_darkness'
 		],
 		talents: [
 			{
@@ -4403,7 +4349,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_broodmother_7',
+				name: 'special_bonus_unique_broodmother_4',
 				level: 2
 			},
 			{
@@ -4411,7 +4357,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_broodmother_4',
+				name: 'special_bonus_unique_broodmother_7',
 				level: 3
 			},
 			{
@@ -4473,7 +4419,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_bounty_hunter_8',
+				name: 'special_bonus_unique_bounty_hunter_2',
 				level: 3
 			},
 			{
@@ -4481,7 +4427,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_bounty_hunter_2',
+				name: 'special_bonus_unique_bounty_hunter_8',
 				level: 4
 			},
 			{
@@ -4519,8 +4465,7 @@ export const heroAbilities = {
 			'weaver_the_swarm',
 			'weaver_shukuchi',
 			'weaver_geminate_attack',
-			'generic_hidden',
-			'generic_hidden',
+			'weaver_time_lapse_ally',
 			'weaver_time_lapse',
 			'weaver_threads_of_fate'
 		],
@@ -4530,7 +4475,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_strength_7',
+				name: 'special_bonus_unique_weaver_threads_of_fate_damage',
 				level: 1
 			},
 			{
@@ -4678,7 +4623,6 @@ export const heroAbilities = {
 			'batrider_sticky_napalm',
 			'batrider_flamebreak',
 			'batrider_firefly',
-			'batrider_sticky_napalm_application_damage',
 			'batrider_smoldering_resin',
 			'batrider_flaming_lasso'
 		],
@@ -4747,7 +4691,6 @@ export const heroAbilities = {
 			'chen_holy_persuasion',
 			'chen_divine_favor',
 			'chen_zealot',
-			'generic_hidden',
 			'chen_hand_of_god'
 		],
 		talents: [
@@ -4852,7 +4795,6 @@ export const heroAbilities = {
 			'spectre_spectral_dagger',
 			'spectre_shadow_step',
 			'spectre_dispersion',
-			'spectre_reality',
 			'spectre_desolate',
 			'spectre_haunt'
 		],
@@ -4874,7 +4816,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_hp_325',
+				name: 'special_bonus_hp_300',
 				level: 3
 			},
 			{
@@ -4930,14 +4872,12 @@ export const heroAbilities = {
 			'doom_bringer_devour',
 			'doom_bringer_scorched_earth',
 			'doom_bringer_infernal_blade',
-			'doom_bringer_empty1',
-			'doom_bringer_empty2',
 			'doom_bringer_doom',
 			'doom_bringer_lvl_pain'
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_doom_3',
+				name: 'special_bonus_magic_resistance_10',
 				level: 1
 			},
 			{
@@ -4949,7 +4889,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_attack_damage_66',
+				name: 'special_bonus_unique_doom_1',
 				level: 2
 			},
 			{
@@ -4957,7 +4897,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_doom_1',
+				name: 'special_bonus_attack_damage_66',
 				level: 3
 			},
 			{
@@ -5011,9 +4951,7 @@ export const heroAbilities = {
 			'ancient_apparition_ice_vortex',
 			'ancient_apparition_chilling_touch',
 			'ancient_apparition_bone_chill',
-			'generic_hidden',
-			'ancient_apparition_ice_blast',
-			'ancient_apparition_ice_blast_release'
+			'ancient_apparition_ice_blast'
 		],
 		talents: [
 			{
@@ -5021,15 +4959,15 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_ancient_apparition_cold_feet_dps',
+				name: 'special_bonus_unique_ancient_apparition_cold_feet_distance',
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_ancient_apparition_3',
+				name: 'special_bonus_unique_ancient_apparition_bone_chill',
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_ancient_apparition_cold_feet_distance',
+				name: 'special_bonus_unique_ancient_apparition_2',
 				level: 2
 			},
 			{
@@ -5037,7 +4975,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_ancient_apparition_2',
+				name: 'special_bonus_unique_ancient_apparition_3',
 				level: 3
 			},
 			{
@@ -5078,7 +5016,6 @@ export const heroAbilities = {
 			'ursa_overpower',
 			'ursa_fury_swipes',
 			'ursa_maul',
-			'generic_hidden',
 			'ursa_enrage'
 		],
 		talents: [
@@ -5224,9 +5161,7 @@ export const heroAbilities = {
 			'gyrocopter_flak_cannon',
 			'gyrocopter_afterburner',
 			'gyrocopter_side_gunner_spawn_ability',
-			'gyrocopter_call_down',
-			'generic_hidden',
-			'generic_hidden'
+			'gyrocopter_call_down'
 		],
 		talents: [
 			{
@@ -5234,7 +5169,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_hp_150',
+				name: 'special_bonus_hp_175',
 				level: 1
 			},
 			{
@@ -5242,7 +5177,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_gyrocopter_flak_cannon_bonus_damage',
+				name: 'special_bonus_unique_gyrocopter_5',
 				level: 2
 			},
 			{
@@ -5258,7 +5193,7 @@ export const heroAbilities = {
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_gyrocopter_5',
+				name: 'special_bonus_unique_gyrocopter_4',
 				level: 4
 			}
 		],
@@ -5293,12 +5228,11 @@ export const heroAbilities = {
 			'alchemist_corrosive_weaponry',
 			'alchemist_berserk_potion',
 			'alchemist_goblins_greed',
-			'alchemist_chemical_rage',
-			'alchemist_unstable_concoction_throw'
+			'alchemist_chemical_rage'
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_alchemist_5',
+				name: 'special_bonus_unique_alchemist_weaponry_power',
 				level: 1
 			},
 			{
@@ -5306,7 +5240,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_alchemist_weaponry_power',
+				name: 'special_bonus_unique_alchemist_5',
 				level: 2
 			},
 			{
@@ -5369,8 +5303,6 @@ export const heroAbilities = {
 			'invoker_quas',
 			'invoker_wex',
 			'invoker_exort',
-			'invoker_empty1',
-			'invoker_empty2',
 			'invoker_invoke',
 			'invoker_cold_snap',
 			'invoker_ghost_walk',
@@ -5401,11 +5333,11 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_invoker_additional_chaos_meteors',
+				name: 'special_bonus_unique_invoker_13',
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_invoker_orb_levels',
+				name: 'special_bonus_unique_invoker_forged_spirit_armor_reduction',
 				level: 3
 			},
 			{
@@ -5413,7 +5345,7 @@ export const heroAbilities = {
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_invoker_13',
+				name: 'special_bonus_unique_invoker_additional_chaos_meteors',
 				level: 4
 			}
 		],
@@ -5459,9 +5391,7 @@ export const heroAbilities = {
 			'silencer_glaives_of_wisdom',
 			'silencer_last_word',
 			'silencer_brain_drain',
-			'generic_hidden',
-			'silencer_global_silence',
-			'silencer_oppressive_silence'
+			'silencer_global_silence'
 		],
 		talents: [
 			{
@@ -5548,7 +5478,6 @@ export const heroAbilities = {
 			'obsidian_destroyer_arcane_orb',
 			'obsidian_destroyer_astral_imprisonment',
 			'obsidian_destroyer_objurgation',
-			'generic_hidden',
 			'obsidian_destroyer_equilibrium',
 			'obsidian_destroyer_sanity_eclipse'
 		],
@@ -5616,7 +5545,7 @@ export const heroAbilities = {
 			'lycan_howl',
 			'lycan_feral_impulse',
 			'lycan_wolf_bite',
-			'lycan_apex_predator',
+			'lycan_pack_hunter',
 			'lycan_shapeshift'
 		],
 		talents: [
@@ -5645,11 +5574,11 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_lycan_2',
+				name: 'special_bonus_unique_lycan_5',
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_lycan_5',
+				name: 'special_bonus_unique_lycan_2',
 				level: 4
 			}
 		],
@@ -5694,7 +5623,6 @@ export const heroAbilities = {
 			'brewmaster_cinder_brew',
 			'brewmaster_drunken_brawler',
 			'brewmaster_liquid_courage',
-			'generic_hidden',
 			'brewmaster_primal_split'
 		],
 		talents: [
@@ -5771,7 +5699,6 @@ export const heroAbilities = {
 			'shadow_demon_disruption',
 			'shadow_demon_disseminate',
 			'shadow_demon_shadow_poison',
-			'shadow_demon_shadow_poison_release',
 			'shadow_demon_demonic_cleanse',
 			'shadow_demon_demonic_purge',
 			'shadow_demon_menace'
@@ -5786,7 +5713,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_movement_speed_25',
+				name: 'special_bonus_movement_speed_20',
 				level: 2
 			},
 			{
@@ -5842,9 +5769,7 @@ export const heroAbilities = {
 			'lone_druid_spirit_link',
 			'lone_druid_savage_roar',
 			'lone_druid_spirit_bear',
-			'generic_hidden',
-			'lone_druid_true_form',
-			'generic_hidden'
+			'lone_druid_true_form'
 		],
 		talents: [
 			{
@@ -5931,9 +5856,9 @@ export const heroAbilities = {
 			'chaos_knight_chaos_bolt',
 			'chaos_knight_reality_rift',
 			'chaos_knight_chaos_strike',
-			'generic_hidden',
-			'chaos_knight_fundamental_forging',
-			'chaos_knight_phantasm'
+			'chaos_knight_armageddon',
+			'chaos_knight_phantasm',
+			'chaos_knight_armageddons_flank_end'
 		],
 		talents: [
 			{
@@ -6024,18 +5949,17 @@ export const heroAbilities = {
 			'meepo_poof',
 			'meepo_ransack',
 			'meepo_petrify',
-			'meepo_megameepo',
-			'meepo_divided_we_stand',
 			'meepo_geomancy',
-			'meepo_megameepo_fling'
+			'meepo_divided_we_stand',
+			'meepo_fling_release'
 		],
 		talents: [
 			{
-				name: 'special_bonus_strength_7',
+				name: 'special_bonus_strength_6',
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_meepo_2',
+				name: 'special_bonus_unique_meepo_3',
 				level: 1
 			},
 			{
@@ -6043,7 +5967,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_meepo_3',
+				name: 'special_bonus_unique_meepo_2',
 				level: 2
 			},
 			{
@@ -6202,7 +6126,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_strength_30',
+				name: 'special_bonus_strength_25',
 				level: 3
 			},
 			{
@@ -6248,8 +6172,8 @@ export const heroAbilities = {
 			'undying_decay',
 			'undying_soul_rip',
 			'undying_tombstone',
+			'undying_bite',
 			'undying_ceaseless_dirge',
-			'generic_hidden',
 			'undying_flesh_golem'
 		],
 		talents: [
@@ -6315,14 +6239,8 @@ export const heroAbilities = {
 			'rubick_telekinesis',
 			'rubick_fade_bolt',
 			'rubick_arcane_supremacy',
-			'rubick_empty1',
-			'rubick_empty2',
 			'rubick_spell_steal',
-			'rubick_telekinesis_land',
-			'rubick_hidden1',
-			'rubick_hidden2',
-			'rubick_curiosity',
-			'rubick_telekinesis_land_self'
+			'rubick_curiosity'
 		],
 		talents: [
 			{
@@ -6356,14 +6274,6 @@ export const heroAbilities = {
 			{
 				name: 'special_bonus_unique_rubick_5',
 				level: 4
-			},
-			{
-				name: 'rubick_hidden3',
-				level: 5
-			},
-			{
-				name: 'rubick_hidden4',
-				level: 5
 			}
 		],
 		facets: [
@@ -6475,9 +6385,8 @@ export const heroAbilities = {
 			'nyx_assassin_jolt',
 			'nyx_assassin_spiked_carapace',
 			'nyx_assassin_burrow',
-			'nyx_assassin_neuro_sting',
-			'nyx_assassin_vendetta',
-			'nyx_assassin_unburrow'
+			'nyx_assassin_scarab_metabolism',
+			'nyx_assassin_vendetta'
 		],
 		talents: [
 			{
@@ -6505,7 +6414,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_nyx',
+				name: 'special_bonus_unique_nyx_assassin_scarab_metabolism',
 				level: 4
 			},
 			{
@@ -6542,10 +6451,8 @@ export const heroAbilities = {
 			'naga_siren_mirror_image',
 			'naga_siren_ensnare',
 			'naga_siren_rip_tide',
-			'naga_siren_reel_in',
 			'naga_siren_eelskin',
-			'naga_siren_song_of_the_siren',
-			'naga_siren_song_of_the_siren_cancel'
+			'naga_siren_song_of_the_siren'
 		],
 		talents: [
 			{
@@ -6561,7 +6468,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_naga_siren_3',
+				name: 'special_bonus_unique_naga_siren_eelskin_evasion',
 				level: 2
 			},
 			{
@@ -6569,11 +6476,11 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_naga_siren',
+				name: 'special_bonus_unique_naga_siren_6',
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_naga_siren_6',
+				name: 'special_bonus_unique_naga_siren',
 				level: 4
 			},
 			{
@@ -6616,9 +6523,7 @@ export const heroAbilities = {
 			'keeper_of_the_light_radiant_bind',
 			'keeper_of_the_light_will_o_wisp',
 			'keeper_of_the_light_spirit_form',
-			'keeper_of_the_light_illuminate_end',
-			'keeper_of_the_light_bright_speed',
-			'generic_hidden'
+			'keeper_of_the_light_bright_speed'
 		],
 		talents: [
 			{
@@ -6688,7 +6593,6 @@ export const heroAbilities = {
 			'wisp_spirits_in',
 			'wisp_spirits_out',
 			'wisp_relocate',
-			'wisp_tether_break',
 			'wisp_equilibrium'
 		],
 		talents: [
@@ -6754,10 +6658,8 @@ export const heroAbilities = {
 			'visage_grave_chill',
 			'visage_soul_assumption',
 			'visage_gravekeepers_cloak',
-			'visage_stone_form_self_cast',
 			'visage_silent_as_the_grave',
-			'visage_summon_familiars',
-			'visage_summon_familiars_stone_form'
+			'visage_summon_familiars'
 		],
 		talents: [
 			{
@@ -6854,7 +6756,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_slark_5',
+				name: 'special_bonus_unique_slark_4',
 				level: 3
 			},
 			{
@@ -6866,7 +6768,7 @@ export const heroAbilities = {
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_slark_4',
+				name: 'special_bonus_unique_slark_5',
 				level: 4
 			}
 		],
@@ -6916,7 +6818,7 @@ export const heroAbilities = {
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_medusa_gorgons_grasp_radius',
+				name: 'special_bonus_unique_medusa_gorgons_grasp_duration',
 				level: 1
 			},
 			{
@@ -6924,7 +6826,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_medusa_gorgons_grasp_volleys',
+				name: 'special_bonus_unique_medusa_gorgons_grasp_radius',
 				level: 2
 			},
 			{
@@ -7066,7 +6968,6 @@ export const heroAbilities = {
 			'centaur_double_edge',
 			'centaur_return',
 			'centaur_work_horse',
-			'centaur_mount',
 			'centaur_stampede',
 			'centaur_horsepower'
 		],
@@ -7124,7 +7025,7 @@ export const heroAbilities = {
 				gradient_id: 3,
 				title: 'Horsepower',
 				description:
-					'Centaur Warrunner gains 30% of his strength as bonus movement speed.\n\n This Movement speed bonus does not stack with bonuses from boots.',
+					'Centaur Warrunner gains 40% of his strength as bonus movement speed.\n\n This Movement speed bonus does not stack with bonuses from boots.',
 				abilities: ['centaur_horsepower']
 			}
 		]
@@ -7231,12 +7132,9 @@ export const heroAbilities = {
 			'shredder_whirling_death',
 			'shredder_timber_chain',
 			'shredder_reactive_armor',
-			'generic_hidden',
 			'shredder_flamethrower',
 			'shredder_chakram',
-			'shredder_return_chakram',
-			'shredder_exposure_therapy',
-			'generic_hidden'
+			'shredder_exposure_therapy'
 		],
 		talents: [
 			{
@@ -7303,7 +7201,6 @@ export const heroAbilities = {
 			'bristleback_quill_spray',
 			'bristleback_bristleback',
 			'bristleback_hairball',
-			'generic_hidden',
 			'bristleback_warpath',
 			'bristleback_prickly'
 		],
@@ -7384,7 +7281,6 @@ export const heroAbilities = {
 			'tusk_drinking_buddies',
 			'tusk_walrus_kick',
 			'tusk_walrus_punch',
-			'tusk_launch_snowball',
 			'tusk_bitter_chill'
 		],
 		talents: [
@@ -7453,13 +7349,12 @@ export const heroAbilities = {
 			'skywrath_mage_arcane_bolt',
 			'skywrath_mage_concussive_shot',
 			'skywrath_mage_ancient_seal',
-			'generic_hidden',
 			'skywrath_mage_shield_of_the_scion',
 			'skywrath_mage_mystic_flare'
 		],
 		talents: [
 			{
-				name: 'special_bonus_mp_regen_150',
+				name: 'special_bonus_unique_skywrath_scion_shield_barrier',
 				level: 1
 			},
 			{
@@ -7523,7 +7418,6 @@ export const heroAbilities = {
 			'abaddon_aphotic_shield',
 			'abaddon_frostmourne',
 			'abaddon_withering_mist',
-			'generic_hidden',
 			'abaddon_borrowed_time'
 		],
 		talents: [
@@ -7536,11 +7430,11 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_abaddon_borrowed_time_cd',
+				name: 'special_bonus_unique_abaddon_6',
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_abaddon_2',
+				name: 'special_bonus_unique_abaddon_borrowed_time_cd',
 				level: 2
 			},
 			{
@@ -7548,7 +7442,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_abaddon_immolation',
+				name: 'special_bonus_unique_abaddon_4',
 				level: 3
 			},
 			{
@@ -7556,7 +7450,7 @@ export const heroAbilities = {
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_abaddon_4',
+				name: 'special_bonus_unique_abaddon_2',
 				level: 4
 			}
 		],
@@ -7600,26 +7494,24 @@ export const heroAbilities = {
 			'elder_titan_echo_stomp',
 			'elder_titan_ancestral_spirit',
 			'elder_titan_natural_order',
-			'elder_titan_move_spirit',
 			'elder_titan_momentum',
-			'elder_titan_earth_splitter',
-			'elder_titan_return_spirit'
+			'elder_titan_earth_splitter'
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_elder_titan_bonus_spirit_speed',
-				level: 1
-			},
-			{
-				name: 'special_bonus_unique_elder_titan_4',
+				name: 'special_bonus_cleave_40',
 				level: 1
 			},
 			{
 				name: 'special_bonus_unique_elder_titan_2',
+				level: 1
+			},
+			{
+				name: 'special_bonus_unique_elder_titan_bonus_spirit_speed',
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_elder_titan_momentum_attack_speed',
+				name: 'special_bonus_unique_elder_titan_4',
 				level: 2
 			},
 			{
@@ -7635,7 +7527,7 @@ export const heroAbilities = {
 				level: 4
 			},
 			{
-				name: 'special_bonus_cleave_100',
+				name: 'special_bonus_unique_elder_titan_momentum_attack_speed',
 				level: 4
 			}
 		],
@@ -7669,12 +7561,11 @@ export const heroAbilities = {
 			'legion_commander_press_the_attack',
 			'legion_commander_moment_of_courage',
 			'legion_commander_outfight_them',
-			'generic_hidden',
 			'legion_commander_duel'
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_legion_commander_9',
+				name: 'special_bonus_unique_legion_commander_overwhelming_odds_attack_speed',
 				level: 1
 			},
 			{
@@ -7698,7 +7589,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_legion_commander_7',
+				name: 'special_bonus_unique_legion_commander_moment_of_courage_crit',
 				level: 4
 			},
 			{
@@ -7829,7 +7720,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_earth_spirit',
+				name: 'special_bonus_unique_earth_spirit_5',
 				level: 3
 			},
 			{
@@ -7837,7 +7728,7 @@ export const heroAbilities = {
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_earth_spirit_5',
+				name: 'special_bonus_unique_earth_spirit',
 				level: 4
 			}
 		],
@@ -7958,12 +7849,8 @@ export const heroAbilities = {
 			'phoenix_icarus_dive',
 			'phoenix_fire_spirits',
 			'phoenix_sun_ray',
-			'phoenix_sun_ray_toggle_move',
 			'phoenix_dying_light',
-			'phoenix_supernova',
-			'phoenix_launch_fire_spirit',
-			'phoenix_icarus_dive_stop',
-			'phoenix_sun_ray_stop'
+			'phoenix_supernova'
 		],
 		talents: [
 			{
@@ -8009,7 +7896,7 @@ export const heroAbilities = {
 				gradient_id: 2,
 				title: 'Dying Light',
 				description:
-					'Phoenix deals 4% of its missing health as magic damage to all enemies in a 400 radius every second.',
+					'Phoenix deals 3.5% of its missing health as magic damage to all enemies in a 400 radius every second.',
 				abilities: ['phoenix_dying_light']
 			},
 			{
@@ -8031,7 +7918,6 @@ export const heroAbilities = {
 			'oracle_fates_edict',
 			'oracle_purifying_flames',
 			'oracle_rain_of_destiny',
-			'oracle_diviners_deck',
 			'oracle_false_promise',
 			'oracle_prognosticate'
 		],
@@ -8101,17 +7987,15 @@ export const heroAbilities = {
 			'techies_suicide',
 			'techies_mutually_assured_destruction',
 			'techies_minefield_sign',
-			'techies_land_mines',
-			'techies_reactive_tazer_stop',
-			'techies_focused_detonate'
+			'techies_land_mines'
 		],
 		talents: [
 			{
-				name: 'special_bonus_magic_resistance_20',
+				name: 'special_bonus_unique_techies_6',
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_techies_3',
+				name: 'special_bonus_mp_150',
 				level: 1
 			},
 			{
@@ -8182,7 +8066,6 @@ export const heroAbilities = {
 			'winter_wyvern_splinter_blast',
 			'winter_wyvern_cold_embrace',
 			'winter_wyvern_eldwurms_edda',
-			'generic_hidden',
 			'winter_wyvern_winters_curse'
 		],
 		talents: [
@@ -8191,7 +8074,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_attack_damage_35',
+				name: 'special_bonus_attack_damage_30',
 				level: 1
 			},
 			{
@@ -8272,7 +8155,6 @@ export const heroAbilities = {
 			'arc_warden_magnetic_field',
 			'arc_warden_spark_wraith',
 			'arc_warden_runic_infusion',
-			'generic_hidden',
 			'arc_warden_tempest_double'
 		],
 		talents: [
@@ -8293,19 +8175,19 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_arc_warden',
+				name: 'special_bonus_unique_arc_warden_7',
+				level: 3
+			},
+			{
+				name: 'special_bonus_all_stats_7',
 				level: 3
 			},
 			{
 				name: 'special_bonus_unique_arc_warden_9',
-				level: 3
-			},
-			{
-				name: 'special_bonus_unique_arc_warden_8',
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_arc_warden_7',
+				name: 'special_bonus_unique_arc_warden',
 				level: 4
 			}
 		],
@@ -8360,7 +8242,6 @@ export const heroAbilities = {
 			'abyssal_underlord_pit_of_malice',
 			'abyssal_underlord_atrophy_aura',
 			'abyssal_underlord_raid_boss',
-			'generic_hidden',
 			'abyssal_underlord_dark_portal'
 		],
 		talents: [
@@ -8425,12 +8306,9 @@ export const heroAbilities = {
 		abilities: [
 			'monkey_king_boundless_strike',
 			'monkey_king_tree_dance',
-			'monkey_king_primal_spring',
 			'monkey_king_jingu_mastery',
 			'monkey_king_mischief',
 			'monkey_king_wukongs_command',
-			'monkey_king_primal_spring_early',
-			'monkey_king_untransform',
 			'monkey_king_transfiguration'
 		],
 		talents: [
@@ -8508,11 +8386,8 @@ export const heroAbilities = {
 			'pangolier_swashbuckle',
 			'pangolier_shield_crash',
 			'pangolier_lucky_shot',
-			'generic_hidden',
 			'pangolier_rollup',
 			'pangolier_gyroshell',
-			'pangolier_gyroshell_stop',
-			'pangolier_rollup_stop',
 			'pangolier_fortune_favors_the_bold'
 		],
 		talents: [
@@ -8668,7 +8543,6 @@ export const heroAbilities = {
 			'grimstroke_ink_creature',
 			'grimstroke_spirit_walk',
 			'grimstroke_dark_portrait',
-			'generic_hidden',
 			'grimstroke_soul_chain',
 			'grimstroke_ink_trail'
 		],
@@ -8736,12 +8610,11 @@ export const heroAbilities = {
 			'mars_gods_rebuke',
 			'mars_bulwark',
 			'mars_dauntless',
-			'generic_hidden',
 			'mars_arena_of_blood'
 		],
 		talents: [
 			{
-				name: 'special_bonus_unique_mars_rebuke_radius',
+				name: 'special_bonus_unique_mars_bulwark_damage_reduction',
 				level: 1
 			},
 			{
@@ -8803,7 +8676,6 @@ export const heroAbilities = {
 			'void_spirit_dissimilate',
 			'void_spirit_resonant_pulse',
 			'void_spirit_intrinsic_edge',
-			'generic_hidden',
 			'void_spirit_astral_step'
 		],
 		talents: [
@@ -8901,7 +8773,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_snapfire_3',
+				name: 'special_bonus_cast_range_125',
 				level: 2
 			},
 			{
@@ -8909,7 +8781,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_snapfire_firesnap_cookie_additional_charge',
+				name: 'special_bonus_unique_snapfire_scatterblast_knockback',
 				level: 3
 			},
 			{
@@ -8954,7 +8826,6 @@ export const heroAbilities = {
 			'hoodwink_decoy',
 			'hoodwink_hunters_boomerang',
 			'hoodwink_sharpshooter',
-			'hoodwink_sharpshooter_release',
 			'hoodwink_mistwoods_wayfarer'
 		],
 		talents: [
@@ -8963,7 +8834,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_hp_175',
+				name: 'special_bonus_hp_200',
 				level: 1
 			},
 			{
@@ -8971,7 +8842,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_agility_10',
+				name: 'special_bonus_agility_15',
 				level: 2
 			},
 			{
@@ -9030,10 +8901,8 @@ export const heroAbilities = {
 			'dawnbreaker_fire_wreath',
 			'dawnbreaker_celestial_hammer',
 			'dawnbreaker_luminosity',
-			'dawnbreaker_converge',
 			'dawnbreaker_break_of_dawn',
-			'dawnbreaker_solar_guardian',
-			'dawnbreaker_land'
+			'dawnbreaker_solar_guardian'
 		],
 		talents: [
 			{
@@ -9120,7 +8989,6 @@ export const heroAbilities = {
 			'marci_companion_run',
 			'marci_bodyguard',
 			'marci_special_delivery',
-			'generic_hidden',
 			'marci_unleash'
 		],
 		talents: [
@@ -9221,13 +9089,12 @@ export const heroAbilities = {
 			'primal_beast_trample',
 			'primal_beast_uproar',
 			'primal_beast_rock_throw',
-			'primal_beast_onslaught_release',
 			'primal_beast_pulverize',
 			'primal_beast_colossal'
 		],
 		talents: [
 			{
-				name: 'special_bonus_attack_damage_30',
+				name: 'special_bonus_attack_damage_25',
 				level: 1
 			},
 			{
@@ -9300,11 +9167,8 @@ export const heroAbilities = {
 			'muerta_the_calling',
 			'muerta_gunslinger',
 			'muerta_spectral_slug',
-			'generic_hidden',
 			'muerta_pierce_the_veil',
-			'muerta_supernatural',
-			'generic_hidden',
-			'generic_hidden'
+			'muerta_supernatural'
 		],
 		talents: [
 			{
@@ -9316,7 +9180,7 @@ export const heroAbilities = {
 				level: 1
 			},
 			{
-				name: 'special_bonus_unique_muerta_calling_hp_regen',
+				name: 'special_bonus_unique_muerta_the_calling_num_revenants',
 				level: 2
 			},
 			{
@@ -9328,7 +9192,7 @@ export const heroAbilities = {
 				level: 3
 			},
 			{
-				name: 'special_bonus_unique_muerta_the_calling_num_revenants',
+				name: 'special_bonus_unique_muerta_the_calling_slow',
 				level: 3
 			},
 			{
@@ -9381,10 +9245,13 @@ export const heroAbilities = {
 			'ringmaster_tame_the_beasts',
 			'ringmaster_the_box',
 			'ringmaster_impalement',
-			'ringmaster_empty_souvenir',
 			'ringmaster_spotlight',
 			'ringmaster_wheel',
-			'ringmaster_tame_the_beasts_crack'
+			'ringmaster_dark_carnival_souvenirs',
+			'ringmaster_funhouse_mirror',
+			'ringmaster_strongman_tonic',
+			'ringmaster_whoopee_cushion',
+			'ringmaster_summon_unicycle'
 		],
 		talents: [
 			{
@@ -9418,26 +9285,6 @@ export const heroAbilities = {
 			{
 				name: 'special_bonus_unique_ringmaster_the_box_strong_dispel_and_flying',
 				level: 4
-			},
-			{
-				name: 'ringmaster_dark_carnival_souvenirs',
-				level: 5
-			},
-			{
-				name: 'ringmaster_funhouse_mirror',
-				level: 5
-			},
-			{
-				name: 'ringmaster_strongman_tonic',
-				level: 6
-			},
-			{
-				name: 'ringmaster_whoopee_cushion',
-				level: 6
-			},
-			{
-				name: 'ringmaster_summon_unicycle',
-				level: 7
 			}
 		],
 		facets: [
@@ -9491,17 +9338,15 @@ export const heroAbilities = {
 			'kez_grappling_claw',
 			'kez_kazurai_katana',
 			'kez_switch_weapons',
-			'generic_hidden',
 			'kez_raptor_dance',
 			'kez_falcon_rush',
 			'kez_talon_toss',
 			'kez_shodo_sai',
-			'kez_ravens_veil',
-			'kez_shodo_sai_parry_cancel'
+			'kez_ravens_veil'
 		],
 		talents: [
 			{
-				name: 'special_bonus_magic_resistance_12',
+				name: 'special_bonus_unique_kez_switch_weapons_swap_bonus',
 				level: 1
 			},
 			{
@@ -9563,16 +9408,10 @@ export const heroAbilities = {
 			'largo_frogstomp',
 			'largo_croak_of_genius',
 			'largo_encore',
-			'generic_hidden',
 			'largo_amphibian_rhapsody',
-			'generic_hidden',
 			'largo_song_fight_song',
 			'largo_song_double_time',
-			'largo_song_good_vibrations',
-			'generic_hidden',
-			'generic_hidden',
-			'generic_hidden',
-			'generic_hidden'
+			'largo_song_good_vibrations'
 		],
 		talents: [
 			{
@@ -9592,7 +9431,7 @@ export const heroAbilities = {
 				level: 2
 			},
 			{
-				name: 'special_bonus_unique_largo_5',
+				name: 'special_bonus_unique_largo_8',
 				level: 3
 			},
 			{
@@ -9604,7 +9443,7 @@ export const heroAbilities = {
 				level: 4
 			},
 			{
-				name: 'special_bonus_unique_largo_8',
+				name: 'special_bonus_unique_largo_5',
 				level: 4
 			}
 		],
@@ -9623,4 +9462,3 @@ export const heroAbilities = {
 		]
 	}
 };
-

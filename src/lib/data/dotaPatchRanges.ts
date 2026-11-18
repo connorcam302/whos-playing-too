@@ -90,7 +90,8 @@ export const DOTA_MAJOR_PATCHES: DotaMajorPatch[] = [
 	{ version: '7.38', label: 'Patch 7.38', startDate: '2025-02-19' },
 	{ version: '7.39', label: 'Patch 7.39', startDate: '2025-05-21' },
 	{ version: '7.40', label: 'Patch 7.40', startDate: '2025-12-15' },
-	{ version: '7.41', label: 'Patch 7.41', startDate: '2026-03-24' }
+	{ version: '7.41', label: 'Patch 7.41', startDate: '2026-03-24' },
+	{ version: '7.42', label: 'Patch 7.42', startDate: '2026-11-18' }
 ];
 
 export const getPatchStartTimestamp = (patch: DotaMajorPatch) => {

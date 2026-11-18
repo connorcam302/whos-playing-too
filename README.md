@@ -25,6 +25,10 @@ To run this project locally, follow these steps:
 5. Run the development server using `npm run dev` or `yarn dev`.
 6. Access the website locally at `http://localhost:5173`.
 
+## Dota patch updates
+
+Run `bun run build-items` and `bun run build-heroes` to refresh checked-in reference data and synchronize hero/item rows in the configured database. Follow the [patch refresh workflow](docs/dota-patch-updates.md) for source limitations, patch date ranges and verification.
+
 ## Links
 
 - **Data Scraper**: [whos-playing-scraper](https://github.com/connorcam302/whos-playing-scraper/)
