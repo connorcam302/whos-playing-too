@@ -318,7 +318,7 @@
 			},
 			{
 				key: 'impact',
-				label: 'Average beta impact',
+				label: 'Average impact',
 				weight: `${formatNumber(impactWeightPercent, 1)}% · ${formatNumber(impactMaxPoints)} max points`,
 				description: `${historicalPerformancePercent}% time-weighted history plus ${recentPerformancePercent}% from the latest 20 games, then adjusted against the Core or Support baseline.`,
 				selectedValue: `${formatNumber(selectedPlayer.scoreAvgImpact)} raw · ${formatNumber(selectedBreakdown.adjustedMetrics.normalizedImpact)} rated`,
@@ -647,7 +647,7 @@
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">W/L</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Scoring WR</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Recent</Table.Head>
-							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Beta Impact</Table.Head>
+							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Impact</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">KDA</Table.Head>
 						</Table.Row>
 					</Table.Header>

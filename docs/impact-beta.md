@@ -3,11 +3,8 @@
 Enable **Show beta impact** in Settings to replace individual match rating chips
 with beta grades. Hover, focus or tap the β tag to compare original and beta
 scores. The main chip explains the beta contributions and data coverage. The
-preference defaults to off and persists in this browser. Original stored scores
-are unchanged. Hero and monthly role scores always use beta impact as their
-impact input, independent of this preference; see [hero score rules](features/rankings.md#hero-score-rules).
-Other filters, averages, awards, charts and the experimental hero MMR retain their
-existing original-impact behavior.
+preference defaults to off and persists in this browser. Original stored scores,
+rankings, filters, averages, awards and charts are unchanged.
 
 ## Changes
 
@@ -96,8 +93,8 @@ Damage fields cover 5,237 of 5,239 eligible performances; full-team kills cover
 behavioral tests but no historical calibration evidence yet. Full match details
 can contain richer data than an older match record and therefore yield a
 different beta score; the breakdown explicitly lists missing metrics. Vision quality and saves remain unscored because those inputs are
-not consistently available. Individual match beta chips remain opt-in while reviewed on actual matches.
-Hero scoring uses beta independently of that display preference.
+not consistently available. This beta should remain opt-in while reviewed on
+actual matches.
 
 Run `bun test src/lib/impact-beta.test.ts` for behavior regressions.
 

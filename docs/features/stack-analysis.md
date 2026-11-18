@@ -4,7 +4,7 @@
 
 Users choose up to five tracked players and draft roles/heroes. The client derives picks, recommendations and an estimate from server-loaded historical rows. Duplicate selected heroes are detected in the page. This is analysis of the tracked group's history; it does not fetch an opponent's draft or the full global Dota population.
 
-The server loads games longer than 900 seconds and excludes aggregate-hidden players. It attaches person/hero/position scores from the hero-score engine, including uncalibrated rankings. Historical evidence rows can include smurf appearances; assigned hero scores themselves use the [shared hero-score eligibility rules](rankings.md#hero-score-rules): ranked and unranked games and linked smurf account appearances all count when their required beta inputs are available. Role scores use per-match beta impact. Data is cached in process for five minutes, with in-flight requests shared.
+The server loads games longer than 900 seconds and excludes aggregate-hidden players. It attaches person/hero/position scores from the hero-score engine, including uncalibrated rankings. Historical evidence rows can include smurf appearances; assigned hero scores themselves use the [shared hero-score eligibility rules](rankings.md#hero-score-rules): ranked and unranked games and linked smurf account appearances all count. Data is cached in process for five minutes, with in-flight requests shared.
 
 Sources: `src/routes/stack-analysis/+page.server.ts`, `+page.svelte`, `src/lib/server/stack-analysis.ts`, `src/lib/stack-analysis.ts`.
 

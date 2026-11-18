@@ -16,7 +16,6 @@ Install with `bun install --frozen-lockfile`. Copy `.env.sample` to `.env` when 
 | `bun run build`                                | Production bundle                                |
 | `bun run lint`                                 | Repository-wide Prettier and ESLint checks       |
 | `bun test tests/match-query.test.ts`           | Query validation, joins and SQL generation       |
-| `bun test src/lib/server/heroStats.test.ts`    | Hero rankings and score-history behavior         |
 | `bun test src/lib/record-calculations.test.ts` | Pure record calculations                         |
 | `bun test src/lib/impact-beta.test.ts`         | Beta scoring behavior                            |
 

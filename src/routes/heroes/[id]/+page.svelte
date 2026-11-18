@@ -404,7 +404,7 @@
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">WR</Table.Head>
 							<Table.Head class="h-9 px-2 text-center text-[11px] uppercase tracking-wide text-zinc-400">Group</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">KDA</Table.Head>
-							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Beta Impact</Table.Head>
+							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Impact</Table.Head>
 							<Table.Head class="h-9 px-2 text-right text-[11px] uppercase tracking-wide text-zinc-400">Last Played</Table.Head>
 						</Table.Row>
 					</Table.Header>
@@ -449,7 +449,7 @@
 								</Table.Cell>
 								<Table.Cell class="px-2 py-2">
 									<div class="flex justify-end">
-										<RatingChip aggregate betaAggregate
+										<RatingChip aggregate
 											data={makeRatingChipData({
 												impact: Math.round(player.avgImpact),
 												role: player.primaryRole,

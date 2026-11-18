@@ -4,18 +4,17 @@
 
 `/heroes` loads hero summaries and tracked performance rows for games longer than 900 seconds, excluding aggregate-hidden people. It builds core/support rankings per hero, flattens them to identify top players, and shows ownership changes. Hero totals and score rankings include linked main and smurf account appearances. Heroes sort by best score, then match volume and name.
 
-`/heroes/[id]` validates the database hero and loads its eligible history, summary, recent ten-row form, player rankings, core/support rankings, five-position breakdown, five-minute duration bands and performance records. Missing heroes return 404. General hero summaries and records still use stored original impact; ranking impact averages use beta and are labelled accordingly. Its “most played” player is selected from calibrated player rankings, not an unrestricted count of every appearance. Hero summary samples and score-eligible samples need not match.
+`/heroes/[id]` validates the database hero and loads its eligible history, summary, recent ten-row form, player rankings, core/support rankings, five-position breakdown, five-minute duration bands and performance records. Missing heroes return 404. Its “most played” player is selected from calibrated player rankings, not an unrestricted count of every appearance. Hero summary samples and score-eligible samples need not match.
 
 Sources: `src/routes/heroes/+page.server.ts`, `src/routes/heroes/[id]/+page.server.ts`, their Svelte pages, `OwnershipChanges.svelte`, `OwnershipInfographics.svelte`, `src/lib/components/heroes/HeroScoreComparisonDialog.svelte`.
 
 ## Hero score rules
 
-`src/lib/server/heroStats.ts` aggregates eligible history; `src/lib/heroScores.ts` owns the configuration and score breakdown. A hero score measures performance in tracked history, not official Dota MMR. The impact input is beta 3.3, recalculated from stored per-match stats by `src/lib/heroScoreImpact.ts` and `src/lib/impact-beta.ts`. This is independent of the browser setting for beta match chips; stored original impact is not rewritten. Rankings, ownership, monthly roles, digest hero-score snapshots, stack role scores, score history badges and diagnostics all use this input.
+`src/lib/server/heroStats.ts` aggregates eligible history; `src/lib/heroScores.ts` owns the configuration and score breakdown. A hero score measures performance in tracked history, not official Dota MMR. Stored original impact is an input; enabling beta chips does not change it.
 
-- Beta inputs include the actual hero ID (for farming exceptions), position, duration, K/D/A, last hits, hero damage and tower damage. Missing optional damage fields retain beta's missing-data behavior; stored healing is unavailable. Games with invalid required beta inputs are omitted from scoring and calibration, including core games without last hits. Supports do not require last hits.
 - Ranked and unranked games both count. Linked main and smurf account appearances are combined per player; having a smurf on the same team does not exclude a game.
 - Default published rankings require at least **10 actual matches**. Callers can explicitly include uncalibrated players, for example calibration displays and monthly roles.
-- The win-rate, form, KDA and volume formulas and fixed group priors are unchanged. Core groups positions 1–3; support groups positions 4–5. Shared helpers produce a ranking for each group.
+- Core groups positions 1–3; support groups positions 4–5. Shared helpers produce a ranking for each group.
 - Historic metric evidence uses recency weights with a four-year half-life. Historical and recent performance blend 70/30; the recent performance window is twenty matches. Recent result form is tracked separately.
 - Current component weights: win rate 30%, recent form 10%, impact 25%, KDA 15%, volume 20%. Recent form regresses halfway toward 50%.
 - Performance sample weight is `min(1, log(matches + 1) / log(25))`; volume scales logarithmically to full volume at 500 matches.
@@ -54,4 +53,4 @@ Sources: `src/lib/server/heroMmr.ts`, `src/routes/heroes/mmr/+page.server.ts`, `
 
 ## Diagnostics
 
-`/heroes/diagnostics`, `src/lib/heroScoreEvaluation.ts` and the comparison dialog expose score evaluation/configuration comparisons. The diagnostics loader uses aggregate-visible players and duration greater than 900 seconds, recalculates beta impact with the same shared helper as the rankings, and streams a report promise with generation timing. Ranked and unranked games and linked smurf accounts are included. Changes to scoring should keep explanations, diagnostics, profile ownership, role boards, digest snapshots and match history aligned. See [Development](../development.md) for checks; verify formula changes with meaningful numerical regressions rather than relying only on page rendering.
+`/heroes/diagnostics`, `src/lib/heroScoreEvaluation.ts` and the comparison dialog expose score evaluation/configuration comparisons. The diagnostics loader uses aggregate-visible players and duration greater than 900 seconds, and streams a report promise with generation timing. Ranked and unranked games and linked smurf accounts are included. Changes to scoring should keep explanations, diagnostics, profile ownership, role boards, digest snapshots and match history aligned. See [Development](../development.md) for checks; verify formula changes with meaningful numerical regressions rather than relying only on page rendering.

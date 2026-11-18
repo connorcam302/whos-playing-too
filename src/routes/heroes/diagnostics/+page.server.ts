@@ -1,6 +1,5 @@
-import { withBetaHeroImpact } from '$lib/heroScoreImpact';
 import { and, desc, eq, gt, inArray, not, sql } from 'drizzle-orm';
-import { evaluateHeroScores } from '$lib/heroScoreEvaluation';
+import { evaluateHeroScores, type HeroScoreEvaluationRow } from '$lib/heroScoreEvaluation';
 import { db } from '$lib/server/database';
 import { accounts, heroes, matchData, matches, players } from '$lib/server/schema';
 import { hiddenFromAggregatePlayerIds } from '$lib/server/visibility-config';
@@ -12,7 +11,7 @@ const visiblePlayerFilter = () =>
 
 const generateReport = async () => {
 	const startedAt = performance.now();
-	const rows = await db
+	const rows: HeroScoreEvaluationRow[] = await db
 		.select({
 			heroId: matchData.heroId,
 			heroName: heroes.name,
@@ -26,11 +25,7 @@ const generateReport = async () => {
 			kills: matchData.kills,
 			deaths: matchData.deaths,
 			assists: matchData.assists,
-			impact: matchData.impact,
-			duration: matches.duration,
-			lastHits: matchData.lastHits,
-			heroDamage: matchData.heroDamage,
-			towerDamage: matchData.towerDamage
+			impact: matchData.impact
 		})
 		.from(matchData)
 		.innerJoin(accounts, eq(accounts.accountId, matchData.playerId))
@@ -39,7 +34,7 @@ const generateReport = async () => {
 		.innerJoin(heroes, eq(heroes.id, matchData.heroId))
 		.where(and(gt(matches.duration, 900), visiblePlayerFilter()))
 		.orderBy(desc(matches.startTime));
-	const report = evaluateHeroScores(withBetaHeroImpact(rows));
+	const report = evaluateHeroScores(rows);
 
 	return {
 		...report,

@@ -101,7 +101,6 @@ export const load = async ({ params }) => {
 			playerId: players.id,
 			username: players.username,
 			smurf: accounts.smurf,
-			heroId: matchData.heroId,
 			matchId: matches.id,
 			sequenceNumber: matches.sequenceNumber,
 			startTime: matches.startTime,

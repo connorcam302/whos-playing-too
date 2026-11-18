@@ -1,4 +1,3 @@
-import { withBetaHeroImpact } from '$lib/heroScoreImpact';
 import {
 	HERO_SCORE_IMPACT_MATCH_CAP,
 	HERO_SCORE_RECENT_PERFORMANCE_MATCHES,
@@ -19,7 +18,6 @@ import {
 } from '$lib/heroScores';
 
 export type HeroStatsRow = {
-	heroId: number;
 	playerId: number;
 	username: string;
 	smurf: boolean;
@@ -76,10 +74,6 @@ export type HeroPlayerRanking = {
 };
 
 export type HeroScoreHistoryRow = {
-	duration: number;
-	lastHits: number | null;
-	heroDamage: number | null;
-	towerDamage: number | null;
 	heroId: number;
 	role: number;
 	matchId: number;
@@ -183,7 +177,7 @@ export const getPlayerHeroScoreHistory = (rows: HeroScoreHistoryRow[]) => {
 	const history = new Map<number, HeroScoreHistoryEntry>();
 	const rowsByHeroGroup = new Map<string, HeroScoreHistoryRow[]>();
 
-	for (const row of withBetaHeroImpact(rows)) {
+	for (const row of rows) {
 		const key = `${row.heroId}:${getHeroScoreGroup(row.role)}`;
 		const heroRows = rowsByHeroGroup.get(key) ?? [];
 		heroRows.push(row);
@@ -415,9 +409,8 @@ export const getHeroPlayerRankings = (
 	includeUncalibrated = false,
 	scoreGroup: HeroScoreGroup | null = null
 ): HeroPlayerRanking[] => {
-	const eligibleRows = withBetaHeroImpact(
-		scoreGroup === null ? rows : rows.filter((row) => getHeroScoreGroup(row.role) === scoreGroup)
-	);
+	const eligibleRows =
+		scoreGroup === null ? rows : rows.filter((row) => getHeroScoreGroup(row.role) === scoreGroup);
 	const buckets = new Map<number, PlayerBucket>();
 	const referenceTime = eligibleRows.reduce(
 		(latest, row) => Math.max(latest, row.startTime),
